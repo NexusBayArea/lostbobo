@@ -39,9 +39,10 @@ function HomePage() {
 
 function App() {
   console.log('SimHPC: App component rendering...');
+  const basename = window.location.pathname.startsWith('/lostbobo') ? '/lostbobo' : '';
   return (
     <ThemeProvider>
-      <BrowserRouter basename="/lostbobo">
+      <BrowserRouter basename={basename}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/signup" element={<SignUp />} />

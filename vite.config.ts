@@ -6,8 +6,8 @@ import { defineConfig } from "vite"
 // https://vite.dev/config/
 export default defineConfig({
   // Use '/' for root domain deployments (Vercel/Netlify)
-  // Use './' only for subdirectory deployments
-  base: '/lostbobo/',
+  // Use './' for relative paths (works on both subpaths and custom domains)
+  base: './',
   plugins: [react()],
   resolve: {
     alias: {
