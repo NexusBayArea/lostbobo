@@ -41,7 +41,7 @@ function App() {
   console.log('SimHPC: App component rendering...');
   return (
     <ThemeProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/lostbobo">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/signup" element={<SignUp />} />
