@@ -718,8 +718,9 @@ export default function ExperimentNotebook() {
           </p>
         </div>
       </div>
+    </div>
 
-      {/* Detail panel */}
+    {/* Detail panel */}
       {selected && (
         <DetailPanel
           exp={selected}
