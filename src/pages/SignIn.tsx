@@ -1,40 +1,46 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { SimHPCLogo } from '@/components/SimHPCLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { AnimatedMesh } from '@/components/AnimatedMesh';
-import { supabase } from '@/lib/supabase';
+import { supabase, signInWithGoogle } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [method, setMethod] = useState<'password' | 'otp'>('password');
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log('SignIn: Starting magic link process for:', email);
-    
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-        },
-      });
 
-      if (error) {
-        console.error('SignIn: Supabase error:', error);
-        toast.error(error.message);
+    try {
+      if (method === 'password') {
+        console.log('SignIn: Starting password login for:', email);
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        toast.success('Logged in successfully!');
       } else {
-        console.log('SignIn: Magic link sent successfully');
+        console.log('SignIn: Starting magic link process for:', email);
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/dashboard`,
+          },
+        });
+        if (error) throw error;
         toast.success('Check your email for the login link!');
       }
     } catch (err: any) {
-      console.error('SignIn: Unexpected error:', err);
-      toast.error(err.message || 'An unexpected error occurred');
+      console.error('SignIn error:', err);
+      toast.error(err.message || 'Authentication failed');
     } finally {
       setIsLoading(false);
     }
@@ -42,16 +48,7 @@ export function SignIn() {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-    if (error) {
-      toast.error(error.message);
-      setIsLoading(false);
-    }
+    await signInWithGoogle();
   };
 
   return (
@@ -129,15 +126,41 @@ export function SignIn() {
               </div>
             </div>
 
+            {/* Method Toggle */}
+            <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-xl mb-6">
+              <button
+                onClick={() => setMethod('password')}
+                className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${
+                  method === 'password'
+                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                }`}
+              >
+                Password
+              </button>
+              <button
+                onClick={() => setMethod('otp')}
+                className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${
+                  method === 'otp'
+                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                }`}
+              >
+                Magic Link
+              </button>
+            </div>
+
             {/* Email Form */}
             <form onSubmit={handleEmailSignIn} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Email Address
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <input
+                    id="email"
+                    name="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -148,6 +171,27 @@ export function SignIn() {
                 </div>
               </div>
 
+              {method === 'password' && (
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="••••••••"
+                      required={method === 'password'}
+                    />
+                  </div>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={isLoading}
@@ -157,7 +201,7 @@ export function SignIn() {
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
                   <>
-                    Send Magic Link
+                    {method === 'password' ? 'Sign In' : 'Send Magic Link'}
                     <ArrowRight className="w-5 h-5" />
                   </>
                 )}
