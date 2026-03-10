@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.1] - 2026-03-09
+
+### Added
+- **Tier-Aware API**: Backend now queries Supabase `profiles` table directly to enforce plan limits (`free` vs `professional`).
+- **Supabase Persistence**: Simulation results and summaries are now inserted into the `simulations` table using the Service Role Key.
+- **Frontend Mutation Hooks**: Implemented `useMutation` for launching simulations with automated toast notifications and error handling.
+- **Payment Success UX**: Added animated success page with confetti and 5-second redirect after Stripe checkout.
+
+### Fixed
+- **Theming**: Updated global day background color to `#F1EDE0` for better visual consistency across all pages.
+
+---
+
+## [1.3.0] - 2026-03-09
+
+### Added
+- **Google One Tap Sign-In**: Integrated Google Identity Services (`g_id_onload`, `g_id_signin`) for frictionless authentication.
+- **GitHub Pages Deployment**: Migrated frontend hosting to GitHub Pages (https://github.com/NexusBayArea/SimHPC).
+
+---
+
 ## [1.2.0] - 2026-03-08
 
 ### Added

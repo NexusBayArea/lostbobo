@@ -58,7 +58,7 @@ SimHPC/
 ## Features Implemented
 
 ### 1. Theme System
-- **Day Mode:** Off-white background (#fdfbf6) with slate text
+- **Day Mode:** Off-white background (#F1EDE0) with slate text
 - **Night Mode:** Dark slate background (#080E1C) with light text
 - **Persistent:** Theme preference saved to localStorage
 
@@ -487,7 +487,7 @@ SimHPC/
   - Streamlined container startup by running `uvicorn` directly, removing redundant CORS middleware layers.
 
 ### March 2, 2026
-- **Visual Design:** Updated day mode background to premium off-white (#fdfbf6).
+- **Visual Design:** Updated day mode background to premium off-white (#F1EDE0).
 - **Navigation:** Decoupled Pricing from landing page into a dedicated high-conversion page.
 - **Billing Integration:** Integrated Stripe/Clover checkout sessions with tiered compute plans.
 - **Responsive UX:** Implemented mobile-first sidebar drawer and header for the Dashboard.
@@ -806,9 +806,36 @@ Launched a persistent research workspace for automated experiment tracking and k
 6.  **Timeline Tracking:** Visual history of experiments grouped by research phase, facilitating long-term study continuity.
 7.  **Dashboard Integration:** Dedicated sidebar navigation with "New Feature" badge and responsive collapse states.
 
+### March 9, 2026 - Alpha Control Room Launch
+- **"Alpha Control Room" Dashboard:**
+    - Implemented a high-fidelity HPC/Trading-style control room at `/dashboard/alpha`.
+    - Integrated **Live System Feed** streaming weather (Open-Meteo) and mock grid data in real-time.
+    - Added **Simulation Insight Feed**: AI-driven real-time observations and suggestions based on telemetry.
+    - Added **Active Simulations** monitor with status tracking (Running, Completed, Idle).
+    - Integrated **Notebook / Analysis** quick-launch for Jupyter-driven research.
+- **Backend Orchestration (api.py):**
+    - Added dedicated `/api/v1/alpha/` endpoint group for signals, insights, simulation history, and triggers.
+    - Integrated **Supabase Client** (v2.3) for persistent simulation run logging.
+    - Implemented **Open-Meteo API** integration for live environmental signals.
+- **Documentation & Deployment:**
+    - Updated `ARCHITECTURE.md` and `ROADMAP.md` to reflect the Alpha Control Room and Insight Feed.
+    - Registered `/dashboard/alpha` route in the frontend application.
+
 ### March 9, 2026 - GitHub Deployment
 - **Repository Created:** https://github.com/NexusBayArea/SimHPC (Public)
 - **Initial Push:** Successfully deployed main branch to GitHub
 - **Git Config:** Updated global credentials for NexusBayArea
 - **Documentation:** Created ARCHITECTURE.md, CHANGELOG.md, ROADMAP.md
 - **Cleanup:** Removed Vercel configurations, updated all references to GitHub Pages
+
+### March 9, 2026 - Tier-Aware API & Supabase Sync
+- **Supabase-Driven Tier Enforcement:** Implemented `verify_user_tier` to query the `profiles` table using the Supabase Service Role Key for real-time plan verification.
+- **Simulation History Persistence:** Developed `save_result_to_supabase` to insert simulation results and summaries into the `simulation_history` or `simulations` tables.
+- **Frontend Mutation Logic:** Integrated `useMutation` in the simulation dashboard for launching jobs with automated toast-based feedback.
+- **Stripe Success UX:** Added a `PaymentSuccess` component with `react-confetti` and automated redirect to ensure a smooth post-purchase experience.
+
+### March 9, 2026 - Google One Tap Integration
+- **Implemented Google One Tap (GIS):** Added `g_id_onload` and `g_id_signin` components for frictionless authentication.
+- **JWT Handling:** Configured `handleCredentialResponse` callback to process and verify Google-issued JWT ID tokens.
+- **UX Configuration:** Enabled popup mode (`data-ux_mode="popup"`) and automatic prompting (`data-auto_prompt="false"` for controlled triggering).
+- **Library Integration:** Added async loading of `https://accounts.google.com/gsi/client`.
