@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 // ─── Inline ThemeToggle ───────────────────────────────────────────────────────
 function ThemeToggle({ variant = "default" }: { variant?: string }) {
