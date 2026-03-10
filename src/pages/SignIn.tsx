@@ -7,13 +7,14 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { AnimatedMesh } from '@/components/AnimatedMesh';
 import { supabase, signInWithGoogle } from '@/lib/supabase';
 import { toast } from 'sonner';
+
 export function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [method, setMethod] = useState<'password' | 'otp'>('password');
 
-  // Debug: Monitor all clicks on the page
+  // Debug: Monitor all clicks on the page to identify blockers
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
       console.log('SignIn: Clicked element:', e.target);
@@ -26,7 +27,8 @@ export function SignIn() {
     e.preventDefault();
     console.log('SignIn: handleEmailSignIn triggered. Method:', method);
     setIsLoading(true);
-...
+
+    try {
       if (method === 'password') {
         console.log('SignIn: Attempting password auth for', email);
         const { error, data } = await supabase.auth.signInWithPassword({
@@ -37,7 +39,6 @@ export function SignIn() {
         console.log('SignIn: Auth success', data);
         toast.success('Logged in successfully!');
       } else {
-...
         console.log('SignIn: Starting magic link process for:', email);
         const { error } = await supabase.auth.signInWithOtp({
           email,
@@ -57,19 +58,20 @@ export function SignIn() {
   };
 
   const handleGoogleSignIn = async () => {
+    console.log('SignIn: handleGoogleSignIn triggered');
     setIsLoading(true);
     await signInWithGoogle();
   };
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 relative overflow-hidden flex flex-col">
-      {/* Background */}
+      {/* Background - explicitly disable pointer events to prevent blocking clicks */}
       <div className="absolute inset-0 opacity-30 pointer-events-none select-none z-0">
         <AnimatedMesh />
       </div>
 
       {/* Header */}
-      <header className="relative z-10 px-4 sm:px-6 lg:px-8 py-4">
+      <header className="relative z-50 px-4 sm:px-6 lg:px-8 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link to="/">
             <SimHPCLogo size="md" />
@@ -78,7 +80,7 @@ export function SignIn() {
         </div>
       </header>
 
-      {/* Content */}
+      {/* Content - High z-index to stay above background */}
       <div className="relative z-20 flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -139,6 +141,7 @@ export function SignIn() {
             {/* Method Toggle */}
             <div className="flex p-1 bg-slate-100 dark:bg-slate-900 rounded-xl mb-6">
               <button
+                type="button"
                 onClick={() => setMethod('password')}
                 className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${
                   method === 'password'
@@ -149,6 +152,7 @@ export function SignIn() {
                 Password
               </button>
               <button
+                type="button"
                 onClick={() => setMethod('otp')}
                 className={`flex-1 py-2 text-xs font-medium rounded-lg transition-all ${
                   method === 'otp'
