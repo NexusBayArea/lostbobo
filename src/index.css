@@ -1,14 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 43 67% 98%;
+    --background: 45 31% 91%;
     --foreground: 222 47% 11%;
-    --card: 43 67% 98%;
+    --card: 45 31% 91%;
     --card-foreground: 222 47% 11%;
-    --popover: 43 67% 98%;
+    --popover: 45 31% 91%;
     --popover-foreground: 222 47% 11%;
     --primary: 222 47% 11%;
     --primary-foreground: 210 40% 98%;
@@ -25,7 +26,7 @@
     --ring: 222 47% 11%;
     --radius: 0.75rem;
     /* Sidebar variables */
-    --sidebar-background: 40 33% 94%;
+    --sidebar-background: 45 31% 91%;
     --sidebar-foreground: 222 47% 11%;
     --sidebar-primary: 222 47% 11%;
     --sidebar-primary-foreground: 210 40% 98%;
