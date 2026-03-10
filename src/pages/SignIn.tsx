@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
@@ -7,27 +7,37 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { AnimatedMesh } from '@/components/AnimatedMesh';
 import { supabase, signInWithGoogle } from '@/lib/supabase';
 import { toast } from 'sonner';
-
 export function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [method, setMethod] = useState<'password' | 'otp'>('password');
 
+  // Debug: Monitor all clicks on the page
+  useEffect(() => {
+    const handleGlobalClick = (e: MouseEvent) => {
+      console.log('SignIn: Clicked element:', e.target);
+    };
+    window.addEventListener('click', handleGlobalClick);
+    return () => window.removeEventListener('click', handleGlobalClick);
+  }, []);
+
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('SignIn: handleEmailSignIn triggered. Method:', method);
     setIsLoading(true);
-
-    try {
+...
       if (method === 'password') {
-        console.log('SignIn: Starting password login for:', email);
-        const { error } = await supabase.auth.signInWithPassword({
+        console.log('SignIn: Attempting password auth for', email);
+        const { error, data } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
+        console.log('SignIn: Auth success', data);
         toast.success('Logged in successfully!');
       } else {
+...
         console.log('SignIn: Starting magic link process for:', email);
         const { error } = await supabase.auth.signInWithOtp({
           email,
