@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
 import { SimHPCLogo } from '@/components/SimHPCLogo';
@@ -9,19 +9,11 @@ import { supabase, signInWithGoogle } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 export function SignIn() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [method, setMethod] = useState<'password' | 'otp'>('password');
-
-  // Debug: Monitor all clicks on the page to identify blockers
-  useEffect(() => {
-    const handleGlobalClick = (e: MouseEvent) => {
-      console.log('SignIn: Clicked element:', e.target);
-    };
-    window.addEventListener('click', handleGlobalClick);
-    return () => window.removeEventListener('click', handleGlobalClick);
-  }, []);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +30,7 @@ export function SignIn() {
         if (error) throw error;
         console.log('SignIn: Auth success', data);
         toast.success('Logged in successfully!');
+        navigate('/dashboard');
       } else {
         console.log('SignIn: Starting magic link process for:', email);
         const { error } = await supabase.auth.signInWithOtp({
@@ -48,6 +41,7 @@ export function SignIn() {
         });
         if (error) throw error;
         toast.success('Check your email for the login link!');
+        navigate('/dashboard'); // User will be redirected back here by the link anyway
       }
     } catch (err: any) {
       console.error('SignIn error:', err);
