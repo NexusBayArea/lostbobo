@@ -20,6 +20,7 @@ SimHPC is a cloud-based GPU-accelerated finite element simulation platform with 
 - [x] **Experiment Notebook** (March 2026)
 - [x] **Abuse Prevention System** (March 2026)
 - [x] **Secure Multi-Repo Deployment Strategy** (March 2026)
+- [x] **Google One Tap Integration** (March 2026)
 
 ### Phase 2: Enterprise Features (In Progress)
 - [ ] **Advanced Mesh Handling**: Support for large-scale geometries (10M+ elements)
@@ -85,6 +86,8 @@ SimHPC is a cloud-based GPU-accelerated finite element simulation platform with 
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 1.3.1 | March 9, 2026 | Tier-aware API, Supabase simulation persistence, Payment Success UX |
+| 1.3.0 | March 9, 2026 | Google One Tap integration, GitHub Pages deployment |
 | 1.2.0 | March 8, 2026 | Experiment notebook, abuse prevention, secure repo split |
 | 1.1.0 | March 6, 2026 | Mercury AI migration, Celery worker hardening |
 | 1.0.0 | March 4, 2026 | Initial production launch with Stripe and PDF export |

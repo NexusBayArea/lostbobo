@@ -192,5 +192,46 @@ export const api = {
     // Wait 2 seconds before next poll
     await new Promise(resolve => setTimeout(resolve, 2000));
     return this.pollStatus(runId, token, onProgress);
-  }
+  },
+
+  async getAlphaSignals(token?: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/alpha/signals`, {
+      headers: getHeaders(token)
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch alpha signals');
+    }
+    return response.json();
+  },
+
+  async getAlphaSimulations(token: string): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/alpha/simulations`, {
+      headers: getHeaders(token)
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch alpha simulations');
+    }
+    return response.json();
+  },
+
+  async runAlphaSimulation(token: string): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/alpha/run-simulation`, {
+      method: 'POST',
+      headers: getHeaders(token),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to trigger alpha simulation');
+    }
+    return response.json();
+  },
+
+  async getAlphaInsights(token?: string): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/alpha/insights`, {
+      headers: getHeaders(token)
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch alpha insights');
+    }
+    return response.json();
+  },
 };

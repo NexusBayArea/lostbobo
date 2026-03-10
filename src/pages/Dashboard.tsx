@@ -449,10 +449,9 @@ export function Dashboard() {
                     className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-                <button className="px-6 py-3 bg-slate-900 dark:bg-background text-white dark:text-slate-900 font-medium rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors">
-                  Save Changes
-                </button>
-              </div>
+                <button className="px-6 py-3 bg-slate-900 dark:bg-blue-600 text-white font-medium rounded-xl hover:bg-slate-800 dark:hover:bg-blue-700 transition-colors">
+                 Save Changes
+                </button>              </div>
             </div>
           )}
         </div>

@@ -8,7 +8,7 @@ export function NotebookNavButton({ isSidebarOpen = true }: { isSidebarOpen?: bo
 
   return (
     <button
-      onClick={() => navigate("/dashboard/notebook")}
+      onClick={() => window.open("/dashboard/notebook", "_blank")}
       className={`
         group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium
         transition-all duration-150

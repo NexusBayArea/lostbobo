@@ -150,7 +150,7 @@ export function Pricing() {
                 {/* Header */}
                 <div className="text-center max-w-[640px] mx-auto mb-14">
                     <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-4 py-1.5 text-xs tracking-widest uppercase text-blue-400 mb-6">
-                        GPU-Accelerated FEA Â· Cloud Native
+                        GPU-Accelerated FEA · Cloud Native
                     </div>
                     <h1 className="text-[clamp(32px,5vw,52px)] font-bold leading-[1.1] tracking-tight mb-4 bg-gradient-to-br from-slate-50 to-slate-400 bg-clip-text text-transparent">
                         Simulation with<br />Quantified Confidence
@@ -162,16 +162,16 @@ export function Pricing() {
 
                     {/* Billing toggle */}
                     <div className="inline-flex items-center gap-3 bg-white/5 border border-white/10 rounded-full p-1.5 pl-4">
-                        <span className={`text-sm ${annual ? 'text-slate-400' : 'text-slate-100'}`}>Monthly</span>
+                        <span className={`text-sm ${annual ? 'text-slate-500' : 'text-slate-900'}`}>Monthly</span>
                         <button
                             onClick={() => setAnnual(!annual)}
-                            className={`w-11 h-6 rounded-full relative transition-colors duration-200 ${annual ? 'bg-blue-600' : 'bg-white/15'}`}
+                            className={`w-11 h-6 rounded-full relative transition-colors duration-200 ${annual ? 'bg-blue-600' : 'bg-slate-300'}`}
                         >
                             <div className={`w-4.5 h-4.5 rounded-full bg-white absolute top-0.75 transition-all duration-200 shadow-[0_1px_4px_rgba(0,0,0,0.3)] ${annual ? 'left-[23px]' : 'left-0.75'}`} />
                         </button>
-                        <span className={`text-sm ${annual ? 'text-slate-100' : 'text-slate-400'}`}>Annual</span>
+                        <span className={`text-sm ${annual ? 'text-slate-900' : 'text-slate-500'}`}>Annual</span>
                         {annual && (
-                            <span className="text-[11px] font-bold bg-emerald-500/15 text-emerald-400 px-2.5 py-0.75 rounded-full border border-emerald-500/30">
+                            <span className="text-[11px] font-bold bg-emerald-500/15 text-emerald-600 px-2.5 py-0.75 rounded-full border border-emerald-500/30">
                                 Save up to 25%
                             </span>
                         )}
@@ -200,9 +200,9 @@ export function Pricing() {
                                 <p className="text-[11px] tracking-widest uppercase mb-1.5" style={{ color: plan.accent }}>{plan.tag}</p>
                                 <h2 className="text-[26px] font-bold tracking-tight mb-4">{plan.name}</h2>
                                 <div className="flex items-baseline gap-1.5 mb-2">
-                                    <span className="text-[44px] font-extrabold tracking-tighter text-white">
-                                        ${(annual ? plan.annualPrice : plan.monthlyPrice).toLocaleString()}
-                                    </span>
+                                <span className="text-[44px] font-extrabold tracking-tighter">
+                                    ${(annual ? plan.annualPrice : plan.monthlyPrice).toLocaleString()}
+                                </span>
                                     <span className="text-slate-500 text-sm">/mo</span>
                                     {annual && <span className="text-emerald-400 text-xs ml-1">billed annually</span>}
                                 </div>
@@ -283,11 +283,11 @@ export function Pricing() {
                                         Best Value
                                     </div>
                                 )}
-                                <p className="text-[36px] font-extrabold tracking-tighter text-slate-50">
+                                <p className="text-[36px] font-extrabold tracking-tighter">
                                     {pack.amount.toLocaleString()}
                                 </p>
-                                <p className="text-slate-500 text-[13px] mb-4">compute credits</p>
-                                <p className={`text-[22px] font-bold mb-1 ${pack.popular ? 'text-blue-400' : 'text-slate-200'}`}>
+                                <p className="text-slate-600 text-[13px] mb-4">compute credits</p>
+                                <p className={`text-[22px] font-bold mb-1 ${pack.popular ? 'text-blue-600' : 'text-slate-700'}`}>
                                     ${pack.price.toLocaleString()}
                                 </p>
                                 <p className="text-[11px] text-slate-500">{pack.perCredit} per credit</p>
@@ -298,11 +298,11 @@ export function Pricing() {
                     {/* What is a credit callout */}
                     <div className="mt-8 bg-white/[0.02] border border-white/5 rounded-xl p-5 flex gap-5 flex-wrap items-center justify-center">
                         <span className="text-slate-500 text-[13px]">What's 1 credit?</span>
-                        <span className="text-slate-400 text-[13px]">â‰ˆ 1 GPU-minute of compute</span>
-                        <span className="text-slate-800">Â·</span>
-                        <span className="text-slate-400 text-[13px]">A 500K-element mesh run â‰ˆ 4â€“8 credits</span>
-                        <span className="text-slate-800">Â·</span>
-                        <span className="text-slate-400 text-[13px]">50-run robustness sweep â‰ˆ 60â€“120 credits</span>
+                                <span className="text-slate-400 text-[13px]">≈ 1 GPU-minute of compute</span>
+                        <span className="text-slate-800">·</span>
+                        <span className="text-slate-400 text-[13px]">A 500K-element mesh run ≈ 4–8 credits</span>
+                        <span className="text-slate-800">·</span>
+                        <span className="text-slate-400 text-[13px]">50-run robustness sweep ≈ 60–120 credits</span>
                     </div>
                 </div>
 
@@ -310,7 +310,7 @@ export function Pricing() {
                 <div className="flex flex-wrap gap-6 justify-center mt-16 text-slate-700 text-[13px]">
                     {["No setup fees", "Cancel anytime", "SOC 2 in progress", "ITAR-aware architecture", "A40 GPU backbone"].map(t => (
                         <span key={t} className="flex items-center gap-1.5">
-                            <span className="text-slate-800 text-xs">âœ¦</span> {t}
+                            <span className="text-slate-800 text-xs">✦</span> {t}
                         </span>
                     ))}
                 </div>

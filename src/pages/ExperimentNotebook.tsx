@@ -479,7 +479,8 @@ function ReplayToast({ exp, onDismiss }: { exp: any, onDismiss: () => void }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function ExperimentNotebook() {
-  const [experiments] = useState(MOCK_EXPERIMENTS);
+  console.log("ExperimentNotebook: Rendering...");
+  const [experiments, setExperiments] = useState(MOCK_EXPERIMENTS);
   const [selected, setSelected] = useState<any>(null);
   const [compareA, setCompareA] = useState<any>(null);
   const [compareB, setCompareB] = useState<any>(null);
@@ -487,6 +488,10 @@ export default function ExperimentNotebook() {
   const [search, setSearch] = useState("");
   const [replayExp, setReplayExp] = useState<any>(null);
   const [filter, setFilter] = useState("all");
+
+  useEffect(() => {
+    console.log("ExperimentNotebook: Mounted");
+  }, []);
 
   const filtered = experiments.filter(e => {
     const q = search.toLowerCase();
@@ -497,6 +502,29 @@ export default function ExperimentNotebook() {
     const matchFilter = filter === "all" || e.status === filter;
     return matchSearch && matchFilter;
   });
+
+  const handleNewEntry = () => {
+    console.log("ExperimentNotebook: Creating new entry");
+    const newId = Math.floor(Math.random() * 1000) + 500;
+    const newExp = {
+      id: newId,
+      title: "New Research Entry",
+      status: "draft",
+      engine: "—",
+      question: "Click to define research objective...",
+      tags: ["draft"],
+      createdAt: new Date().toISOString(),
+      completedAt: null,
+      parameters: [],
+      runs: [],
+      observations: [],
+      conclusion: "",
+      linkedIds: [],
+      metrics: {},
+    };
+    setExperiments([newExp, ...experiments]);
+    setSelected(newExp);
+  };
 
   const handleCompare = (a: any, b: any) => {
     setCompareA(a);
@@ -523,7 +551,6 @@ export default function ExperimentNotebook() {
   return (
     <div className="min-h-screen bg-[#080E1C] text-white font-sans selection:bg-cyan-900/40">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
         * { font-family: 'DM Sans', sans-serif; }
         .font-mono, code { font-family: 'DM Mono', monospace; }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
@@ -553,7 +580,10 @@ export default function ExperimentNotebook() {
             </div>
             <p className="text-slate-500 text-xs">Auto-generated from every simulation run · persistent research workspace</p>
           </div>
-          <button className="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium px-4 py-2.5 rounded-xl transition-colors flex items-center gap-1.5 shadow-lg shadow-cyan-900/30">
+          <button 
+            onClick={handleNewEntry}
+            className="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium px-4 py-2.5 rounded-xl transition-colors flex items-center gap-1.5 shadow-lg shadow-cyan-900/30"
+          >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
             </svg>

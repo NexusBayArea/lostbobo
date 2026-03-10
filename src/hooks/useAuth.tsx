@@ -14,7 +14,7 @@ export function useAuth() {
   const refreshTier = useCallback(async (token: string) => {
     try {
       const profile = await api.getUserProfile(token);
-      setUserTier(profile.plan as UserTier);
+      setUserTier((profile.tier || profile.plan) as UserTier);
     } catch (error) {
       console.error('Failed to refresh user tier:', error);
     }

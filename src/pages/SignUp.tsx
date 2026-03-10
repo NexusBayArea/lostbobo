@@ -112,7 +112,7 @@ export function SignUp() {
     }
   };
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-background dark:bg-slate-900 relative overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 opacity-30 pointer-events-none select-none z-0">
         <AnimatedMesh />

@@ -123,11 +123,14 @@ SimHPC/ (Private Monorepo)
 ## Security Architecture
 
 ### Authentication Flow
-1. User signs up/in via Supabase (Google OAuth or Magic Link)
-2. Supabase returns JWT access token
+1. User signs up/in via Supabase (Magic Link) or Google One Tap (`g_id_onload`)
+   - **Google Client ID:** `552738566412-t6ba9ar8jnsk7vsd399vhh206569p61e.apps.googleusercontent.com`
+2. Google GIS returns ID token -> Verified by Supabase
+3. Supabase returns JWT access token
 3. Frontend stores token in session
 4. Backend verifies JWT via `python-jose`
-5. User ID extracted and passed to services
+5. **Tier Verification:** API queries Supabase `profiles` table using Service Role Key to determine `plan_id` and map to `free`/`professional`/`enterprise` tiers.
+6. **Persistence:** Final physics data and simulation summaries are inserted into the `simulations` or `simulation_history` table in Supabase.
 
 ### Rate Limiting
 - **Login/Signup**: 5 attempts/minute per IP
@@ -175,6 +178,7 @@ SimHPC/ (Private Monorepo)
 # Supabase
 SUPABASE_URL=
 SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 SUPABASE_JWT_SECRET=
 
 # API
@@ -189,9 +193,11 @@ MERCURY_MODEL=mercury-2
 STRIPE_SECRET_KEY=
 STRIPE_PUBLISHABLE_KEY=
 STRIPE_WEBHOOK_SECRET=
+STRIPE_PRO_PRICE_ID=
 
 # Security
 AUTH_SECRET=
+GOOGLE_CLIENT_ID=552738566412-t6ba9ar8jnsk7vsd399vhh206569p61e.apps.googleusercontent.com
 ```
 
 ---

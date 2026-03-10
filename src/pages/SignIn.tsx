@@ -58,7 +58,7 @@ export function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900 relative overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-background dark:bg-slate-900 relative overflow-hidden flex flex-col">
       {/* Background - explicitly disable pointer events to prevent blocking clicks */}
       <div className="absolute inset-0 opacity-30 pointer-events-none select-none z-0">
         <AnimatedMesh />

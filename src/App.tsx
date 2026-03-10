@@ -6,6 +6,7 @@ import { ValueDifferentiator } from '@/sections/ValueDifferentiator';
 import { WhoItsFor } from '@/sections/WhoItsFor';
 
 import { Dashboard } from '@/pages/Dashboard';
+import { AlphaControlRoom } from '@/pages/AlphaControlRoom';
 import ExperimentNotebook from '@/pages/ExperimentNotebook';
 import { Benchmarks } from '@/pages/Benchmarks';
 import { Pricing } from '@/pages/Pricing';
@@ -50,6 +51,7 @@ function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/alpha" element={<AlphaControlRoom />} />
           <Route path="/dashboard/notebook" element={<ExperimentNotebook />} />
           <Route path="/benchmarks" element={<Benchmarks />} />
           <Route path="/pricing" element={<Pricing />} />

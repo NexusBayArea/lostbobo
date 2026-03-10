@@ -4,8 +4,8 @@ import { defineConfig } from "vite"
 
 // https://vite.dev/config/
 export default defineConfig({
-  // Use './' for relative paths (works on both subpaths and custom domains)
-  base: './',
+  // Use '/' for absolute paths (required for SPA routing on Vercel)
+  base: '/',
   plugins: [react()],
   resolve: {
     alias: {

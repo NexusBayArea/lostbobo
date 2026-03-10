@@ -64,7 +64,7 @@ export function SimHPCLogo({ className, size = 'md', showText = true }: SimHPCLo
           'font-bold tracking-tight',
           sizeClasses[size].text
         )}>
-          <span className="text-slate-900 dark:text-white">Sim</span>
+          <span className="text-inherit">Sim</span>
           <span className="text-blue-500">HPC</span>
         </span>
       )}

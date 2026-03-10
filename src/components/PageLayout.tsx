@@ -15,7 +15,7 @@ export function PageLayout({ children }: PageLayoutProps) {
     }, [pathname]);
 
     return (
-        <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+        <div className="min-h-screen flex flex-col bg-background dark:bg-slate-950 transition-colors duration-300">
             <Navigation />
             <main className="flex-grow">
                 {children}
