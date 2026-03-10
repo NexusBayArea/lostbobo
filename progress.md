@@ -722,9 +722,11 @@ Required for enterprise clients:
 
 *Last Updated: March 10, 2026*
 
-### March 10, 2026 (Footer Logo & Global Background Consistency)
+### March 10, 2026 (Footer Logo, Global Background & Theme Toggle)
 - **Footer Logo Color Fix**: Changed SimHPC logo "Sim" text to `text-inherit` to properly adapt to the footer's dark background across all themes.
 - **Global Background Consistency**: Updated all page backgrounds (SignIn, SignUp, Dashboard, etc.) to use `bg-background` (HSL 46° 38% 91%) matching the homepage color #F1EDE0.
+- **ExperimentNotebook Theme Toggle**: Added ThemeToggle component to the Experiment Notebook page header, matching the rest of the website's bright/dark mode functionality.
+- **Notebook Color Updates**: Updated all hardcoded colors in ExperimentNotebook.tsx to use theme-aware classes (dark: prefix) for proper light/dark mode support.
 
 ### March 8, 2026 (Abuse Prevention & Free Tier Security)
 
