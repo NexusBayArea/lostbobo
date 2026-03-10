@@ -1,5 +1,40 @@
 import { useState, useEffect } from "react";
 
+// ─── Inline ThemeToggle ───────────────────────────────────────────────────────
+function ThemeToggle({ variant = "default" }: { variant?: string }) {
+  const [dark, setDark] = useState(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+  );
+  useEffect(() => {
+    if (dark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, [dark]);
+  return (
+    <button
+      onClick={() => setDark(d => !d)}
+      className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+      title={dark ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      {dark ? (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      ) : (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      )}
+    </button>
+  );
+}
+
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 const MOCK_EXPERIMENTS = [
   {
@@ -160,10 +195,10 @@ function ComparePanel({ expA, expB, onClose }: { expA: any, expB: any, onClose: 
   const labels: Record<string, string> = { optimalRate: "Optimal Rate", tempSensitivity: "Temp Sensitivity", energyDensity: "Energy Density", platingThreshold: "Plating Threshold" };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-[#0d1829] border border-slate-700/60 rounded-2xl p-6 w-full max-w-xl shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-background border border-slate-700/60 rounded-2xl p-6 w-full max-w-xl shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-white font-semibold text-sm tracking-wide">Experiment Comparison</h3>
-          <button onClick={onClose} className="text-slate-500 hover:text-white text-lg leading-none">×</button>
+          <h3 className="text-slate-900 dark:text-white font-semibold text-sm tracking-wide">Experiment Comparison</h3>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-lg leading-none">×</button>
         </div>
         <div className="grid grid-cols-3 gap-3 text-xs">
           <div className="text-slate-500 text-right font-medium">Metric</div>
@@ -172,8 +207,8 @@ function ComparePanel({ expA, expB, onClose }: { expA: any, expB: any, onClose: 
           {keys.map(k => (
             <div key={k} className="contents">
               <div className="text-slate-400 text-right py-2 border-t border-slate-800">{labels[k]}</div>
-              <div className="text-white text-center py-2 border-t border-slate-800">{expA.metrics[k] || "—"}</div>
-              <div className="text-white text-center py-2 border-t border-slate-800">{expB.metrics[k] || "—"}</div>
+              <div className="text-slate-900 dark:text-white text-center py-2 border-t border-slate-800">{expA.metrics[k] || "—"}</div>
+              <div className="text-slate-900 dark:text-white text-center py-2 border-t border-slate-800">{expB.metrics[k] || "—"}</div>
             </div>
           ))}
         </div>
@@ -197,7 +232,7 @@ function DetailPanel({ exp, allExps, onClose, onCompare, onReplay }: { exp: any,
 
   return (
     <div className="fixed inset-0 z-40 flex" onClick={onClose}>
-      <div className="ml-auto w-full max-w-2xl h-full bg-[#080E1C] border-l border-slate-800 flex flex-col shadow-2xl overflow-hidden"
+      <div className="ml-auto w-full max-w-2xl h-full bg-background dark:bg-slate-900 border-l border-slate-800 flex flex-col shadow-2xl overflow-hidden"
         onClick={e => e.stopPropagation()}>
 
         {/* Header */}
@@ -208,10 +243,10 @@ function DetailPanel({ exp, allExps, onClose, onCompare, onReplay }: { exp: any,
               <StatusBadge status={exp.status} />
               <span className="text-[10px] text-slate-600 font-mono bg-slate-800/60 px-1.5 py-0.5 rounded">{exp.engine}</span>
             </div>
-            <h2 className="text-white font-semibold text-base leading-snug">{exp.title}</h2>
-            <p className="text-slate-400 text-xs mt-1 italic">"{exp.question}"</p>
+            <h2 className="text-slate-900 dark:text-white font-semibold text-base leading-snug">{exp.title}</h2>
+            <p className="text-slate-600 dark:text-slate-400 text-xs mt-1 italic">"{exp.question}"</p>
           </div>
-          <button onClick={onClose} className="text-slate-600 hover:text-slate-300 ml-4 text-xl mt-0.5 leading-none shrink-0">×</button>
+          <button onClick={onClose} className="text-slate-600 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-300 ml-4 text-xl mt-0.5 leading-none shrink-0">×</button>
         </div>
 
         {/* Tabs */}
@@ -219,7 +254,7 @@ function DetailPanel({ exp, allExps, onClose, onCompare, onReplay }: { exp: any,
           {tabs.map(t => (
             <button key={t} onClick={() => setActiveTab(t)}
               className={`py-3 px-3 text-[11px] font-medium uppercase tracking-wider border-b-2 transition-colors ${
-                activeTab === t ? "border-cyan-500 text-cyan-400" : "border-transparent text-slate-500 hover:text-slate-300"
+                activeTab === t ? "border-cyan-500 text-cyan-600 dark:text-cyan-400" : "border-transparent text-slate-600 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-300"
               }`}>
               {t}
             </button>
@@ -236,9 +271,9 @@ function DetailPanel({ exp, allExps, onClose, onCompare, onReplay }: { exp: any,
                 <h4 className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mb-3">Parameters</h4>
                 <div className="grid grid-cols-2 gap-2">
                   {exp.parameters.map((p: any) => (
-                    <div key={p.name} className="bg-slate-900/60 border border-slate-800 rounded-lg px-3 py-2">
-                      <div className="text-[10px] text-slate-500">{p.name}</div>
-                      <div className="text-white text-sm font-mono mt-0.5">{p.value}</div>
+                    <div key={p.name} className="bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2">
+                      <div className="text-[10px] text-slate-600 dark:text-slate-500">{p.name}</div>
+                      <div className="text-slate-900 dark:text-white text-sm font-mono mt-0.5">{p.value}</div>
                     </div>
                   ))}
                 </div>
@@ -279,11 +314,11 @@ function DetailPanel({ exp, allExps, onClose, onCompare, onReplay }: { exp: any,
               ) : (
                 <div className="space-y-3">
                   {exp.runs.map((r: any) => (
-                    <div key={r.id} className={`border rounded-xl px-4 py-3 flex items-center gap-4 ${r.convergent ? "border-slate-800 bg-slate-900/40" : "border-red-900/40 bg-red-950/10"}`}>
+                    <div key={r.id} className={`border rounded-xl px-4 py-3 flex items-center gap-4 ${r.convergent ? "border-slate-200 dark:border-slate-800 bg-slate-100/50 dark:bg-slate-900/40" : "border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/10"}`}>
                       <div className="shrink-0">
-                        <div className="text-[10px] text-slate-600 font-mono">{r.label}</div>
-                        <div className="text-white text-sm font-mono font-semibold">{r.value}</div>
-                        <div className={`text-[10px] mt-0.5 ${r.convergent ? "text-emerald-400" : "text-red-400"}`}>{r.result}</div>
+                        <div className="text-[10px] text-slate-600 dark:text-slate-500 font-mono">{r.label}</div>
+                        <div className="text-slate-900 dark:text-white text-sm font-mono font-semibold">{r.value}</div>
+                        <div className={`text-[10px] mt-0.5 ${r.convergent ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>{r.result}</div>
                       </div>
                       <div className="flex-1">
                         <div className="text-[10px] text-slate-600 mb-1">Voltage curve</div>
@@ -306,14 +341,14 @@ function DetailPanel({ exp, allExps, onClose, onCompare, onReplay }: { exp: any,
               <div className="space-y-2 mb-4">
                 {observations.map((obs, i) => (
                   <div key={i} className="flex gap-2 items-start">
-                    <span className="text-cyan-600 mt-0.5 shrink-0">◆</span>
-                    <p className="text-slate-300 text-xs leading-relaxed">{obs}</p>
+                    <span className="text-cyan-600 dark:text-cyan-400 mt-0.5 shrink-0">◆</span>
+                    <p className="text-slate-700 dark:text-slate-300 text-xs leading-relaxed">{obs}</p>
                   </div>
                 ))}
               </div>
               <div className="flex gap-2 mt-3">
                 <input
-                  className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-600"
+                  className="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-cyan-600"
                   placeholder="Add an observation…"
                   value={newObs}
                   onChange={e => setNewObs(e.target.value)}
@@ -326,7 +361,7 @@ function DetailPanel({ exp, allExps, onClose, onCompare, onReplay }: { exp: any,
                 />
                 <button
                   onClick={() => { if (newObs.trim()) { setObservations(o => [...o, newObs.trim()]); setNewObs(""); }}}
-                  className="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-2 rounded-lg font-medium transition-colors">
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white dark:text-slate-900 text-xs px-3 py-2 rounded-lg font-medium transition-colors">
                   Add
                 </button>
               </div>
@@ -337,13 +372,13 @@ function DetailPanel({ exp, allExps, onClose, onCompare, onReplay }: { exp: any,
             <section>
               <h4 className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mb-3">Experiment Timeline</h4>
               <div className="relative pl-4">
-                <div className="absolute left-0 top-0 bottom-0 w-px bg-slate-800" />
+                <div className="absolute left-0 top-0 bottom-0 w-px bg-slate-300 dark:bg-slate-800" />
                 {TIMELINE.map((t, i) => (
                   <div key={i} className="relative mb-5 pl-5">
-                    <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-cyan-500 bg-[#080E1C]" />
-                    <div className="text-[10px] text-slate-500 font-mono">{t.day}</div>
-                    <div className={`text-xs mt-0.5 font-medium ${t.expId === exp.id ? "text-cyan-400" : "text-slate-300"}`}>{t.label}</div>
-                    {t.expId === exp.id && <div className="text-[10px] text-cyan-600 mt-0.5">← current</div>}
+                    <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-cyan-500 bg-background dark:bg-slate-900" />
+                    <div className="text-[10px] text-slate-600 dark:text-slate-500 font-mono">{t.day}</div>
+                    <div className={`text-xs mt-0.5 font-medium ${t.expId === exp.id ? "text-cyan-600 dark:text-cyan-400" : "text-slate-700 dark:text-slate-300"}`}>{t.label}</div>
+                    {t.expId === exp.id && <div className="text-[10px] text-cyan-600 dark:text-cyan-400 mt-0.5">← current</div>}
                   </div>
                 ))}
               </div>
@@ -355,13 +390,13 @@ function DetailPanel({ exp, allExps, onClose, onCompare, onReplay }: { exp: any,
               <h4 className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mb-3">Related Experiments</h4>
               <div className="space-y-2">
                 {linked.map(e => (
-                  <div key={e.id} className="border border-slate-800 rounded-xl px-4 py-3 bg-slate-900/40 flex items-center justify-between">
+                  <div key={e.id} className="border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 bg-slate-100/50 dark:bg-slate-900/40 flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] font-mono text-slate-500">#{e.id}</span>
-                      <div className="text-white text-xs font-medium mt-0.5">{e.title}</div>
+                      <span className="text-[10px] font-mono text-slate-600 dark:text-slate-500">#{e.id}</span>
+                      <div className="text-slate-900 dark:text-white text-xs font-medium mt-0.5">{e.title}</div>
                       <div className="flex gap-1 mt-1">
                         {e.tags.slice(0, 2).map(t => (
-                          <span key={t} className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">{t}</span>
+                          <span key={t} className="text-[9px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">{t}</span>
                         ))}
                       </div>
                     </div>
@@ -408,7 +443,7 @@ function SearchBar({ value, onChange }: { value: string, onChange: (v: string) =
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
       <input
-        className="w-full bg-slate-900/60 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-700 transition-colors"
+        className="w-full bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-600 focus:outline-none focus:border-cyan-700 transition-colors"
         placeholder='Search experiments… e.g. "lithium plating above 2C"'
         value={value}
         onChange={e => onChange(e.target.value)}
@@ -421,7 +456,7 @@ function SearchBar({ value, onChange }: { value: string, onChange: (v: string) =
 function ExperimentCard({ exp, onClick }: { exp: any, onClick: () => void }) {
   return (
     <button onClick={onClick} className="w-full text-left group">
-      <div className="border border-slate-800 hover:border-slate-600 rounded-2xl p-4 bg-slate-900/30 hover:bg-slate-900/60 transition-all duration-200">
+      <div className="border border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600 rounded-2xl p-4 bg-slate-100/50 dark:bg-slate-900/30 hover:bg-slate-200/50 dark:hover:bg-slate-900/60 transition-all duration-200">
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono text-slate-500">#{exp.id}</span>
@@ -429,13 +464,13 @@ function ExperimentCard({ exp, onClick }: { exp: any, onClick: () => void }) {
           </div>
           <span className="text-[10px] text-slate-600 font-mono">{exp.engine}</span>
         </div>
-        <h3 className="text-white text-sm font-medium leading-snug mb-1 group-hover:text-cyan-200 transition-colors">{exp.title}</h3>
-        <p className="text-slate-500 text-[11px] italic line-clamp-1 mb-3">"{exp.question}"</p>
+        <h3 className="text-slate-900 dark:text-white text-sm font-medium leading-snug mb-1 group-hover:text-cyan-600 dark:group-hover:text-cyan-200 transition-colors">{exp.title}</h3>
+        <p className="text-slate-600 dark:text-slate-500 text-[11px] italic line-clamp-1 mb-3">"{exp.question}"</p>
 
         <div className="flex items-end justify-between">
           <div className="flex gap-1 flex-wrap">
             {exp.tags.map((t: string) => (
-              <span key={t} className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800/80 text-slate-500">{t}</span>
+              <span key={t} className="text-[9px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800/80 text-slate-600 dark:text-slate-500">{t}</span>
             ))}
           </div>
           {exp.runs.length > 0 && (
@@ -469,10 +504,10 @@ function ReplayToast({ exp, onDismiss }: { exp: any, onDismiss: () => void }) {
     return () => clearTimeout(t);
   }, [onDismiss]);
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 border border-cyan-800/60 text-white text-xs px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-fade-in">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-100 dark:bg-slate-900 border border-cyan-800/60 text-slate-900 dark:text-white text-xs px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-fade-in">
       <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
       <span>Replaying <strong>Experiment #{exp.id}</strong> — parameters & solver loaded</span>
-      <button onClick={onDismiss} className="text-slate-500 hover:text-white ml-2">×</button>
+      <button onClick={onDismiss} className="text-slate-600 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white ml-2">×</button>
     </div>
   );
 }
@@ -576,19 +611,22 @@ export default function ExperimentNotebook() {
                   <polyline points="10 9 9 9 8 9"/>
                 </svg>
               </div>
-              <h1 className="text-white font-semibold text-lg tracking-tight">Experiment Notebook</h1>
+              <h1 className="text-slate-900 dark:text-white font-semibold text-lg tracking-tight">Experiment Notebook</h1>
             </div>
-            <p className="text-slate-500 text-xs">Auto-generated from every simulation run · persistent research workspace</p>
+            <p className="text-slate-600 dark:text-slate-500 text-xs">Auto-generated from every simulation run · persistent research workspace</p>
           </div>
-          <button 
-            onClick={handleNewEntry}
-            className="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium px-4 py-2.5 rounded-xl transition-colors flex items-center gap-1.5 shadow-lg shadow-cyan-900/30"
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            New Entry
-          </button>
+          <div className="flex items-center gap-3">
+            <ThemeToggle variant="default" />
+            <button
+              onClick={handleNewEntry}
+              className="bg-cyan-600 hover:bg-cyan-500 text-white dark:text-slate-900 text-xs font-medium px-4 py-2.5 rounded-xl transition-colors flex items-center gap-1.5 shadow-lg shadow-cyan-900/30"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              New Entry
+            </button>
+          </div>
         </div>
 
         {/* Stats row */}
@@ -599,9 +637,9 @@ export default function ExperimentNotebook() {
             { label: "Total Runs", value: stats.totalRuns },
             { label: "Converged", value: `${stats.converged}/${stats.totalRuns}` },
           ].map(s => (
-            <div key={s.label} className="bg-slate-900/40 border border-slate-800 rounded-xl px-4 py-3">
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest">{s.label}</div>
-              <div className="text-white font-semibold text-xl font-mono mt-0.5">{s.value}</div>
+            <div key={s.label} className="bg-slate-100/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3">
+              <div className="text-[10px] text-slate-600 dark:text-slate-500 uppercase tracking-widest">{s.label}</div>
+              <div className="text-slate-900 dark:text-white font-semibold text-xl font-mono mt-0.5">{s.value}</div>
             </div>
           ))}
         </div>
@@ -615,7 +653,7 @@ export default function ExperimentNotebook() {
             {["all", "completed", "draft"].map(f => (
               <button key={f} onClick={() => setFilter(f)}
                 className={`text-[10px] uppercase tracking-widest px-3 py-2 rounded-xl font-medium transition-colors border ${
-                  filter === f ? "bg-slate-800 border-slate-600 text-white" : "border-slate-800 text-slate-500 hover:text-slate-300"
+                  filter === f ? "bg-slate-200 dark:bg-slate-800 border-slate-400 dark:border-slate-600 text-slate-900 dark:text-white" : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-300"
                 }`}>
                 {f}
               </button>
@@ -647,17 +685,17 @@ export default function ExperimentNotebook() {
         </div>
 
         {/* Timeline section */}
-        <section className="border border-slate-800 rounded-2xl p-5 bg-slate-900/20 mb-6">
+        <section className="border border-slate-200 dark:border-slate-800 rounded-2xl p-5 bg-slate-100/30 dark:bg-slate-900/20 mb-6">
           <h3 className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mb-4">Experiment Timeline</h3>
           <div className="flex items-center gap-0">
             {TIMELINE.map((t, i) => (
               <div key={i} className="flex items-center gap-0 flex-1">
                 <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 rounded-full border-2 border-cyan-500 bg-[#080E1C]" />
-                  <div className="text-[10px] text-slate-500 font-mono mt-1 whitespace-nowrap">{t.day}</div>
-                  <div className="text-[11px] text-slate-300 mt-0.5 text-center max-w-24">{t.label}</div>
+                  <div className="w-3 h-3 rounded-full border-2 border-cyan-500 bg-background dark:bg-slate-900" />
+                  <div className="text-[10px] text-slate-600 dark:text-slate-500 font-mono mt-1 whitespace-nowrap">{t.day}</div>
+                  <div className="text-[11px] text-slate-700 dark:text-slate-300 mt-0.5 text-center max-w-24">{t.label}</div>
                 </div>
-                {i < TIMELINE.length - 1 && <div className="flex-1 h-px bg-slate-800 mb-6" />}
+                {i < TIMELINE.length - 1 && <div className="flex-1 h-px bg-slate-300 dark:bg-slate-800 mb-6" />}
               </div>
             ))}
           </div>
