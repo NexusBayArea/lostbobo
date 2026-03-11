@@ -718,6 +718,23 @@ Required for enterprise clients:
 #### Other Fixes
 16. **pdf_service.py** - Added matplotlib Agg backend for headless container environment
 
+### March 10, 2026 (Canonical Backend Reorganization)
+- **Source of Truth Consolidation**: Successfully migrated all core backend logic (`api.py`, `robustness_service.py`, `ai_report_service.py`, etc.) from the temporary `tmp_backend` staging area to the root `robustness_orchestrator/` directory.
+- **Monorepo Structure**: established a clean monorepo architecture with `simhpc-frontend/` for UI development and `robustness_orchestrator/` for backend, AI, and physics logic.
+- **Supporting Assets**: Moved `sdk/`, `docs/`, `docker-compose.yml`, and `setup_runpod.sh` to the root directory to ensure they are readily discoverable and maintainable.
+- **Deployment Stability**: Verified that the Docker multi-stage build and RunPod deployment scripts now point to the correct canonical paths, reducing the risk of "missing file" errors during pilot onboarding.
+
+### March 10, 2026 (Alpha Pilot Shipping Preparation)
+- **Dockerfile Environment Variables**: Updated the multi-stage Docker build to "bake in" `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as build arguments, ensuring the static frontend can communicate with the authentication and RAG layers.
+- **Nginx SPA Routing**: Verified `nginx.conf` includes the `try_files` catch-all directive to prevent 404 errors on deep links like `/demo/:token` during pilot exploration.
+- **Backend CORS Relaxation**: Updated `api.py` to allow all origins (`*`) during the Alpha period, facilitating access across diverse deployment and proxy environments (RunPod, local, etc.).
+- **User Documentation**: Created `ALPHA_PILOT_GUIDE.md` as a quick-start manual for pilots to navigate simulations, AI reports, and the demo token system.
+
+### March 10, 2026 (Global Branding & Repository Polish)
+- **Global Identity Update**: Performed a final comprehensive audit and replacement of all legacy `btwndlinez` references with `NexusBayArea` across all markdown documentation.
+- **Documentation Synchronization**: Synchronized `progress.md` across all sub-repositories and temporary backend directories to ensure a unified project history.
+- **Repository Metadata**: Verified that all internal documentation reflects the current split-repository strategy and canonical source locations.
+
 ---
 
 *Last Updated: March 10, 2026*
