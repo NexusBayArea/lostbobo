@@ -722,8 +722,23 @@ Required for enterprise clients:
 
 *Last Updated: March 10, 2026*
 
-### March 10, 2026 (Alpha RunPod Architecture & LLM Service)
-- **Alpha RunPod Container**: Implemented a unified worker container architecture combining FastAPI, vLLM for ultra-fast inference, and a FAISS-based RAG service for engineering context retrieval.
+### March 10, 2026 (Alpha Control Room Redesign)
+- **4-Panel HPC Terminal Layout**: Complete rebuild of `/dashboard/alpha` with a premium dark trading terminal aesthetic.
+  - **Live Signals Panel** (left sidebar): Real-time temperature, grid load, energy price, solar output with rolling SVG sparkline micro-charts (20-point history).
+  - **Active Simulations Panel** (top-right): Live simulation registry with animated status badges and dispatch button.
+  - **Simulation Memory Panel** (bottom-right): Archive of completed/failed past runs with status indicators.
+  - **Simulation Insights Feed** (bottom-right): Auto-scrolling AI observation log with confidence bars and suggested actions.
+  - **Notebook/Analysis Panel**: Compact launch bar for Jupyter and data export.
+- **New UI Components**: `Sparkline` (inline SVG charts), `UTCClock` (live UTC time), `StatusBadge` (color-coded simulation status).
+- **System Status Footer**: Live indicators for GPU cluster, SUNDIALS solver, Mercury AI, and Supabase sync.
+- **Signal History Tracking**: Accumulates signal values over time for sparkline visualization, giving the dashboard a "feel alive" quality.
+- **Framer Motion Animations**: Entry animations on simulation rows, insight items, and signal value changes.
+
+### March 10, 2026 (NexusBayArea Migration & Final Alpha Polish)
+- **Ownership Migration**: Successfully moved all project infrastructure, repositories, and deployment targets from `btwndlinez` to `NexusBayArea`.
+- **Vercel Polish**: Cleaned up legacy deployment URLs and updated configuration to point to the new production environment.
+- **Documentation Update**: Performed a global audit of all markdown files to ensure consistent branding and accurate repository links.
+- **Alpha RunPod Architecture**: Implemented a unified worker container architecture combining FastAPI, vLLM for ultra-fast inference, and a FAISS-based RAG service for engineering context retrieval.
 - **vLLM Integration**: Configured vLLM for high-throughput generation (~90 tok/s on RTX 3090) supporting Mistral and Llama models.
 - **RAG Service Implementation**: Developed a retrieval-augmented generation system using SentenceTransformers and FAISS, enabling the AI to answer questions based on SimHPC documentation.
 - **Backend RunPod Proxy**: Added `AlphaChatRequest` and `/api/v1/alpha/chat` endpoint to the main orchestrator, proxying authorized chat requests to the Serverless LLM worker.

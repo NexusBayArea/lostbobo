@@ -1,6 +1,6 @@
 # SimHPC Architecture
 
-> Last Updated: March 8, 2026
+> Last Updated: March 10, 2026
 
 ---
 
@@ -77,7 +77,7 @@ SimHPC/ (Private Monorepo)
 
 ### Persistence Layer
 - **Redis**: Job states, rate limits, telemetry
-- **Supabase**: User data, auth, PostgreSQL
+- **Supabase**: User data, auth, PostgreSQL, demo_access
 - **S3/R2**: PDF storage (optional)
 
 ---
@@ -115,8 +115,12 @@ SimHPC/ (Private Monorepo)
 ### Demo
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | /api/v1/demo/general | Generate demo access link |
-| GET | /api/v1/demo/access | Validate and redeem token |
+| POST | /api/v1/demo/general | Generate demo access link (legacy) |
+| GET | /api/v1/demo/access | Validate and redeem token (legacy) |
+| POST | /api/v1/demo/magic-link | Validate magic link demo token |
+| GET | /api/v1/demo/usage | Check remaining demo runs |
+| POST | /api/v1/demo/use-run | Decrement demo usage counter |
+| POST | /api/v1/demo/create | Admin: Generate new demo magic link |
 
 ---
 
@@ -150,17 +154,18 @@ SimHPC/ (Private Monorepo)
 
 ## Tiered Access Model
 
-| Feature | Free | Professional | Enterprise | Demo (Gen) | Demo (Full) |
-|---------|------|--------------|------------|------------|-------------|
-| Simulation runs | 5 max | 50 | Unlimited | 10 | 100 |
-| Perturbation runs | 5 | 50 | Unlimited | 5 | 100 |
-| AI reports | - | ✓ | ✓ | ✓ | ✓ |
-| PDF export | - | ✓ | ✓ | - | ✓ |
-| Cached reports | - | ✓ | ✓ | ✓ | ✓ |
-| API access | - | - | ✓ | - | ✓ |
-| Custom sampling | - | - | ✓ | - | ✓ |
-| Sobol GSA | - | - | ✓ | ✓ | ✓ |
-| Priority queue | - | - | ✓ | - | ✓ |
+| Feature | Free | Professional | Enterprise | Demo (Gen) | Demo (Full) | Demo (Magic) |
+|---------|------|--------------|------------|------------|-------------|-------------|
+| Simulation runs | 5 max | 50 | Unlimited | 10 | 100 | 5 (configurable) |
+| Perturbation runs | 5 | 50 | Unlimited | 5 | 100 | 5 |
+| AI reports | - | ✓ | ✓ | ✓ | ✓ | ✓ |
+| PDF export | - | ✓ | ✓ | - | ✓ | - |
+| Cached reports | - | ✓ | ✓ | ✓ | ✓ | ✓ |
+| API access | - | - | ✓ | - | ✓ | - |
+| Custom sampling | - | - | ✓ | - | ✓ | - |
+| Sobol GSA | - | - | ✓ | ✓ | ✓ | - |
+| Priority queue | - | - | ✓ | - | ✓ | - |
+| Auto-expiry | - | - | - | 60 min | 60 min | 7 days |
 
 ---
 

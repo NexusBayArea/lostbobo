@@ -21,6 +21,7 @@ import { RunControlPanel } from '@/sections/dashboard/RunControlPanel';
 import { ResultsPanel } from '@/sections/dashboard/ResultsPanel';
 import { api } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
+import { DemoBanner } from '@/components/DemoBanner';
 import { toast } from 'sonner';
 
 const sidebarItems = [
@@ -55,6 +56,26 @@ export function Dashboard() {
   const [parameters, setParameters] = useState(DEFAULT_PARAMETERS);
   const [timeout, setTimeoutVal] = useState(300);
   const [seed, setSeed] = useState<number | undefined>(undefined);
+
+  // Demo state
+  const isDemoUser = localStorage.getItem('demo_active') === 'true';
+  const [demoRemaining, setDemoRemaining] = useState<number>(
+    parseInt(localStorage.getItem('demo_remaining') || '0', 10)
+  );
+  const [demoLimit, setDemoLimit] = useState<number>(
+    parseInt(localStorage.getItem('demo_limit') || '0', 10)
+  );
+
+  // Refresh demo usage on mount
+  useEffect(() => {
+    if (!isDemoUser) return;
+    api.getDemoUsage().then((usage) => {
+      setDemoRemaining(usage.remaining);
+      setDemoLimit(usage.limit);
+      localStorage.setItem('demo_remaining', String(usage.remaining));
+      localStorage.setItem('demo_limit', String(usage.limit));
+    });
+  }, [isDemoUser]);
 
   const startPolling = async (runId: string) => {
     try {
@@ -107,6 +128,18 @@ export function Dashboard() {
       const token = getToken();
       const response = await api.startRobustnessRun(config, token);
       setCurrentRunId(response.run_id);
+
+      // Decrement demo usage if in demo mode
+      if (isDemoUser) {
+        const usage = await api.decrementDemoUsage();
+        setDemoRemaining(usage.remaining);
+        if (!usage.success) {
+          toast.error('Demo limit reached. Please upgrade your plan.');
+          setIsRunning(false);
+          return;
+        }
+      }
+
       startPolling(response.run_id);
     } catch (error: any) {
       setIsRunning(false);
@@ -293,6 +326,11 @@ export function Dashboard() {
 
         {/* Content */}
         <div className="p-8">
+          {/* Demo Banner */}
+          {isDemoUser && (
+            <DemoBanner remaining={demoRemaining} limit={demoLimit} />
+          )}
+
           {activeTab === 'robustness' && (
             <div className="space-y-8">
               {/* Model Configuration */}

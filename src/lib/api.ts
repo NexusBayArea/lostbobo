@@ -53,10 +53,26 @@ export interface RunStatusResponse {
 
 export interface UserProfile {
   user_id: string;
-  plan: 'free' | 'professional' | 'enterprise' | 'demo_general' | 'demo_full';
+  plan: 'free' | 'professional' | 'enterprise' | 'demo_general' | 'demo_full' | 'demo_magic';
   email?: string;
   subscription_status: string;
   stripe_customer_id?: string;
+}
+
+export interface DemoValidationResponse {
+  valid: boolean;
+  remaining?: number;
+  usage_limit?: number;
+  email?: string;
+  reason?: 'limit_reached' | 'expired' | 'invalid';
+  message?: string;
+}
+
+export interface DemoUsageResponse {
+  remaining: number;
+  limit: number;
+  used: number;
+  expired: boolean;
 }
 
 export const api = {
@@ -233,5 +249,54 @@ export const api = {
       throw new Error('Failed to fetch alpha insights');
     }
     return response.json();
+  },
+
+  // --- Demo Magic Link Methods ---
+
+  async validateDemoToken(token: string): Promise<DemoValidationResponse> {
+    const response = await fetch(`${API_BASE_URL}/demo/magic-link`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+    return response.json();
+  },
+
+  async getDemoUsage(): Promise<DemoUsageResponse> {
+    const demoToken = localStorage.getItem('demo_token');
+    if (!demoToken) {
+      return { remaining: 0, limit: 0, used: 0, expired: true };
+    }
+    const response = await fetch(`${API_BASE_URL}/demo/usage`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Demo-Token': demoToken,
+      },
+    });
+    if (!response.ok) {
+      return { remaining: 0, limit: 0, used: 0, expired: true };
+    }
+    return response.json();
+  },
+
+  async decrementDemoUsage(): Promise<{ success: boolean; remaining: number }> {
+    const demoToken = localStorage.getItem('demo_token');
+    if (!demoToken) {
+      return { success: false, remaining: 0 };
+    }
+    const response = await fetch(`${API_BASE_URL}/demo/use-run`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Demo-Token': demoToken,
+      },
+    });
+    if (!response.ok) {
+      return { success: false, remaining: 0 };
+    }
+    const data = await response.json();
+    // Update local cache
+    localStorage.setItem('demo_remaining', String(data.remaining));
+    return data;
   },
 };

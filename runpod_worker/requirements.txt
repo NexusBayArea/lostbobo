@@ -1,0 +1,5 @@
+runpod
+mercury-ai
+reportlab
+requests
+supabase

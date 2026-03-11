@@ -27,6 +27,7 @@ SimHPC is a cloud-based GPU-accelerated finite element simulation platform with 
 - [x] **Magic Link Demo Tokens** - Secure alpha pilot onboarding with usage-limited demo links (March 2026)
 - [x] **Alpha RunPod Container Architecture** - Unified vLLM + RAG worker for high-performance LLM services (March 2026)
 - [x] **RAG Engineering Assistant** - Retrieval-augmented chat for SimHPC documentation (March 2026)
+- [x] **Alpha Control Room Redesign** - HPC trading terminal with Live Signals, Simulations, Memory & Insights panels (March 2026)
 
 ### Phase 2: Enterprise Features (In Progress)
 - [ ] **Advanced Mesh Handling**: Support for large-scale geometries (10M+ elements)
@@ -92,6 +93,7 @@ SimHPC is a cloud-based GPU-accelerated finite element simulation platform with 
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 1.5.1 | March 10, 2026 | Alpha Control Room redesign with 4-panel HPC terminal layout |
 | 1.5.0 | March 10, 2026 | Alpha RunPod architecture, vLLM inference engine, RAG engineering assistant |
 | 1.4.0 | March 10, 2026 | Magic link demo tokens, usage-limited alpha pilot onboarding |
 | 1.3.1 | March 10, 2026 | Tier-aware API, Supabase simulation persistence, Payment Success UX |

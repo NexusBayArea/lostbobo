@@ -5,7 +5,21 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.5.0] - 2026-03-10
+## [1.5.1] - 2026-03-10
+
+### Added
+- **Alpha Control Room Redesign**: Complete rebuild of `/dashboard/alpha` with HPC trading terminal aesthetic.
+  - **Live Signals Panel**: Real-time temperature, grid load, energy price, and solar output with SVG sparkline history graphs.
+  - **Active Simulations Panel**: Live simulation registry with animated status badges (`running`, `completed`, `queued`, `failed`).
+  - **Simulation Memory Panel**: Past simulation runs archive with status and timestamp display.
+  - **Simulation Insights Feed**: Auto-scrolling AI observation log with confidence bars, icons, and suggested actions.
+  - **Notebook/Analysis Panel**: Compact launch bar for Jupyter integration and data export.
+  - **System Status Footer**: Live status indicators for GPU cluster, SUNDIALS solver, Mercury AI, and Supabase.
+  - **UTC Clock**: Live UTC time display in header.
+  - **Signal Sparklines**: Rolling 20-point SVG micro-charts for each signal.
+
+---
+
 
 ### Added
 - **Alpha RunPod Container Architecture**: New unified worker container for high-performance LLM and RAG services.

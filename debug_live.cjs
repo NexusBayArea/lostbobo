@@ -13,7 +13,7 @@ const puppeteer = require('puppeteer');
     });
 
     try {
-        await page.goto('https://simhpc-frontend-msf44wacu-btwndlinezs-projects.vercel.app', { waitUntil: 'networkidle2' });
+        await page.goto('https://simhpc-frontend.vercel.app', { waitUntil: 'networkidle2' });
         console.log("Page loaded successfully.");
     } catch (e) {
         console.log("Navigation error:", e.message);

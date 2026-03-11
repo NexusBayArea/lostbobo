@@ -1,10 +1,83 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import { PageLayout } from "@/components/PageLayout";
-import { Terminal, Activity, Database, Zap, ExternalLink, Play, Info, AlertTriangle, Lightbulb } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Terminal,
+  Activity,
+  Zap,
+  Play,
+  Info,
+  AlertTriangle,
+  Lightbulb,
+  Clock,
+  Database,
+  Cpu,
+  Radio,
+  ChevronRight,
+  BookOpen,
+  Download,
+  History,
+  TrendingUp,
+  Thermometer,
+  Sun,
+  DollarSign,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
+
+// --- Signal Sparkline Component ---
+function Sparkline({ data, color = "#22c55e" }: { data: number[]; color?: string }) {
+  if (!data || data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const h = 24;
+  const w = 80;
+  const points = data
+    .map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h}`)
+    .join(" ");
+
+  return (
+    <svg width={w} height={h} className="opacity-60">
+      <polyline fill="none" stroke={color} strokeWidth="1.5" points={points} />
+    </svg>
+  );
+}
+
+// --- UTC Clock Component ---
+function UTCClock() {
+  const [time, setTime] = useState(new Date());
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <span className="font-mono tabular-nums text-[10px]">
+      {time.toUTCString().split(" ").slice(4).join(" ").replace(" GMT", "")} UTC
+    </span>
+  );
+}
+
+// --- Status Badge Component ---
+function StatusBadge({ status }: { status: string }) {
+  const s = status.toLowerCase();
+  const config = {
+    running: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/30", dot: "bg-blue-400 animate-pulse" },
+    completed: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/30", dot: "bg-emerald-400" },
+    failed: { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/30", dot: "bg-red-400" },
+    idle: { bg: "bg-slate-800/50", text: "text-slate-500", border: "border-slate-700/50", dot: "bg-slate-500" },
+    queued: { bg: "bg-amber-500/10", text: "text-amber-400", border: "border-amber-500/30", dot: "bg-amber-400 animate-pulse" },
+  }[s] || { bg: "bg-slate-800/50", text: "text-slate-500", border: "border-slate-700/50", dot: "bg-slate-500" };
+
+  return (
+    <div className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${config.bg} ${config.text} border ${config.border}`}>
+      <div className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
+      {status}
+    </div>
+  );
+}
 
 export const AlphaControlRoom = () => {
   const { getToken } = useAuth();
@@ -12,16 +85,42 @@ export const AlphaControlRoom = () => {
   const [sims, setSims] = useState<any[]>([]);
   const [insights, setInsights] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isTriggering, setIsTriggering] = useState(false);
+  const insightRef = useRef<HTMLDivElement>(null);
+
+  // Signal history for sparklines
+  const [signalHistory, setSignalHistory] = useState<{
+    temp: number[];
+    grid: number[];
+    solar: number[];
+    price: number[];
+  }>({ temp: [], grid: [], solar: [], price: [] });
 
   const fetchAlphaData = async () => {
     const token = getToken();
     try {
       const signalData = await api.getAlphaSignals(token);
       setSignals(signalData);
-      
+
+      // Build sparkline history
+      setSignalHistory((prev) => {
+        const temp = typeof signalData.temperature === "number"
+          ? signalData.temperature
+          : parseFloat(String(signalData.temperature).replace(/[^0-9.-]/g, "")) || 0;
+        const grid = parseFloat(String(signalData.grid_load).replace(/[^0-9.-]/g, "")) || 0;
+        const solar = parseFloat(String(signalData.solar_output).replace(/[^0-9.-]/g, "")) || 0;
+        const price = parseFloat(String(signalData.energy_price).replace(/[^0-9.$-]/g, "").replace("$", "")) || 0;
+        return {
+          temp: [...prev.temp.slice(-19), temp],
+          grid: [...prev.grid.slice(-19), grid],
+          solar: [...prev.solar.slice(-19), solar],
+          price: [...prev.price.slice(-19), price],
+        };
+      });
+
       const insightData = await api.getAlphaInsights(token);
       setInsights(insightData);
-      
+
       if (token) {
         const simData = await api.getAlphaSimulations(token);
         setSims(simData);
@@ -35,228 +134,441 @@ export const AlphaControlRoom = () => {
 
   useEffect(() => {
     fetchAlphaData();
-    const interval = setInterval(fetchAlphaData, 5000); // Poll every 5s for "live" feel
+    const interval = setInterval(fetchAlphaData, 5000);
     return () => clearInterval(interval);
   }, [getToken]);
+
+  // Auto-scroll insight feed
+  useEffect(() => {
+    if (insightRef.current) {
+      insightRef.current.scrollTop = insightRef.current.scrollHeight;
+    }
+  }, [insights]);
 
   const handleRunSimulation = async () => {
     const token = getToken();
     if (!token) return;
+    setIsTriggering(true);
     try {
       await api.runAlphaSimulation(token);
-      fetchAlphaData(); // Refresh list
+      toast.success("Grid simulation dispatched to worker mesh");
+      fetchAlphaData();
     } catch (error) {
       console.error("Simulation trigger failed:", error);
+      toast.error("Simulation dispatch failed");
+    } finally {
+      setIsTriggering(false);
     }
   };
 
   const getInsightIcon = (type: string) => {
     switch (type) {
-      case 'warning': return <AlertTriangle className="w-3 h-3 text-yellow-500" />;
-      case 'critical': return <AlertTriangle className="w-3 h-3 text-red-500 animate-pulse" />;
-      case 'suggestion': return <Lightbulb className="w-3 h-3 text-blue-400" />;
-      default: return <Info className="w-3 h-3 text-green-400" />;
+      case "warning":
+        return <AlertTriangle className="w-3.5 h-3.5 text-yellow-500" />;
+      case "critical":
+        return <AlertTriangle className="w-3.5 h-3.5 text-red-500 animate-pulse" />;
+      case "suggestion":
+        return <Lightbulb className="w-3.5 h-3.5 text-blue-400" />;
+      default:
+        return <Info className="w-3.5 h-3.5 text-emerald-400" />;
     }
   };
 
+  const getSignalIcon = (key: string) => {
+    switch (key) {
+      case "temperature": return <Thermometer className="w-3.5 h-3.5" />;
+      case "grid_load": return <Cpu className="w-3.5 h-3.5" />;
+      case "energy_price": return <DollarSign className="w-3.5 h-3.5" />;
+      case "solar_output": return <Sun className="w-3.5 h-3.5" />;
+      default: return <Activity className="w-3.5 h-3.5" />;
+    }
+  };
+
+  const signalEntries = [
+    { key: "temperature", label: "Temperature", value: signals.temperature, history: signalHistory.temp, color: "#ef4444" },
+    { key: "grid_load", label: "Grid Load", value: signals.grid_load, history: signalHistory.grid, color: "#3b82f6" },
+    { key: "energy_price", label: "Energy Price", value: signals.energy_price, history: signalHistory.price, color: "#f59e0b" },
+    { key: "solar_output", label: "Solar Output", value: signals.solar_output, history: signalHistory.solar, color: "#22c55e" },
+  ];
+
+  // Split sims into active & memory
+  const activeSims = sims.filter((s) => ["running", "queued"].includes(s.status?.toLowerCase()));
+  const memorySims = sims.filter((s) => !["running", "queued"].includes(s.status?.toLowerCase()));
+
   return (
     <PageLayout>
-      <div className="p-6 bg-[#080E1C] min-h-screen text-slate-200 font-mono">
-        <div className="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
-          <div className="flex items-center gap-3">
-            <Terminal className="w-8 h-8 text-green-400" />
-            <h1 className="text-2xl font-bold tracking-tighter text-white uppercase">
-              SimHPC Alpha Control Room
-            </h1>
-          </div>
+      <div className="min-h-screen bg-[#060A14] text-slate-200 p-4 md:p-6 font-mono selection:bg-blue-500/30">
+        {/* Header */}
+        <header className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800/60">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-xs text-green-400 animate-pulse">
-              <Activity className="w-4 h-4" />
-              LIVE SYSTEM FEED
+            <div className="relative">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500/20 to-blue-500/20 border border-emerald-500/30 flex items-center justify-center">
+                <Terminal className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse border-2 border-[#060A14]" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                SIMHPC CONTROL ROOM
+                <span className="text-[9px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded uppercase tracking-widest">
+                  Alpha
+                </span>
+              </h1>
+              <p className="text-[10px] text-slate-600 uppercase tracking-[0.25em]">
+                GPU-Accelerated Simulation Operations Center
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-2 text-emerald-400 text-[10px]">
+              <Radio className="w-3.5 h-3.5 animate-pulse" />
+              <span className="uppercase tracking-widest font-bold">Live Feed</span>
+            </div>
+            <div className="text-slate-500 flex items-center gap-1.5">
+              <Clock className="w-3 h-3" />
+              <UTCClock />
+            </div>
+          </div>
+        </header>
+
+        {/* Main Grid: Sidebar + Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+          {/* ═══════════ LEFT SIDEBAR: LIVE SIGNALS ═══════════ */}
+          <div className="lg:col-span-3">
+            <div className="bg-[#0A0F1C] border border-slate-800/70 rounded-xl overflow-hidden h-full">
+              <div className="px-4 py-3 border-b border-slate-800/60 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                    Live Signals
+                  </span>
+                </div>
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              </div>
+              <div className="divide-y divide-slate-800/40">
+                {signalEntries.map((sig) => (
+                  <motion.div
+                    key={sig.key}
+                    className="px-4 py-4 hover:bg-slate-800/20 transition-colors group"
+                    initial={false}
+                    animate={{ opacity: 1 }}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2 text-slate-500 group-hover:text-slate-300 transition-colors">
+                        {getSignalIcon(sig.key)}
+                        <span className="text-[9px] uppercase tracking-[0.15em] font-semibold">
+                          {sig.label}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <motion.span
+                        key={String(sig.value)}
+                        initial={{ opacity: 0.5, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="text-xl font-bold tracking-tight text-white"
+                      >
+                        {sig.value || "—"}
+                      </motion.span>
+                      <Sparkline data={sig.history} color={sig.color} />
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Mini System Status */}
+              <div className="px-4 py-3 border-t border-slate-800/60">
+                <div className="space-y-2">
+                  {[
+                    { label: "API", status: "nominal" },
+                    { label: "Worker Mesh", status: "connected" },
+                    { label: "Redis", status: "synced" },
+                  ].map((sys) => (
+                    <div key={sys.label} className="flex items-center justify-between">
+                      <span className="text-[8px] text-slate-600 uppercase tracking-widest">
+                        {sys.label}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1 h-1 bg-emerald-500 rounded-full" />
+                        <span className="text-[8px] text-emerald-500/70 uppercase tracking-wider">
+                          {sys.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ═══════════ RIGHT CONTENT ═══════════ */}
+          <div className="lg:col-span-9 space-y-4">
+
+            {/* ─── ACTIVE SIMULATIONS ─── */}
+            <div className="bg-[#0A0F1C] border border-slate-800/70 rounded-xl overflow-hidden">
+              <div className="px-4 py-3 border-b border-slate-800/60 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-3.5 h-3.5 text-blue-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                    Active Simulations
+                  </span>
+                  {activeSims.length > 0 && (
+                    <span className="text-[9px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1.5 py-0.5 rounded-full ml-1">
+                      {activeSims.length}
+                    </span>
+                  )}
+                </div>
+                <Button
+                  size="sm"
+                  className="bg-emerald-600/90 hover:bg-emerald-600 text-white border-none text-[10px] h-7 px-4 uppercase font-black tracking-[0.15em] rounded-lg shadow-lg shadow-emerald-500/10 disabled:opacity-40"
+                  onClick={handleRunSimulation}
+                  disabled={isTriggering}
+                >
+                  {isTriggering ? (
+                    <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                  ) : (
+                    <Play className="w-3 h-3 mr-2 fill-current" />
+                  )}
+                  {isTriggering ? "Dispatching..." : "Run Grid Sim"}
+                </Button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-[10px]">
+                  <thead className="bg-[#080D18] text-slate-600 uppercase tracking-[0.2em]">
+                    <tr>
+                      <th className="px-4 py-3 font-semibold">Simulation</th>
+                      <th className="px-4 py-3 font-semibold">Status</th>
+                      <th className="px-4 py-3 font-semibold hidden sm:table-cell">Timestamp</th>
+                      <th className="px-4 py-3 font-semibold w-8"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/30">
+                    <AnimatePresence mode="popLayout">
+                      {sims.length > 0 ? (
+                        sims.slice(0, 8).map((sim, idx) => (
+                          <motion.tr
+                            key={sim.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="hover:bg-blue-500/[0.03] transition-colors group cursor-default"
+                          >
+                            <td className="px-4 py-3">
+                              <span className="font-bold text-slate-300 uppercase tracking-wider group-hover:text-white transition-colors">
+                                {sim.simulation_type?.replace(/_/g, " ")}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <StatusBadge status={sim.status} />
+                            </td>
+                            <td className="px-4 py-3 text-slate-600 italic hidden sm:table-cell">
+                              {new Date(sim.created_at).toLocaleString()}
+                            </td>
+                            <td className="px-4 py-3">
+                              <ChevronRight className="w-3 h-3 text-slate-700 group-hover:text-slate-400 transition-colors" />
+                            </td>
+                          </motion.tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={4} className="px-4 py-12 text-center">
+                            <div className="flex flex-col items-center gap-2">
+                              <Database className="w-6 h-6 text-slate-700" />
+                              <span className="text-slate-600 text-[9px] uppercase tracking-[0.25em]">
+                                No simulations in registry
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </AnimatePresence>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* ─── BOTTOM ROW: INSIGHTS + MEMORY ─── */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              {/* === SIMULATION INSIGHTS === */}
+              <div className="bg-[#0A0F1C] border border-slate-800/70 rounded-xl overflow-hidden flex flex-col">
+                <div className="px-4 py-3 border-b border-slate-800/60 flex items-center gap-2">
+                  <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                    Simulation Insights
+                  </span>
+                </div>
+                <div
+                  ref={insightRef}
+                  className="divide-y divide-slate-800/30 overflow-y-auto max-h-[280px] flex-1 scroll-smooth"
+                  style={{ scrollbarWidth: "thin", scrollbarColor: "#1e293b transparent" }}
+                >
+                  {insights.length > 0 ? (
+                    insights.map((item, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.05 }}
+                        className="px-4 py-3.5 hover:bg-slate-800/20 transition-colors"
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 flex-shrink-0">{getInsightIcon(item.type)}</div>
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className={`text-[11px] font-bold leading-snug ${
+                                item.type === "warning"
+                                  ? "text-yellow-400"
+                                  : item.type === "critical"
+                                  ? "text-red-400"
+                                  : "text-slate-300"
+                              }`}
+                            >
+                              {item.message}
+                            </p>
+                            {item.action && (
+                              <p className="text-[9px] text-emerald-400/80 mt-1 flex items-center gap-1">
+                                <ChevronRight className="w-2.5 h-2.5" /> {item.action}
+                              </p>
+                            )}
+                            {item.confidence && (
+                              <div className="mt-2 flex items-center gap-2">
+                                <div className="h-1 flex-1 bg-slate-800 rounded-full overflow-hidden">
+                                  <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${item.confidence * 100}%` }}
+                                    transition={{ duration: 0.6 }}
+                                    className="h-full bg-emerald-500/50 rounded-full"
+                                  />
+                                </div>
+                                <span className="text-[8px] text-slate-600 font-mono tabular-nums">
+                                  {(item.confidence * 100).toFixed(0)}%
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-12 text-center">
+                      <Info className="w-5 h-5 text-slate-700 mx-auto mb-2" />
+                      <span className="text-[9px] text-slate-600 uppercase tracking-[0.2em]">
+                        Awaiting signal analysis...
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* === SIMULATION MEMORY === */}
+              <div className="bg-[#0A0F1C] border border-slate-800/70 rounded-xl overflow-hidden flex flex-col">
+                <div className="px-4 py-3 border-b border-slate-800/60 flex items-center gap-2">
+                  <History className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                    Simulation Memory
+                  </span>
+                  {memorySims.length > 0 && (
+                    <span className="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded-full ml-1">
+                      {memorySims.length}
+                    </span>
+                  )}
+                </div>
+                <div
+                  className="divide-y divide-slate-800/30 overflow-y-auto max-h-[280px] flex-1"
+                  style={{ scrollbarWidth: "thin", scrollbarColor: "#1e293b transparent" }}
+                >
+                  {memorySims.length > 0 ? (
+                    memorySims.map((sim, idx) => (
+                      <motion.div
+                        key={sim.id}
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.04 }}
+                        className="px-4 py-3 hover:bg-slate-800/20 transition-colors group cursor-default"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                            <Database className="w-3 h-3 text-slate-700 group-hover:text-slate-500 flex-shrink-0 transition-colors" />
+                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider truncate group-hover:text-slate-200 transition-colors">
+                              {sim.simulation_type?.replace(/_/g, " ")}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <StatusBadge status={sim.status} />
+                            <span className="text-[8px] text-slate-700 font-mono tabular-nums hidden sm:block">
+                              {new Date(sim.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="px-4 py-12 text-center">
+                      <Database className="w-5 h-5 text-slate-700 mx-auto mb-2" />
+                      <span className="text-[9px] text-slate-600 uppercase tracking-[0.2em]">
+                        No past simulations stored
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* ─── NOTEBOOK / ANALYSIS ─── */}
+            <div className="bg-[#0A0F1C] border border-slate-800/70 rounded-xl overflow-hidden relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/[0.03] via-transparent to-purple-600/[0.03] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              <div className="px-4 py-3 border-b border-slate-800/60 flex items-center gap-2">
+                <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                  Notebook / Analysis
+                </span>
+              </div>
+              <div className="px-4 py-5 flex items-center justify-between gap-6 relative z-10">
+                <p className="text-[11px] text-slate-500 leading-relaxed max-w-lg">
+                  Launch the integrated analysis environment for deep spectral analysis on simulation results. Export engineering datasets and review experiment history.
+                </p>
+                <div className="flex gap-2 flex-shrink-0">
+                  <Button
+                    className="bg-blue-600/90 hover:bg-blue-600 text-white text-[10px] h-8 px-5 uppercase font-black tracking-[0.15em] rounded-lg shadow-lg shadow-blue-500/10"
+                    onClick={() => window.open("/dashboard/notebook", "_blank")}
+                  >
+                    <Terminal className="w-3 h-3 mr-2" />
+                    Launch Notebook
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-slate-800 bg-transparent text-slate-500 hover:bg-slate-800 hover:text-white text-[10px] h-8 px-4 uppercase font-bold tracking-[0.12em] rounded-lg"
+                  >
+                    <Download className="w-3 h-3 mr-2" />
+                    Export
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* LIVE SIGNALS */}
-          <Card className="bg-black border-slate-800 text-green-400 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-            <CardHeader className="border-b border-slate-800">
-              <CardTitle className="text-sm flex items-center gap-2 uppercase tracking-widest">
-                <Zap className="w-4 h-4 text-green-400" />
-                Live Signals
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6 space-y-4">
-              <div className="flex justify-between items-center group">
-                <span className="text-slate-500 group-hover:text-slate-300 transition-colors uppercase text-[10px]">Temperature</span>
-                <span className="text-xl font-bold tracking-widest">{signals.temperature || "---"}</span>
-              </div>
-              <div className="flex justify-between items-center group">
-                <span className="text-slate-500 group-hover:text-slate-300 transition-colors uppercase text-[10px]">Grid Load</span>
-                <span className="text-xl font-bold tracking-widest">{signals.grid_load || "---"}</span>
-              </div>
-              <div className="flex justify-between items-center group">
-                <span className="text-slate-500 group-hover:text-slate-300 transition-colors uppercase text-[10px]">Energy Price</span>
-                <span className="text-xl font-bold tracking-widest">{signals.energy_price || "---"}</span>
-              </div>
-              <div className="flex justify-between items-center group">
-                <span className="text-slate-500 group-hover:text-slate-300 transition-colors uppercase text-[10px]">Solar Output</span>
-                <span className="text-xl font-bold tracking-widest">{signals.solar_output || "---"}</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* ACTIVE SIMULATIONS */}
-          <Card className="md:col-span-2 bg-[#0C1222] border-slate-800 shadow-xl">
-            <CardHeader className="border-b border-slate-800 flex flex-row items-center justify-between py-3">
-              <CardTitle className="text-xs flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
-                <Activity className="w-4 h-4 text-blue-500" />
-                Active Simulations
-              </CardTitle>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="bg-green-600 hover:bg-green-700 text-white border-none text-[10px] h-7 px-3 uppercase font-black tracking-widest"
-                onClick={handleRunSimulation}
-              >
-                <Play className="w-3 h-3 mr-2 fill-current" />
-                Run Grid Sim
-              </Button>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-[10px]">
-                  <thead className="bg-slate-950 text-slate-500 uppercase tracking-widest">
-                    <tr>
-                      <th className="p-4 font-medium border-b border-slate-800">Simulation Type</th>
-                      <th className="p-4 font-medium border-b border-slate-800">Status</th>
-                      <th className="p-4 font-medium border-b border-slate-800">Created At</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/50">
-                    {sims.length > 0 ? sims.map((sim) => (
-                      <tr key={sim.id} className="hover:bg-blue-600/5 transition-colors group">
-                        <td className="p-4 font-bold text-slate-300 uppercase tracking-wider group-hover:text-white">{sim.simulation_type}</td>
-                        <td className="p-4">
-                          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter ${
-                            sim.status.toLowerCase() === 'running' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
-                            sim.status.toLowerCase() === 'completed' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
-                            'bg-slate-800/50 text-slate-500 border border-slate-700/50'
-                          }`}>
-                            <div className={`w-1 h-1 rounded-full ${
-                              sim.status.toLowerCase() === 'running' ? 'bg-blue-400 animate-pulse' :
-                              sim.status.toLowerCase() === 'completed' ? 'bg-green-400' :
-                              'bg-slate-500'
-                            }`} />
-                            {sim.status}
-                          </div>
-                        </td>
-                        <td className="p-4 text-slate-600 font-mono italic">
-                          {new Date(sim.created_at).toLocaleString()}
-                        </td>
-                      </tr>
-                    )) : (
-                      <tr>
-                        <td colSpan={3} className="p-12 text-center text-slate-600 italic uppercase tracking-[0.3em] text-[9px]">
-                          No active simulations found in the registry.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* SIMULATION INSIGHTS */}
-          <Card className="bg-[#0C1222] border-slate-800 shadow-lg">
-            <CardHeader className="border-b border-slate-800 py-3">
-              <CardTitle className="text-[10px] flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
-                <Info className="w-4 h-4 text-green-500" />
-                Simulation Insights
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 overflow-y-auto max-h-[300px] insight-feed">
-              <div className="divide-y divide-slate-800">
-                {insights.map((item, idx) => (
-                  <div key={idx} className="p-4 hover:bg-slate-900/50 transition-colors">
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1">{getInsightIcon(item.type)}</div>
-                      <div className="flex-1">
-                        <p className={`text-[11px] font-bold tracking-tight leading-relaxed uppercase ${
-                          item.type === 'warning' ? 'text-yellow-500' : 
-                          item.type === 'critical' ? 'text-red-500' : 
-                          'text-slate-300'
-                        }`}>
-                          {item.message}
-                        </p>
-                        {item.action && (
-                          <p className="text-[9px] text-green-400/80 mt-1 italic tracking-widest uppercase">
-                            → {item.action}
-                          </p>
-                        )}
-                        {item.confidence && (
-                          <div className="mt-2 flex items-center gap-2">
-                            <div className="h-1 flex-1 bg-slate-800 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-green-500/50" 
-                                style={{ width: `${item.confidence * 100}%` }} 
-                              />
-                            </div>
-                            <span className="text-[8px] text-slate-600 font-mono">{(item.confidence * 100).toFixed(0)}% CONF</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* NOTEBOOK / ANALYSIS */}
-          <Card className="md:col-span-2 bg-[#0C1222] border-slate-800 overflow-hidden relative group shadow-2xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-transparent to-purple-600/5 opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none" />
-            <CardHeader className="border-b border-slate-800 py-3">
-              <CardTitle className="text-[10px] flex items-center gap-2 text-slate-400 uppercase tracking-[0.2em]">
-                <Terminal className="w-4 h-4 text-blue-500" />
-                Notebook / Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-10 pb-10 flex flex-col items-center justify-center text-center px-8 relative z-10">
-              <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mb-6 group-hover:border-blue-500/50 transition-colors shadow-inner">
-                <Terminal className="w-7 h-7 text-slate-600 group-hover:text-blue-400 transition-colors" />
-              </div>
-              <p className="text-slate-500 text-[11px] leading-relaxed max-w-sm mb-8 italic uppercase tracking-wider">
-                Launch the integrated Jupyter environment to perform deep spectral analysis on simulation results and export engineering datasets.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button 
-                  className="bg-blue-600 hover:bg-blue-700 text-white border-none px-10 h-9 rounded-none uppercase tracking-[0.2em] text-[10px] font-black shadow-[0_0_20px_rgba(37,99,235,0.2)]"
-                  onClick={() => window.open("/dashboard/notebook", "_blank")}
-                >
-                  Launch Notebook
-                </Button>
-                <Button 
-                  variant="outline"
-                  className="border-slate-800 bg-transparent text-slate-500 hover:bg-slate-800 hover:text-white rounded-none uppercase tracking-[0.2em] text-[10px] font-black h-9 px-6"
-                >
-                  Export Simulation Data
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* FOOTER STATUS */}
-        <div className="mt-8 border-t border-slate-800/50 pt-4 flex justify-between items-center text-[9px] text-slate-600 uppercase tracking-[0.2em] font-mono">
-          <div className="flex gap-6">
-            <span className="flex items-center gap-2"><div className="w-1 h-1 bg-green-500 rounded-full" /> API STATUS: NOMINAL</span>
-            <span className="flex items-center gap-2"><div className="w-1 h-1 bg-green-500 rounded-full" /> WORKER MESH: CONNECTED</span>
-            <span className="flex items-center gap-2"><div className="w-1 h-1 bg-blue-500 rounded-full" /> REDIS SYNC: ACTIVE</span>
+        {/* Footer Status Bar */}
+        <footer className="mt-6 pt-4 border-t border-slate-800/40 flex flex-col sm:flex-row justify-between items-center gap-2 text-[8px] text-slate-700 uppercase tracking-[0.25em] font-mono">
+          <div className="flex gap-6 flex-wrap justify-center">
+            <span className="flex items-center gap-1.5">
+              <div className="w-1 h-1 bg-emerald-500 rounded-full" /> GPU Cluster: Online
+            </span>
+            <span className="flex items-center gap-1.5">
+              <div className="w-1 h-1 bg-emerald-500 rounded-full" /> SUNDIALS Solver: Ready
+            </span>
+            <span className="flex items-center gap-1.5">
+              <div className="w-1 h-1 bg-blue-500 rounded-full" /> Mercury AI: Connected
+            </span>
+            <span className="flex items-center gap-1.5">
+              <div className="w-1 h-1 bg-emerald-500 rounded-full" /> Supabase: Synced
+            </span>
           </div>
-          <div>v2.2.0-ALPHA_STABLE</div>
-        </div>
+          <div className="text-slate-600">v1.5.0-ALPHA</div>
+        </footer>
       </div>
     </PageLayout>
   );
