@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { User, Session } from '@supabase/supabase-js';
+import type { User, Session } from '@supabase/supabase-js';
 import { api } from '@/lib/api';
 
 export type UserTier = 'free' | 'professional' | 'enterprise' | 'demo_general' | 'demo_full';
