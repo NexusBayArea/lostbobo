@@ -1,5 +1,8 @@
+export * from './Home';
 export * from './Benchmarks';
 export * from './Dashboard';
+export * from './AlphaControlRoom';
+export { default as ExperimentNotebook } from './ExperimentNotebook';
 export * from './Pricing';
 export * from './Privacy';
 export * from './SignIn';
@@ -12,3 +15,4 @@ export * from './CCPA';
 export * from './DPA';
 export * from './CookiePolicy';
 export * from './Contact';
+export * from './DemoAccess';
