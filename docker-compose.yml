@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # The SimHPC Unified Platform (API + AI + Worker)
+  api:
+    build:
+      context: ./services/robustness-orchestrator
+      dockerfile: Dockerfile
+    image: simhpc/api:alpha
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - SUPABASE_URL=${VITE_SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
+      - MERCURY_API_KEY=${MERCURY_API_KEY}
+      - MERCURY_MODEL=${MERCURY_MODEL:-mercury-2}
+      - SIMHPC_API_KEY=${SIMHPC_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - redis
+    networks:
+      - backend
+    restart: always
+
+  # GPU-enabled Physics Worker (Celery/Distributed)
+  # Only needed if you are offloading heavy physics tasks from the main API
+  worker:
+    build:
+      context: ./services/robustness-orchestrator
+      dockerfile: Dockerfile
+    image: simhpc/physics-worker:alpha
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - REDIS_URL=redis://redis:6379/0
+      - SUPABASE_URL=${VITE_SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - MERCURY_API_KEY=${MERCURY_API_KEY}
+    volumes:
+      - sim_data:/app/data
+    depends_on:
+      - redis
+    networks:
+      - backend
+    restart: always
+
+  # High-speed Message Broker & State Store
+  redis:
+    image: redis:7-alpine
+    command: redis-server --save 60 1 --loglevel warning
+    networks:
+      - backend
+    restart: always
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  sim_data:

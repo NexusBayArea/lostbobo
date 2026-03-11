@@ -37,17 +37,19 @@ To protect core intellectual property (AI/Physics logic) during the beta phase, 
 
 ```
 SimHPC/ (Private Monorepo)
-├── simhpc-frontend/              # React frontend source [CANONICAL]
-├── robustness_orchestrator/      # Python backend services [CLOSED SOURCE]
-│   ├── api.py                   # FastAPI orchestration layer
-│   ├── robustness_service.py    # Parameter sweep logic
-│   ├── ai_report_service.py     # Mercury AI (Inception Labs) integration
-│   ├── pdf_service.py           # Engineering PDF generation
-│   ├── tasks.py                 # Celery task definitions
-│   └── _core/                   # Core simulation package
-└── sdk/
-    └── python/
-        └── example.py           # Python automation SDK
+├── apps/
+│   ├── frontend/                # React frontend source [CANONICAL]
+│   └── saas-starter/            # Next.js SaaS starter template
+├── services/
+│   ├── robustness-orchestrator/ # Python backend services [CLOSED SOURCE]
+│   │   ├── api.py               # FastAPI orchestration layer
+│   │   ├── robustness_service.py # Parameter sweep logic
+│   │   ├── ai_report_service.py  # Mercury AI (Inception Labs) integration
+│   │   └── pdf_service.py        # Engineering PDF generation
+│   └── runpod-worker/           # GPU-enabled worker for RunPod
+├── packages/
+│   └── sdk/                     # SimHPC Python SDK
+└── docs/                        # Project documentation
 ```
 
 ---
@@ -78,7 +80,8 @@ SimHPC/ (Private Monorepo)
 ### Persistence Layer
 - **Redis**: Job states, rate limits, telemetry
 - **Supabase**: User data, auth, PostgreSQL, demo_access
-- **S3/R2**: PDF storage (optional)
+- **Supabase Storage**: A bucket named `results` is required for storing AI-generated PDF engineering reports.
+- **S3/R2**: PDF storage (optional backup)
 
 ---
 

@@ -1,2 +1,36 @@
+# Node.js
+node_modules/
+dist/
+build/
+.npm
+.eslintcache
+.stylelintcache
 .vercel
-node_modules
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.env
+.env.local
+.env.*.local
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# SimHPC Specific
+apps/**/node_modules/
+apps/**/dist/
+services/**/__pycache__/
+services/**/.venv/
+packages/**/__pycache__/
+simhpc_alpha_runpod_ready.zip
