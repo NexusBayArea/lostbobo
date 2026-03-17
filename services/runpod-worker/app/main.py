@@ -12,6 +12,7 @@ app = FastAPI(title="SimHPC Alpha LLM Service")
 API_KEY = os.getenv("SIMHPC_KEY", "alpha-secret-key")
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
+
 async def get_api_key(api_key: str = Depends(api_key_header)):
     if not api_key:
         raise HTTPException(status_code=403, detail="Missing API Key")
@@ -20,6 +21,7 @@ async def get_api_key(api_key: str = Depends(api_key_header)):
     if token != API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API Key")
     return token
+
 
 # Preload LLM (Worker Boot)
 # Note: Using small model for Alpha efficiency. Point to your network volume.
@@ -33,15 +35,23 @@ else:
     print(f"CRITICAL: Model not found at {MODEL_PATH}")
     llm = None
 
+
 class ChatRequest(BaseModel):
     question: str
     max_tokens: int = 300
     temperature: float = 0.2
 
+
+class HealthCheckRequest(BaseModel):
+    check_health_only: bool = False
+
+
 @app.post("/chat", dependencies=[Depends(get_api_key)])
 def chat(req: ChatRequest):
     if llm is None:
-        raise HTTPException(status_code=503, detail="LLM engine not initialized (model missing)")
+        raise HTTPException(
+            status_code=503, detail="LLM engine not initialized (model missing)"
+        )
 
     # 1. RAG Context Retrieval
     context = query_rag(req.question)
@@ -57,18 +67,42 @@ Question:
 
     # 3. vLLM Generation
     sampling_params = SamplingParams(
-        max_tokens=req.max_tokens,
-        temperature=req.temperature
+        max_tokens=req.max_tokens, temperature=req.temperature
     )
-    
+
     outputs = llm.generate([prompt], sampling_params)
     answer = outputs[0].outputs[0].text
 
     return {
         "answer": answer,
         "model": MODEL_PATH.split("/")[-1],
-        "context_used": len(context) > 0
+        "context_used": len(context) > 0,
     }
+
+
+@app.post("/runsync", dependencies=[Depends(get_api_key)])
+async def runsync(input_data: dict):
+    """
+    RunPod runsync endpoint handler.
+    Supports metadata-only health check to avoid GPU costs.
+    """
+    inputs = input_data.get("input", {})
+
+    # NEW: Alpha Health Check Guard (Metadata-Only Ping)
+    if inputs.get("check_health_only"):
+        return {
+            "status": "ready",
+            "worker_id": os.environ.get("RUNPOD_POD_ID", "unknown"),
+        }
+
+    # Existing simulation logic would go here
+    # For now, return a placeholder response
+    return {
+        "status": "complete",
+        "result": "Simulation placeholder - actual physics logic would execute here",
+        "worker_id": os.environ.get("RUNPOD_POD_ID", "unknown"),
+    }
+
 
 @app.get("/health")
 def health():

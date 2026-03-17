@@ -11,7 +11,7 @@ scipy>=1.10.0
 tenacity>=8.2.0
 fpdf2>=2.7.0
 
-# Kimi AI (Moonshot AI) - OpenAI-compatible API
+# Mercury AI (Inception Labs) - OpenAI-compatible API
 openai>=1.0.0
 
 # Caching & Messaging

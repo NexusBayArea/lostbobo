@@ -18,4 +18,4 @@ fi
 
 # 4. Start the unified service on port 8000
 # RunPod's proxy expects port 8000 to be open
-python3 robustness_orchestrator/run_with_cors.py
+python3 robustness-orchestrator/run_with_cors.py
