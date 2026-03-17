@@ -98,6 +98,22 @@ services:
     networks:
       - backend
 
+  # Autoscaler for RunPod GPU worker management
+  autoscaler:
+    build:
+      context: ./services/runpod-worker
+      dockerfile: Dockerfile.autoscaler
+    command: ["python", "idle_timeout.py"]
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: always
+    networks:
+      - backend
+    environment:
+      - RUNPOD_API_KEY=${RUNPOD_API_KEY}
+      - REDIS_URL=redis://redis:6379/0
+
   # High-speed Message Broker & State Store
   redis:
     image: redis:7-alpine
