@@ -45,12 +45,16 @@
   - **O-D-I-A-V Integration**: Fulfills Observe and Detect stages with instant service feedback
 
 - **System Hardening & Security Architecture (v1.6.0-ALPHA)**:
-  - **JWT Security**: Eliminated placeholders, added clock skew tolerance (30s), configurable audience
-  - **Endpoint Protection**: Strict `get_current_user` dependency for protected endpoints
-  - **Token Revocation**: Redis-backed denylist for immediate token invalidation
-  - **PDF Safety**: Dangerous pattern filtering in AI reports (definitive failure claims purged)
-  - **Font Fallback**: Graceful fallback to built-in Helvetica if DejaVu fonts missing
-  - **Robustness**: Removed SobolAnalyzer mock - system fails fast if module missing
+  - **JWT Security**: Hardened JWT validation with RuntimeError for missing secrets
+  - **Clock Skew**: Added 30s leeway for server clock drift  
+  - **Audience Isolation**: Configurable via SUPABASE_AUDIENCE env var
+  - **Endpoint Protection**: Strict get_current_user dependency with Supabase profile lookup
+  - **Free Tier Checks**: Validates runs_used against 5-run weekly limit
+  - **Token Revocation**: Redis-backed denylist support
+  - **PDF Safety**: Content scrubbing with DANGEROUS_PATTERNS regex
+  - **Font Fallback**: Graceful Helvetica fallback if DejaVu missing
+  - **Robustness**: Removed SobolAnalyzer mock - fails fast if missing
+  - **Simulation Validation**: Grid resolution cap (5000 nodes), scenario gating for free tier
 
 ### March 10, 2026 (Alpha Control Room Redesign)
 

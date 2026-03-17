@@ -554,7 +554,55 @@ async def get_current_user(authorization: str = Header(None)):
     """
     if not authorization:
         raise HTTPException(401, "Missing token")
-    return verify_user(authorization)  # Can raise 401
+
+    auth_payload = verify_user(authorization)  # Can raise 401
+    user_id = auth_payload.get("sub")
+
+    # Check Tier & Usage from Supabase
+    try:
+        if supabase_client:
+            user_profile = (
+                supabase_client.table("profiles")
+                .select("*")
+                .eq("id", user_id)
+                .single()
+                .execute()
+            )
+            profile = user_profile.data
+
+            if profile:
+                # Check free tier limits
+                if profile.get("tier") == "free" and profile.get("runs_used", 0) >= 5:
+                    raise HTTPException(
+                        status_code=403,
+                        detail="Weekly simulation limit reached. Please upgrade.",
+                    )
+                return profile
+    except Exception as e:
+        logger.warning(f"Failed to fetch user profile: {e}")
+
+    # Default to free tier if profile not found
+    return {"id": user_id, "tier": "free", "runs_used": 0}
+
+
+# --- VALIDATE SIMULATION REQUEST ---
+def validate_simulation_request(params: dict, tier: str):
+    """
+    Enforce Free Tier constraints on simulation requests.
+    """
+    # Enforce Grid Resolution Limit
+    if tier == "free" and params.get("nodes", 0) > 5000:
+        raise HTTPException(
+            status_code=403,
+            detail="Resolution too high for Free Tier. Upgrade to Pro for 100k+ node support.",
+        )
+
+    # Enforce Scenario Gating
+    allowed_presets = ["baseline", "stress", "extreme"]
+    if tier == "free" and params.get("scenario") not in allowed_presets:
+        raise HTTPException(
+            status_code=403, detail="Custom scenarios are a Pro feature."
+        )
 
 
 # --- PLAN ENFORCEMENT ---

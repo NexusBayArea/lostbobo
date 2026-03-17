@@ -224,7 +224,31 @@ class ReportTemplate:
             r"material (will|can) (break|fracture|yield)",
             "material may experience stress",
         ),
+        (r"design is (perfect|flawless|failed)", "may exhibit signs of stress"),
     ]
+
+
+# --- CONTENT SCRUBBING ---
+DANGEROUS_PATTERNS = [
+    r"(will|shall|definitely|guaranteed).*fail",
+    r"(certain|sure|undoubtedly).*safe",
+    r"material (will|can) (break|fracture|yield)",
+    r"design is (perfect|flawless|failed)",
+]
+
+
+def scrub_report_content(content: str) -> str:
+    """
+    Replaces definitive engineering claims with probabilistic phrasing.
+    """
+    sanitized = content
+    for pattern in DANGEROUS_PATTERNS:
+        # Replace definitive claims with softer alternatives
+        sanitized = re.sub(
+            pattern, "may exhibit signs of stress", sanitized, flags=re.IGNORECASE
+        )
+
+    return sanitized
 
 
 class RedisCache:

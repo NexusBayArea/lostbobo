@@ -20,44 +20,12 @@ logger = logging.getLogger(__name__)
 def get_font_path(filename: str) -> Optional[Path]:
     """
     Resolve font path with multiple fallbacks.
-
-    Searches in order:
-    1. Local fonts/ directory (next to this file)
-    2. System fonts directories
-    3. Environment variable FONTS_PATH
-
-    Returns:
-        Path object if font found, None if not found (caller should handle gracefully)
     """
-    # Try local fonts directory first
     local_path = Path(__file__).parent / "fonts" / filename
     if local_path.exists():
-        logger.debug(f"Found font at local path: {local_path}")
         return local_path
 
-    # Try environment variable
-    env_fonts = os.getenv("FONTS_PATH")
-    if env_fonts:
-        env_path = Path(env_fonts) / filename
-        if env_path.exists():
-            logger.debug(f"Found font at env path: {env_path}")
-            return env_path
-
-    # Try system fonts directories
-    system_paths = [
-        Path("/usr/share/fonts/truetype/dejavu") / filename,
-        Path("/usr/share/fonts/TTF") / filename,
-        Path("/usr/local/share/fonts") / filename,
-    ]
-    for path in system_paths:
-        if path.exists():
-            logger.debug(f"Found font at system path: {path}")
-            return path
-
-    # Font not found - return None to allow graceful fallback
-    logger.warning(
-        f"Font {filename} not found in any search path. PDF will use built-in Helvetica fallback."
-    )
+    logger.warning(f"Font {filename} not found. Falling back to system defaults.")
     return None
 
 
