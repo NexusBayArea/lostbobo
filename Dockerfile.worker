@@ -1,0 +1,19 @@
+FROM python:3.10-slim
+
+WORKDIR /workspace
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY services/runpod-worker/requirements.worker.txt /tmp/requirements.worker.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.worker.txt
+
+COPY services/runpod-worker/worker.py /workspace/worker.py
+
+ENV PYTHONUNBUFFERED=1
+ENV MAX_CONCURRENT_JOBS=2
+ENV POLL_INTERVAL_SEC=2
+ENV IDLE_TIMEOUT=300
+
+CMD ["python", "/workspace/worker.py"]

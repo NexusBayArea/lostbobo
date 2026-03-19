@@ -85,6 +85,13 @@ RUNPOD_BASE_URL = f"https://api.runpod.ai/v2/{RUNPOD_ENDPOINT_ID}"
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 MAX_ACTIVE_RUNS = 5
 
+_ALLOWED_ORIGINS = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:5173,https://*.vercel.app",
+).split(",")
+
+CORS_ORIGINS = [origin.strip() for origin in _ALLOWED_ORIGINS if origin.strip()]
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -485,6 +492,24 @@ def get_job_field(run_id: str, field: str) -> Optional[str]:
     return r_client.hget(f"job:{run_id}", field)
 
 
+def record_simulation_start(run_id: str, user_id: str, scenario_name: str):
+    """Insert simulation row into Supabase so frontend Realtime subscription fires."""
+    if not supabase_client:
+        return
+    try:
+        supabase_client.table("simulation_history").insert(
+            {
+                "job_id": run_id,
+                "user_id": user_id,
+                "scenario_name": scenario_name,
+                "status": "running",
+            }
+        ).execute()
+        logger.debug(f"Supabase simulation_history: {run_id} queued")
+    except Exception as e:
+        logger.error(f"Failed to record simulation_history: {e}")
+
+
 def standard_error(run_id: str, message: str, status_code: int = 400):
     return HTTPException(
         status_code=status_code,
@@ -760,7 +785,7 @@ app = FastAPI(title="SimHPC Platform", version="2.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -1786,6 +1811,9 @@ async def start_robustness(
             },
         }
         set_job(run_id, job_state)
+        record_simulation_start(
+            run_id, current_user["user_id"], config_data.get("scenario", "baseline")
+        )
 
         # === FREE TIER USAGE TRACKING ===
         if plan == UserPlan.FREE:

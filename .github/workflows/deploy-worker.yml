@@ -4,10 +4,9 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'services/runpod-worker/**'
-      - 'services/robustness-orchestrator/robustness_service.py'
-      - '../../Dockerfile.pod'
-      - '../../services/robustness-orchestrator/worker.py'
+      - 'services/runpod-worker/worker.py'
+      - 'Dockerfile.worker'
+      - 'requirements.worker.txt'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -25,12 +24,23 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and Push Pod Image
+      - name: Build and Push Worker Image
         uses: docker/build-push-action@v5
         with:
-          context: ../..
-          file: ../../Dockerfile.pod
+          context: .
+          file: ./Dockerfile.worker
           push: true
           tags: |
-            simhpcworker/simhpc-worker:v2.0.0
+            simhpcworker/simhpc-worker:v2.1.2
             simhpcworker/simhpc-worker:latest
+          env:
+            DOCKER_BUILDKIT: "1"
+
+      - name: Restart RunPod Worker Pod
+        run: |
+          curl -X POST "https://api.runpod.io/graphql" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.RUNPOD_API_KEY }}" \
+            -d '{
+              "query": "mutation { podRestart(podId: \"${{ secrets.RUNPOD_POD_ID }}\") { id status } }"
+            }'
