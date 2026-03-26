@@ -30,7 +30,7 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # Pod creation defaults (override via env)
 DEFAULT_GPU_TYPE = os.getenv("RUNPOD_GPU_TYPE", "NVIDIA A40")
-DEFAULT_IMAGE = os.getenv("RUNPOD_WORKER_IMAGE", "simhpcworker/simhpc-worker:v2.2.0")
+DEFAULT_IMAGE = os.getenv("RUNPOD_WORKER_IMAGE", "simhpcworker/simhpc-worker:v2.2.1")
 DEFAULT_CLOUD_TYPE = os.getenv("RUNPOD_CLOUD_TYPE", "SECURE")
 DEFAULT_CONTAINER_DISK_GB = int(os.getenv("RUNPOD_CONTAINER_DISK_GB", "20"))
 DEFAULT_VOLUME_GB = int(os.getenv("RUNPOD_VOLUME_GB", "0"))

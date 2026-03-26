@@ -20,8 +20,11 @@ RUN apt-get update && apt-get install -y \
 COPY services/runpod-worker/requirements.txt ./requirements.txt
 
 # Install Python dependencies
-# Includes: redis, supabase, numpy, scipy, pandas, etc.
-RUN pip3 install --no-cache-dir -r requirements.txt
+# Two-step install to avoid dependency conflicts between runpod and supabase
+COPY services/runpod-worker/requirements.txt ./requirements.txt
+RUN pip3 install --no-cache-dir numpy scipy redis requests httpx fastapi uvicorn python-dotenv && \
+    pip3 install --no-cache-dir --no-deps runpod supabase && \
+    pip3 install --no-cache-dir gotrue postgrest storage3 realtime websockets
 
 # Copy the worker source code
 COPY services/runpod-worker/worker.py .

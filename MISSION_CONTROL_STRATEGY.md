@@ -20,7 +20,6 @@ SimHPC is designed as an **Operational Cockpit** that facilitates the following 
 
 #### "The Flight Path"
 
-
 An interactive horizontal marquee that treats a simulation run as a life-cycle, not a record.
 
 - **Markers:** 🟢 Dispatch → 💠 Convergence Lock → ⚠️ AI Audit Warning → ⚓ Operator Intercept → ✅ Final Physics Sign-off.
@@ -29,7 +28,6 @@ An interactive horizontal marquee that treats a simulation run as a life-cycle, 
 ### B. The Command Surface: `CommandConsole.tsx`
 
 #### "The Action Center"
-
 
 A centralized dashboard for explicit decision execution.
 
@@ -42,7 +40,6 @@ A centralized dashboard for explicit decision execution.
 
 #### "The Ancestry Engine"
 
-
 Proves *why* an engineer made a specific design shift.
 
 - **Lineage Tree:** A visual graph of parent-child relationships between simulation runs.
@@ -53,7 +50,6 @@ Proves *why* an engineer made a specific design shift.
 
 #### "The Navigator"
 
-
 Moves beyond "Insights" into "Operator Guidance."
 
 - **Persona:** Professional, directive, and evidence-backed.
@@ -62,7 +58,6 @@ Moves beyond "Insights" into "Operator Guidance."
 ### E. System Health Monitor: `SystemStatus.tsx`
 
 #### "The Heartbeat"
-
 
 A left-sidebar component for real-time visibility into the distributed alpha infrastructure.
 
