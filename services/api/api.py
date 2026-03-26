@@ -54,7 +54,7 @@ ALGORITHM = "HS256"
 
 # pod SimHPC_P_01 Configuration
 RUNPOD_API_KEY = os.getenv("RUNPOD_API_KEY")
-RUNPOD_POD_ID = os.getenv("RUNPOD_POD_ID", "x613fv0zoyvtx9")
+RUNPOD_POD_ID = os.getenv("RUNPOD_POD_ID", "tfcp1h68vdsvth")
 RUNPOD_BASE_URL = f"https://api.runpod.ai/v2/{RUNPOD_POD_ID}"
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")

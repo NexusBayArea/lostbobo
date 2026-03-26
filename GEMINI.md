@@ -21,7 +21,7 @@ We follow a strict monorepo structure to separate concerns and protect intellect
 - **Known Issue (v1.6.0-ALPHA)**: GitHub Pages fails with "Supabase Credentials Missing" and CSP violations. Fix: add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to GitHub Secrets and pass them in the build step.
 - **Custom Domain (v2.1.2)**: App at `simhpc.com`, Auth at `auth.simhpc.com`. DNS: A `@ → 76.76.21.21`, CNAME `auth → [project-ref].supabase.co`. Update Supabase Redirect URLs and Stripe JS Origins after domain is live.
 - **Double-Key Strategy (v2.2.1)**: Frontend uses `VITE_SUPABASE_ANON_KEY` (RLS enforced). Worker uses `SUPABASE_SERVICE_ROLE_KEY` (RLS bypassed) for telemetry and artifact sync.
-- **Stable RunPod Proxy (v2.2.1)**: Always use the RunPod HTTP Proxy URL (e.g., `https://x613fv0zoyvtx9-8000.proxy.runpod.net`) for `VITE_API_URL` to prevent "Offline" errors caused by IP changes.
+- **Stable RunPod Proxy (v2.2.1)**: Always use the RunPod HTTP Proxy URL (e.g., `https://tfcp1h68vdsvth-8000.proxy.runpod.net`) for `VITE_API_URL` to prevent "Offline" errors caused by IP changes.
 - **Google Auth (v2.2.1)**: Google Client ID `552738566412-t6ba9ar8jnsk7vsd399vhh206569p61e.apps.googleusercontent.com`. Redirects must point to `https://simhpc.com/api/auth/callback/google`.
 
 ## Toast System (v2.1.2)

@@ -89,10 +89,9 @@ Vercel injects these via the Dashboard or `vercel-action` workflow. **Never use 
 
 #### 2. Stable RunPod Handshake
 If the Sim Worker shows as "Offline," it is likely due to an IP change after a restart.
-- **Action**: Use the **RunPod HTTP Proxy URL** (e.g., `https://x613fv0zoyvtx9-8000.proxy.runpod.net`) in `VITE_API_URL` instead of a direct IP.
-
-### RunPod Connectivity (v2.2.1)
-- **Pod ID**: `x613fv0zoyvtx9`
+- **Action**: Use the **RunPod HTTP Proxy URL** (e.g., `https://tfcp1h68vdsvth-8000.proxy.runpod.net`) in `VITE_API_URL` instead of a direct IP.
+- **Why**: Direct IPs change on pod restart. The proxy URL is stable.
+- **Pod ID**: `tfcp1h68vdsvth`
 - **Direct TCP Connection**: `194.68.245.30:22128` (maps to internal port `:22`)
 - **SSH Command**: 
   ```bash

@@ -25,8 +25,9 @@ Manual pod management via RunPod UI led to $10–$25/day idle burn with no autom
    - **Stable Handshake**: Transitioned to RunPod HTTP Proxy URLs to eliminate "Offline" blips from IP changes.
    - **Google One Tap Fix**: Updated Google Cloud Console origins and redirect URIs for Vercel production.
 4. **RunPod Fleet Migration (v2.2.1)**: Successfully migrated to a high-performance pod cluster.
-   - **New Pod ID**: `x613fv0zoyvtx9`
-   - **Direct Access**: Updated SSH (`ssh root@194.68.245.30 -p 22128`) and Direct TCP (`194.68.245.30:22128`) endpoints.
+   - **New Pod ID**: `tfcp1h68vdsvth`
+   - **Direct Access**: SSH (`ssh root@69.30.85.73 -p 22086 -i ~/.ssh/id_ed25519`) and Direct TCP (`69.30.85.73:22086`)
+   - **HTTP Proxy**: `https://tfcp1h68vdsvth-8000.proxy.runpod.net`
    - **Global Sync**: Updated 12+ files across frontend, backend, and documentation to reflect the new pod infrastructure.
 5. **Worker v2.2.1**: Integrated with autoscaler metrics.
    - **Inflight Tracking**: Increments `simhpc_inflight` on job pop, decrements on completion.

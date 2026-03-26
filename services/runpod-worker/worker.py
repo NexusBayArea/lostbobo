@@ -40,7 +40,7 @@ QUEUE_NAME = os.getenv("QUEUE_NAME", "simhpc_jobs")
 INFLIGHT_KEY = os.getenv("INFLIGHT_KEY", "simhpc_inflight")
 POLL_INTERVAL_SEC = float(os.getenv("POLL_INTERVAL_SEC", "2"))
 IDLE_TIMEOUT = int(os.getenv("IDLE_TIMEOUT", "300"))
-RUNPOD_POD_ID = os.getenv("RUNPOD_POD_ID", "x613fv0zoyvtx9")
+RUNPOD_POD_ID = os.getenv("RUNPOD_POD_ID", "tfcp1h68vdsvth")
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
