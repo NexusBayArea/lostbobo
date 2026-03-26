@@ -143,8 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **vLLM Inference**: Integrated vLLM engine for ultra-fast Mistral/Llama inference (~90 tok/s).
   - **RAG Service**: FAISS-based vector store for engineering context retrieval from documentation.
   - **FastAPI Layer**: Dedicated API for Alpha chat and document management inside the worker.
-  - **pod SimHPC_P_01 id tfcp1h68vdsvth Integration**: Full async lifecycle management for Alpha chat requests in the main orchestrator.
-- **Backend RunPod Client**: New `RunPodClient` in `api.py` for managing pod SimHPC_P_01 id tfcp1h68vdsvth jobs, status polling, and result retrieval.
+  - **pod SimHPC_P_01 id 73atszmbozf16d Integration**: Full async lifecycle management for Alpha chat requests in the main orchestrator.
+- **Backend RunPod Client**: New `RunPodClient` in `api.py` for managing pod SimHPC_P_01 id 73atszmbozf16d jobs, status polling, and result retrieval.
 - **Alpha Chat Endpoint**: `POST /api/v1/alpha/chat` for secure engineering assistant interactions.
 
 ---

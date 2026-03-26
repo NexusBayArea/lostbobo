@@ -139,7 +139,7 @@ def main():
     parser.add_argument(
         "--api-url",
         default=os.getenv(
-            "SIMHPC_API_URL", "https://tfcp1h68vdsvth-8000.proxy.runpod.net"
+            "SIMHPC_API_URL", "https://73atszmbozf16d-8000.proxy.runpod.net"
         ),
         help="Backend API URL",
     )

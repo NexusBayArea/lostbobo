@@ -27,7 +27,7 @@ SimHPC is a cloud-based GPU-accelerated finite element simulation platform with 
 - [x] **ExperimentNotebook Theme Toggle** - Added bright/dark mode toggle matching rest of website (March 2026)
 - [x] **Magic Link Demo Tokens** - Secure alpha pilot onboarding with usage-limited demo links (March 2026)
 - [x] **Alpha RunPod Container Architecture** - Unified vLLM + RAG worker for high-performance LLM services (March 2026)
-- [x] **RunPod Pod Migration** - Migrated from Legacy Serverless to pod SimHPC_P_01 id tfcp1h68vdsvth with infinite loop workers (March 2026)
+- [x] **RunPod Pod Migration** - Migrated from Legacy Serverless to pod SimHPC_P_01 id 73atszmbozf16d with infinite loop workers (March 2026)
 - [x] **Mission Control Cockpit v1.6.0** - Modular "Decision Intelligence" platform with Telemetry, Active Fleet, Ancestry, and Command Console (March 2026)
 - [x] **RAG Engineering Assistant** - Retrieval-augmented chat for SimHPC documentation (March 2026)
 - [x] **Core System APIs** - Runtime estimator (`runtime ≈ E * S * P`) and timeline replay system (100% Complete)

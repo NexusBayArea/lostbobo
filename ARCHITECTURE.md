@@ -294,7 +294,7 @@ To balance user security with high-performance worker throughput, SimHPC employs
 
 #### 2. Stable Connectivity (RunPod Proxy)
 The production environment uses the **RunPod HTTP Proxy** (mapped to Port 8000 by default) for all API communications.
-- **Stable URLs**: `https://tfcp1h68vdsvth-8000.proxy.runpod.net` provides a static endpoint that persists across pod restarts.
+- **Stable URLs**: `https://73atszmbozf16d-8000.proxy.runpod.net` provides a static endpoint that persists across pod restarts.
 - **Direct Access**: `194.68.245.30:22128` (TCP port mapping for SSH/Direct access).
 - **SSH**: `ssh root@194.68.245.30 -p 22128 -i ~/.ssh/id_ed25519`
 - **CORS Hardening**: The API orchestrator explicitly allows requests from `simhpc.com` and Vercel preview domains. The wildcard origin `*` is strictly prohibited in production.
