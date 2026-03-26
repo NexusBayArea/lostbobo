@@ -1,0 +1,23 @@
+# === Worker image (heavy compute ~1GB) ===
+
+# Scientific computing
+numpy>=1.24.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+
+# PDF generation
+fpdf2>=2.7.0
+
+# AI report generation
+openai>=1.0.0
+tenacity>=8.2.0
+
+# Job queue
+redis>=4.5.0
+httpx>=0.24.0
+
+# Supabase (status sync)
+supabase>=2.3.0
+
+# Utilities
+pydantic>=2.0.0

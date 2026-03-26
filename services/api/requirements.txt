@@ -1,0 +1,34 @@
+# === API image (lightweight ~200MB) ===
+
+# Web framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+pydantic>=2.0.0
+gunicorn>=21.0.0
+
+# Auth
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.6
+
+# Data / HTTP
+httpx>=0.24.0
+redis>=4.5.0
+
+# Supabase
+supabase>=2.3.0
+
+# Billing
+stripe>=5.0.0
+
+# Observability
+structlog>=23.0.0
+prometheus-client>=0.17.0
+
+# AI (lightweight API client only)
+openai>=1.0.0
+tenacity>=8.2.0
+tiktoken>=0.5.0
+
+# Async task queue
+celery>=5.3.0

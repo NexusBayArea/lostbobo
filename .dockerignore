@@ -35,9 +35,9 @@ htmlcov/
 .gitignore
 .gitattributes
 
-# Documentation
+# Documentation (large, not needed in containers)
 *.md
-!README.md
+!**/README.md
 docs/
 everything-claude-code/
 
@@ -49,17 +49,20 @@ everything-claude-code/
 *.sqlite
 *.db
 
-# Fonts (downloaded in Docker build)
-fonts/*.ttf
+# Frontend build artifacts
+dist/
+build/
+
+# Fonts (downloaded at build time)
+**/fonts/*.ttf
+
+# Cache
+.cache/
 
 # Temporary
 tmp/
 temp/
 *.tmp
-
-# Build artifacts
-wheelhouse/
-.cache/
 
 # Large data (never copy into images)
 data/
@@ -69,5 +72,5 @@ checkpoints/
 # GitHub workflows
 .github/
 
-# Supabase
+# Supabase (DB migrations, not needed in app containers)
 supabase/

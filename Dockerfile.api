@@ -1,0 +1,25 @@
+# Use a Python base image for the Orchestrator
+FROM python:3.11-slim
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy common requirements and service-specific requirements
+# Since we are in the monorepo root, we can copy the relevant ones
+COPY services/api/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the API source code
+# Note: We need to include auth_utils and queue from the same folder
+COPY services/api/ ./
+
+# Run the FastAPI server
+CMD ["python", "-u", "api.py"]

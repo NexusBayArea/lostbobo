@@ -5,6 +5,60 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-03-25
+
+### Added
+- **RunPod API Client (`runpod_api.py`)**: Production-grade pod lifecycle management module with full GraphQL API integration.
+  - `list_pods()` — Fleet-wide status with GPU utilization and cost estimates.
+  - `create_pod()` — Programmatic pod creation with MAX_PODS safety cap.
+  - `start_pod()` / `stop_pod()` — Resume/pause pods to control GPU billing.
+  - `terminate_pod()` — Permanent pod destruction for idle shutdown.
+  - `get_fleet_status()` — Aggregated fleet, queue, cost, and scaling state.
+  - `get_cost_summary()` — Daily/weekly burn estimates with autoscaler savings %.
+  - `health_check()` — RunPod API key validation and account status.
+- **Production Autoscaler v2.2.0**: Cost-aware, queue-driven scaling engine.
+  - Daily cost budgets: `DAILY_COST_WARN_USD` (warning) and `DAILY_COST_HARD_CAP_USD` (blocks scale-up).
+  - Per-interval cost accumulation tracked in Redis (`cost:today_usd`).
+  - Periodic fleet status snapshots stored in Redis (`autoscaler:last_status`).
+  - Structured event logging to Redis (`runpod_events` list, last 500 entries).
+  - Startup health check verifying RunPod API connectivity.
+- **Admin Fleet Management Endpoints** (6 new routes in `api.py`):
+  - `GET /api/v1/admin/fleet` — Fleet status dashboard data.
+  - `GET /api/v1/admin/fleet/cost` — Cost tracking summary.
+  - `GET /api/v1/admin/fleet/events` — Recent scaling/cost events.
+  - `POST /api/v1/admin/fleet/pod` — Create pod (safety-capped).
+  - `POST /api/v1/admin/fleet/pod/{id}/stop` — Stop pod.
+  - `POST /api/v1/admin/fleet/pod/{id}/terminate` — Terminate pod.
+  - All endpoints protected by `X-Admin-Secret` header.
+
+### Changed
+- **Autoscaler Dockerfile**: Updated to include `runpod_api.py` module and build from root context.
+- **docker-compose.yml**: Autoscaler service now receives 10 additional env vars for fleet config and cost caps.
+- **`.env.schema`**: Added all RunPod fleet management and autoscaler v2.2.0 environment variables.
+- **`.env.example`**: Added RunPod API key, fleet config, and cost cap variables.
+
+### Cost Impact
+- **Without autoscaler**: $10–$25/day idle GPU burn.
+- **With v2.2.0 autoscaler**: $1–$5/day (alpha usage) with daily hard cap enforcement.
+
+## [1.6.2] - 2026-03-21
+
+### Changed
+- **Multi-Pod Autoscaler**: Replaced single-pod autoscaler with queue-depth-based scaling. Pods scale as `ceil(queue / JOBS_PER_POD)` capped at `MAX_PODS=3`, one at a time with 30s cooldown.
+- **Redis-Persisted Pod State**: Active pod list stored in Redis (`active_pods` key) so autoscaler survives restarts without orphaning pods.
+- **RunPod API Sync**: Every cycle queries RunPod for live pods, reconciles against stored state, and cleans up dead/orphaned entries.
+- **Full Idle Shutdown**: Terminates ALL pods after 5 min idle → guaranteed $0 when not busy.
+- **Docker Image Sizes**: Multi-stage builds across all Dockerfiles. Worker uses `cuda:runtime` (not `devel`) with aggressive trim (no pip, no __pycache__) → ~1GB final. API uses `python:3.11-slim` builder → ~200MB final.
+- **API Workers**: Reduced gunicorn workers from 4 → 2 to save memory on small instances.
+- **`.dockerignore` hardening**: Added `data/`, `datasets/`, `checkpoints/`, `wheelhouse/`, `.cache/` to prevent accidental multi-GB copies.
+
+### Fixed
+- **Runaway Cost**: Old autoscaler could leave pods running indefinitely. New version enforces `MAX_PODS` cap both in code and against the RunPod API.
+- **`COPY . .` removed**: Robustness-orchestrator Dockerfiles replaced blanket copy with explicit file list.
+- **Worker `REDIS_URL` default**: Removed `localhost` fallback — worker now fails fast if `REDIS_URL` is not set (prevents silent misconnection on RunPod).
+- **Worker heartbeat during idle**: `send_heartbeat()` now fires in both job-active and idle loops so dashboard always shows worker as alive.
+- **Debug script**: Added `debug.py` for quick Redis + Supabase connectivity check inside worker container.
+
 ## [1.6.1] - 2026-03-18
 
 ### Fixed
@@ -67,19 +121,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-
 ### Added
+
 - **Alpha RunPod Container Architecture**: New unified worker container for high-performance LLM and RAG services.
   - **vLLM Inference**: Integrated vLLM engine for ultra-fast Mistral/Llama inference (~90 tok/s).
   - **RAG Service**: FAISS-based vector store for engineering context retrieval from documentation.
   - **FastAPI Layer**: Dedicated API for Alpha chat and document management inside the worker.
-  - **RunPod Serverless Integration**: Full async lifecycle management for Alpha chat requests in the main orchestrator.
-- **Backend RunPod Client**: New `RunPodClient` in `api.py` for managing Serverless jobs, status polling, and result retrieval.
+  - **pod SimHPC_P_01 id x613fv0zoyvtx9 Integration**: Full async lifecycle management for Alpha chat requests in the main orchestrator.
+- **Backend RunPod Client**: New `RunPodClient` in `api.py` for managing pod SimHPC_P_01 id x613fv0zoyvtx9 jobs, status polling, and result retrieval.
 - **Alpha Chat Endpoint**: `POST /api/v1/alpha/chat` for secure engineering assistant interactions.
 
 ---
 
 ## [1.4.0] - 2026-03-10
+
 
 ### Added
 - **Magic Link Demo Tokens**: Complete alpha pilot onboarding system with secure, usage-limited demo links.
@@ -102,6 +157,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## [1.3.1] - 2026-03-10
+
 
 ### Added
 - **Protected Routes**: Implemented `ProtectedRoute` component to prevent unauthorized access to dashboard pages. Users are now redirected to the sign-in page if they are not authenticated.
@@ -131,6 +187,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0] - 2026-03-08
 
+
 ### Added
 - **Experiment Notebook**: A persistent research workspace for automated logging, side-by-side experiment comparison, and "Replay" capability for solver parameters.
 - **Abuse Prevention System**: Multi-layered security including device fingerprinting, IP-based account limits, honeypot fields, and compute guardrails (60s timeouts, delayed queues).
@@ -147,6 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2026-03-06
 
+
 ### Added
 - **Mercury AI Migration**: Purged all Kimi AI references and fully transitioned to Mercury AI (Inception Labs) for engineering-grade report generation.
 - **SimHPC Client Library**: TypeScript client with auto-auth and typed methods.
@@ -161,6 +219,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-03-04
 
+
 ### Added
 - Initial production launch with Stripe integration and PDF export.
 - Multi-stage Docker optimization.
@@ -168,159 +227,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## Appendix: Mercury AI Usage in Alpha
-
-### 1. Where Mercury Is Used in Alpha
-
-In your current Alpha architecture, **Mercury should only be used in two places**:
-
-#### 1️⃣ Simulation Setup Assistance
-
-Mercury helps interpret user inputs into simulation parameters.
-
-Example:
-
-User input:
-```
-simulate high temperature stress
-```
-
-Mercury converts it into structured parameters:
-```
-temperature: 45
-duration: 48h
-wind: moderate
-```
-
-Then the simulation module runs.
-
-So the flow is:
-```
-User Input
-↓
-Mercury interpretation
-↓
-Simulation parameters
-↓
-RunPod simulation
-```
-
-#### 2️⃣ Notebook Generation
-
-Mercury writes the **explanatory text** inside the notebook.
-
-Example:
-
-Simulation output:
-```
-voltage_drop = 8%
-temperature = 42C
-```
-
-Mercury generates:
-```
-The simulation indicates that elevated temperatures resulted in an 8% voltage drop,
-suggesting increased thermal stress on the battery system.
-```
-
-So the flow is:
-```
-Simulation results
-↓
-Mercury explanation
-↓
-Notebook summary
-```
-
-### 2. Where Mercury Should NOT Be Used in Alpha
-
-Avoid using Mercury for:
-
-❌ actual physics simulations
-❌ experiment selection
-❌ simulation validation
-
-### 3. Simple Mercury Health Test
-
-The easiest test is to create a **test endpoint**.
-
-Example:
-
-Node.js example:
-```javascript
-export async function testMercury(req, res) {
-  const response = await fetch("https://api.inceptionlabs.ai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${process.env.MERCURY_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "mercury",
-      messages: [
-        { role: "user", content: "Return the word SIMHPC_OK" }
-      ]
-    })
-  });
-
-  const data = await response.json();
-  res.json(data);
-}
-```
-
-Expected response:
-```
-SIMHPC_OK
-```
-
-If you get that, Mercury is working.
-
-### 4. Test From Terminal
-
-You can test Mercury directly with curl:
-```
-curl https://api.inceptionlabs.ai/v1/chat/completions \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "mercury",
-    "messages": [
-      {"role":"user","content":"reply SIMHPC_OK"}
-    ]
-  }'
-```
-
-Expected output:
-```
-SIMHPC_OK
-```
-
-### 5. What Alpha Mercury Usage Should Look Like
-
-Ideal Alpha flow:
-```
-User runs simulation
-↓
-RunPod executes model
-↓
-Results returned
-↓
-Mercury writes explanation
-↓
-Notebook generated
-```
-
-So Mercury is **assistive**, not core.
-
-### 6. Quick Mercury Test Inside Your System
-
-The fastest test you can run right now:
-
-Add this temporary call inside notebook generation:
-
-Prompt:
-```
-Explain the following simulation result in one sentence.
-```
-
-If the notebook text appears → **Mercury is working**.
+> **Mercury AI**: See [ARCHITECTURE.md](./ARCHITECTURE.md#appendix-mercury-ai-usage-in-alpha) for usage guidelines and health tests.

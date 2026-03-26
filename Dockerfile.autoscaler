@@ -1,9 +1,10 @@
 FROM python:3.11-slim
 
 WORKDIR /app
-COPY app/idle_timeout.py .
+COPY services/runpod-worker/runpod_api.py .
+COPY services/runpod-worker/autoscaler.py .
 COPY services/runpod-worker/requirements-autoscaler.txt ./requirements.txt
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "idle_timeout.py"]
+CMD ["python", "autoscaler.py"]

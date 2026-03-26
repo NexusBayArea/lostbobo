@@ -6,7 +6,7 @@ on:
     paths:
       - 'services/runpod-worker/worker.py'
       - 'Dockerfile.worker'
-      - 'requirements.worker.txt'
+      - 'services/runpod-worker/requirements.txt'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -31,7 +31,7 @@ jobs:
           file: ./Dockerfile.worker
           push: true
           tags: |
-            simhpcworker/simhpc-worker:v2.1.2
+            simhpcworker/simhpc-worker:v2.2.0
             simhpcworker/simhpc-worker:latest
           env:
             DOCKER_BUILDKIT: "1"

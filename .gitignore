@@ -1,36 +1,108 @@
-# Node.js
+# ==============================================================================
+# SimHPC .gitignore (Best-Practice Policy)
+# ==============================================================================
+
+# --- Documentation Artifacts ---
+# Allow schema files, but ignore active environment secrets
+! .env.schema
+! .env.example
+
+# --- Environment & Secrets (🚨 CRITICAL) ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+*.pem
+*.key
+*.pub
+auth_secret.txt
+admin_secret.txt
+# Ignore any GCP service account keys provided locally
+secrets/
+*.json
+! package.json
+! tsconfig.json
+! .env.schema
+! .env.example
+
+# --- Build & Dependency Management ---
 node_modules/
 dist/
 build/
+out/
+.vercel
+.next/
+.serverless/
+.turbo/
 .npm
 .eslintcache
 .stylelintcache
-.vercel
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
+# Python dependencies
 .venv/
 venv/
 ENV/
-.env
-.env.local
-.env.*.local
-*.log
+env/
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+.eggs/
+# Jupyter
+.ipynb_checkpoints
 
-# OS
+# --- Simulation & Data Persistence (v2.2.0) ---
+# Local persistence for Redis/DB/Solver data
+data/
+logs/
+*.log
+# Engineering reports / artifacts
+reports/*.pdf
+outputs/
+results/
+# Specific release archives
+*.zip
+*.tar.gz
+*.7z
+simhpc_alpha_runpod_ready.zip
+
+# --- IDE & Editor Settings ---
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+# IntelliJ/PyCharm
+.idea/
+*.iws
+*.iml
+*.ipr
+# Sublime
+*.sublime-project
+*.sublime-workspace
+# General
 .DS_Store
 Thumbs.db
+desktop.ini
+# Git
+.git-rewrite/
 
-# IDE
-.vscode/
-.idea/
-
-# SimHPC Specific
+# --- SimHPC Monorepo Specifics ---
 apps/**/node_modules/
 apps/**/dist/
+apps/**/build/
 services/**/__pycache__/
 services/**/.venv/
+services/**/venv/
 packages/**/__pycache__/
-simhpc_alpha_runpod_ready.zip
+packages/**/.venv/
+packages/**/venv/
+# Ignore any local sqlite DBs used for testing
+*.sqlite
+*.db
+! database.sql
