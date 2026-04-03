@@ -99,6 +99,20 @@ To ensure zero-leak security, SimHPC uses **Infisical** for all sensitive creden
 - **Managed Keys**: `RUNPOD_POD_ID`, `RUNPOD_SSH_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SIMHPC_API_KEY`.
 - **Placeholder Pattern**: See `.env.example` for the required keys. Actual values never hit the disk.
 
+#### Infisical Universal Auth (Machine Identity)
+
+For CI/CD and automated workflows, use Universal Auth with a machine identity:
+
+```bash
+infisical login --universal-auth --client-id "<CLIENT_ID>" --client-secret "<CLIENT_SECRET>"
+```
+
+- **Client ID**: Machine identity UUID (e.g., `55d8d8e8-dd7e-4d5c-b7d1-aec3e3a577f2`)
+- **Client Secret**: Long-lived secret (stored in Infisical vault, never committed)
+- **Environment Variables**: Alternatively set `INFISICAL_UNIVERSAL_CLIENT_ID` and `INFISICAL_UNIVERSAL_CLIENT_SECRET`
+
+The machine identity **"RogWin"** is configured for this project.
+
 ## v2.4.1-DEV: Persistence & Conflict Resolution
 
 - **Autosave System**: Debounced background sync of onboarding state to the FastAPI backend.

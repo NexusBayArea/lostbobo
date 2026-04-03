@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Docker Compose Env Expansion**: All services now declare `${VARIABLE}` syntax for Infisical-injected secrets (`JWT_ALGORITHM`, `MERCURY_API_URL`, `MERCURY_MODEL_ID`, `GCP_PROJECT_ID`). Worker image versions updated to `v2.5.0`.
 - **Supabase Client Naming Fallback**: `src/lib/supabase.ts` checks both `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` and `SB_URL`/`SB_ANON_KEY` for Infisical compatibility.
 - **Infisical Project Linking**: Requires `infisical init` to be run interactively to create `.infisical.json` and link the local directory to the SimHPC vault. Without this file, `infisical run` returns zero secrets.
+- **Infisical Universal Auth (Machine Identity)**: Machine identity "RogWin" configured for CI/CD. Login via `infisical login --universal-auth --client-id "<CLIENT_ID>" --client-secret "<CLIENT_SECRET>"` or set `INFISICAL_UNIVERSAL_CLIENT_ID` / `INFISICAL_UNIVERSAL_CLIENT_SECRET` environment variables.
 
 ### Fixed
 
