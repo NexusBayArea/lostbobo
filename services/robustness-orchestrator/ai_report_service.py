@@ -18,14 +18,13 @@ import logging
 import re
 import os
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field, asdict
-from datetime import datetime, timedelta
-from pathlib import Path
+from dataclasses import dataclass, field
+from datetime import datetime
 import hashlib
 import redis
 import html
 from tenacity import retry, stop_after_attempt, wait_exponential
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, validator
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -108,13 +107,13 @@ class AIReport:
     def to_markdown(self) -> str:
         """Convert report to markdown format."""
         lines = [
-            f"# AI Interpretation Report",
-            f"",
+            "# AI Interpretation Report",
+            "",
             f"**Generated:** {self.generated_at}",
             f"**Report ID:** {self.report_id}",
-            f"",
+            "",
             "---",
-            f"",
+            "",
         ]
 
         for section in sorted(self.sections, key=lambda s: s.order):
@@ -122,13 +121,13 @@ class AIReport:
             lines.extend(
                 [
                     f"## {section.title}",
-                    f"",
+                    "",
                     content,
-                    f"",
+                    "",
                 ]
             )
 
-        lines.extend(["---", f"", f"**{self.disclaimer}**", f""])
+        lines.extend(["---", "", f"**{self.disclaimer}**", ""])
 
         return "\n".join(lines)
 
@@ -683,12 +682,14 @@ Requirements:
 • **Convergence Time:** {data.get("convergence_time_sec", 0.0):.1f} seconds
 • **Residual Tolerance Achieved:** {data.get("residual_tolerance", 1e-6)}
 • **Timestepping:** Adaptive BDF2 with error control"""
-        except:
+        except Exception as e:
+            logger.error(f"Fallback summary generation failed: {e}")
             return """• **Solver Configuration:** MFEM + SUNDIALS time-dependent solver
-• **Mesh Elements:** 2.1M tetrahedral elements
-• **Convergence Time:** 48.2 seconds
+• **Mesh Elements:** [Numerical Data Unavailable]
+• **Convergence Time:** [Numerical Data Unavailable]
 • **Residual Tolerance Achieved:** 1e-6
-• **Timestepping:** Adaptive BDF2 with error control"""
+• **Timestepping:** Adaptive BDF2 with error control
+[Note: AI generation failed. Metrics listed above are based on available solver telemetry.]"""
 
     def _generate_deterministic_fallback(
         self, section_name: str, simulation_data: Dict[str, Any]
@@ -749,17 +750,21 @@ and peak stress of {simulation_data.get("peak_stress", "N/A")} MPa.
             ).group(1)
             data = json.loads(json_str)
             info = data.get("stability_threshold_info", {})
-            return f"""• **Peak Temperature:** {data.get("max_temperature_K", 0.0):.1f} K (observed at boundary interface)
-• **Minimum Temperature:** {data.get("min_temperature_K", 0.0):.1f} K (ambient region)
+            max_temp = data.get("max_temperature_K", 0.0)
+            min_temp = data.get("min_temperature_K", 0.0)
+            return f"""• **Peak Temperature:** {max_temp:.1f} K (observed at boundary interface)
+• **Minimum Temperature:** {min_temp:.1f} K (ambient region)
 • **Peak Stress:** {data.get("peak_stress_MPa", 0.0):.1f} MPa ({"exceeds limits" if info.get("exceeded") else "within elastic limits"})
 • **Stability Threshold:** {"Exceeded" if info.get("exceeded") else "Not exceeded"}
-• **Temperature Gradient:** {data.get("max_temperature_K", 0.0) - data.get("min_temperature_K", 0.0):.1f} K across domain"""
-        except:
-            return """• **Peak Temperature:** 412.3 K (observed at boundary interface)
-• **Minimum Temperature:** 289.4 K (ambient region)
-• **Peak Stress:** 125.8 MPa (within elastic limits)
-• **Stability Threshold:** Not exceeded
-• **Temperature Gradient:** 122.9 K across domain"""
+• **Temperature Gradient:** {max_temp - min_temp:.1f} K across domain"""
+        except Exception as e:
+            logger.error(f"Fallback metrics generation failed: {e}")
+            return """• **Peak Temperature:** [Numerical Data Unavailable]
+• **Minimum Temperature:** [Numerical Data Unavailable]
+• **Peak Stress:** [Numerical Data Unavailable]
+• **Stability Threshold:** [Manual Interpretation Required]
+• **Temperature Gradient:** [Numerical Data Unavailable]
+[Note: AI generation failed. Please refer to raw simulation results.]"""
 
     def _generate_sensitivity_content(self, prompt: str) -> str:
         """Generate Sensitivity Ranking content."""
@@ -782,14 +787,9 @@ and peak stress of {simulation_data.get("peak_stress", "N/A")} MPa.
                 f"\n**Interpretation:** Model output indicates that peak temperature is primarily driven by {primary} variation."
             )
             return "\n".join(lines)
-        except:
-            return """Parameters ranked by influence coefficient on peak temperature:
-
-1. **Boundary flux** (0.62 influence coefficient)
-2. **Thermal conductivity** (0.21)
-3. **Ambient temperature** (0.09)
-
-**Interpretation:** Model output indicates that peak temperature is primarily driven by boundary heat flux variation. Thermal conductivity shows moderate influence, while ambient temperature demonstrates relatively weak coupling to peak temperature response."""
+        except Exception as e:
+            logger.error(f"Fallback sensitivity generation failed: {e}")
+            return "[Engineering Note: Parameter sensitivity analysis failed. Manual ranking of Sobol indices required.]"
 
     def _generate_uncertainty_content(self, prompt: str) -> str:
         """Generate Uncertainty Assessment content."""
@@ -807,14 +807,9 @@ and peak stress of {simulation_data.get("peak_stress", "N/A")} MPa.
 • **Variance:** {data.get("variance", 0.0):.2f} K²
 
 The analysis suggests convergence behavior across the sampled parameter space. Note: Confidence intervals assume approximate normal distribution of output responses."""
-        except:
-            return """• **Perturbation Sweep:** 15-run parameter variation study
-• **Sampling Method:** ±10% uniform perturbation
-• **Confidence Interval:** ±3.1% (95% confidence level)
-• **Non-convergent Cases:** 0 observed
-• **Variance:** 142.3 K²
-
-The analysis suggests robust convergence behavior across the sampled parameter space. Note: Confidence intervals assume approximate normal distribution of output responses."""
+        except Exception as e:
+            logger.error(f"Fallback uncertainty generation failed: {e}")
+            return "[Engineering Note: Statistical uncertainty assessment failed. Manual verification of run convergence required.]"
 
     def _generate_interpretation_content(self, prompt: str) -> str:
         """Generate Engineering Interpretation content."""
@@ -832,8 +827,9 @@ The analysis suggests robust convergence behavior across the sampled parameter s
                 else "input parameters"
             )
             return f"""Small perturbations in {primary} produce changes in peak temperature response. Model behavior shows that system stability is linked to thermal management conditions. The observed sensitivity pattern indicates that engineering strategies should prioritize {primary} control."""
-        except:
-            return """Small perturbations in boundary heat flux produce nonlinear amplification in peak temperature response. Model behavior shows that system stability is sensitive to cooling efficiency under high current density conditions. The observed sensitivity pattern indicates that thermal management strategies should prioritize boundary flux control."""
+        except Exception as e:
+            logger.error(f"Fallback interpretation generation failed: {e}")
+            return "[Engineering Note: Automated interpretation failed. Manual review of parameter coupling is required.]"
 
     def _generate_suggestions_content(self, prompt: str) -> str:
         """Generate Suggested Next Simulation content."""
@@ -863,10 +859,9 @@ The analysis suggests robust convergence behavior across the sampled parameter s
                 "• **Test boundary conditions** under extreme operating points"
             )
             return "\n".join(suggestions)
-        except:
-            return """• **Increase mesh refinement** near boundary interface regions to capture flux gradients more accurately
-• **Evaluate 10–15% flux variation range** to characterize nonlinear response regime
-• **Test nonlinear material model** under elevated temperature conditions to assess property degradation effects"""
+        except Exception as e:
+            logger.error(f"Fallback suggestions generation failed: {e}")
+            return "• Review raw simulation data manually\n• Consider increasing perturbation sample size"
 
     def verify_report_integrity(
         self, report: AIReport, simulation_data: Dict[str, Any]
@@ -876,17 +871,38 @@ The analysis suggests robust convergence behavior across the sampled parameter s
         Validates AI conclusions against raw simulation metrics.
         """
         flags = []
-        report_text = report.to_markdown().lower()
+        report_text = report.to_markdown()  # Case-sensitive for specific labels
 
-        # 1. Max Temperature Check
+        # 1. Max Temperature Check - Target specific labels to avoid false positives
         raw_max_temp = simulation_data.get("max_temperature", 0.0)
-        temp_matches = re.findall(r"\b(\d{2,4}(?:\.\d+)?)\s*K\b", report_text)
-        for match in temp_matches:
-            val = float(match)
+        # Look for "Peak Temperature: X.X K" specifically
+        temp_match = re.search(
+            r"Peak Temperature:\s*(\d+(?:\.\d+)?)\s*K", report_text, re.IGNORECASE
+        )
+        if temp_match:
+            val = float(temp_match.group(1))
             if abs(val - raw_max_temp) / (raw_max_temp or 1.0) > 0.05:
                 flags.append(
                     f"Temperature inconsistency: Data shows {raw_max_temp}K, AI reported {val}K"
                 )
+
+        # 2. Stability Logic Check
+        stability_exceeded = simulation_data.get("stability_threshold_exceeded", False)
+        report_text_lower = report_text.lower()
+        if (
+            stability_exceeded
+            and "stability threshold: not exceeded" in report_text_lower
+        ):
+            flags.append(
+                "Stability mismatch: Data indicates threshold exceeded, AI reported 'not exceeded'"
+            )
+        elif (
+            not stability_exceeded
+            and "stability threshold: exceeded" in report_text_lower
+        ):
+            flags.append(
+                "Stability mismatch: Data indicates stable, AI reported 'exceeded'"
+            )
 
         # 2. Stability Logic Check
         stability_exceeded = simulation_data.get("stability_threshold_exceeded", False)
@@ -1036,7 +1052,7 @@ Requirements:
                 )
         else:
             if "within" not in guidance_lower and "below limit" not in guidance_lower:
-                flags.append(f"Guidance should mention stress is within elastic limits")
+                flags.append("Guidance should mention stress is within elastic limits")
 
         # Check stability threshold
         stability_exceeded = numerical_context["stability_threshold_exceeded"]

@@ -12,9 +12,24 @@ services:
       timeout: 3s
       retries: 5
 
+  # 5. The Frontend (Vite + Nginx)
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile.prod
+      args:
+        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+    ports:
+      - "80:80"
+    depends_on:
+      api:
+        condition: service_started
+
   # 2. The Orchestrator (Mercury AI / FastAPI)
   api:
-    image: simhpcworker/simhpc-api:v2.2.1
+    image: simhpcworker/simhpc-api:v2.5.0
     build:
       context: .
       dockerfile: Dockerfile.api
@@ -27,6 +42,10 @@ services:
       - SIMHPC_API_KEY=${SIMHPC_API_KEY}
       - RUNPOD_API_KEY=${RUNPOD_API_KEY}
       - RUNPOD_POD_ID=${RUNPOD_POD_ID}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - MERCURY_API_URL=${MERCURY_API_URL:-https://api.inceptionlabs.ai/v1/chat/completions}
+      - MERCURY_MODEL_ID=${MERCURY_MODEL_ID:-mercury-2}
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
     depends_on:
       redis:
         condition: service_healthy
@@ -41,10 +60,13 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      - RUNPOD_POD_ID=local-tester-01
-      - MAX_CONCURRENT_JOBS=2
+      - RUNPOD_POD_ID=${RUNPOD_POD_ID:-local-tester-01}
+      - MAX_CONCURRENT_JOBS=${MAX_CONCURRENT_JOBS:-2}
       - INCEPTION_API_KEY=${INCEPTION_API_KEY}
       - MERCURY_API_KEY=${MERCURY_API_KEY}
+      - MERCURY_API_URL=${MERCURY_API_URL:-https://api.inceptionlabs.ai/v1/chat/completions}
+      - MERCURY_MODEL_ID=${MERCURY_MODEL_ID:-mercury-2}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     depends_on:
       redis:
         condition: service_healthy
@@ -60,7 +82,7 @@ services:
       - RUNPOD_API_KEY=${RUNPOD_API_KEY}
       - RUNPOD_POD_ID=${RUNPOD_POD_ID}
       - RUNPOD_GPU_TYPE=${RUNPOD_GPU_TYPE:-NVIDIA A40}
-      - RUNPOD_WORKER_IMAGE=${RUNPOD_WORKER_IMAGE:-simhpcworker/simhpc-worker:v2.2.1}
+      - RUNPOD_WORKER_IMAGE=${RUNPOD_WORKER_IMAGE:-simhpcworker/simhpc-worker:v2.5.0}
       - MAX_PODS=${MAX_PODS:-2}
       - JOBS_PER_POD=${JOBS_PER_POD:-2}
       - IDLE_TIMEOUT=${IDLE_TIMEOUT:-300}

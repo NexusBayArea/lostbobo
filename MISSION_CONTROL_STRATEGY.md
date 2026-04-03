@@ -63,7 +63,7 @@ A left-sidebar component for real-time visibility into the distributed alpha inf
 
 - **Service Telemetry:** Live pulsing LEDs for Mercury AI, RunPod GPUs, Supabase DB, and Sim Worker.
 - **Recent Jobs Log:** A fast 20-line debugging scroller to identify GPU timeouts, failed jobs, or stuck dispatch queues.
-- **Fleet Dashboard (v2.2.1):** Admin view at `/api/v1/admin/fleet` showing running pods, queue depth, daily cost, and scaling events. Powered by the cost-aware autoscaler with daily budget caps.
+- **Fleet Dashboard (v2.3.0):** Admin view at `/api/v1/admin/fleet` showing running/stopped pods, queue depth, daily cost, and scaling events. Features a **"Wake GPU"** manual override to resume pods from disk hibernation in ~90s. Powered by the Option C cost-aware autoscaler with Network Volume persistence.
 
 ---
 
@@ -79,13 +79,14 @@ A left-sidebar component for real-time visibility into the distributed alpha inf
 
 ---
 
-## 4. Technical Implementation Layer
+## 4. Technical Implementation Layer (Synchronized v2.4.1)
 
-### API Specification (Control Subsystem)
+### API Specification (Control Subsystem - STABLE)
 
-- **`POST /api/v1/control/command`**: Payload: `{ action: 'intercept' | 'clone' | 'boost', run_id: string, params?: object }`
-- **`GET /api/v1/control/timeline`**: Returns an array of temporal events for the `SimulationTimeline` marquee.
-- **`GET /api/v1/control/lineage`**: Returns the tree structure of historical iterations.
+- **`POST /api/v1/control/command`**: Fully implemented. Supported actions: `intercept`, `clone`, `boost`, `certify`.
+- **`GET /api/v1/controlroom/state`**: Primary aggregator for O-D-I-A-V loop hydration (Telemetry, Alerts, Active Runs).
+- **`GET /api/v1/control/timeline`**: Returns historical temporal events for design scrubbing.
+- **`GET /api/v1/control/lineage`**: Returns iteration ancestry for root-cause analysis.
 
 ### Frontend State (Supabase Realtime)
 

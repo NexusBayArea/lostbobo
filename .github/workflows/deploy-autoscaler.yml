@@ -1,13 +1,13 @@
-name: Deploy SimHPC Autoscaler to Docker Hub
+name: Deploy SimHPC Autoscaler to Docker Hub (Deprecated — use deploy.yml)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'services/runpod-worker/runpod_api.py'
-      - 'services/runpod-worker/app/idle_timeout.py'
-      - 'Dockerfile.autoscaler'
-      - 'services/runpod-worker/requirements-autoscaler.txt'
+      - "services/worker/runpod_api.py"
+      - "services/worker/autoscaler.py"
+      - "Dockerfile.autoscaler"
+      - "services/worker/requirements-autoscaler.txt"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -20,10 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+        run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build and Push Autoscaler Image
         uses: docker/build-push-action@v5
@@ -32,7 +29,5 @@ jobs:
           file: ./Dockerfile.autoscaler
           push: true
           tags: |
-            simhpcworker/simhpc-autoscaler:v2.2.0
             simhpcworker/simhpc-autoscaler:latest
-          env:
-            DOCKER_BUILDKIT: "1"
+            simhpcworker/simhpc-autoscaler:v2.5.0

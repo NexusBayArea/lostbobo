@@ -1,12 +1,12 @@
-name: Deploy SimHPC Worker to RunPod
+name: Deploy SimHPC Worker to RunPod (Deprecated — use deploy.yml)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
-      - 'services/runpod-worker/worker.py'
-      - 'Dockerfile.worker'
-      - 'services/runpod-worker/requirements.txt'
+      - "services/worker/worker.py"
+      - "Dockerfile.worker"
+      - "services/worker/requirements.txt"
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -19,10 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+        run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build and Push Worker Image
         uses: docker/build-push-action@v5
@@ -31,10 +28,8 @@ jobs:
           file: ./Dockerfile.worker
           push: true
           tags: |
-            simhpcworker/simhpc-worker:v2.2.0
             simhpcworker/simhpc-worker:latest
-          env:
-            DOCKER_BUILDKIT: "1"
+            simhpcworker/simhpc-worker:v2.5.0
 
       - name: Restart RunPod Worker Pod
         run: |

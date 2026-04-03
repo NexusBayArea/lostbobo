@@ -9,69 +9,80 @@ Improvements (March 2026):
 """
 
 import asyncio
-import os
 import logging
+import os
 import uuid
 import json
-import redis
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
-from typing import Dict, List, Optional, Any
+import time
 from contextlib import asynccontextmanager
-from pathlib import Path
 from datetime import datetime, timedelta
 from enum import Enum
+from pathlib import Path
+from typing import Dict, List, Optional, Any
 
-from fastapi import (
+from dotenv import load_dotenv
+
+# Load environment variables from the root .env file before other imports
+env_path = Path(__file__).parent.parent.parent / ".env"
+load_dotenv(env_path)
+
+import httpx  # noqa: E402
+import redis  # noqa: E402
+from fastapi import (  # noqa: E402
     FastAPI,
     HTTPException,
-    BackgroundTasks,
-    Body,
     Header,
     Depends,
     WebSocket,
-    WebSocketDisconnect,
 )
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, Response
-from pydantic import BaseModel, Field, validator
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from fastapi.responses import JSONResponse  # noqa: E402
+from pydantic import BaseModel, Field, validator  # noqa: E402
 
-from jose import JWTError, jwt
+# --- ONBOARDING IMPORTS ---
+from app.services.onboarding_service import OnboardingService  # noqa: E402
+from app.api.routes import onboarding as onboarding_router  # noqa: E402
+from app.api.routes import simulations as simulations_router  # noqa: E402
+from app.api.routes import certificates as certificates_router  # noqa: E402
+from app.api.routes import control as control_router  # noqa: E402
+from app.api.routes import admin as admin_router  # noqa: E402
 
 # Import local services (API-only — no numpy/scipy/matplotlib)
-from auth_utils import verify_user
-from queue import enqueue_job, get_result
+from auth_utils import verify_user  # noqa: E402
+from job_queue import enqueue_job  # noqa: E402
 
-import httpx
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # --- CONFIG ---
 # Lazy API key validation - check at runtime, not import time
 API_KEY = os.getenv("SIMHPC_API_KEY")
-ALGORITHM = "HS256"
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+MERCURY_URL = os.getenv(
+    "MERCURY_API_URL", "https://api.inceptionlabs.ai/v1/chat/completions"
+)
+MERCURY_MODEL = os.getenv("MERCURY_MODEL_ID", "mercury-2")
+GCP_PROJECT = os.getenv("GCP_PROJECT_ID")
 
 # pod SimHPC_P_01 Configuration
 RUNPOD_API_KEY = os.getenv("RUNPOD_API_KEY")
-RUNPOD_POD_ID = os.getenv("RUNPOD_POD_ID", "73atszmbozf16d")
-RUNPOD_BASE_URL = f"https://api.runpod.ai/v2/{RUNPOD_POD_ID}"
+RUNPOD_POD_ID = os.getenv("RUNPOD_POD_ID")
+RUNPOD_BASE_URL = f"https://api.runpod.ai/v2/{RUNPOD_POD_ID}" if RUNPOD_POD_ID else None
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 if "localhost" in REDIS_URL and os.getenv("VERCEL"):
-    logger.error("WARNING: Using localhost Redis on Vercel will fail. Ensure REDIS_URL is set to a public instance.")
+    logger.error(
+        "WARNING: Using localhost Redis on Vercel will fail. Ensure REDIS_URL is set to a public instance."
+    )
 
 MAX_ACTIVE_RUNS = 5
 
 _ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:5173,https://*.vercel.app,https://simhpc.nexusbayarea.com,https://simhpc.com",
+    "http://localhost:3000,http://localhost:59824,http://127.0.0.1:59824,https://*.vercel.app,https://simhpc.nexusbayarea.com,https://simhpc.com",
 ).split(",")
 
 CORS_ORIGINS = [origin.strip() for origin in _ALLOWED_ORIGINS if origin.strip()]
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # --- Supabase Client ---
 try:
@@ -91,6 +102,54 @@ try:
 except ImportError:
     supabase_client = None
     logger.warning("supabase-py not installed — control commands restricted")
+
+# --- LIMITS & RATE LIMITING ---
+WEEKLY_LIMIT = 10
+RATE_LIMIT_SECONDS = 10
+
+
+def check_rate_limit(user_id: str):
+    """Prevent spam clicking (10s cooldown per user)."""
+    try:
+        r = redis.from_url(REDIS_URL, decode_responses=True)
+        key = f"rate_limit:{user_id}"
+        last_request = r.get(key)
+
+        if last_request:
+            raise HTTPException(
+                status_code=429,
+                detail="Please wait before starting another simulation.",
+            )
+
+        r.set(key, "1", ex=RATE_LIMIT_SECONDS)
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions (the 429)
+    except Exception as e:
+        logger.error(f"Redis rate limit error: {e}")
+        # Fail open if Redis is down for UX stability
+        pass
+
+
+async def get_weekly_usage(user_id: str) -> int:
+    """Calculate runs in the last 7 days from Supabase simulations table."""
+    if not supabase_client:
+        return 0
+
+    one_week_ago = (datetime.utcnow() - timedelta(days=7)).isoformat()
+
+    try:
+        response = (
+            supabase_client.table("simulations")
+            .select("id", count="exact")
+            .eq("user_id", user_id)
+            .gte("created_at", one_week_ago)
+            .execute()
+        )
+        return response.count or 0
+    except Exception as e:
+        logger.error(f"Failed to get weekly usage: {e}")
+        return 0
+
 
 # --- REDIS CLIENT ---
 r_client = redis.from_url(REDIS_URL, decode_responses=True)
@@ -246,6 +305,14 @@ class ReportGenerateRequest(BaseModel):
     run_id: str
 
 
+class CertificateResponse(BaseModel):
+    simulation_id: str
+    certificate_id: str
+    status: str
+    download_url: str
+    verification_url: str
+
+
 class AccessRequestModel(BaseModel):
     email: str
     company: str
@@ -395,7 +462,7 @@ async def check_concurrent_runs(user_id: str) -> bool:
     """Check if user has any running simulations."""
     try:
         # Look for jobs belonging to this user with status 'running'
-        pattern = f"job:*"
+        pattern = "job:*"
         user_keys = r_client.keys(pattern)
 
         for key in user_keys:
@@ -475,7 +542,7 @@ def record_simulation_start(run_id: str, user_id: str, scenario_name: str):
     if not supabase_client:
         return
     try:
-        supabase_client.table("simulation_history").insert(
+        supabase_client.table("simulations").insert(
             {
                 "job_id": run_id,
                 "user_id": user_id,
@@ -483,9 +550,9 @@ def record_simulation_start(run_id: str, user_id: str, scenario_name: str):
                 "status": "running",
             }
         ).execute()
-        logger.debug(f"Supabase simulation_history: {run_id} queued")
+        logger.debug(f"Supabase simulations: {run_id} queued")
     except Exception as e:
-        logger.error(f"Failed to record simulation_history: {e}")
+        logger.error(f"Failed to record simulation: {e}")
 
 
 def standard_error(run_id: str, message: str, status_code: int = 400):
@@ -671,7 +738,7 @@ def store_idempotency(idempotency_key: str, user_id: str, run_id: str):
 
 
 # --- RATE LIMITER ---
-async def check_rate_limit(user: dict = Depends(verify_auth)):
+async def enforce_rate_limit(user: dict = Depends(verify_auth)):
     user_id = user["user_id"]
     plan = user.get("plan", UserPlan.FREE)
 
@@ -754,12 +821,20 @@ async def lifespan(app: FastAPI):
         logger.warning("SIMHPC_API_KEY not set - running in development mode")
 
     bg_worker = asyncio.create_task(telemetry_worker())
+
+    # Initialize Onboarding Service
+    global onboarding_service
+    if supabase_client:
+        onboarding_service = OnboardingService(supabase_client)
+        onboarding_router._onboarding_service = onboarding_service
+        logger.info("Onboarding service initialized")
+
     yield
     bg_worker.cancel()
     logger.info("SimHPC Platform shutting down")
 
 
-app = FastAPI(title="SimHPC Platform", version="2.1.0", lifespan=lifespan)
+app = FastAPI(title="SimHPC Platform", version="2.5.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -768,6 +843,60 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- ROUTE INITIALIZATION ---
+simulations_router.init_routes(
+    supabase_client,
+    r_client,
+    verify_auth,
+    enqueue_job,
+    get_job,
+    set_job,
+    update_job_field,
+    PLAN_LIMITS,
+    UserPlan,
+    record_simulation_start,
+    validate_simulation_request,
+    check_plan_limits,
+    check_idempotency,
+    store_idempotency,
+    check_concurrent_runs,
+    increment_user_usage,
+    get_user_usage,
+    check_rate_limit,
+    get_weekly_usage,
+    WEEKLY_LIMIT,
+)
+
+certificates_router.init_routes(
+    supabase_client, r_client, verify_auth, get_job, update_job_field
+)
+
+control_router.init_routes(r_client, verify_auth, update_job_field, get_job)
+
+# --- INCLUDE ROUTES ---
+app.include_router(simulations_router.router, prefix="/api/v1", tags=["Simulations"])
+app.include_router(certificates_router.router, prefix="/api/v1", tags=["Certificates"])
+app.include_router(control_router.router, prefix="/api/v1", tags=["Cockpit"])
+app.include_router(admin_router.router, prefix="/api/v1/admin", tags=["Admin"])
+app.include_router(
+    onboarding_router.router, prefix="/api/v1/onboarding", tags=["Onboarding"]
+)
+
+
+# --- USAGE & RATE LIMITING ENDPOINTS ---
+
+
+@app.get("/api/v1/simulations/usage", tags=["Simulations"])
+async def get_usage_endpoint(user: dict = Depends(verify_auth)):
+    """Get the user's weekly simulation usage and remaining quota."""
+    user_id = user["user_id_internal"]
+    used = await get_weekly_usage(user_id)
+    return {
+        "used": used,
+        "limit": WEEKLY_LIMIT,
+        "remaining": max(0, WEEKLY_LIMIT - used),
+    }
 
 
 # --- CORE SYSTEM HELPERS ---
@@ -809,7 +938,16 @@ def set_user_guardrails(user_id: str, guardrails: dict):
     r_client.setex(f"guardrails:{user_id}", 3600, json.dumps(guardrails))
 
 
-@app.get("/api/v1/system/status", response_model=SystemStatusResponse, tags=["System — Health"])
+@app.get(
+    "/api/v1/system/status",
+    response_model=SystemStatusResponse,
+    tags=["System — Health"],
+)
+@app.get(
+    "/api/v1/system-status",
+    response_model=SystemStatusResponse,
+    tags=["System — Health"],
+)
 async def get_system_status():
     """Aggregated health check for the Alpha Dashboard."""
     try:
@@ -823,8 +961,152 @@ async def get_system_status():
         "runpod": redis_status,  # Worker health is tied to Redis queue
         "supabase": "online" if supabase_client else "offline",
         "worker": redis_status,
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
+
+
+@app.get("/api/v1/health", tags=["System — Health"])
+async def health_check():
+    """
+    Unified Health Check for v2.5.0.
+    Verifies API, Redis, and Supabase connectivity.
+    """
+    health_status = {
+        "status": "healthy",
+        "timestamp": datetime.utcnow().isoformat(),
+        "services": {"api": "online", "redis": "offline", "supabase": "offline"},
+    }
+
+    # 1. Check Redis
+    try:
+        if r_client.ping():
+            health_status["services"]["redis"] = "online"
+    except Exception as e:
+        health_status["status"] = "degraded"
+        logger.error(f"Health Check: Redis unreachable: {e}")
+
+    # 2. Check Supabase
+    try:
+        if supabase_client:
+            supabase_client.table("worker_heartbeat").select(
+                "count", count="exact"
+            ).limit(1).execute()
+            health_status["services"]["supabase"] = "online"
+    except Exception as e:
+        health_status["status"] = "degraded"
+        logger.error(f"Health Check: Supabase unreachable: {e}")
+
+    if health_status["status"] == "degraded":
+        return JSONResponse(status_code=503, content=health_status)
+
+    return health_status
+
+
+# --- MERCURY AI: GUIDANCE ENGINE ---
+
+GUIDANCE_PROMPT_TEMPLATE = """You are Mercury AI, the specialized engineering assistant for SimHPC.
+Your goal is to analyze simulation telemetry and provide a "Structural Health Report."
+
+### SIMULATION CONTEXT
+- **Job ID:** {job_id}
+- **Simulation Type:** {sim_type}
+- **Material Profile:** {material_name}
+
+### TELEMETRY DATA
+- **Final Progress:** {progress}%
+- **Max Thermal Drift:** {thermal_drift} K/s
+- **Pressure Spike Detected:** {pressure_spike}
+- **Status:** {status}
+
+### INSTRUCTIONS
+1. **Analyze Vulnerabilities:** If Thermal Drift > 0.8 or Pressure Spike is TRUE, identify potential failure points.
+2. **Material Integrity:** Evaluate if the {material_name} can sustain the recorded drift.
+3. **Actionable Guidance:** Provide 2-3 specific engineering adjustments (e.g., "Increase mesh density at joints" or "Adjust cooling coefficients").
+4. **Tone:** Professional, concise, and agentic. Use Markdown formatting.
+
+### REPORT OUTPUT:
+"""
+
+
+async def call_mercury_ai(prompt: str) -> str:
+    """Call Mercury AI (Inception Labs) for guidance generation."""
+    api_key = os.getenv("INCEPTION_API_KEY") or os.getenv("MERCURY_API_KEY")
+    if not api_key:
+        logger.warning("Mercury AI key not configured")
+        return "AI guidance unavailable: API key not configured."
+
+    try:
+        response = httpx.post(
+            MERCURY_URL,
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": MERCURY_MODEL,
+                "messages": [{"role": "user", "content": prompt}],
+            },
+            timeout=30,
+        )
+        if response.status_code == 200:
+            return response.json()["choices"][0]["message"]["content"]
+        logger.error(f"Mercury AI returned {response.status_code}")
+        return f"AI guidance unavailable: service returned {response.status_code}."
+    except Exception as e:
+        logger.error(f"Mercury AI call failed: {e}")
+        return f"AI guidance unavailable: {e}"
+
+
+@app.post("/api/v1/alpha/generate-report/{job_id}", tags=["Mercury AI"])
+async def generate_guidance_report(job_id: str, user: dict = Depends(verify_auth)):
+    """Generate an AI structural health report for a completed simulation."""
+    if not supabase_client:
+        raise HTTPException(503, "Supabase not configured")
+
+    res = (
+        supabase_client.table("simulations")
+        .select("*")
+        .eq("job_id", job_id)
+        .eq("user_id", user["user_id"])
+        .single()
+        .execute()
+    )
+    sim_data = res.data
+
+    if not sim_data:
+        raise HTTPException(404, "Simulation record not found")
+
+    if sim_data.get("status") not in ("completed", "auditing"):
+        raise HTTPException(400, "Simulation is not yet complete")
+
+    result_summary = sim_data.get("result_summary") or {}
+    gpu_result = sim_data.get("gpu_result") or {}
+
+    prompt = GUIDANCE_PROMPT_TEMPLATE.format(
+        job_id=sim_data["job_id"],
+        sim_type=sim_data.get("input_params", {}).get("sim_type", "Thermal Analysis"),
+        material_name=result_summary.get(
+            "material", gpu_result.get("material", "Standard Alloy")
+        ),
+        progress=result_summary.get("progress", 100),
+        thermal_drift=result_summary.get(
+            "thermal_drift", gpu_result.get("thermal_drift", 0)
+        ),
+        pressure_spike=result_summary.get(
+            "pressure_spike", gpu_result.get("pressure_spike", False)
+        ),
+        status=sim_data["status"],
+    )
+
+    report_content = await call_mercury_ai(prompt)
+
+    # Save the report back to Supabase
+    updated_summary = {**result_summary, "ai_report": report_content}
+    supabase_client.table("simulations").update({"result_summary": updated_summary}).eq(
+        "job_id", job_id
+    ).execute()
+
+    return {"job_id": job_id, "report": report_content}
 
 
 # --- ADMIN: RUNPOD FLEET MANAGEMENT ---
@@ -840,130 +1122,30 @@ async def verify_admin(x_admin_secret: str = Header(None)):
     return True
 
 
-@app.get("/api/v1/admin/fleet", tags=["Admin — RunPod Fleet"])
-async def get_fleet_status_endpoint(_: bool = Depends(verify_admin)):
-    """
-    Get comprehensive fleet status: running pods, queue depth,
-    cost tracking, scaling state, and recent events.
-    """
-    try:
-        fleet_data = r_client.get("autoscaler:last_status")
-        if fleet_data:
-            return {"status": "ok", "fleet": json.loads(fleet_data)}
-
-        # Fallback: minimal status from Redis
-        queue_len = r_client.llen(os.getenv("QUEUE_NAME", "simhpc_jobs"))
-        active_pods = json.loads(r_client.get("active_pods") or "[]")
-        today_cost = float(r_client.get("cost:today_usd") or 0)
-        return {
-            "status": "ok",
-            "fleet": {
-                "pods": len(active_pods),
-                "pod_ids": active_pods,
-                "queue": queue_len,
-                "cost_today": round(today_cost, 4),
-                "timestamp": datetime.now().isoformat(),
-            },
-        }
-    except Exception as e:
-        raise HTTPException(500, f"Fleet status error: {e}")
+admin_router.init_routes(r_client, verify_admin)
 
 
-@app.get("/api/v1/admin/fleet/cost", tags=["Admin — RunPod Fleet"])
-async def get_cost_endpoint(_: bool = Depends(verify_admin)):
-    """Get cost summary: hourly burn, daily estimate, savings from autoscaler."""
-    try:
-        today_cost = float(r_client.get("cost:today_usd") or 0)
-        active_pods = json.loads(r_client.get("active_pods") or "[]")
-        return {
-            "status": "ok",
-            "cost": {
-                "actual_today_usd": round(today_cost, 4),
-                "running_pods": len(active_pods),
-                "timestamp": datetime.now().isoformat(),
-            },
-        }
-    except Exception as e:
-        raise HTTPException(500, f"Cost query error: {e}")
+# --- ALPHA SERVICES (legacy — not yet extracted to route file) ---
 
 
-@app.get("/api/v1/admin/fleet/events", tags=["Admin — RunPod Fleet"])
-async def get_fleet_events(limit: int = 20, _: bool = Depends(verify_admin)):
-    """Get recent fleet events (scaling, cost cap, errors)."""
-    try:
-        raw_events = r_client.lrange("runpod_events", 0, min(limit - 1, 499))
-        events = [json.loads(e) for e in raw_events]
-        return {"status": "ok", "events": events, "count": len(events)}
-    except Exception as e:
-        raise HTTPException(500, f"Events query error: {e}")
+@app.get("/api/v1/alpha/signals", tags=["Alpha — Signals"])
+async def get_alpha_signals():
+    return {"signals": ["thermal_drift", "pressure_spike", "mesh_instability"]}
 
 
-@app.post("/api/v1/admin/fleet/pod", tags=["Admin — RunPod Fleet"])
-async def create_pod_endpoint(
-    name: str = Body("simhpc-worker"),
-    gpu_type: str = Body("NVIDIA A40"),
-    _: bool = Depends(verify_admin),
-):
-    """
-    Create a new GPU pod on RunPod.
-    Respects MAX_PODS safety cap from autoscaler config.
-    """
-    try:
-        active_pods = json.loads(r_client.get("active_pods") or "[]")
-        max_pods = int(os.getenv("MAX_PODS", "3"))
-        if len(active_pods) >= max_pods:
-            raise HTTPException(
-                429,
-                f"Safety cap: {len(active_pods)} pods running (MAX={max_pods}). "
-                "Terminate a pod first.",
-            )
-        return {
-            "status": "ok",
-            "message": f"Pod creation queued (name={name}, gpu={gpu_type}). "
-            "The autoscaler will create it on next cycle if queue has jobs.",
-            "current_pods": len(active_pods),
-            "max_pods": max_pods,
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(500, f"Pod creation error: {e}")
+@app.get("/api/v1/alpha/simulations", tags=["Alpha — Simulations"])
+async def get_alpha_simulations():
+    return []
 
 
-@app.post("/api/v1/admin/fleet/pod/{pod_id}/stop", tags=["Admin — RunPod Fleet"])
-async def stop_pod_endpoint(pod_id: str, _: bool = Depends(verify_admin)):
-    """Stop a running pod (preserves disk, stops GPU billing)."""
-    try:
-        active_pods = json.loads(r_client.get("active_pods") or "[]")
-        active_pods = [p for p in active_pods if p != pod_id]
-        r_client.set("active_pods", json.dumps(active_pods))
-        r_client.lpush("runpod_events", json.dumps({
-            "ts": datetime.now().isoformat(),
-            "event": "pod_stop_requested",
-            "pod_id": pod_id,
-            "details": "via admin API",
-        }))
-        return {"status": "ok", "pod_id": pod_id, "action": "stop_requested"}
-    except Exception as e:
-        raise HTTPException(500, f"Pod stop error: {e}")
+@app.post("/api/v1/alpha/run-simulation", tags=["Alpha — Simulations"])
+async def run_alpha_simulation():
+    return {"status": "ok", "run_id": str(uuid.uuid4())}
 
 
-@app.post("/api/v1/admin/fleet/pod/{pod_id}/terminate", tags=["Admin — RunPod Fleet"])
-async def terminate_pod_endpoint(pod_id: str, _: bool = Depends(verify_admin)):
-    """Permanently terminate a pod (deletes disk, zeroes billing)."""
-    try:
-        active_pods = json.loads(r_client.get("active_pods") or "[]")
-        active_pods = [p for p in active_pods if p != pod_id]
-        r_client.set("active_pods", json.dumps(active_pods))
-        r_client.lpush("runpod_events", json.dumps({
-            "ts": datetime.now().isoformat(),
-            "event": "pod_terminate_requested",
-            "pod_id": pod_id,
-            "details": "via admin API",
-        }))
-        return {"status": "ok", "pod_id": pod_id, "action": "terminate_requested"}
-    except Exception as e:
-        raise HTTPException(500, f"Pod termination error: {e}")
+@app.get("/api/v1/alpha/insights", tags=["Alpha — Insights"])
+async def get_alpha_insights():
+    return ["Insight: Heat flux exceeds 2024 Project Alpha safety factor."]
 
 
 if __name__ == "__main__":

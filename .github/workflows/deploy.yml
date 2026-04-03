@@ -1,16 +1,80 @@
-name: Deploy to Vercel
+name: "v2.5.0 Production Deployment"
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
-  deploy:
+  # Job 1: The Quality Gate
+  audit:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Lint Check
+        run: ruff check services/worker/worker.py services/api/api.py
+
+      - name: Format Check
+        run: ruff format --check services/worker/worker.py services/api/api.py
+
+  # Job 2: Build & Push Worker Image (RunPod)
+  deploy-worker:
+    needs: audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and Push Worker
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.worker
+          push: true
+          tags: |
+            simhpcworker/simhpc-worker:latest
+            simhpcworker/simhpc-worker:v2.5.0
+
+  # Job 3: Build & Push Autoscaler Image (RunPod)
+  deploy-autoscaler:
+    needs: audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and Push Autoscaler
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.autoscaler
+          push: true
+          tags: |
+            simhpcworker/simhpc-autoscaler:latest
+            simhpcworker/simhpc-autoscaler:v2.5.0
+
+  # Job 4: Deploy Frontend (Vercel)
+  deploy-vercel:
+    needs: audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
@@ -18,8 +82,7 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-          # These are "baked" into the Vite build
+          vercel-args: "--prod"
           vercel-envs: |
             VITE_API_URL=${{ secrets.PROD_API_URL }}
             VITE_SUPABASE_URL=${{ secrets.SUPABASE_URL }}

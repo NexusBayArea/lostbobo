@@ -11,7 +11,7 @@ if app is None:
 # Add CORS middleware allowing the Vite dev server origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=["http://localhost:59824", "http://127.0.0.1:59824"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -8,7 +8,6 @@ and expiration dates for alpha pilot onboarding.
 
 import os
 import hashlib
-import secrets
 import logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional
@@ -37,8 +36,8 @@ except ImportError:
     logger.warning("supabase-py not installed — demo system uses Redis fallback")
 
 # --- Redis Fallback ---
-import redis
-import json
+import redis  # noqa: E402
+import json  # noqa: E402
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 r_client = redis.from_url(REDIS_URL, decode_responses=True)

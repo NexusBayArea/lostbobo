@@ -138,16 +138,18 @@ def main():
     )
     parser.add_argument(
         "--api-url",
-        default=os.getenv(
-            "SIMHPC_API_URL", "https://73atszmbozf16d-8000.proxy.runpod.net"
-        ),
-        help="Backend API URL",
+        default=os.getenv("SIMHPC_API_URL", ""),
+        help="Backend API URL (e.g. https://simhpc.com)",
     )
     parser.add_argument(
         "--api-key", default=os.getenv("SIMHPC_API_KEY", ""), help="Admin API key"
     )
 
     args = parser.parse_args()
+
+    if not args.direct and not args.api_url:
+        print("❌ --api-url required for API mode (or set SIMHPC_API_URL env var)")
+        sys.exit(1)
 
     print()
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -156,7 +158,7 @@ def main():
     print()
 
     if args.direct:
-        print(f"  Mode:   Direct (Redis + Supabase)")
+        print("  Mode:   Direct (Redis + Supabase)")
         result = generate_direct(args.email, args.runs, args.days)
     else:
         if not args.api_key:
@@ -174,7 +176,12 @@ def main():
     print()
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print()
-    print(f"  🚀 Magic Link:")
+    print("  ⚠️  SECURITY NOTICE: The link below contains a sensitive access token.")
+    print(
+        "  Do not share this link in public logs, CI/CD output, or insecure channels."
+    )
+    print()
+    print("  🚀 Magic Link:")
     print()
     print(f"     {result['link']}")
     print()

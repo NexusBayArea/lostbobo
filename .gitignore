@@ -4,8 +4,8 @@
 
 # --- Documentation Artifacts ---
 # Allow schema files, but ignore active environment secrets
-! .env.schema
-! .env.example
+!.env.schema
+!.env.example
 
 # --- Environment & Secrets (🚨 CRITICAL) ---
 .env
@@ -22,10 +22,10 @@ admin_secret.txt
 # Ignore any GCP service account keys provided locally
 secrets/
 *.json
-! package.json
-! tsconfig.json
-! .env.schema
-! .env.example
+!package.json
+!tsconfig.json
+!.env.schema
+!.env.example
 
 # --- Build & Dependency Management ---
 node_modules/
@@ -105,4 +105,4 @@ packages/**/venv/
 # Ignore any local sqlite DBs used for testing
 *.sqlite
 *.db
-! database.sql
+!database.sql

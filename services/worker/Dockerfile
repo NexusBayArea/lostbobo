@@ -9,8 +9,8 @@ FROM python:3.11-slim AS builder
 
 WORKDIR /build
 
-# System libs for scipy / numpy C-extensions
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# System libs for scipy / numpy C-extensions + security patches
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     gfortran \
@@ -31,8 +31,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Runtime shared libs (no compilers)
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Runtime shared libs + security patches
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     libblas3 \
     liblapack3 \
     libsuitesparse-dev \

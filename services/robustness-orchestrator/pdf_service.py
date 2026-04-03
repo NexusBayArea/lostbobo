@@ -6,7 +6,6 @@ Uses in-memory BytesIO buffer to avoid disk I/O in containerized environments.
 """
 
 import io
-import os
 import logging
 from fpdf import FPDF
 from datetime import datetime
@@ -62,21 +61,26 @@ class SimHPCPDFReport(FPDF):
                 f"Failed to load custom fonts, using built-in Helvetica fallback: {e}"
             )
 
-    def header(self):
-        if self.fonts_loaded:
-            self.set_font("DejaVu", "B", 15)
+    def safe_set_font(self, family: str, style: str = "", size: int = 12):
+        """Sets font safely, falling back to Helvetica if custom font not loaded."""
+        if self.fonts_loaded and family == "DejaVu":
+            self.set_font("DejaVu", style, size)
         else:
-            self.set_font("Helvetica", "B", 15)
+            # Fallback to standard Helvetica
+            fallback_style = style
+            # FPDF uses 'B', 'I', 'U' or combinations.
+            # Helvetica supports these standard styles.
+            self.set_font("Helvetica", fallback_style, size)
+
+    def header(self):
+        self.safe_set_font("DejaVu", "B", 15)
         self.set_text_color(15, 23, 42)  # Dark Slate
         self.cell(0, 10, "SimHPC Platform - Engineering Analysis Report", 0, 1, "L")
         self.ln(5)
 
     def footer(self):
         self.set_y(-15)
-        if self.fonts_loaded:
-            self.set_font("DejaVu", "I", 8)
-        else:
-            self.set_font("Helvetica", "I", 8)
+        self.safe_set_font("DejaVu", "I", 8)
         self.set_text_color(100)
         self.cell(
             0,
@@ -106,10 +110,10 @@ def generate_pdf_report(
     pdf.add_page()
 
     # Metadata section
-    pdf.set_font("DejaVu", "B", 12)
+    pdf.safe_set_font("DejaVu", "B", 12)
     pdf.cell(0, 10, f"Report ID: {report_data.get('report_id', 'N/A')}", 0, 1)
 
-    pdf.set_font("DejaVu", "", 10)
+    pdf.safe_set_font("DejaVu", "", 10)
     pdf.cell(
         0, 10, f"Analysis Timestamp: {report_data.get('generated_at', 'N/A')}", 0, 1
     )
@@ -133,13 +137,13 @@ def generate_pdf_report(
         report_data.get("sections", []), key=lambda x: x.get("order", 0)
     ):
         # Section Title
-        pdf.set_font("DejaVu", "B", 14)
+        pdf.safe_set_font("DejaVu", "B", 14)
         pdf.set_fill_color(248, 250, 252)  # Slate 50
         pdf.cell(0, 10, f" {section.get('title')}", 0, 1, "L", fill=True)
         pdf.ln(2)
 
         # Section Content
-        pdf.set_font("DejaVu", "", 11)
+        pdf.safe_set_font("DejaVu", "", 11)
         content = section.get("content", "")
         # Clean markdown bold
         content = content.replace("**", "")
@@ -148,7 +152,7 @@ def generate_pdf_report(
         pdf.ln(5)
 
     # Disclaimer
-    pdf.set_font("DejaVu", "I", 9)
+    pdf.safe_set_font("DejaVu", "I", 9)
     pdf.set_text_color(107, 114, 128)  # Gray 500
     pdf.ln(10)
     pdf.multi_cell(0, 5, report_data.get("disclaimer", ""))

@@ -1,10 +1,22 @@
 FROM python:3.11-slim
 
 WORKDIR /app
-COPY services/runpod-worker/runpod_api.py .
-COPY services/runpod-worker/autoscaler.py .
-COPY services/runpod-worker/requirements-autoscaler.txt ./requirements.txt
+
+# Install system dependencies and security patches
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser -s /sbin/nologin appuser && \
+    chown -R appuser:appuser /app
+
+COPY services/worker/runpod_api.py .
+COPY services/worker/autoscaler.py .
+COPY services/worker/requirements-autoscaler.txt ./requirements.txt
 
 RUN pip install --no-cache-dir -r requirements.txt
+
+USER appuser
 
 CMD ["python", "autoscaler.py"]

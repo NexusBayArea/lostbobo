@@ -5,6 +5,129 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-04-02
+
+### Added
+
+- **Health Check Endpoint**: `GET /api/v1/health` — unified health probe that verifies API, Redis, and Supabase connectivity. Returns `200 healthy` or `503 degraded` with per-service status.
+- **Frontend Docker Build**: `apps/frontend/Dockerfile.prod` confirmed as two-stage build (Node 20 Alpine → Nginx Alpine) with `VITE_` build-time ARG injection for Supabase and API URLs.
+- **Nginx SPA Config**: `apps/frontend/nginx.conf` with `try_files` fallback for React Router deep-link support and 30-day static asset caching.
+- **GitHub Actions Lint CI**: `.github/workflows/lint.yml` — runs `ruff check` and `ruff format --check` on `services/worker/worker.py` and `services/api/api.py` on every push to `main`/`v2.5.0-DEV` and on PRs to `main`.
+- **Git Pre-Commit Hook**: `.pre-commit-config.yaml` — managed by the `pre-commit` framework. Runs `ruff --fix` and `ruff-format` on staged files before every commit. Auto-fixed 26 errors and reformatted 6 files on first run.
+- **Unified Deployment Pipeline**: `.github/workflows/deploy.yml` — lint-gated CI/CD that builds Worker + Autoscaler Docker images and deploys Frontend to Vercel, all on push to `main`. Jobs: `audit` → `deploy-worker` + `deploy-autoscaler` + `deploy-vercel`. Docker Hub login uses `DOCKER_ACCESS_TOKEN` via `--password-stdin` for secure authentication.
+- **RunPod Auto-Updater**: `services/worker/pull_and_restart.sh` — cron-based script that pulls latest `simhpc-worker:latest` from Docker Hub and restarts the container on change. Zero-touch GPU fleet synchronization.
+- **ProtectedRoute (RBAC)**: `src/components/auth/ProtectedRoute.tsx` — admin-gated route wrapper. `/admin/analytics` now requires `app_metadata.role === 'admin'` or founder email match. Non-admins redirect to `/dashboard`.
+- **useAuth Supabase Integration**: `src/hooks/useAuth.ts` — expanded from Zustand stub to full Supabase auth listener with `user`, `loading`, `isAdmin`, and async `getToken()`. Backward-compatible `isLoading` alias included.
+- **useSimulations Real-Time Hook**: `src/hooks/useSimulations.ts` — Supabase Realtime subscription for the `simulations` table. Extracts telemetry (progress, thermal_drift, pressure_spike) from `result_summary`/`gpu_result` JSONB. Drives live progress rings and warning indicators in `ActiveSimulations.tsx`.
+- **Guidance Engine Prompt Template**: `GUIDANCE_PROMPT_TEMPLATE` in `api.py` — Chain-of-Thought prompt for Mercury AI that interprets simulation telemetry into actionable structural health reports.
+- **AI Report Endpoint**: `POST /api/v1/alpha/generate-report/{job_id}` — fetches simulation data, formats guidance prompt, calls Mercury AI, saves `ai_report` back to `result_summary` for persistence.
+- **Admin Dashboard (Sidebar Layout)**: `src/pages/admin/AdminAnalyticsPage.tsx` — expandable sidebar with Fleet Analytics as default tab. KPI cards (Active Workers, Burn Rate, Active Sims, Queue Depth), live telemetry table with thermal drift and pressure spike warnings. Slots ready for User Management, Stripe Revenue, and AI Guidance Engine Prompts.
+- **Supabase Edge Function**: `supabase/functions/get-fleet-metrics/index.ts` — server-side fleet metrics calculation. Verifies admin via `app_metadata`, counts active/queued simulations using `service_role` key (RLS bypass), returns pod count and hourly spend. RunPod hourly rate and job-per-pod logic never exposed to client. Auto-creates billing alerts when spend exceeds $10/hr threshold (deduplicated per hour).
+- **Platform Alerts Table**: `supabase/migrations/004_platform_alerts.sql` — `platform_alerts` table with Realtime enabled. Stores billing, thermal, and system alerts with severity levels. Admin-only RLS, indexed for fast queries.
+- **Panic Button (Edge Function)**: `supabase/functions/trigger-panic-shutdown/index.ts` — admin-only emergency endpoint. Terminates all RunPod pods via GraphQL API, logs critical alert to `platform_alerts`. Requires double confirmation from UI.
+- **Panic Button (Python Skill)**: `services/skills/panic_button.py` — standalone script for CLI/MCP use. Terminates all pods, logs alert. Usable via Infisical-injected env vars.
+- **Admin Dashboard Updates**: `AdminAnalyticsPage.tsx` — added Alert Center sidebar (Realtime subscription, severity-coded cards, toast notifications), Panic Button (double-confirmation, loading state), and `platform_alerts` integration.
+
+### Changed
+
+- **Worker Heartbeat**: `send_heartbeat()` moved to the top of the main `while True` loop in `worker.py`. Heartbeat now fires every cycle regardless of job activity, keeping the "Sim Worker" Dashboard LED consistently **Cyan**.
+- **Docker Compose**: Frontend service confirmed passing `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_API_URL` as build args from host `.env`.
+- **Vercel Env Var Documentation**: Documented that Docker `build.args` and Vercel environment variables are separate systems. Vercel requires explicit `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`, and `VITE_STRIPE_PUBLISHABLE_KEY` in Dashboard → Settings → Environment Variables, followed by a redeploy.
+- **Infisical Secret Injection**: `api.py` refactored to pull `JWT_ALGORITHM`, `MERCURY_API_URL`, `MERCURY_MODEL_ID`, and `GCP_PROJECT_ID` from environment variables (via Infisical). Hardcoded `HS256`, `mercury-2`, and `inceptionlabs.ai` URL removed. Local start command: `infisical run --env=prod -- docker-compose up --build`.
+- **Docker Compose Env Expansion**: All services now declare `${VARIABLE}` syntax for Infisical-injected secrets (`JWT_ALGORITHM`, `MERCURY_API_URL`, `MERCURY_MODEL_ID`, `GCP_PROJECT_ID`). Worker image versions updated to `v2.5.0`.
+
+### Fixed
+
+- **Ruff Lint (api.py)**: Resolved all 33 ruff errors — moved `load_dotenv()` before all imports (E402), removed 9 unused imports (F401: `BackgroundTasks`, `Body`, `WebSocketDisconnect`, `StaticFiles`, `FileResponse`, `Response`, `JWTError`, `jwt`, `get_result`), moved `logger` setup before first use (F821), moved `admin_router.init_routes()` after `verify_admin` definition (F821), renamed duplicate `check_rate_limit` → `enforce_rate_limit` (F811), fixed bare f-string (F541).
+- **Ruff Lint (worker.py)**: Removed unused `last_active` variable (F841).
+- **Dockerfile.worker**: Updated `COPY` paths from `services/runpod-worker/` to `services/worker/` to match v2.5 consolidation.
+- **Dockerfile.autoscaler**: Updated `COPY` paths from `services/runpod-worker/` to `services/worker/`, added missing `requirements-autoscaler.txt`.
+- **Worker Race Condition**: Fixed non-atomic `active_jobs` check/pop in `worker.py` — now pops job first, checks capacity second, pushes back with `lpush` if at limit.
+- **Consolidation Script**: Fixed `sed -i` for macOS compatibility using `sed -i ''` via OS detection (`$OSTYPE == "darwin*"`).
+- **tsconfig.json**: Changed `moduleResolution` from `"Node"` to `"Bundler"` for correct Vite + React 19 subpath resolution.
+- **Security**: Removed hardcoded RunPod pod ID default from `api.py`. Redacted live SSH credentials and pod IPs from `progress.md`, `README.md`, `ARCHITECTURE.md`, `GEMINI.md`, `CHANGELOG.md`, and `ROADMAP.md`.
+
+## [2.5.0] - 2026-04-01
+
+### Added
+
+- **SQL Migration**: `supabase/migrations/002_beta_schema_normalization.sql` — idempotent migration renaming `simulation_history` → `simulations`, adding `certificates`, `documents`, `document_chunks`, `simulation_events` tables, RLS policies, indexes, `updated_at` trigger, backward-compat view.
+- **TypeScript Types**: New `src/types/` directory with `db.ts` (schema mirror), `audit.ts` (audit types), `api.ts` (API contracts), `realtime.ts` (partial update types), `view.ts` (mapper), `index.ts` (barrel export).
+- **Worker v2.5.0**: Full rewrite of `services/runpod-worker/worker.py` — correct status flow (`running → auditing → completed`), writes `gpu_result`, `audit_result`, `hallucination_score`, `pdf_url`, `certificate_id`, `updated_at`. Creates `certificates` row with SHA-256 verification hash.
+- **Stub Audit**: `run_audit()` function returning pass/fail structure with `hallucination_score`, `flags`, `rag_anomalies`, `auditor_remark`.
+- **Certificate Pipeline**: `create_certificate()` writes to `certificates` table with `verification_hash` and links back via `simulation.certificate_id`.
+
+### Changed
+
+- **Frontend Types**: `useSimulationUpdates.ts` now uses `SimulationRow` and `SimulationUpdate` from `types/`. Queries `simulations` table (not `simulation_history`). Handles partial realtime updates safely.
+- **Store**: `controlRoomStore.ts` updated with `AuditAlert` interface, `SimulationStatus` enum, `id` field on `ActiveSimulation`.
+- **Dashboard.tsx**: Imports `SimulationRow` from `@/types/db` instead of legacy `SimulationRecord`.
+- **SimulationDetailModal.tsx**: Imports `SimulationRow` from `@/types/db`.
+- **API**: `record_simulation_start()` in `api.py` now writes to `simulations` table.
+- **Routes Split**: `api.py` split into modular route files: `routes/simulations.py` (create, fetch, status, export-pdf), `routes/certificates.py` (generate, verify), `routes/control.py` (cockpit state, commands, timeline, lineage), `routes/admin.py` (fleet management). All routes initialized via `init_routes()` pattern.
+- **API Version**: Bumped to `2.5.0`.
+
+---
+
+## [2.4.1] - 2026-04-01
+
+### Added
+- **Persistent Onboarding (Autosave & Cross-Device Resume)**: Versioned state sync to backend with `GET/POST /api/onboarding` and `POST /api/onboarding/event` endpoints.
+- **Conflict Resolution**: Optimistic UI with version checks — stale writes rejected with `409 Conflict`, frontend auto-hydrates from server.
+- **Debounced Autosave**: Onboarding state synced to backend 1s after any change, with 30s multi-device polling.
+- **LocalStorage Resume**: Instant UI response from local cache while backend syncs in background.
+
+### Changed
+- **Component Extraction**: Extracted `WakeGPU.tsx` from `AdminAnalytics.tsx` into reusable component at `apps/frontend/src/components/admin/WakeGPU.tsx`.
+- **Store Synchronization**: Renamed `lineage` → `lineageData` in `controlRoomStore.ts` for consistent naming across all consumer components.
+- **CVA Button Standardization**: Replaced ad-hoc `Button.tsx` styling with professional `class-variance-authority` implementation, resolving project-wide typing errors.
+- **Tier-Gated Artifact Access**: Integrated signed-URL logic for PDF Report downloads in `SimulationDetailModal.tsx` with Professional-tier plan checks.
+- **Promise Handling**: Resolved `getToken` Promise handling across all cockpit components.
+- **Path Alias Resolution**: Fixed `tsconfig.json` `@/*` path alias for monorepo frontend.
+
+---
+
+## [2.4.0] - 2026-03-30
+
+### Added
+- **Interactive Onboarding (8-Step Value Journey)**: Guided product walkthrough with tooltips, modals, and event-triggered hints.
+  - Step 1: Welcome Modal (First Login Trigger)
+  - Step 2: Template Selection (Highlight & Dim UI)
+  - Step 3: Configuration (Progressive Tooltips)
+  - Step 4: Queue Awareness (Soft Sell for GPU)
+  - Step 5: Results Visualization (The "Value" Moment)
+  - Step 6: MLE Optimization (The "Differentiation" Moment)
+  - Step 7: Comparison View (Proof of Value)
+  - Step 8: Conversion Trigger (Soft Paywall/Upgrade Card)
+- **Conversion Intelligence**: Smart soft paywalls triggered by GPU suggestion or queue wait times.
+- **Event-Driven Trigger Engine**: Backend evaluates `event_stream` to trigger context-aware hints.
+- **Zustand Onboarding State**: Global `OnboardingProvider` with persistent `onboarding_state` sync.
+- **Framer Motion Animations**: Smooth transitions for tooltip and modal rendering.
+
+### Changed
+- **Progress Tracking**: Persistent UI element tracking the "Value Journey" across sessions.
+- **Documentation**: Version bumps across README, ARCHITECTURE, GEMINI, ROADMAP, and progress to v2.4.0.
+
+---
+
+## [2.3.0] - 2026-03-28
+
+### Added
+- **Option C Autoscaler**: Replaced `terminate_pod` with `stop_pod` for hibernation-based scaling. Pods are STOPPED (not terminated) after idle timeout, preserving the disk and Network Volume at `/workspace`.
+- **Network Volume Persistence**: Persistent storage mounted at `/workspace` on GPU pods ensures solver caches, weights, and simulation data survive pod stop/start cycles.
+- **"Wake GPU" Admin Control**: `POST /api/v1/admin/fleet/warm` endpoint and `WakeGPU.tsx` frontend component allow proactive pod resumption (~90s) before demos.
+- **Readiness Polling**: `GET /api/v1/admin/fleet/readiness` endpoint checks if pods are ready and worker is connected.
+- **Rich Fleet Status**: Consolidated fleet API returns running/stopped pod IDs, queue depth, daily cost, and scaling events.
+
+### Changed
+- **Scaling Strategy**: Autoscaler now prefers `STARTING` (resuming) a STOPPED pod over creating a new one — reduces wake-up from ~3 min to ~90s.
+- **Idle Cost Reduction**: Dormant cost reduced to disk-only (~$0.10/day) vs. full GPU billing on termination.
+- **Docker Images**: Published `simhpcworker/simhpc-api:v2.3.0`, `simhpcworker/simhpc-worker:v2.3.0`, `simhpcworker/simhpc-autoscaler:v2.3.0`.
+- **Documentation**: Version bumps across README, ARCHITECTURE, GEMINI, ROADMAP, and all frontend docs to v2.3.0.
+- **Cleanup**: Removed stale duplicate markdown files from `apps/frontend/` (README, GEMINI, ROADMAP, progress, ALPHA_PILOT_GUIDE, MISSION_CONTROL_STRATEGY) — canonical copies are in the repo root.
+
+---
+
 ## [2.2.1] - 2026-03-26
 
 ### Added
@@ -143,8 +266,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **vLLM Inference**: Integrated vLLM engine for ultra-fast Mistral/Llama inference (~90 tok/s).
   - **RAG Service**: FAISS-based vector store for engineering context retrieval from documentation.
   - **FastAPI Layer**: Dedicated API for Alpha chat and document management inside the worker.
-  - **pod SimHPC_P_01 id 73atszmbozf16d Integration**: Full async lifecycle management for Alpha chat requests in the main orchestrator.
-- **Backend RunPod Client**: New `RunPodClient` in `api.py` for managing pod SimHPC_P_01 id 73atszmbozf16d jobs, status polling, and result retrieval.
+  - **pod SimHPC_P_01 Integration**: Full async lifecycle management for Alpha chat requests in the main orchestrator.
+- **Backend RunPod Client**: New `RunPodClient` in `api.py` for managing pod SimHPC_P_01 jobs, status polling, and result retrieval.
 - **Alpha Chat Endpoint**: `POST /api/v1/alpha/chat` for secure engineering assistant interactions.
 
 ---

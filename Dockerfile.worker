@@ -1,5 +1,6 @@
-# Use an NVIDIA CUDA base image to support GPU-accelerated physics
-FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04
+# Use a modern, secure NVIDIA CUDA base image to support GPU-accelerated physics
+# Updated to 12.8.1 to resolve critical CVEs in older base images
+FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04
 
 # Prevent interactive prompts during build
 ENV DEBIAN_FRONTEND=noninteractive
@@ -7,31 +8,34 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies and Python
-RUN apt-get update && apt-get install -y \
+# Install system dependencies, Python, and security patches
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-dev \
     git \
     curl \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Add non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser -s /sbin/nologin appuser && \
+    chown -R appuser:appuser /app
+
 # Copy requirements first to leverage Docker cache
-# In our monorepo, we copy from the service directory
-COPY services/runpod-worker/requirements.txt ./requirements.txt
+COPY services/worker/requirements.txt ./requirements.txt
 
 # Install Python dependencies
-# Two-step install to avoid dependency conflicts between runpod and supabase
-COPY services/runpod-worker/requirements.txt ./requirements.txt
-RUN pip3 install --no-cache-dir numpy scipy redis requests httpx fastapi uvicorn python-dotenv && \
-    pip3 install --no-cache-dir --no-deps runpod supabase && \
-    pip3 install --no-cache-dir gotrue postgrest storage3 realtime websockets
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt
 
 # Copy the worker source code
-COPY services/runpod-worker/worker.py .
+COPY services/worker/worker.py .
 
 # Ensure the worker is executable
-RUN chmod +x worker.py
+RUN chmod +x worker.py && chown appuser:appuser worker.py
+
+USER appuser
 
 # Run the worker script
-# Using -u to ensure logs are flushed immediately to RunPod/Docker logs
+# Using -u to ensure logs are flushed immediately
 CMD ["python3", "-u", "worker.py"]
