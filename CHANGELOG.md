@@ -35,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Vercel Env Var Documentation**: Documented that Docker `build.args` and Vercel environment variables are separate systems. Vercel requires explicit `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`, and `VITE_STRIPE_PUBLISHABLE_KEY` in Dashboard → Settings → Environment Variables, followed by a redeploy.
 - **Infisical Secret Injection**: `api.py` refactored to pull `JWT_ALGORITHM`, `MERCURY_API_URL`, `MERCURY_MODEL_ID`, and `GCP_PROJECT_ID` from environment variables (via Infisical). Hardcoded `HS256`, `mercury-2`, and `inceptionlabs.ai` URL removed. Local start command: `infisical run --env=prod -- docker-compose up --build`.
 - **Docker Compose Env Expansion**: All services now declare `${VARIABLE}` syntax for Infisical-injected secrets (`JWT_ALGORITHM`, `MERCURY_API_URL`, `MERCURY_MODEL_ID`, `GCP_PROJECT_ID`). Worker image versions updated to `v2.5.0`.
+- **Supabase Client Naming Fallback**: `src/lib/supabase.ts` checks both `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` and `SB_URL`/`SB_ANON_KEY` for Infisical compatibility.
+- **Infisical Project Linking**: Requires `infisical init` to be run interactively to create `.infisical.json` and link the local directory to the SimHPC vault. Without this file, `infisical run` returns zero secrets.
 
 ### Fixed
 

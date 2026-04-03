@@ -106,3 +106,5 @@ packages/**/venv/
 *.sqlite
 *.db
 !database.sql
+
+.vercel

@@ -94,6 +94,8 @@ SimHPC now supports a professional-grade, agent-led "Mission Control" via the An
 
 To ensure zero-leak security, SimHPC uses **Infisical** for all sensitive credentials:
 - **Injection**: Use `infisical run -- [command]` to inject secrets at runtime.
+- **Setup**: Run `infisical init` in the project root first to create `.infisical.json`. Verify with `infisical run -- cmd /c "set" | findstr SB_`.
+- **Naming**: Infisical may use `SB_URL`/`SB_ANON_KEY` instead of `SUPABASE_URL`. The Supabase client checks both.
 - **Managed Keys**: `RUNPOD_POD_ID`, `RUNPOD_SSH_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SIMHPC_API_KEY`.
 - **Placeholder Pattern**: See `.env.example` for the required keys. Actual values never hit the disk.
 

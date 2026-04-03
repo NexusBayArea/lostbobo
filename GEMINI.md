@@ -51,6 +51,8 @@ The core database table is `simulations` (formerly `simulations`). A backward-co
 - **Credential Policy (v2.5.0)**: Never commit pod IDs, SSH keys, or IP addresses to tracked `.md` files. Use Infisical to manage `RUNPOD_POD_ID` and `RUNPOD_SSH_KEY` for runtime injection.
 - **Docker Hub Auth (v2.5.0)**: All GitHub workflows use `DOCKER_ACCESS_TOKEN` piped via `--password-stdin`. Requires `DOCKER_ACCESS_TOKEN` and `DOCKER_USERNAME` secrets in GitHub repo.
 - **Infisical Secret Injection (v2.5.0)**: All high-privilege secrets (GCP, RunPod, Supabase) are injected at runtime via `infisical run --`. Local `.env` files are deprecated. `RUNPOD_POD_ID` and `RUNPOD_SSH_KEY` are managed exclusively via the Infisical vault.
+- **Infisical Setup**: Run `infisical init` in the project root to create `.infisical.json` and link to the SimHPC vault. Verify with `infisical run -- cmd /c "set" | findstr SB_`. Secrets may use `SB_URL`/`SB_ANON_KEY` naming instead of `SUPABASE_URL`.
+- **Supabase Client Naming**: `src/lib/supabase.ts` checks both `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` and `SB_URL`/`SB_ANON_KEY` for Infisical compatibility.
 - **Health Endpoint (v2.5.0)**: `GET /api/v1/health` probes Redis (`ping()`) and Supabase (`worker_heartbeat` query). Returns `200 healthy` or `503 degraded` with per-service status.
 - **Worker Heartbeat (v2.5.0)**: `send_heartbeat()` fires at the top of every `while True` cycle, not just when jobs are active. This keeps the "Sim Worker" Dashboard LED consistently Cyan.
 
