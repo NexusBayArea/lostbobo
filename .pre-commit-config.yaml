@@ -5,3 +5,4 @@ repos:
       - id: ruff
         args: [--fix]
       - id: ruff-format
+    exclude: ^(apps/frontend|everything-claude-code|supabase\.gitignore|supabase/config\.toml|supabase/migrations|supabase/functions|docs|legacy_archive|packages|services/skills)/
