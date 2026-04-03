@@ -474,38 +474,36 @@ The production environment uses the **RunPod HTTP Proxy** (mapped to Port 8000 b
 
 ---
 
-## Deployment Pipeline (v2.5.0)
+## Deployment Pipeline (v2.5.1)
 
 ### Unified CI/CD (`.github/workflows/deploy.yml`)
 
 Push to `main` triggers a gated pipeline:
 
 1. **Audit**: `ruff check` + `ruff format --check` on `services/worker/worker.py` and `services/api/api.py`. Blocks on failure.
-2. **Deploy Worker**: Build `Dockerfile.worker` → push to `simhpcworker/simhpc-worker:latest` on Docker Hub.
-3. **Deploy Autoscaler**: Build `Dockerfile.autoscaler` → push to `simhpcworker/simhpc-autoscaler:latest` on Docker Hub.
-4. **Deploy Vercel**: Frontend auto-deploys via `vercel-action` with baked `VITE_` env vars.
+2. **Infisical OIDC Auth**: Each deploy job fetches secrets from Infisical using `Infisical/secrets-action@v1.0.9` with OIDC authentication (short-lived tokens, no static credentials).
+3. **Deploy Worker**: Build `Dockerfile.worker` → push to `simhpcworker/simhpc-worker:latest` on Docker Hub.
+4. **Deploy Autoscaler**: Build `Dockerfile.autoscaler` → push to `simhpcworker/simhpc-autoscaler:latest` on Docker Hub.
+5. **Deploy Vercel**: Frontend auto-deploys via `vercel-action` with baked `VITE_` env vars from Infisical.
 
-### RunPod Auto-Updater (`services/worker/pull_and_restart.sh`)
+### Required GitHub Variables (Settings → Actions → Variables)
 
-Cron-based (`*/5 * * * *`) script on GPU pods that:
-- Pulls `simhpc-worker:latest` from Docker Hub.
-- Compares local image digest.
-- Restarts container if new version detected.
-
-This ensures GPU fleet stays synchronized with GitHub without manual intervention.
-
-### Required GitHub Secrets
-
-| Secret | Purpose |
+| Variable | Purpose |
 | :--- | :--- |
-| `DOCKER_ACCESS_TOKEN` | Docker Hub access token |
-| `DOCKER_USERNAME` | Docker Hub login |
-| `VERCEL_TOKEN` | Vercel deployment |
-| `VERCEL_ORG_ID` | Vercel org |
-| `VERCEL_PROJECT_ID` | Vercel project |
-| `PROD_API_URL` | Production API endpoint |
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_ANON_KEY` | Supabase anon key |
+| `INFISICAL_IDENTITY_ID` | Machine identity ID (OIDC) from Infisical |
+| `INFISICAL_PROJECT_SLUG` | Infisical project slug |
+
+### Infisical OIDC Setup
+
+1. Create a **Machine Identity** in Infisical → Access Control → Machine Identities
+2. Configure **OIDC Auth** with:
+   - OIDC Discovery URL: `https://token.actions.githubusercontent.com`
+   - Issuer: `https://token.actions.githubusercontent.com`
+   - Subject: `repo:NexusBayArea/lostbobo:ref:refs/heads/main`
+3. Add the identity to the project with read access to `prod` environment secrets
+4. Set `INFISICAL_IDENTITY_ID` and `INFISICAL_PROJECT_SLUG` as GitHub repo **variables** (not secrets — these are public identifiers)
+
+All secrets (`DOCKER_ACCESS_TOKEN`, `DOCKER_USERNAME`, `VERCEL_TOKEN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, etc.) are fetched from Infisical at runtime — no static GitHub secrets required.
 
 ---
 

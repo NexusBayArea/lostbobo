@@ -8,6 +8,10 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   # Job 1: The Quality Gate
   audit:
@@ -36,8 +40,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Fetch secrets from Infisical
+        uses: Infisical/secrets-action@v1.0.9
+        with:
+          method: "oidc"
+          identity-id: "${{ vars.INFISICAL_IDENTITY_ID }}"
+          project-slug: "${{ vars.INFISICAL_PROJECT_SLUG }}"
+          env-slug: "prod"
+
       - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        run: echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
       - name: Build and Push Worker
         uses: docker/build-push-action@v5
@@ -56,8 +68,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Fetch secrets from Infisical
+        uses: Infisical/secrets-action@v1.0.9
+        with:
+          method: "oidc"
+          identity-id: "${{ vars.INFISICAL_IDENTITY_ID }}"
+          project-slug: "${{ vars.INFISICAL_PROJECT_SLUG }}"
+          env-slug: "prod"
+
       - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        run: echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
       - name: Build and Push Autoscaler
         uses: docker/build-push-action@v5
@@ -76,14 +96,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Fetch secrets from Infisical
+        uses: Infisical/secrets-action@v1.0.9
+        with:
+          method: "oidc"
+          identity-id: "${{ vars.INFISICAL_IDENTITY_ID }}"
+          project-slug: "${{ vars.INFISICAL_PROJECT_SLUG }}"
+          env-slug: "prod"
+
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v20
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-token: $VERCEL_TOKEN
+          vercel-org-id: $VERCEL_ORG_ID
+          vercel-project-id: $VERCEL_PROJECT_ID
           vercel-args: "--prod"
           vercel-envs: |
-            VITE_API_URL=${{ secrets.PROD_API_URL }}
-            VITE_SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-            VITE_SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+            VITE_API_URL=$PROD_API_URL
+            VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+            VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY

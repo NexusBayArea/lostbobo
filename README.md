@@ -205,7 +205,14 @@ curl -X POST "https://api.runpod.io/graphql" \
   -d '{"query": "mutation { podRestart(podId: \"$RUNPOD_POD_ID\") { id status } }"}'
 ```
 
-**Required GitHub Secrets**: `DOCKER_ACCESS_TOKEN`, `DOCKER_USERNAME`, `RUNPOD_API_KEY`, `RUNPOD_POD_ID`
+**Required GitHub Variables** (Settings → Actions → Variables):
+- `INFISICAL_IDENTITY_ID` — Machine identity ID from Infisical (OIDC)
+- `INFISICAL_PROJECT_SLUG` — Infisical project slug
+
+**Required GitHub Secrets** (Settings → Actions → Secrets):
+- `RUNPOD_API_KEY`, `RUNPOD_POD_ID` — managed via Infisical, injected at runtime
+
+All other secrets (`DOCKER_ACCESS_TOKEN`, `DOCKER_USERNAME`, `VERCEL_TOKEN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`) are fetched from Infisical at runtime via OIDC — no static GitHub secrets needed.
 
 ### Environment Variables (Critical)
 

@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **useAuth Guards**: Added `!supabase` guard in useEffect and getToken() to prevent runtime errors when client is uninitialized.
 - **Documentation**: Updated `ARCHITECTURE.md` with Frontend Environment Variables section explaining Vite build-time injection, Infisical wrapping, and `VITE_` prefix requirements.
 
+### Changed
+
+- **CI/CD Pipeline (Infisical OIDC)**: `.github/workflows/deploy.yml` — replaced all `${{ secrets.* }}` with Infisical OIDC injection via `Infisical/secrets-action@v1.0.9`. Docker Hub login, Vercel deploy, and frontend env vars are now fetched from Infisical at runtime. Added `permissions: id-token: write` and `contents: read`. Requires GitHub repo variables `INFISICAL_IDENTITY_ID` and `INFISICAL_PROJECT_SLUG`.
+
 ## [2.5.0] - 2026-04-02
 
 ### Added
