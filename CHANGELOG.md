@@ -23,7 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Health Check Endpoint**: `GET /api/v1/health` — unified health probe that verifies API, Redis, and Supabase connectivity. Returns `200 healthy` or `503 degraded` with per-service status.
+- **Frontend Entry Point**: Restored missing `index.html`, `src/main.tsx`, `src/App.tsx`, `src/index.css` with React Router, Toaster, OnboardingProvider, and Supabase auth integration.
+- **API Client**: `src/lib/api.ts` — typed API wrapper for simulation usage, start, and cancel endpoints with Bearer token auth.
+- **Build Config**: `package.json` (React 18, Vite 5, Tailwind 3, Supabase JS, Zustand, Radix UI, Lucide, Sonner, React Router), `vite.config.ts` (with `@` alias), `tailwind.config.js`, `postcss.config.js`.
 - **Frontend Docker Build**: `apps/frontend/Dockerfile.prod` confirmed as two-stage build (Node 20 Alpine → Nginx Alpine) with `VITE_` build-time ARG injection for Supabase and API URLs.
 - **Nginx SPA Config**: `apps/frontend/nginx.conf` with `try_files` fallback for React Router deep-link support and 30-day static asset caching.
 - **GitHub Actions Lint CI**: `.github/workflows/lint.yml` — runs `ruff check` and `ruff format --check` on `services/worker/worker.py` and `services/api/api.py` on every push to `main`/`v2.5.0-DEV` and on PRs to `main`.
