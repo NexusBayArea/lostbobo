@@ -44,7 +44,7 @@ jobs:
         uses: Infisical/secrets-action@v1.0.9
         with:
           method: "oidc"
-          identity-id: "${{ vars.INFISICAL_IDENTITY_ID }}"
+          identity-id: "cffe0e20-3898-4cc1-bcfb-35cdceab5886"
           project-slug: "${{ vars.INFISICAL_PROJECT_SLUG }}"
           env-slug: "prod"
 
@@ -72,7 +72,7 @@ jobs:
         uses: Infisical/secrets-action@v1.0.9
         with:
           method: "oidc"
-          identity-id: "${{ vars.INFISICAL_IDENTITY_ID }}"
+          identity-id: "cffe0e20-3898-4cc1-bcfb-35cdceab5886"
           project-slug: "${{ vars.INFISICAL_PROJECT_SLUG }}"
           env-slug: "prod"
 
@@ -100,7 +100,7 @@ jobs:
         uses: Infisical/secrets-action@v1.0.9
         with:
           method: "oidc"
-          identity-id: "${{ vars.INFISICAL_IDENTITY_ID }}"
+          identity-id: "cffe0e20-3898-4cc1-bcfb-35cdceab5886"
           project-slug: "${{ vars.INFISICAL_PROJECT_SLUG }}"
           env-slug: "prod"
 
