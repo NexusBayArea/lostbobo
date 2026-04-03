@@ -490,12 +490,14 @@ Push to `main` triggers a gated pipeline:
 
 | Variable | Value | Purpose |
 | :--- | :--- | :--- |
-| `INFISICAL_IDENTITY_ID` | `55d8d8e8-dd7e-4d5c-b7d1-aec3e3a577f2` | Machine identity "RogWin" (OIDC) |
+| `INFISICAL_IDENTITY_ID` | `cffe0e20-3898-4cc1-bcfb-35cdceab5886` | GitHub-connected machine identity (OIDC) |
 | `INFISICAL_PROJECT_SLUG` | *(from project settings)* | Infisical project slug |
+| `SUPABASE_CONNECTION_ID` | `a9eb6778-af82-4150-9d4f-2c44049e24cd` | Supabase connection |
+| `VERCEL_CONNECTION_ID` | `42c89bfa-3349-4be6-899b-97b2d6e3d461` | Vercel connection |
 
 ### Infisical OIDC Setup
 
-1. Machine identity **"RogWin"** already exists (`55d8d8e8-dd7e-4d5c-b7d1-aec3e3a577f2`)
+1. Machine identity already exists (`cffe0e20-3898-4cc1-bcfb-35cdceab5886`)
 2. Ensure it is configured with **OIDC Auth**:
    - OIDC Discovery URL: `https://token.actions.githubusercontent.com`
    - Issuer: `https://token.actions.githubusercontent.com`

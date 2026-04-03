@@ -206,8 +206,10 @@ curl -X POST "https://api.runpod.io/graphql" \
 ```
 
 **Required GitHub Variables** (Settings → Actions → Variables):
-- `INFISICAL_IDENTITY_ID` — `55d8d8e8-dd7e-4d5c-b7d1-aec3e3a577f2` (Machine identity "RogWin", configured for OIDC)
+- `INFISICAL_IDENTITY_ID` — `cffe0e20-3898-4cc1-bcfb-35cdceab5886` (GitHub-connected machine identity, configured for OIDC)
 - `INFISICAL_PROJECT_SLUG` — Infisical project slug (found in project settings)
+- `SUPABASE_CONNECTION_ID` — `a9eb6778-af82-4150-9d4f-2c44049e24cd` (Supabase connection)
+- `VERCEL_CONNECTION_ID` — `42c89bfa-3349-4be6-899b-97b2d6e3d461` (Vercel connection)
 
 **Required GitHub Secrets** (Settings → Actions → Secrets):
 - `RUNPOD_API_KEY`, `RUNPOD_POD_ID` — managed via Infisical, injected at runtime
