@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **CI/CD Pipeline (Modular Workflows)**: Split monolithic `deploy.yml` into path-triggered workflows: `deploy-worker.yml`, `deploy-autoscaler.yml`, `deploy-vercel.yml`. All use Infisical OIDC (`Infisical/secrets-action@v1.0.15`) with hardcoded machine identity `cffe0e20-3898-4cc1-bcfb-35cdceab5886`. Added checkout credentials (`fetch-depth: 0`, `persist-credentials: true`, `submodules: recursive`, `GITHUB_TOKEN`). Vercel workflow builds frontend with Vite then deploys via `npx vercel deploy --prod`.
+- **CI/CD Pipeline (GitHub Secrets)**: Simplified workflows to use GitHub secrets directly (`DOCKER_ACCESS_TOKEN`, `DOCKER_USERNAME`, `VERCEL_TOKEN`, etc.) instead of Infisical OIDC which was failing with 404 errors. Added `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` to all workflows. Split into path-triggered workflows: `deploy-worker.yml`, `deploy-autoscaler.yml`, `deploy-vercel.yml`. `deploy.yml` is audit-only (ruff lint + format).
 - **docker-compose.yml**: Added autoscaler service with billing guards, backend network bridge, simulation_scratch and workspace volumes, healthchecks for api/worker/redis. Updated worker image to v2.5.0.
 
 ## [2.5.0] - 2026-04-02

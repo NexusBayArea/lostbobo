@@ -492,38 +492,23 @@ Push to `main` triggers independent, path-aware workflows:
 ### Deployment Chain
 
 1. **Audit**: `ruff check` + `ruff format --check` on `services/worker/worker.py` and `services/api/api.py`. Blocks on failure.
-2. **Infisical OIDC Auth**: Each deploy job fetches secrets from Infisical using `Infisical/secrets-action@v1.0.15` with OIDC authentication (short-lived tokens, no static credentials).
-3. **Deploy Worker**: Build `Dockerfile.worker` → push to `simhpcworker/simhpc-worker:latest`.
-4. **Deploy Autoscaler**: Build `Dockerfile.autoscaler` → push to `simhpcworker/simhpc-autoscaler:latest`.
-5. **Deploy Vercel**: Build frontend with Vite → deploy to Vercel production.
+2. **Deploy Worker**: Build `Dockerfile.worker` → push to `simhpcworker/simhpc-worker:latest` using GitHub secrets for Docker Hub auth.
+3. **Deploy Autoscaler**: Build `Dockerfile.autoscaler` → push to `simhpcworker/simhpc-autoscaler:latest` using GitHub secrets for Docker Hub auth.
+4. **Deploy Vercel**: Build frontend with Vite (`base: '/'`) → deploy `dist/` to Vercel production using GitHub secrets.
 
-### Required GitHub Variables (Settings → Actions → Variables)
+### Required GitHub Secrets (Settings → Actions → Secrets)
 
-| Variable | Value | Purpose |
-| :--- | :--- | :--- |
-| `INFISICAL_PROJECT_SLUG` | *(from project settings)* | Infisical project slug |
+| Secret | Purpose |
+| :--- | :--- |
+| `DOCKER_ACCESS_TOKEN` | Docker Hub access token |
+| `DOCKER_USERNAME` | Docker Hub username |
+| `VERCEL_TOKEN` | Vercel deployment token |
+| `VERCEL_ORG_ID` | Vercel organization ID |
+| `VERCEL_PROJECT_ID` | Vercel project ID |
 
-### Infisical Integrations (Synced via Dashboard)
+### Infisical Integration (Planned)
 
-| Integration | Connection ID | Sync ID |
-| :--- | :--- | :--- |
-| GitHub | `cffe0e20-3898-4cc1-bcfb-35cdceab5886` | `06b1f798-0110-4b6c-9a6f-f8cbc9abe662` |
-| Supabase | `a9eb6778-af82-4150-9d4f-2c44049e24cd` | `bb23acd6-2ec9-4ce6-a7f5-36a77ea750a4` |
-| Vercel | `42c89bfa-3349-4be6-899b-97b2d6e3d461` | `9067124a-8808-4947-867d-c43aec229444` |
-
-### Infisical OIDC Setup
-
-1. Machine identity already exists (`cffe0e20-3898-4cc1-bcfb-35cdceab5886`)
-2. **CRITICAL**: In Infisical Dashboard → Project Settings → Machine Identities → Select identity → **Auth Methods** tab → **Add OIDC Auth** with:
-   - **Issuer**: `https://token.actions.githubusercontent.com`
-   - **Subject**: `repo:NexusBayArea/lostbobo:ref:refs/heads/main`
-   - **Audiences**: `https://github.com/NexusBayArea`
-3. Verify the identity has read access to `prod` environment secrets
-4. Set `INFISICAL_PROJECT_SLUG` as GitHub repo variable (Settings → Actions → Variables)
-
-> **Error "OIDC auth method not found for identity"** means step 2 is not configured. The machine identity exists but has no OIDC auth method — only Universal Auth (client ID/secret). You must add OIDC as an auth method in the Infisical dashboard.
-
-All secrets (`DOCKER_ACCESS_TOKEN`, `DOCKER_USERNAME`, `VERCEL_TOKEN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, etc.) are fetched from Infisical at runtime via OIDC — no static GitHub secrets needed.
+Infisical OIDC integration is planned but currently blocked by dashboard configuration. The machine identity `cffe0e20-3898-4cc1-bcfb-35cdceab5886` needs OIDC auth method added in the Infisical dashboard before workflows can switch back to Infisical-based secret injection.
 
 ---
 
