@@ -220,6 +220,8 @@ All CI/CD jobs authenticate to Infisical via OIDC (no static credentials):
 - **OIDC Discovery URL**: `https://token.actions.githubusercontent.com`
 - **Subject**: `repo:NexusBayArea/lostbobo:ref:refs/heads/main`
 
+> **Troubleshooting "OIDC auth method not found for identity"**: Go to Infisical Dashboard → Project Settings → Machine Identities → Select the identity → Auth Methods tab → Add OIDC Auth with the issuer/subject above. This is required because the identity currently only has Universal Auth (client ID/secret), not OIDC.
+
 ### Required GitHub Variables (Settings → Actions → Variables)
 
 | Variable | Value | Purpose |

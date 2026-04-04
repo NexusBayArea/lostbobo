@@ -514,11 +514,14 @@ Push to `main` triggers independent, path-aware workflows:
 ### Infisical OIDC Setup
 
 1. Machine identity already exists (`cffe0e20-3898-4cc1-bcfb-35cdceab5886`)
-2. Configured with **OIDC Auth**:
-   - OIDC Discovery URL: `https://token.actions.githubusercontent.com`
-   - Issuer: `https://token.actions.githubusercontent.com`
-   - Subject: `repo:NexusBayArea/lostbobo:ref:refs/heads/main`
-3. Identity has read access to `prod` environment secrets
+2. **CRITICAL**: In Infisical Dashboard → Project Settings → Machine Identities → Select identity → **Auth Methods** tab → **Add OIDC Auth** with:
+   - **Issuer**: `https://token.actions.githubusercontent.com`
+   - **Subject**: `repo:NexusBayArea/lostbobo:ref:refs/heads/main`
+   - **Audiences**: `https://github.com/NexusBayArea`
+3. Verify the identity has read access to `prod` environment secrets
+4. Set `INFISICAL_PROJECT_SLUG` as GitHub repo variable (Settings → Actions → Variables)
+
+> **Error "OIDC auth method not found for identity"** means step 2 is not configured. The machine identity exists but has no OIDC auth method — only Universal Auth (client ID/secret). You must add OIDC as an auth method in the Infisical dashboard.
 
 All secrets (`DOCKER_ACCESS_TOKEN`, `DOCKER_USERNAME`, `VERCEL_TOKEN`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, etc.) are fetched from Infisical at runtime via OIDC — no static GitHub secrets needed.
 
