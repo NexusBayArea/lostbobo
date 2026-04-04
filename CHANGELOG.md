@@ -13,11 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **useSimulationUpdates Guards**: Wrapped `fetchHistory()` in try/catch, added `!supabase` guard, protected realtime subscription in try/catch block, and made channel cleanup safe with `if (channel)` check.
 - **useSimulations Guards**: Added `!supabase` guard, wrapped fetch in try/catch, protected realtime subscription, safe channel cleanup.
 - **useAuth Guards**: Added `!supabase` guard in useEffect and getToken() to prevent runtime errors when client is uninitialized.
+- **Dashboard Rendering**: Rebuilt `App.tsx` DashboardPage to use actual styled components (`ConfigurationPanel`, `RunControlPanel`, `ResultsPanel`, `DocumentPage`) with tab navigation and mock simulation run flow. Added `framer-motion` dependency (required by ResultsPanel and DocumentPage).
 - **Documentation**: Updated `ARCHITECTURE.md` with Frontend Environment Variables section explaining Vite build-time injection, Infisical wrapping, and `VITE_` prefix requirements.
 
 ### Changed
 
 - **CI/CD Pipeline (Modular Workflows)**: Split monolithic `deploy.yml` into path-triggered workflows: `deploy-worker.yml`, `deploy-autoscaler.yml`, `deploy-vercel.yml`. All use Infisical OIDC (`Infisical/secrets-action@v1.0.15`) with hardcoded machine identity `cffe0e20-3898-4cc1-bcfb-35cdceab5886`. Added checkout credentials (`fetch-depth: 0`, `persist-credentials: true`, `submodules: recursive`, `GITHUB_TOKEN`). Vercel workflow builds frontend with Vite then deploys via `npx vercel deploy --prod`.
+- **docker-compose.yml**: Added autoscaler service with billing guards, backend network bridge, simulation_scratch and workspace volumes, healthchecks for api/worker/redis. Updated worker image to v2.5.0.
 
 ## [2.5.0] - 2026-04-02
 
