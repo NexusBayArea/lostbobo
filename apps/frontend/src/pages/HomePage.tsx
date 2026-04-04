@@ -9,9 +9,9 @@ import { Footer } from '@/sections/Footer';
 
 function HomePage() {
   return (
-    <div className="bg-slate-950 min-h-screen">
+    <>
       <Navigation />
-      <main className="pt-16">
+      <main>
         <Hero />
         <Stack />
         <ValueDifferentiator />
@@ -19,7 +19,7 @@ function HomePage() {
         <Pricing />
       </main>
       <Footer />
-    </div>
+    </>
   );
 }
 
