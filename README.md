@@ -173,127 +173,15 @@ npm run build
 
 ## Deployment
 
-The frontend is automatically deployed to Vercel upon merging into the main branch of the `lostbobo` repository.
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for the complete Standard Operating Procedure.
 
-- **Primary**: [https://simhpc.com](https://simhpc.com) — Vercel (production)
-- **Backup**: [https://NexusBayArea.github.io/lostbobo](https://NexusBayArea.github.io/lostbobo) — GitHub Pages (staging/debug only)
+### Quick Links
 
-### Supabase Database & Edge Functions
-
-Supabase project: `ldzztrnghaaonparyggz`
-
-- **Migrations**: `002_beta_schema_normalization.sql`, `003_profiles_table.sql`, `004_platform_alerts.sql` — applied via `db push`.
-- **Edge Functions**: `get-fleet-metrics` (server-side fleet metrics, admin-only) and `trigger-panic-shutdown` (emergency fleet termination) — deployed via `functions deploy <name> --use-api`.
-- **CLI Access**: `.\node_modules\supabase\bin\supabase.exe` (or copy to root as `supabase.exe`). Use `--use-api` flag to bypass Docker issues.
-
-### RunPod Worker Deployment
-
-The worker runs on a GPU pod via RunPod. Deployment is automated through GitHub Actions:
-
-1. **Push to `main`** → triggers `.github/workflows/deploy-worker.yml` (path-triggered by `services/worker/**` or `Dockerfile.worker`)
-2. **GitHub Actions** builds the Docker image and pushes to Docker Hub:
-   - `simhpcworker/simhpc-worker:latest`
-   - `simhpcworker/simhpc-worker:v2.5.0`
-3. **RunPod Auto-Updater** (`services/worker/pull_and_restart.sh`, cron `*/5 * * * *`) detects the new image on Docker Hub, pulls it, and restarts the container automatically (~5 min delay).
-
-### Vercel Frontend Deployment
-
-The frontend is deployed via Vercel's native GitHub integration (not GitHub Actions):
-
-1. **Push to `main`** → Vercel automatically detects the change
-2. **Vercel** pulls the repo, installs deps, runs `npm run build`, and deploys to production
-3. Environment variables are configured in Vercel Dashboard → Project → Settings → Environment Variables
-
-The GitHub Actions `deploy-vercel.yml` workflow is a fallback but is not required — Vercel's native integration handles everything.
-
-### Required GitHub Secrets (Settings → Actions → Secrets)
-
-| Secret | Purpose |
-| :--- | :--- |
-| `DOCKER_ACCESS_TOKEN` | Docker Hub access token |
-| `DOCKER_USERNAME` | Docker Hub username |
-| `VERCEL_TOKEN` | Vercel deployment token |
-| `VERCEL_ORG_ID` | Vercel organization ID |
-| `VERCEL_PROJECT_ID` | Vercel project ID |
-
-> **Note**: CI/CD currently uses GitHub secrets directly. Infisical OIDC integration is planned — see `ARCHITECTURE.md` for OIDC setup instructions.
-
-### Environment Variables (Critical)
-
-SimHPC uses **Zod schema validation** at build time to prevent silent environment failures. If any required variable is missing or malformed, the build fails immediately with a clear error message.
-
-| Variable | Purpose | Source | Validation |
-| :--- | :--- | :--- | :--- |
-| `VITE_SUPABASE_URL` | Supabase project URL | Supabase Dashboard | `z.string().url()` |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key | Supabase Dashboard | `z.string().min(10)` |
-| `VITE_API_URL` | Backend API endpoint | RunPod API container | `z.string().url()` |
-
-#### Vercel (Automatic)
-
-Vercel injects these via the Dashboard or `vercel-action` workflow. **Never use local .env files for production secrets.** Ensure `.gitignore` is correctly named with a leading dot to prevent local `.env` files from being tracked.
-
-> **Important**: Vercel and Docker use separate env var systems. Docker `build.args` in `docker-compose.yml` do not transfer to Vercel. You must explicitly set these in **Vercel → Project → Settings → Environment Variables** for the Production environment:
->
-> | Variable | Required |
-> | :--- | :--- |
-> | `VITE_SUPABASE_URL` | Yes |
-> | `VITE_SUPABASE_ANON_KEY` | Yes |
-> | `VITE_API_URL` | Yes |
-> | `VITE_STRIPE_PUBLISHABLE_KEY` | Yes |
->
-> Then trigger a **redeploy** — Vite bakes these at build time; adding them after deploy has no effect until rebuild.
-
-### Strategic Vercel Best Practices
-
-#### 1. The "Double-Key" Strategy
-
-- **Frontend**: Uses `VITE_SUPABASE_ANON_KEY` to allow users to authenticate and read their own data.
-- **RunPod Worker**: Uses `SUPABASE_SERVICE_ROLE_KEY` to perform administrative database updates, bypassing Row Level Security (RLS) for high-frequency physics telemetry.
-
-#### 2. Stable RunPod Handshake
-
-If the Sim Worker shows as "Offline," it is likely due to an IP change after a restart.
-
-- **Action**: Use the **RunPod HTTP Proxy URL** in `VITE_API_URL` instead of a direct IP.
-- **Why**: Direct IPs change on pod restart. The proxy URL is stable.
-- **Pod ID**: See private `INFRASTRUCTURE.md` (excluded from git).
-- **Connection**: See private `INFRASTRUCTURE.md` — pod-specific details are rotated per deployment.
-- **SSH Command**: See private `INFRASTRUCTURE.md`.
-
-- **CORS**: Ensure `ALLOWED_ORIGINS` in your FastAPI backend includes your specific Vercel domain. Never use `*` in production.
-
-#### 3. Google Cloud Console Configuration
-
-For Google One Tap and Sign-In to function on Vercel:
-
-- **Authorized JavaScript Origins**: Add `https://simhpc.com` and your Vercel preview URLs.
-- **Authorized Redirect URIs**: Add `https://simhpc.com/api/auth/callback/google`.
-
-#### GitHub Pages (Manual — Required)
-
-GitHub Pages is static hosting and cannot read secrets at runtime. You must:
-
-1. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` to **Repo → Settings → Secrets → Actions**
-2. Pass them in the workflow build step:
-
-```yaml
-- name: Build
-  run: npm run build
-  env:
-    VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-    VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-```
-
-#### Known Issue: GitHub Pages CSP & Stripe
-
-`github.io` domains enforce stricter Content-Security-Policy and block third-party cookies. If using GitHub Pages, add this to `index.html`:
-
-```html
-<meta http-equiv="Content-Security-Policy"
-  content="default-src 'self'; connect-src 'self' https://*.supabase.co https://*.stripe.com; script-src 'self' 'unsafe-inline' https://*.stripe.com; style-src 'self' 'unsafe-inline';">
-```
-
-**Recommendation**: Use **Vercel as Production Primary** — it handles Auth, Stripe, and SPA routing natively.
+- **Frontend**: [https://simhpc.com](https://simhpc.com) — Vercel (production)
+- **Worker Image**: `simhpcworker/simhpc-worker:latest` — Docker Hub
+- **Autoscaler Image**: `simhpcworker/simhpc-autoscaler:latest` — Docker Hub
+- **GitHub Actions**: https://github.com/NexusBayArea/lostbobo/actions
+- **Vercel Dashboard**: https://vercel.com/<your-team>/simhpc/deployments
 
 ---
 
