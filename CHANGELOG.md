@@ -5,7 +5,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.5.1] - 2026-04-03
+## [2.5.1] - 2026-04-04
+
+### Fixed
+
+- **Vercel Build Success**: Fixed TypeScript errors that were blocking production builds. `SimulationUpdate.status` now uses `SimulationRow['status']` union type instead of `string`. Removed `as SimulationRow` cast hack in `useSimulationUpdates.ts`. Renamed `setTimeout` state in `Dashboard.tsx` to `setRequestTimeout` to avoid shadowing global `window.setTimeout`.
+- **Submodule Cleanup**: Removed broken self-referencing `apps/frontend` submodule (was pointing to `lostbobo.git` itself). Cleaned up `.gitmodules` and `.git/modules/`.
 
 ### Fixed
 

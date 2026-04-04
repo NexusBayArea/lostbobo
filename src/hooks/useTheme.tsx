@@ -18,7 +18,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem('theme') as Theme;
     if (saved) setTheme(saved);
+    document.documentElement.classList.add('dark');
+    document.body.classList.add('bg-slate-950', 'text-white');
   }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    document.body.classList.toggle('bg-slate-950', theme === 'dark');
+    document.body.classList.toggle('bg-white', theme === 'light');
+    document.body.classList.toggle('text-white', theme === 'dark');
+    document.body.classList.toggle('text-slate-900', theme === 'light');
+  }, [theme]);
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
@@ -28,7 +38,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <div className={theme === 'dark' ? 'dark' : ''}>{children}</div>
+      {children}
     </ThemeContext.Provider>
   );
 }
