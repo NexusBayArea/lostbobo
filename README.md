@@ -4,7 +4,7 @@ The SimHPC Frontend is **LIVE** and accessible at [https://simhpc.com](https://s
 
 This is the public-facing repository for the SimHPC Mission Control Cockpit, a premium interface for aerospace and thermal engineering simulations.
 
-## Architecture (v2.5.0)
+## Architecture (v2.5.1)
 
 ### Single Source of Truth Structure
 
@@ -27,9 +27,9 @@ SimHPC v2.5 consolidates all backend and worker logic into a unified, clean stru
 | Service | Image | Dockerfile | Purpose |
 | :--- | :--- | :--- | :--- |
 | Frontend | Nginx Alpine | `apps/frontend/Dockerfile.prod` | React/Vite cockpit with SPA routing via Nginx |
-| API | `simhpcworker/simhpc-api:v2.5.0` | `Dockerfile.api` | FastAPI orchestrator (Mercury AI integration) |
-| GPU Worker | `simhpcworker/simhpc-worker:v2.5.0` | `Dockerfile.worker` | Unified Physics + Metrics + Reports |
-| Autoscaler | `simhpcworker/simhpc-autoscaler:v2.5.0` | `Dockerfile.autoscaler` | Option C: On-demand + Network Volume |
+| API | `simhpcworker/simhpc-api:v2.5.1` | `Dockerfile.api` | FastAPI orchestrator (Mercury AI integration) |
+| GPU Worker | `simhpcworker/simhpc-worker:v2.5.1` | `Dockerfile.worker` | Unified Physics + Metrics + Reports |
+| Autoscaler | `simhpcworker/simhpc-autoscaler:v2.5.1` | `Dockerfile.autoscaler` | Option C: On-demand + Network Volume |
 | Redis | `redis:7-alpine` | — | Message broker + Scaling metrics |
 
 ### Local Alpha Launch
@@ -51,7 +51,7 @@ To launch the full "Mission Control" stack locally:
    - **API Health**: http://localhost:8000/api/v1/health (returns `{"status": "healthy", ...}`)
    - **Worker Logs**: Look for `Heartbeat sent` in terminal output
    - **Lint Clean**: `pre-commit run --all-files` — all passed
-   - **CI Gate**: GitHub Actions runs ruff on every push to `main`/`v2.5.0-DEV`
+   - **CI Gate**: GitHub Actions runs ruff on every push to `main`/`v2.5.1-DEV`
    - **Deploy**: Push to `main` triggers lint → Docker Hub (Worker + Autoscaler) + Vercel (Frontend)
 
 ### Queue Architecture (v2.3.0)
@@ -65,7 +65,7 @@ To launch the full "Mission Control" stack locally:
 - **Safety**: `MAX_PODS=3`, budget caps enforced, Redis-persisted activity state
 - **Warm Control**: `Wake GPU` button uses `/api/v1/admin/fleet/warm` for 90s wake-ups.
 
-## v2.5.0: Structural Consolidation & Truth Alignment
+## v2.5.1: Structural Consolidation & Truth Alignment
 
 - **Antigravity Mission Control**: Integrated native MCP skills for fleet management, secure deployments, and financial auditing directly from the AI agent.
 - **Zero-Trust Security**: Transitioned to Infisical-based secret injection (`infisical run --`), eliminating local `.env` risks. All pod IDs, SSH keys, and server details are managed via Infisical.
@@ -77,7 +77,7 @@ To launch the full "Mission Control" stack locally:
 - **Backend Alignment**: API and worker updated to write to `simulations` table.
 - **Frontend Alignment**: All components updated to use `SimulationRow` type.
 
-### Antigravity Mission Control (v2.5.0)
+### Antigravity Mission Control (v2.5.1)
 
 SimHPC now supports a professional-grade, agent-led "Mission Control" via the Antigravity IDE/CLI. The following MCP skills are available:
 
@@ -152,6 +152,7 @@ The machine identity **"RogWin"** is configured for this project.
 ### Run Development Server
 
 ```bash
+cd apps/frontend
 npm install
 npm run dev
 ```
@@ -160,7 +161,7 @@ npm run dev
 
 The repository includes a pre-configured `.vscode/launch.json` for debugging the frontend:
 
-1. Start the development server: `npm run dev`.
+1. Start the development server: `cd apps/frontend && npm run dev`.
 2. Press `F5` in VS Code or select **"Launch Chrome (Frontend)"** from the Run and Debug sidebar.
     * **Port**: `59824`
     * **Web Root**: `apps/frontend`
@@ -168,6 +169,7 @@ The repository includes a pre-configured `.vscode/launch.json` for debugging the
 ### Build for Production
 
 ```bash
+cd apps/frontend
 npm run build
 ```
 

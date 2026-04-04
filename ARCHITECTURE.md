@@ -9,17 +9,17 @@
 
 SimHPC is a cloud-native GPU-accelerated finite element simulation platform. The architecture follows a distributed microservices pattern with a **securely isolated frontend** and a **closed-source backend** orchestration layer.
 
-### The "Mission Control" Stack (v2.5.0)
+### The "Mission Control" Stack (v2.5.1)
 
-For local development and alpha testing, the platform uses a unified `docker-compose.yml` stack:
+For local development and staging, the platform uses a unified `docker-compose.yml` stack:
 
 | Service | Docker Image | Description |
 | :--- | :--- | :--- |
 | Redis | `redis:7-alpine` | Job queueing and inter-service messaging |
-| Frontend | — (Nginx Alpine) | React/Vite cockpit served via `Dockerfile.prod` with SPA routing |
-| API | `simhpcworker/simhpc-api:v2.3.0` | FastAPI-based control plane for AI and fleet management |
-| Worker | `simhpcworker/simhpc-worker:v2.5.0` | Unified compute plane (Physics + Reports + Metrics) |
-| Autoscaler | `simhpcworker/simhpc-autoscaler:v2.3.0` | Option C: Stop/Resume strategy with Network Volume persistence |
+| Frontend | — (React/Vite) | Unified React/Vite cockpit in root `src/` directory |
+| API | `simhpcworker/simhpc-api:v2.5.1` | FastAPI-based control plane for AI and fleet management |
+| Worker | `simhpcworker/simhpc-worker:v2.5.1` | Unified compute plane (Physics + Reports + Metrics) |
+| Autoscaler | `simhpcworker/simhpc-autoscaler:v2.5.1` | Option C: Stop/Resume strategy with Network Volume persistence |
 
 ---
 
@@ -85,17 +85,13 @@ Single source of truth for all simulation state. Replaces the legacy `simulation
 
 ### 5. Infrastructure & Storage (March 2026 Stability Updates)
 
-* **Network Volumes (Option C):** A persistent Network Volume is mounted at `/workspace` on GPU pods. This ensures that simulation data, weights, and solver caches persist even when a pod is **STOPPED** to save costs.
-* **Shared Scratch Volume:** A `simulation_scratch` volume is mounted at `/tmp/sim_scratch` on both the **API** and **Worker** containers. This allows the API to pass large simulation input files directly to the worker when needed, bypassing Redis for payload efficiency.
-* **Security Hardening:** All production Docker images now run as a non-privileged `appuser` to minimize the impact of potential container escapes.
-* **Secret Management:** Sensitive keys (Stripe, Supabase JWT, RunPod API, Admin Secret) are managed via Docker Secrets or secure environment variables.
-* **Standardized Runtime:** All Python services are standardized on **Python 3.11-slim** to ensure consistent behavior and syntax support across the platform.
+- **Network Volumes (Option C):** A persistent Network Volume is mounted at `/workspace` on GPU pods. This ensures that simulation data, weights, and solver caches persist even when a pod is **STOPPED** to save costs.
+- **Shared Scratch Volume:** A `simulation_scratch` volume is mounted at `/tmp/sim_scratch` on both the **API** and **Worker** containers. This allows the API to pass large simulation input files directly to the worker when needed, bypassing Redis for payload efficiency.
+- **Security Hardening:** All production Docker images now run as a non-privileged `appuser` to minimize the impact of potential container escapes.
+- **Secret Management:** Sensitive keys (Stripe, Supabase JWT, RunPod API, Admin Secret) are managed via Docker Secrets or secure environment variables.
+- **Standardized Runtime:** All Python services are standardized on **Python 3.11-slim** to ensure consistent behavior and syntax support across the platform.
 
 ---
-
-## 1. The Physics Worker: Dedicated Pod Architecture (v2.3.0)
-
-Unlike the initial pod SimHPC_P_01 prototype, the SimHPC Physics Worker runs as a **long-lived stateful pod** to ensure deterministic physics results and low-latency telemetry.
 
 ### A. Redis Polling Mechanism
 
@@ -125,23 +121,23 @@ SimHPC implements a progressive, event-driven onboarding layer designed to bridg
 
 #### A. Onboarding Architecture
 
-* **Frontend**:
-  * `OnboardingProvider`: Global Zustand state for tracking current step and visibility.
-  * `StepRenderer`: Tooltip and Modal engine powered by **Floating UI** and **Framer Motion**.
-  * `EventListener`: Hook-based system that listens for specific user actions (e.g., `simulation_started`).
-* **Backend**:
-  * `onboarding_state`: Persistent PostgreSQL table tracking per-user progress.
-  * `trigger_engine`: FastAPI logic that evaluates the `event_stream` to trigger context-aware hints.
+- **Frontend**:
+  - `OnboardingProvider`: Global Zustand state for tracking current step and visibility.
+  - `StepRenderer`: Tooltip and Modal engine powered by **Floating UI** and **Framer Motion**.
+  - `EventListener`: Hook-based system that listens for specific user actions (e.g., `simulation_started`).
+- **Backend**:
+  - `onboarding_state`: Persistent PostgreSQL table tracking per-user progress.
+  - `trigger_engine`: FastAPI logic that evaluates the `event_stream` to trigger context-aware hints.
 
 #### B. State Model & Persistence (v2.4.1)
 
 SimHPC uses a **Versioned Autosave** strategy to ensure a seamless cross-device experience.
 
-* **Database**: `onboarding_state` table tracks `current_step`, `completed_steps`, `events`, and `version`.
-* **Conflict Resolution**: Uses **Optimistic UI with Version Checks**.
-  * Backend rejects stale writes (`incoming.version < db.version`) with a `409 Conflict`.
-  * Frontend automatically hydrates state from the server upon conflict to maintain consistency.
-* **Low-Latency Sync**: Debounced (1s) REST updates for actions, paired with 30s background polling for cross-device resume.
+- **Database**: `onboarding_state` table tracks `current_step`, `completed_steps`, `events`, and `version`.
+- **Conflict Resolution**: Uses **Optimistic UI with Version Checks**.
+  - Backend rejects stale writes (`incoming.version < db.version`) with a `409 Conflict`.
+  - Frontend automatically hydrates state from the server upon conflict to maintain consistency.
+- **Low-Latency Sync**: Debounced (1s) REST updates for actions, paired with 30s background polling for cross-device resume.
 
 ```json
 {
@@ -174,26 +170,26 @@ To protect core intellectual property (AI/Physics logic) during the beta phase, 
 
 ---
 
-## Project Structure (v2.5.0)
+## Project Structure (v2.5.1)
 
-SimHPC v2.5 follows a "Single Source of Truth" directory structure to eliminate redundancy and simplify scaling.
+SimHPC v2.5.1 uses a flattened structure to eliminate redundancy:
 
 ```text
 SimHPC/ (Monorepo)
-├── apps/
-│   └── frontend/            # React/Vite Cockpit (Submodule)
+├── src/                     # React/Vite Unified Cockpit (Primary UI)
+├── services/
 ├── services/
 │   ├── api/                 # FastAPI Orchestration Layer
-│   │   ├── api.py           # Main entry point (v2.4.1)
+│   │   ├── api.py           # Main entry point (v2.5.1)
 │   │   ├── auth_utils.py    # JWT & Supabase Auth
 │   │   └── demo_access.py   # Magic link system
 │   └── worker/              # Unified Compute Plane
-│       ├── worker.py        # Unified Physics + Reports (v2.5.0)
+│       ├── worker.py        # Unified Physics + Reports (v2.5.1)
 │       ├── autoscaler.py    # Option C Hibernation (v2.3.0)
 │       ├── runpod_api.py    # RunPod Lifecycle Client
 │       ├── requirements.txt # Worker dependencies
 │       └── ...              # Physics solvers & services
-├── legacy_archive/          # Deprecated v1.6.0-ALPHA artifacts
+├── legacy_archive/          # Deprecated v1.6.0-ALPHA & apps/frontend artifacts
 ├── Dockerfile.api           # API container manifest
 ├── Dockerfile.worker        # Unified Worker container manifest
 ├── docker-compose.yml       # Local Alpha stack

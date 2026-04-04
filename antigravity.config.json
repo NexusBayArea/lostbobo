@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "simhpc-ops": {
+      "command": "python",
+      "args": ["C:/Users/arche/SimHPC/services/skills/fleet_tool.py"],
+      "description": "SimHPC Operational Tools (Fleet metrics, burn rate)"
+    },
+    "simhpc-secrets": {
+      "command": "python",
+      "args": ["C:/Users/arche/SimHPC/services/skills/secret_sync.py"],
+      "description": "SimHPC Secret Management (GCP Secret Manager sync)"
+    },
+    "gcp-vault": {
+      "command": "python",
+      "args": ["C:/Users/arche/SimHPC/services/skills/secure_gcp_tool.py"],
+      "description": "Secure GCP Bridge (Infisical + GCloud)"
+    },
+    "deploy-guardian": {
+      "command": "python",
+      "args": ["C:/Users/arche/SimHPC/services/skills/deployment_guardian.py"],
+      "description": "Deployment Safety Gate (Lint + Secure Deploy)"
+    },
+    "resource-reaper": {
+      "command": "python",
+      "args": ["C:/Users/arche/SimHPC/services/skills/resource_reaper.py"],
+      "description": "Resource Reaper (Audit and Terminate Stale GPU Pods)"
+    }
+  }
+}

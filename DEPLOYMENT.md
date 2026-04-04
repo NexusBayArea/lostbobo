@@ -57,7 +57,7 @@ In **Vercel Dashboard → Project → Settings → General → Build & Developme
 | Setting | Value |
 |---|---|
 | Framework Preset | Vite |
-| Root Directory | `./` (leave blank) |
+| Root Directory | `apps/frontend` |
 | Build Command | `npm run build` |
 | Output Directory | `dist` |
 | Install Command | `npm install` |
@@ -147,7 +147,7 @@ Blocks deployment if lint fails.
 ### Frontend
 
 ```bash
-cd apps/frontend  # or repo root if frontend is at root
+cd apps/frontend
 npm install
 npm run dev
 ```
