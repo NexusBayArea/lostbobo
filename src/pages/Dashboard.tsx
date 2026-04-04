@@ -28,7 +28,7 @@ export function Dashboard() {
   const [numRuns, setNumRuns] = useState(10);
   const [samplingMethod, setSamplingMethod] = useState('±10% Range (Random)');
   const [parameters, setParameters] = useState<Parameter[]>(DEFAULT_PARAMS);
-  const [timeout, setTimeout] = useState(300);
+  const [timeout, setRequestTimeout] = useState(300);
   const [seed, setSeed] = useState<number | undefined>(undefined);
   const [completedRun, setCompletedRun] = useState<{ run_id: string; results: unknown; progress: number } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -131,7 +131,7 @@ export function Dashboard() {
                   parameters={parameters}
                   onParametersChange={setParameters}
                   timeout={timeout}
-                  onTimeoutChange={setTimeout}
+                  onTimeoutChange={setRequestTimeout}
                   seed={seed}
                   onSeedChange={setSeed}
                 />
