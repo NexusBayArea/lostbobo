@@ -43,12 +43,19 @@ jobs:
         run: npm ci
         working-directory: apps/frontend
 
-      # 5. Build frontend (Vite sees env from Infisical)
+      # 5. Validate environment (Zod schema — blocks bad deploy)
+      - name: Validate environment
+        run: npx tsx scripts/validate-env.ts
+        working-directory: apps/frontend
+        env:
+          APP_ENV: prod
+
+      # 6. Build frontend (Vite sees env from Infisical)
       - name: Build app
         run: npm run build
         working-directory: apps/frontend
 
-      # 6. Deploy to Vercel (from dist/ output)
+      # 7. Deploy to Vercel (from dist/ output)
       - name: Deploy to Vercel
         run: npx vercel deploy --prod --token=$VERCEL_TOKEN
         working-directory: apps/frontend

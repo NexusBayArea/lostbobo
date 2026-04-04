@@ -246,11 +246,13 @@ All other secrets (`DOCKER_ACCESS_TOKEN`, `DOCKER_USERNAME`, `VITE_SUPABASE_URL`
 
 ### Environment Variables (Critical)
 
-| Variable | Purpose | Source |
-| :--- | :--- | :--- |
-| `VITE_SUPABASE_URL` | Supabase project URL | Supabase Dashboard |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key | Supabase Dashboard |
-| `VITE_API_URL` | Backend API endpoint | RunPod API container |
+SimHPC uses **Zod schema validation** at build time to prevent silent environment failures. If any required variable is missing or malformed, the build fails immediately with a clear error message.
+
+| Variable | Purpose | Source | Validation |
+| :--- | :--- | :--- | :--- |
+| `VITE_SUPABASE_URL` | Supabase project URL | Supabase Dashboard | `z.string().url()` |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key | Supabase Dashboard | `z.string().min(10)` |
+| `VITE_API_URL` | Backend API endpoint | RunPod API container | `z.string().url()` |
 
 #### Vercel (Automatic)
 

@@ -25,7 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Frontend Entry Point**: Restored missing `index.html`, `src/main.tsx`, `src/App.tsx`, `src/index.css` with React Router, Toaster, OnboardingProvider, and Supabase auth integration.
+- **Zod Environment Validation**: `src/env/schema.ts` (typed frontend/backend/full schemas), `src/env/client.ts` (runtime-safe env access), `scripts/validate-env.ts` (CI validation with prod/dev modes). Build fails immediately with clear error if `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, or `VITE_API_URL` are missing or malformed.
+- **Dependencies**: Added `zod` (runtime schema validation) and `tsx` (TypeScript script runner) to frontend.
 - **API Client**: `src/lib/api.ts` — typed API wrapper for simulation usage, start, and cancel endpoints with Bearer token auth.
 - **Build Config**: `package.json` (React 18, Vite 5, Tailwind 3, Supabase JS, Zustand, Radix UI, Lucide, Sonner, React Router), `vite.config.ts` (with `@` alias), `tailwind.config.js`, `postcss.config.js`.
 - **Frontend Docker Build**: `apps/frontend/Dockerfile.prod` confirmed as two-stage build (Node 20 Alpine → Nginx Alpine) with `VITE_` build-time ARG injection for Supabase and API URLs.

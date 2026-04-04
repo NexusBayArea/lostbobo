@@ -324,7 +324,9 @@ Vite replaces `import.meta.env.VITE_*` at **build time**, not runtime. This mean
 - **Infisical must wrap the build command**: `infisical run --env=prod -- npm run build`
 - **Vercel**: Variables must be set in Vercel Dashboard → Project → Settings → Environment Variables (Production)
 - **Naming**: Keys MUST be prefixed with `VITE_` to be exposed to the frontend bundle. Non-`VITE_` keys (e.g. `SB_URL`) are invisible to the browser.
-- **Fail-Fast Guard**: `src/lib/supabase.ts` throws immediately if `VITE_SUPABASE_URL` or `VITE_SUPABASE_ANON_KEY` are missing, converting silent white-screen crashes into explicit errors.
+- **Zod Schema Validation**: `src/env/schema.ts` defines typed schemas for frontend (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_API_URL`), backend (`REDIS_URL`, `RUNPOD_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`), and full (merged) validation.
+- **CI Enforcement**: `scripts/validate-env.ts` runs before every build in CI. Prod mode validates full schema, dev/preview validates frontend only. Build fails immediately with clear error if any variable is missing or malformed.
+- **Runtime Safety**: `src/env/client.ts` validates env at module load time, preventing empty strings from ever reaching `createClient()`.
 
 These skills are implemented in `services/skills/` using the `fastmcp` Python framework.
 
