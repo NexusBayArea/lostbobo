@@ -339,25 +339,22 @@ Retrieve secrets from Infisical:
 
 ```bash
 # Get RunPod credentials from Infisical
-infisical secrets list --env=prod | findstr RUNPOD
-
-# Required secrets:
-# RUNPOD_API_KEY    - RunPod GraphQL API key
-# RUNPOD_POD_ID     - Target pod ID
-# RUNPOD_SSH_KEY    - SSH private key for pod access
+infisical secrets get RUNPOD_API_KEY --plain
+infisical secrets get RUNPOD_POD_ID --plain
 ```
 
-Deploy the new worker image to the RunPod pod:
+Or use the automated restart script:
 
 ```bash
-# Restart the pod to pull latest image
-curl -X POST "https://api.runpod.io/graphql" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $RUNPOD_API_KEY" \
-  -d '{"query": "mutation { podRestart(podId: \"'$RUNPOD_POD_ID'\") { id status } }"}'
+# Set environment variables
+set RUNPOD_API_KEY=rpa_...
+set RUNPOD_POD_ID=...
+
+# Restart the pod (stop + resume to pull latest image)
+python scripts/restart_runpod_pod.py
 ```
 
-The RunPod auto-updater (cron inside the pod) will detect the new image and restart within ~5 minutes.
+The script will automatically find and restart your pod if RUNPOD_POD_ID is not set.
 
 #### 4. Verify Deployment
 
