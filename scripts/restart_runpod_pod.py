@@ -24,7 +24,7 @@ def get_api_key():
 
 def get_pod_id():
     """Get pod ID from environment."""
-    return os.getenv("RUNPOD_POD_ID")
+    return os.getenv("RUNPOD_ID")
 
 
 def restart_pod(api_key: str, pod_id: str):

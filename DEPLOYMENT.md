@@ -340,7 +340,7 @@ The automated restart script is the easiest way:
 ```bash
 # Get credentials from Infisical
 infisical secrets get RUNPOD_API_KEY --plain
-infisical secrets get RUNPOD_POD_ID --plain
+infisical secrets get RUNPOD_ID --plain
 
 # Set environment variables and run restart script
 set RUNPOD_API_KEY=rpa_...
