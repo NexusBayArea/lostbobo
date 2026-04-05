@@ -334,7 +334,7 @@ class LeadQualificationModel(BaseModel):
 # --- PLAN LIMITS ---
 PLAN_LIMITS = {
     UserPlan.FREE: {
-        "max_runs": 5,
+        "max_runs": 10,
         "max_perturbations": 5,
         "ai_reports": False,
         "pdf_export": False,
@@ -642,7 +642,10 @@ async def get_current_user(authorization: str = Header(None)):
 
             if profile:
                 # Check free tier limits
-                if profile.get("tier") == "free" and profile.get("runs_used", 0) >= 5:
+                if (
+                    profile.get("tier") == "free"
+                    and profile.get("runs_used", 0) >= WEEKLY_LIMIT
+                ):
                     raise HTTPException(
                         status_code=403,
                         detail="Weekly simulation limit reached. Please upgrade.",

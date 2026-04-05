@@ -1,5 +1,4 @@
-# Use a modern, secure NVIDIA CUDA base image to support GPU-accelerated physics
-# Updated to 12.8.1 to resolve critical CVEs in older base images
+# Use NVIDIA CUDA base with Jupyter pre-installed
 FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04
 
 # Prevent interactive prompts during build
@@ -8,16 +7,30 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies, Python, and security patches
+# Install system dependencies, Python, SSH, and Jupyter
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-dev \
+    python3-pip \
     git \
     curl \
     build-essential \
+    openssh-server \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Add non-root user for security
+# Install Jupyter
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir jupyterlab notebook
+
+# Configure SSH
+RUN mkdir /var/run/sshd && \
+    echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
+    echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config && \
+    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+
+# Add non-root user
 RUN groupadd -r appuser && useradd -r -g appuser -s /sbin/nologin appuser && \
     chown -R appuser:appuser /app
 
@@ -25,8 +38,7 @@ RUN groupadd -r appuser && useradd -r -g appuser -s /sbin/nologin appuser && \
 COPY services/worker/requirements.txt ./requirements.txt
 
 # Install Python dependencies
-RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy the worker source code
 COPY services/worker/worker.py .
@@ -34,8 +46,17 @@ COPY services/worker/worker.py .
 # Ensure the worker is executable
 RUN chmod +x worker.py && chown appuser:appuser worker.py
 
+# Expose ports for SSH (22), Jupyter (8888), and worker (19123)
+EXPOSE 22 8888 19123
+
+# Create startup script
+RUN echo '#!/bin/bash' > /start.sh && \
+    echo 'service ssh start' >> /start.sh && \
+    echo 'jupyter lab --ip=0.0.0.0 --no-browser --allow-root &' >> /start.sh && \
+    echo 'python3 -u worker.py' >> /start.sh && \
+    chmod +x /start.sh
+
 USER appuser
 
-# Run the worker script
-# Using -u to ensure logs are flushed immediately
-CMD ["python3", "-u", "worker.py"]
+# Run startup script
+CMD ["/start.sh"]

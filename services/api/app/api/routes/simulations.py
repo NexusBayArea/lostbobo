@@ -34,15 +34,35 @@ WEEKLY_LIMIT: int = 10
 
 
 def init_routes(
-    supabase, redis, auth_dep, enqueue, get_j, set_j, update_jf,
-    plan_limits, user_plan, record_sim, validate_sim, check_limits,
-    check_idem, store_idem, check_concurrent, increment_usage, get_usage,
-    rate_limit_fn=None, weekly_usage_fn=None, weekly_limit=10
+    supabase,
+    redis,
+    auth_dep,
+    enqueue,
+    get_j,
+    set_j,
+    update_jf,
+    plan_limits,
+    user_plan,
+    record_sim,
+    validate_sim,
+    check_limits,
+    check_idem,
+    store_idem,
+    check_concurrent,
+    increment_usage,
+    get_usage,
+    rate_limit_fn=None,
+    weekly_usage_fn=None,
+    weekly_limit=10,
 ):
     global supabase_client, r_client, verify_auth, enqueue_job, get_job, set_job
     global update_job_field, PLAN_LIMITS, UserPlan, record_simulation_start
     global validate_simulation_request, check_plan_limits, check_idempotency
-    global store_idempotency, check_concurrent_runs, increment_user_usage, get_user_usage
+    global \
+        store_idempotency, \
+        check_concurrent_runs, \
+        increment_user_usage, \
+        get_user_usage
     global check_rate_limit_fn, get_weekly_usage_fn, WEEKLY_LIMIT
     supabase_client = supabase
     r_client = redis
@@ -92,14 +112,11 @@ async def create_simulation(
                     "message": "Weekly simulation limit reached",
                     "limit": WEEKLY_LIMIT,
                     "used": weekly_used,
-                    "remaining": 0
-                }
+                    "remaining": 0,
+                },
             )
 
-    # 3. Plan-based usage limits
-    usage = await get_user_usage(user_id)
-    if limits["max_runs"] > 0 and usage.get("runs_used", 0) >= limits["max_runs"]:
-        raise HTTPException(403, f"Plan limit reached. Upgrade to run more simulations.")
+    # 3. (Removed Redis-based usage check - using Supabase as single source of truth)
 
     # Check concurrent runs
     has_running = await check_concurrent_runs(user_id)
@@ -111,15 +128,17 @@ async def create_simulation(
     # Write to Supabase simulations table
     if supabase_client:
         try:
-            supabase_client.table("simulations").insert({
-                "id": sim_id,
-                "job_id": sim_id,
-                "user_id": user_id if user["type"] != "api_key" else None,
-                "status": "queued",
-                "prompt": prompt,
-                "input_params": input_params or {},
-                "scenario_name": scenario_name or "Custom Simulation",
-            }).execute()
+            supabase_client.table("simulations").insert(
+                {
+                    "id": sim_id,
+                    "job_id": sim_id,
+                    "user_id": user_id if user["type"] != "api_key" else None,
+                    "status": "queued",
+                    "prompt": prompt,
+                    "input_params": input_params or {},
+                    "scenario_name": scenario_name or "Custom Simulation",
+                }
+            ).execute()
         except Exception as e:
             logger.error(f"Failed to insert simulation: {e}")
 
@@ -138,7 +157,7 @@ async def create_simulation(
     return {
         "simulation_id": sim_id,
         "status": "queued",
-        "message": "Simulation queued. Track progress in your dashboard."
+        "message": "Simulation queued. Track progress in your dashboard.",
     }
 
 
@@ -156,12 +175,14 @@ async def list_simulations(
     for k in keys:
         job = r_client.hgetall(k)
         if job.get("user_id") == user_id:
-            results.append({
-                "id": k.split(":")[1],
-                "status": job.get("status"),
-                "scenario_name": job.get("scenario_name", "Unknown"),
-                "created_at": job.get("created_at", ""),
-            })
+            results.append(
+                {
+                    "id": k.split(":")[1],
+                    "status": job.get("status"),
+                    "scenario_name": job.get("scenario_name", "Unknown"),
+                    "created_at": job.get("created_at", ""),
+                }
+            )
 
     results.sort(key=lambda x: x.get("created_at", ""), reverse=True)
     return results[:limit]
@@ -213,7 +234,7 @@ async def get_usage(
     return {
         "used": usage.get("runs_used", 0),
         "limit": 10,  # Explicitly using the requested limit
-        "remaining": max(0, 10 - usage.get("runs_used", 0))
+        "remaining": max(0, 10 - usage.get("runs_used", 0)),
     }
 
 
