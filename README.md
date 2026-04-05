@@ -36,7 +36,7 @@ SimHPC v2.5 consolidates all backend and worker logic into a unified, clean stru
 
 To launch the full "Mission Control" stack locally:
 
-1. **Prep your .env**: Ensure your root directory has a `.env` file with your `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SIMHPC_API_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_API_URL`.
+1. **Prep your .env**: Ensure your root directory has a `.env` file with your `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SIMHPC_API_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON`, and `VITE_API_URL`.
 2. **Fire it up**:
 
    ```bash
@@ -186,6 +186,47 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for the complete Standard Operating Procedu
 - **Autoscaler Image**: `simhpcworker/simhpc-autoscaler:latest` — Docker Hub
 - **GitHub Actions**: <https://github.com/NexusBayArea/lostbobo/actions>
 - **Vercel Dashboard**: `https://vercel.com/<your-team>/simhpc/deployments`
+
+### Environment Variables
+
+#### Frontend (Vercel / Vite)
+
+These must be set in **Vercel → Project Settings → Environment Variables** (all environments). Vite requires the `VITE_` prefix to expose them to client-side code.
+
+| Variable | Description | Example |
+| :--- | :--- | :--- |
+| `VITE_SUPABASE_URL` | Supabase project URL | `https://ldzztrnghaaonparyggz.supabase.co` |
+| `VITE_SUPABASE_ANON` | Supabase anon/public key | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
+| `VITE_API_URL` | Backend API base URL | `https://api.simhpc.com` |
+
+> **Important**: The Supabase anon key variable is named `VITE_SUPABASE_ANON` (not `VITE_SUPABASE_ANON_KEY`). This matches the Vercel Supabase integration which provides `SUPABASE_ANON_KEY` — the frontend code falls back through multiple naming conventions.
+
+#### Google OAuth Setup
+
+1. **Supabase Dashboard** → Authentication → Providers → Google → Enable
+   - Paste `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from Google Cloud Console
+   - Note the redirect URL: `https://ldzztrnghaaonparyggz.supabase.co/auth/v1/callback`
+
+2. **Google Cloud Console** → APIs & Services → Credentials → OAuth 2.0 Client ID
+   - Add **Authorized redirect URIs**:
+     - `https://ldzztrnghaaonparyggz.supabase.co/auth/v1/callback`
+   - Add **Authorized JavaScript origins**:
+     - `https://simhpc.com`
+     - `https://simhpc.vercel.app`
+
+3. **Infisical** (for local dev): Store `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in the vault.
+
+#### Backend (Infisical / Docker)
+
+| Variable | Description |
+| :--- | :--- |
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (admin access) |
+| `SIMHPC_API_KEY` | API authentication key |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `REDIS_URL` | Redis connection string |
+| `RUNPOD_API_KEY` | RunPod GraphQL API key |
 
 ---
 
