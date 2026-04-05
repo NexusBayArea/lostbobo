@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **useTheme.tsx**: Simplified to class-only approach on `<html>` element. Added `getInitialTheme()` helper with localStorage + system preference fallback.
 - **index.html**: Added inline theme detection script to prevent flash of unstyled content.
 - **Light Mode Background**: Changed from pure white (`#ffffff`) to warm cream (`#f1ede0`, HSL `46 38% 91%`) across all light-mode surfaces. Updated `--background`, `--secondary`, `--muted`, `--accent`, `--border`, and `--input` CSS variables. Replaced hardcoded `bg-white` with `bg-background` in Hero, Pricing, WhoItsFor, Stack, and ValueDifferentiator sections.
+- **Google OAuth**: Added "Continue with Google" button to both SignIn and SignUp pages using Supabase `signInWithOAuth({ provider: 'google' })`. Redirects to `/dashboard` after successful auth. GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET configured via Infisical.
 
 ---
 
