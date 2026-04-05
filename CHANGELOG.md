@@ -65,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Logo Light Mode**: "Sim" text changed to white for consistent branding across all backgrounds.
 - **Logo Day Mode**: "Sim" text changed to `text-slate-900` (near-black) for readability on light backgrounds.
 - **Logo Icon Dark Mode**: Logo hexagonal mesh icon now renders white in dark mode on Dashboard and Live pages.
+- **Logo Consistent White**: Logo icon and "Sim" text set to white in both day and dark mode (header/footer have dark slate-900 backgrounds).
 
 ---
 

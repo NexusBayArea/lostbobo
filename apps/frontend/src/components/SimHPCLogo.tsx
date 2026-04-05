@@ -18,7 +18,7 @@ export function SimHPCLogo({ className, size = 'md', showText = true }: SimHPCLo
     <div className={cn('flex items-center gap-3', className)}>
       {/* Logo Icon - Hexagonal mesh representing FEM/grid */}
       <div className={cn(
-        'relative flex items-center justify-center text-slate-900 dark:text-white',
+        'relative flex items-center justify-center text-white',
         sizeClasses[size].icon
       )}>
         <svg
@@ -64,7 +64,7 @@ export function SimHPCLogo({ className, size = 'md', showText = true }: SimHPCLo
           'font-bold tracking-tight',
           sizeClasses[size].text
         )}>
-          <span className="text-slate-900 dark:text-white">Sim</span>
+          <span className="text-white">Sim</span>
           <span className="text-blue-500">HPC</span>
         </span>
       )}
