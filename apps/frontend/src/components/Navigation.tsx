@@ -10,7 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 const landingLinks = [
   { label: 'Features', href: '/#features' },
   { label: 'Pricing', href: '/#pricing' },
-  { label: 'Docs', href: '/docs' },
+  { label: 'Documentation', href: '/docs' },
 ];
 
 const appLinks = [

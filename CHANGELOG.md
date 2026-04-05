@@ -58,6 +58,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Version conflict resolution**: Optimistic concurrency via version field
   - **Dashboard integration**: Added `data-onboarding` attributes to sidebar, run button, job queue, results panel, notebook link, and live center link
 - **Onboarding Completion Fix**: "Start Simulating" button on final modal now properly marks onboarding as complete and dismisses the guide
+- **API Reference Page**: New `/api` page with core concepts, 5 endpoint docs (Create, Get, List, Cancel, Results), status lifecycle table, rate limits, error codes, best practices, versioning, and support info. Collapsible sections with copyable code blocks.
+- **Header**: Renamed "Docs" to "Documentation" in navigation.
+- **Dashboard Route**: Changed `/dashboard/alpha` to `/dashboard/live` in routing and sidebar link.
+- **Logo Dark Mode**: "Sim" text now renders as white in dark mode for better contrast.
+- **Logo Light Mode**: "Sim" text changed to white for consistent branding across all backgrounds.
 
 ---
 

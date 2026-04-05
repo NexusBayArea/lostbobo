@@ -12,6 +12,7 @@ import { EngineerNotebook } from '@/pages/EngineerNotebook';
 import Terms from '@/pages/legal/Terms';
 import Privacy from '@/pages/legal/Privacy';
 import Cookies from '@/pages/legal/Cookies';
+import ApiReference from '@/pages/ApiReference';
 
 export default function App() {
   return (
@@ -30,7 +31,7 @@ export default function App() {
             }
           />
           <Route
-            path="/dashboard/alpha"
+            path="/dashboard/live"
             element={
               <ProtectedRoute>
                 <AlphaControlRoom />
@@ -56,6 +57,7 @@ export default function App() {
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/cookies" element={<Cookies />} />
+          <Route path="/api" element={<ApiReference />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </OnboardingProvider>
