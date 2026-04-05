@@ -6,7 +6,7 @@ import { ConfidenceGraph } from '@/components/ConfidenceGraph';
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-white dark:bg-slate-900">
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-background dark:bg-slate-900">
       {/* Animated Mesh Background */}
       <div className="absolute inset-0 opacity-60">
         <AnimatedMesh />
@@ -70,7 +70,7 @@ export function Hero() {
               </Link>
               <Link
                 to="/dashboard"
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 text-base font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hover:scale-[1.02]"
+                className="inline-flex items-center justify-center gap-2 px-6 py-4 text-base font-medium text-slate-700 dark:text-slate-300 bg-background dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-muted dark:hover:bg-slate-700 transition-all hover:scale-[1.02]"
               >
                 <Play className="w-5 h-5" />
                 See Robustness in Action
@@ -106,7 +106,7 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="relative"
           >
-            <div className="relative bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-2xl">
+            <div className="relative bg-background/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-2xl">
               {/* Confidence Graph */}
               <div className="mb-6">
                 <ConfidenceGraph />
@@ -162,7 +162,7 @@ export function Hero() {
       </div>
 
       {/* Bottom Gradient Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-slate-900 to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background dark:from-slate-900 to-transparent pointer-events-none" />
     </section>
   );
 }

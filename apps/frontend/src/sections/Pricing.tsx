@@ -75,7 +75,7 @@ export function Pricing() {
     <section
       id="pricing"
       ref={ref}
-      className="py-24 lg:py-32 bg-white dark:bg-slate-900"
+      className="py-24 lg:py-32 bg-background dark:bg-slate-900"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
