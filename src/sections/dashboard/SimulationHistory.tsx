@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
-import { Play, CheckCircle2, XCircle, Loader2, Download, Eye, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Play, CheckCircle2, XCircle, Loader2, Download, Eye, ExternalLink } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

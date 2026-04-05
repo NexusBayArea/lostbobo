@@ -13,7 +13,7 @@ import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 
 const DEFAULT_PARAMS: Parameter[] = [
   { name: 'Thermal Conductivity', baseValue: 45.2, unit: 'W/m·K', perturbable: true, min: 30, max: 60 },

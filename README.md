@@ -47,8 +47,8 @@ To launch the full "Mission Control" stack locally:
 
 3. **Verify**:
 
-   - **Frontend**: http://localhost (Dashboard with Cyan LEDs)
-   - **API Health**: http://localhost:8000/api/v1/health (returns `{"status": "healthy", ...}`)
+   - **Frontend**: <http://localhost> (Dashboard with Cyan LEDs)
+   - **API Health**: <http://localhost:8000/api/v1/health> (returns `{"status": "healthy", ...}`)
    - **Worker Logs**: Look for `Heartbeat sent` in terminal output
    - **Lint Clean**: `pre-commit run --all-files` — all passed
    - **CI Gate**: GitHub Actions runs ruff on every push to `main`/`v2.5.1-DEV`
@@ -81,18 +81,20 @@ To launch the full "Mission Control" stack locally:
 
 SimHPC now supports a professional-grade, agent-led "Mission Control" via the Antigravity IDE/CLI. The following MCP skills are available:
 
-*   **`simhpc-ops`**: Real-time fleet metrics (burn rate, active pods).
-*   **`gcp-vault`**: Secure `gcloud` bridge with memory-sanitized secret injection.
-*   **`deploy-guardian`**: Safety gate enforcing Ruff linting before Infisical-wrapped deployments.
-*   **`resource-reaper`**: Automated financial shield that terminates stale GPU pods based on heartbeat telemetry.
+- **`simhpc-ops`**: Real-time fleet metrics (burn rate, active pods).
+- **`gcp-vault`**: Secure `gcloud` bridge with memory-sanitized secret injection.
+- **`deploy-guardian`**: Safety gate enforcing Ruff linting before Infisical-wrapped deployments.
+- **`resource-reaper`**: Automated financial shield that terminates stale GPU pods based on heartbeat telemetry.
 
 **One-Command Workflow**:
+
 - *"Guardian, safely deploy the API service."*
 - *"Reaper, clean the fleet and give me a summary of today's simulation history."*
 
 ### Zero-Trust Secret Management
 
 To ensure zero-leak security, SimHPC uses **Infisical** for all sensitive credentials:
+
 - **Injection**: Use `infisical run -- [command]` to inject secrets at runtime.
 - **Setup**: Run `infisical init` in the project root first to create `.infisical.json`. Verify with `infisical run -- cmd /c "set" | findstr SB_`.
 - **Naming**: Infisical may use `SB_URL`/`SB_ANON_KEY` instead of `SUPABASE_URL`. The Supabase client checks both.
@@ -163,8 +165,8 @@ The repository includes a pre-configured `.vscode/launch.json` for debugging the
 
 1. Start the development server: `cd apps/frontend && npm run dev`.
 2. Press `F5` in VS Code or select **"Launch Chrome (Frontend)"** from the Run and Debug sidebar.
-    * **Port**: `59824`
-    * **Web Root**: `apps/frontend`
+    - **Port**: `59824`
+    - **Web Root**: `apps/frontend`
 
 ### Build for Production
 
@@ -182,8 +184,8 @@ See [DEPLOYMENT.md](./DEPLOYMENT.md) for the complete Standard Operating Procedu
 - **Frontend**: [https://simhpc.com](https://simhpc.com) — Vercel (production)
 - **Worker Image**: `simhpcworker/simhpc-worker:latest` — Docker Hub
 - **Autoscaler Image**: `simhpcworker/simhpc-autoscaler:latest` — Docker Hub
-- **GitHub Actions**: https://github.com/NexusBayArea/lostbobo/actions
-- **Vercel Dashboard**: https://vercel.com/<your-team>/simhpc/deployments
+- **GitHub Actions**: <https://github.com/NexusBayArea/lostbobo/actions>
+- **Vercel Dashboard**: `https://vercel.com/<your-team>/simhpc/deployments`
 
 ---
 

@@ -5,6 +5,27 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.2] - 2026-04-04
+
+### Fixed
+
+- **Day/Night Mode (Theme System)**: Complete rewrite of the theme system to fix broken dark/light mode switching:
+  - **CSS Variables**: Moved dark theme variables from `:root` to `.dark` selector. `:root` now contains light theme defaults. This aligns with Tailwind's `darkMode: ["class"]` strategy.
+  - **useTheme Hook**: Removed conflicting body class manipulation (`bg-slate-950`, `text-white`). Now uses only `document.documentElement.classList.toggle('dark')` which properly cascades CSS variables.
+  - **System Preference Detection**: Added `window.matchMedia('(prefers-color-scheme: dark)')` detection for first-time visitors. Theme now respects OS-level dark/light mode preference.
+  - **Flash Prevention**: Added inline `<script>` in `index.html` that applies theme before React hydrates, eliminating the flash of wrong theme on page load.
+  - **System Preference Listener**: Added event listener for OS theme changes — if user hasn't manually set a preference, the site follows system changes in real-time.
+  - **setTheme Export**: Added explicit `setTheme()` function to context for programmatic theme changes.
+- **Mobile Responsiveness**: Verified all sections (Hero, Pricing, WhoItsFor, Stack, Footer, Navigation) use proper Tailwind responsive breakpoints (`sm:`, `md:`, `lg:`). Mobile navigation with hamburger menu confirmed working.
+
+### Changed
+
+- **index.css**: Restructured CSS custom properties — light theme in `:root`, dark theme in `.dark` selector.
+- **useTheme.tsx**: Simplified to class-only approach on `<html>` element. Added `getInitialTheme()` helper with localStorage + system preference fallback.
+- **index.html**: Added inline theme detection script to prevent flash of unstyled content.
+
+---
+
 ## [2.5.1] - 2026-04-04
 
 ### Fixed
