@@ -1,18 +1,63 @@
 # SimHPC Deployment SOP (Standard Operating Procedure)
 
-> Version: 2.5.1 | Last Updated: April 4, 2026
+> Version: 2.6.0 | Last Updated: April 5, 2026
 
 ---
 
 ## Overview
 
-SimHPC has three deployable components:
+SimHPC has four deployable components:
 
 | Component | Deploy Method | Trigger |
 |---|---|---|
 | **Frontend** (Vercel) | Vercel native GitHub integration | Push to `main` |
 | **Worker** (Docker Hub) | GitHub Actions | Push to `main` (path: `services/worker/**`, `Dockerfile.worker`) |
 | **Autoscaler** (Docker Hub) | GitHub Actions | Push to `main` (path: `services/worker/runpod_api.py`, `services/worker/autoscaler.py`, `Dockerfile.autoscaler`) |
+| **RunPod Worker** | Manual restart | After Docker image update |
+
+---
+
+## 0. Redis (Upstash) Setup
+
+### Create Upstash Database
+
+1. Go to **https://upstash.com**
+2. Sign in with GitHub or Google
+3. Click **Create Database**
+   - **Name**: `simhpc`
+   - **Region**: Select closest to your users
+   - **Type**: Redis
+4. Click **Create**
+
+### Get Connection Details
+
+From the database page, copy:
+- **REDIS_TCP**: `rediss://default:TOKEN@noble-tapir-XXXX.upstash.io:6379`
+- **REDIS_TOKEN**: The token after `default:`
+
+### Add to Infisical
+
+```bash
+# Set Redis URL
+infisical secrets set REDIS_URL=rediss://default:YOUR_TOKEN@noble-tapir-XXXX.upstash.io:6379
+
+# Set Redis TCP (backup)
+infisical secrets set REDIS_TCP=rediss://default:YOUR_TOKEN@noble-tapir-XXXX.upstash.io:6379
+
+# Set Redis Token
+infisical secrets set REDIS_TOKEN=YOUR_TOKEN
+```
+
+### Required Secrets in Infisical
+
+| Secret | Description |
+|---|---|
+| `REDIS_URL` | Full Upstash connection URL (rediss://...) |
+| `RUNPOD_API_KEY` | RunPod API key (rpa_...) |
+| `RUNPOD_ID` | RunPod pod ID |
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key |
+| `MERCURY_API_KEY` | Mercury AI API key |
 
 ---
 
@@ -338,28 +383,33 @@ docker push simhpcworker/simhpc-autoscaler:latest
 The automated restart script is the easiest way:
 
 ```bash
-# Get credentials from Infisical
-infisical secrets get RUNPOD_API_KEY --plain
-infisical secrets get RUNPOD_ID --plain
-
-# Set environment variables and run restart script
-set RUNPOD_API_KEY=rpa_...
-set RUNPOD_POD_ID=...
-python scripts/restart_runpod_pod.py
-```
-
-Or just run it and the script will auto-detect your pod:
-
-```bash
-set RUNPOD_API_KEY=rpa_...
+# Restart pod
 python scripts/restart_runpod_pod.py
 ```
 
 The script:
-1. Gets your API key and pod ID from env vars
+1. Gets your API key and pod ID from Infisical
 2. Stops the pod (graceful shutdown)
 3. Resumes the pod with same GPU config
 4. Pod pulls latest Docker images on restart
+
+### Accessing RunPod Terminal
+
+Your worker pod includes SSH and Jupyter for debugging:
+
+```bash
+# SSH into pod (from RunPod dashboard)
+ssh x4bhfoq0frq1dq-64410b1f@ssh.runpod.io -p 22
+```
+
+### Current Pod Configuration
+
+| Setting | Value |
+|---|---|
+| Pod ID | `x4bhfoq0frq1dq` |
+| GPU | NVIDIA A40 |
+| Image | `simhpcworker/simhpc-worker:latest` |
+| Ports | 22/tcp (SSH), 8888/http (Jupyter) |
 
 #### 4. Verify Deployment
 
