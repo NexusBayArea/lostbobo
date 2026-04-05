@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { StepRenderer } from '@/components/onboarding/StepRenderer';
 
 const DEFAULT_PARAMS: Parameter[] = [
   { name: 'Thermal Conductivity', baseValue: 45.2, unit: 'W/m·K', perturbable: true, min: 30, max: 60 },
@@ -109,6 +110,7 @@ export function Dashboard() {
       <div className="flex-1 flex pt-16">
         {/* Sidebar */}
         <motion.aside
+          data-onboarding="sidebar"
           animate={{ width: sidebarOpen ? 240 : 80 }}
           className="fixed left-0 top-16 bottom-0 bg-slate-900/50 border-r border-slate-800 backdrop-blur-xl z-20"
         >
@@ -144,6 +146,7 @@ export function Dashboard() {
 
             <div className="space-y-1">
               <a
+                data-onboarding="live-center-link"
                 href="/dashboard/alpha"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -153,6 +156,7 @@ export function Dashboard() {
                 {sidebarOpen && <span className="text-sm font-medium">Live Center</span>}
               </a>
               <a
+                data-onboarding="notebook-link"
                 href="/notebook"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -222,11 +226,12 @@ export function Dashboard() {
                   <ResultsPanel run={selectedRun} />
                </div>
             ) : (
-              <>
+               <>
+                <StepRenderer />
                 {(activeTab === 'simulations' || activeTab === 'robustness') && (
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <div className="lg:col-span-4 h-full">
-                       <RunControlPanel
+                   <div className="lg:col-span-4 h-full" data-onboarding="run-button">
+                      <RunControlPanel
                           onStartRun={handleStartRun}
                           onCancelRun={handleCancelRun}
                           isRunning={isRunning || simsLoading}
@@ -238,28 +243,30 @@ export function Dashboard() {
                     </div>
                     
                     <div className="lg:col-span-8 flex flex-col gap-8">
-                       {activeTab === 'robustness' ? (
-                          <ConfigurationPanel
-                            enabled={true}
-                            onEnabledChange={() => {}}
-                            numRuns={numRuns}
-                            onNumRunsChange={setNumRuns}
-                            samplingMethod={samplingMethod}
-                            onSamplingMethodChange={setSamplingMethod}
-                            parameters={parameters}
-                            onParametersChange={setParameters}
-                            timeout={timeout}
-                            onTimeoutChange={setRequestTimeout}
-                            seed={seed}
-                            onSeedChange={setSeed}
-                          />
-                       ) : (
-                          <SimulationHistory 
-                             simulations={simulations} 
-                             loading={simsLoading}
-                             onViewDetails={setSelectedRun}
-                          />
-                       )}
+                        {activeTab === 'robustness' ? (
+                           <ConfigurationPanel
+                             enabled={true}
+                             onEnabledChange={() => {}}
+                             numRuns={numRuns}
+                             onNumRunsChange={setNumRuns}
+                             samplingMethod={samplingMethod}
+                             onSamplingMethodChange={setSamplingMethod}
+                             parameters={parameters}
+                             onParametersChange={setParameters}
+                             timeout={timeout}
+                             onTimeoutChange={setRequestTimeout}
+                             seed={seed}
+                             onSeedChange={setSeed}
+                           />
+                        ) : (
+                           <div data-onboarding="job-queue">
+                           <SimulationHistory 
+                              simulations={simulations} 
+                              loading={simsLoading}
+                              onViewDetails={setSelectedRun}
+                           />
+                           </div>
+                        )}
                     </div>
                   </div>
                 )}

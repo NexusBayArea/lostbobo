@@ -47,6 +47,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Alpha Control Room Dark/Light Mode**: Added `dark:` variants to all backgrounds, borders, text colors, and accents. Sidebar, ticker bar, and footer now adapt to theme toggle.
 - **Footer**: Replaced Twitter icon with X logo (SVG), kept link to `x.com/simhpc`. Legal links (Terms, Privacy, Cookie Policy) now route to populated pages.
 - **Legal Pages**: Created `src/pages/legal/` with Terms of Service (6 sections), Privacy Policy (5 sections), and Cookie Policy (3 sections). All use shared `LegalLayout` component with dark mode support.
+- **Interactive Onboarding System**: Complete rewrite of onboarding from basic localStorage to production-grade step-based engine:
+  - **Step definitions** (`steps.ts`): 8 steps from welcome modal → sidebar exploration → run simulation → monitor jobs → view results → try notebook → try live center → completion
+  - **OnboardingModal**: Full-screen modal with spring animations, skip button, progress indicator, and dark mode support
+  - **OnboardingTooltip**: Element-targeted tooltips with auto-positioning, cyan highlight outlines, progress bar, and step counter
+  - **StepRenderer**: Orchestrates modals and tooltips based on current step definition
+  - **Supabase autosave**: Debounced (800ms) sync to `onboarding_state` table with localStorage cache for instant resume
+  - **Cross-device resume**: Loads from localStorage instantly, then hydrates from Supabase backend
+  - **Event tracking**: `trackEvent()` dispatches events that can auto-advance steps
+  - **Version conflict resolution**: Optimistic concurrency via version field
+  - **Dashboard integration**: Added `data-onboarding` attributes to sidebar, run button, job queue, results panel, notebook link, and live center link
 
 ---
 
