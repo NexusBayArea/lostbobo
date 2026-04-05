@@ -69,6 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation Page**: New `/docs` page with full Quick Start guide — 7-step workflow (Run → Wait → View → Change → Re-run → Compare → Download), free tier expectations, upgrade triggers, key insight callout, and troubleshooting section (404, Worker Status, Wake GPU, Job Queuing, Performance, Bug Reporting).
 - **Pricing Update**: Starter plan $99 → $299/month, Professional plan $299 → $499/month.
 - **Logo Glow Effect**: Added thin white drop-shadow glow to logo icon and "Sim" text, subtle blue glow to "HPC" text for visibility across all backgrounds.
+- **Dockerfile.autoscaler**: Multi-stage build using `python:3.11-slim` builder with gcc/python3-dev, then production stage with only installed packages. Copies `src/runpod_api.py` and `src/autoscaler.py`.
+- **docker-compose.yml**: Simplified to 3 services — Redis (message broker), Autoscaler v2.2.1, and Mock Worker (for testing without GPU). Removed frontend, API, and full worker for lightweight local dev/testing.
 
 ---
 

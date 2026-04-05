@@ -1,144 +1,44 @@
 version: '3.8'
 
 services:
-  # 1. The Message Broker (Redis)
+  # 1. The Message Broker (Queue Metrics)
   redis:
     image: redis:7-alpine
-    command: redis-server --save 60 1 --loglevel warning
     ports:
       - "6379:6379"
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping || exit 1"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
       retries: 5
-      start_period: 10s
-    restart: always
-    networks:
-      - backend
 
-  # 2. The Frontend (Vite + Nginx)
-  frontend:
-    build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile.prod
-      args:
-        - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
-        - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
-    ports:
-      - "80:80"
-    depends_on:
-      api:
-        condition: service_healthy
-    networks:
-      - backend
-    restart: always
-
-  # 3. The Orchestrator (Mercury AI / FastAPI)
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    image: simhpcworker/simhpc-api:v2.5.0
-    ports:
-      - "8000:8000"
-    environment:
-      - REDIS_URL=redis://redis:6379/0
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      - SIMHPC_API_KEY=${SIMHPC_API_KEY}
-      - RUNPOD_API_KEY=${RUNPOD_API_KEY}
-      - RUNPOD_POD_ID=${RUNPOD_POD_ID}
-      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
-      - MERCURY_API_URL=${MERCURY_API_URL:-https://api.inceptionlabs.ai/v1/chat/completions}
-      - MERCURY_MODEL_ID=${MERCURY_MODEL_ID:-mercury-2}
-      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
-    depends_on:
-      redis:
-        condition: service_healthy
-    networks:
-      - backend
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  # 4. The Physics Engine (Sim Worker)
-  worker:
-    image: simhpcworker/simhpc-worker:v2.5.0
-    build:
-      context: .
-      dockerfile: Dockerfile.worker
-    environment:
-      - REDIS_URL=redis://redis:6379/0
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      - MAX_CONCURRENT_JOBS=${MAX_CONCURRENT_JOBS:-2}
-      - MERCURY_API_KEY=${MERCURY_API_KEY}
-    depends_on:
-      redis:
-        condition: service_healthy
-      api:
-        condition: service_healthy
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-        limits:
-          cpus: '12'
-          memory: 48G
-    volumes:
-      - simulation_scratch:/tmp/sim_scratch
-      - workspace:/workspace
-    networks:
-      - backend
-    restart: always
-    healthcheck:
-      test: ["CMD-SHELL", "nvidia-smi --query-gpu=name --format=csv,noheader || exit 1"]
-      interval: 60s
-      timeout: 30s
-      retries: 3
-      start_period: 300s
-
-  # 5. The Autoscaler (Queue-Aware Scaling + Billing Guards)
+  # 2. The Autoscaler v2.2.1
   autoscaler:
     build:
       context: .
       dockerfile: Dockerfile.autoscaler
-    image: simhpcworker/simhpc-autoscaler:v2.5.0
-    command: ["python", "autoscaler.py"]
-    environment:
-      - REDIS_URL=redis://redis:6379/0
-      - RUNPOD_API_KEY=${RUNPOD_API_KEY}
-      - RUNPOD_POD_ID=${RUNPOD_POD_ID}
-      - RUNPOD_GPU_TYPE=${RUNPOD_GPU_TYPE:-NVIDIA A40}
-      - RUNPOD_WORKER_IMAGE=${RUNPOD_WORKER_IMAGE:-simhpcworker/simhpc-worker:v2.5.0}
-      - MAX_PODS=${MAX_PODS:-2}
-      - JOBS_PER_POD=${JOBS_PER_POD:-2}
-      - IDLE_TIMEOUT=${IDLE_TIMEOUT:-300}
-      - SCALE_UP_COOLDOWN=${SCALE_UP_COOLDOWN:-30}
-      - CHECK_INTERVAL=${CHECK_INTERVAL:-10}
-      - QUEUE_NAME=${QUEUE_NAME:-simhpc_jobs}
-      - DAILY_COST_WARN_USD=${DAILY_COST_WARN_USD:-10.0}
-      - DAILY_COST_HARD_CAP_USD=${DAILY_COST_HARD_CAP_USD:-25.0}
     depends_on:
       redis:
         condition: service_healthy
+    env_file: .env.local
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - MAX_PODS=3
+      - IDLE_TERMINATION_S=300
+      - QUEUE_THRESHOLD=5
     restart: always
-    networks:
-      - backend
 
-networks:
-  backend:
-    driver: bridge
-
-volumes:
-  simulation_scratch:
-  workspace:
+  # 3. Local Mock Worker (For testing logic without a GPU)
+  mock-worker:
+    image: python:3.11-slim
+    volumes:
+      - ./src:/app
+    working_dir: /app
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=${DATABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+    command: python -u mock_worker.py
+    depends_on:
+      redis:
+        condition: service_healthy

@@ -1,22 +1,35 @@
+# STAGE 1: Builder
+# Use a slim image but add necessary build tools temporarily
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+
+# Install minimal system dependencies for building extensions
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install requirements to a local folder to be copied later
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# STAGE 2: Production
+# Start with a clean, tiny base
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies and security patches
-RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Copy ONLY the installed packages from the builder
+COPY --from=builder /root/.local /root/.local
+# Copy the updated runpod_api.py and autoscaler logic
+COPY src/runpod_api.py .
+COPY src/autoscaler.py .
 
-# Add non-root user for security
-RUN groupadd -r appuser && useradd -r -g appuser -s /sbin/nologin appuser && \
-    chown -R appuser:appuser /app
+# Ensure the local pip binaries are in the path
+ENV PATH=/root/.local/bin:$PATH
+# Ensure logs are sent straight to terminal without buffering
+ENV PYTHONUNBUFFERED=1
 
-COPY services/worker/runpod_api.py .
-COPY services/worker/autoscaler.py .
-COPY services/worker/requirements-autoscaler.txt ./requirements.txt
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-USER appuser
-
+# Run the autoscaler v2.2.1
 CMD ["python", "autoscaler.py"]
