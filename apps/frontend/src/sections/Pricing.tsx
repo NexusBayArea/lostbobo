@@ -7,7 +7,7 @@ const plans = [
   {
     name: 'Starter',
     description: 'Rapid Engineering Answers',
-    price: 99,
+    price: 299,
     priceUnit: '/month',
     features: [
       '5 simulations per month',
@@ -28,7 +28,7 @@ const plans = [
   {
     name: 'Professional',
     description: 'Engineering Confidence',
-    price: 299,
+    price: 499,
     priceUnit: '/month',
     features: [
       '25 simulations per month',
