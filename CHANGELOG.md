@@ -26,8 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Light Mode Background**: Changed from pure white (`#ffffff`) to warm cream (`#f1ede0`, HSL `46 38% 91%`) across all light-mode surfaces. Updated `--background`, `--secondary`, `--muted`, `--accent`, `--border`, and `--input` CSS variables. Replaced hardcoded `bg-white` with `bg-background` in Hero, Pricing, WhoItsFor, Stack, and ValueDifferentiator sections.
 - **Google OAuth**: Added "Continue with Google" button to both SignIn and SignUp pages using Supabase `signInWithOAuth({ provider: 'google' })`. Redirects to `/dashboard` after successful auth. GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET configured via Infisical.
 - **Supabase Env Var Naming**: Fixed Supabase client to use `VITE_SUPABASE_ANON` (matching Vercel env var) instead of `VITE_SUPABASE_ANON_KEY`. Added fallback chain: `VITE_SUPABASE_ANON` → `VITE_SUPABASE_ANON_KEY` → `SUPABASE_ANON_KEY`. Updated Zod schema to match.
+- **Supabase Client Initialization**: Changed `supabase.ts` to read env vars directly from `import.meta.env` instead of through Zod-validated `env` client which was silently returning empty strings.
 - **Auth Pages Styling**: Added Navigation and Footer to SignIn and SignUp pages. Updated form styling for light/dark theme compatibility.
 - **SPA Routing**: Added rewrite rule to `apps/frontend/vercel.json` for client-side routing.
+- **Vercel Build Fix**: Updated `deploy-vercel.yml` workflow to build from `apps/frontend/` directory. Added `env/` module files that were missing from `apps/frontend/src/`.
+- **Documentation**: Updated README.md with full environment variable table, Google OAuth setup SOP, and correct naming conventions. Updated ARCHITECTURE.md, GEMINI.md, AI_DIRECTIVES.md with correct env var names.
 
 ---
 

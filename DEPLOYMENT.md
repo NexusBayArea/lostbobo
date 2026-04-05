@@ -195,6 +195,70 @@ Services:
 
 ---
 
+## 9. Google OAuth Setup (Supabase + Google Cloud Console)
+
+### Prerequisites
+
+- Google Cloud Console project with OAuth 2.0 Client ID configured
+- Supabase project with Google provider enabled
+
+### Step-by-Step SOP
+
+#### 1. Create Google OAuth Credentials
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials
+2. Click **Create Credentials** → **OAuth client ID**
+3. Application type: **Web application**
+4. Add **Authorized JavaScript origins**:
+   - `https://simhpc.com`
+   - `https://simhpc.vercel.app`
+   - `http://localhost:5173` (for local dev)
+5. Add **Authorized redirect URIs**:
+   - `https://ldzztrnghaaonparyggz.supabase.co/auth/v1/callback` (your Supabase callback)
+6. Save and copy the **Client ID** and **Client Secret**
+
+#### 2. Enable Google in Supabase
+
+1. Go to **Supabase Dashboard** → **Authentication** → **Providers**
+2. Find **Google** and click to configure
+3. Toggle **Enable Sign in with Google**
+4. Paste your **Client ID** and **Client Secret** from Google Cloud Console
+5. Note the **Redirect URL** shown (should be `https://<project-ref>.supabase.co/auth/v1/callback`)
+6. Click **Save**
+
+#### 3. Verify Redirect URL Match
+
+The redirect URL in Supabase **must exactly match** one of the Authorized redirect URIs in Google Cloud Console:
+
+- Supabase shows: `https://ldzztrnghaaonparyggz.supabase.co/auth/v1/callback`
+- Google Cloud Console must have: `https://ldzztrnghaaonparyggz.supabase.co/auth/v1/callback`
+
+> **Common Error**: `Unable to exchange external code: 4/0A` means the redirect URI doesn't match. Double-check both sides.
+
+#### 4. Store Credentials in Infisical (for local dev)
+
+```bash
+infisical secrets set GOOGLE_CLIENT_ID="<your-client-id>" --env=prod
+infisical secrets set GOOGLE_CLIENT_SECRET="<your-client-secret>" --env=prod
+```
+
+#### 5. Test
+
+1. Go to `https://simhpc.com/signup` or `https://simhpc.com/signin`
+2. Click **Continue with Google**
+3. Should redirect to Google consent screen → back to `/dashboard`
+
+### Troubleshooting
+
+| Error | Cause | Fix |
+|---|---|---|
+| `Unable to exchange external code: 4/0A` | Redirect URI mismatch | Add exact Supabase callback URL to Google Cloud Console |
+| `Supabase client not initialized` | Missing env vars | Check `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON` in Vercel |
+| Google button does nothing | Supabase provider not enabled | Enable Google in Supabase Dashboard → Auth → Providers |
+| 404 after Google redirect | Missing SPA rewrite rule | Ensure `vercel.json` has `rewrites` rule for `/index.html` |
+
+---
+
 ## 7. Docker Images
 
 | Image | Tags | Size |
