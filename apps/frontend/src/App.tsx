@@ -13,6 +13,7 @@ import Terms from '@/pages/legal/Terms';
 import Privacy from '@/pages/legal/Privacy';
 import Cookies from '@/pages/legal/Cookies';
 import ApiReference from '@/pages/ApiReference';
+import Documentation from '@/pages/Documentation';
 
 export default function App() {
   return (
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/cookies" element={<Cookies />} />
           <Route path="/api" element={<ApiReference />} />
+          <Route path="/docs" element={<Documentation />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </OnboardingProvider>
