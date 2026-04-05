@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Event tracking**: `trackEvent()` dispatches events that can auto-advance steps
   - **Version conflict resolution**: Optimistic concurrency via version field
   - **Dashboard integration**: Added `data-onboarding` attributes to sidebar, run button, job queue, results panel, notebook link, and live center link
+- **Onboarding Completion Fix**: "Start Simulating" button on final modal now properly marks onboarding as complete and dismisses the guide
 
 ---
 

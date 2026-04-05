@@ -4,7 +4,7 @@ import { OnboardingModal } from './OnboardingModal';
 import { OnboardingTooltip } from './OnboardingTooltip';
 
 export function StepRenderer() {
-  const { state, nextStep, skipOnboarding, isOnboardingActive } = useOnboarding();
+  const { state, nextStep, skipOnboarding, isOnboardingActive, dispatch } = useOnboarding();
 
   if (!isOnboardingActive) return null;
 
@@ -13,12 +13,17 @@ export function StepRenderer() {
 
   const stepIndex = steps.indexOf(step);
 
+  const handleComplete = () => {
+    dispatch({ type: 'SET_STEP', payload: 'complete' });
+    dispatch({ type: 'SKIP' });
+  };
+
   if (step.type === 'modal') {
     return (
       <OnboardingModal
         title={step.title || ''}
         content={step.content}
-        onNext={nextStep}
+        onNext={step.id === 'complete' ? handleComplete : nextStep}
         onSkip={skipOnboarding}
         cta={step.cta}
       />
