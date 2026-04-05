@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Created `006_engineer_notebook_entries.sql` migration with RLS policies and `updated_at` trigger
 - **Dashboard Labels**: Renamed "Alpha Cockpit" → "Live Center" and "Note Book" → "Notebook".
 - **Alpha Control Room Dark/Light Mode**: Added `dark:` variants to all backgrounds, borders, text colors, and accents. Sidebar, ticker bar, and footer now adapt to theme toggle.
+- **Footer**: Replaced Twitter icon with X logo (SVG), kept link to `x.com/simhpc`. Legal links (Terms, Privacy, Cookie Policy) now route to populated pages.
+- **Legal Pages**: Created `src/pages/legal/` with Terms of Service (6 sections), Privacy Policy (5 sections), and Cookie Policy (3 sections). All use shared `LegalLayout` component with dark mode support.
 
 ---
 

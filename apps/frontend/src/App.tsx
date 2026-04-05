@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { OnboardingProvider } from '@/components/onboarding/OnboardingProvider';
-import { HomePage, Terms, Privacy } from '@/pages/HomePage';
+import { HomePage } from '@/pages/HomePage';
 import { SignIn } from '@/pages/SignIn';
 import { SignUp } from '@/pages/SignUp';
 import { Dashboard } from '@/pages/Dashboard';
@@ -9,6 +9,9 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminAnalyticsPage } from '@/pages/admin/AdminAnalyticsPage';
 import { AlphaControlRoom } from '@/pages/AlphaControlRoom';
 import { EngineerNotebook } from '@/pages/EngineerNotebook';
+import Terms from '@/pages/legal/Terms';
+import Privacy from '@/pages/legal/Privacy';
+import Cookies from '@/pages/legal/Cookies';
 
 export default function App() {
   return (
@@ -52,6 +55,7 @@ export default function App() {
           />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/cookies" element={<Cookies />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </OnboardingProvider>
