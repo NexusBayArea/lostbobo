@@ -406,10 +406,20 @@ ssh x4bhfoq0frq1dq-64410b1f@ssh.runpod.io -p 22
 
 | Setting | Value |
 |---|---|
-| Pod ID | `x4bhfoq0frq1dq` |
+| Pod ID | `cj1bmmt45evb77` |
 | GPU | NVIDIA A40 |
 | Image | `simhpcworker/simhpc-worker:latest` |
 | Ports | 22/tcp (SSH), 8888/http (Jupyter) |
+
+### Required Environment Variables
+
+All these must be set in Infisical and passed when creating the pod:
+
+| Variable | Source | Example |
+|---|---|---|
+| `REDIS_URL` | Upstash Redis | `rediss://default:token@host:6379` |
+| `MERCURY_API_KEY` | Inception Labs | `sk_...` |
+| `SUPABASE_URL` | Supabase Dashboard | `https://xxx.supabase.co` |
 
 #### 4. Verify Deployment
 
