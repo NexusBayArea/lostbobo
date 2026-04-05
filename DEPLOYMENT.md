@@ -335,26 +335,31 @@ docker push simhpcworker/simhpc-autoscaler:latest
 
 #### 3. Deploy to RunPod Pod
 
-Retrieve secrets from Infisical:
+The automated restart script is the easiest way:
 
 ```bash
-# Get RunPod credentials from Infisical
+# Get credentials from Infisical
 infisical secrets get RUNPOD_API_KEY --plain
 infisical secrets get RUNPOD_POD_ID --plain
-```
 
-Or use the automated restart script:
-
-```bash
-# Set environment variables
+# Set environment variables and run restart script
 set RUNPOD_API_KEY=rpa_...
 set RUNPOD_POD_ID=...
-
-# Restart the pod (stop + resume to pull latest image)
 python scripts/restart_runpod_pod.py
 ```
 
-The script will automatically find and restart your pod if RUNPOD_POD_ID is not set.
+Or just run it and the script will auto-detect your pod:
+
+```bash
+set RUNPOD_API_KEY=rpa_...
+python scripts/restart_runpod_pod.py
+```
+
+The script:
+1. Gets your API key and pod ID from env vars
+2. Stops the pod (graceful shutdown)
+3. Resumes the pod with same GPU config
+4. Pod pulls latest Docker images on restart
 
 #### 4. Verify Deployment
 
