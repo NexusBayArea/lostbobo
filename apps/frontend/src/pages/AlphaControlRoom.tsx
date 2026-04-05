@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Activity, ShieldAlert, Cpu, Zap, Activity as Sparkles, Terminal, ChevronRight, LayoutGrid, Clock, Play, AlertCircle, RefreshCw, Layers, Sparkles as Magic, BookOpen } from 'lucide-react';
+import { Activity, ShieldAlert, Cpu, Zap, Activity as Sparkles, Terminal, ChevronRight, LayoutGrid, Clock, Play, AlertCircle, RefreshCw, Layers, Sparkles as Magic } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -58,17 +58,7 @@ export function AlphaControlRoom() {
               </button>
             ))}
           </div>
-          <div className="mb-4 flex flex-col gap-4">
-             <a
-               href="/notebook"
-               target="_blank"
-               rel="noopener noreferrer"
-               className="w-10 h-10 rounded-lg flex items-center justify-center text-slate-600 hover:text-cyan-400 hover:bg-cyan-500/5 transition-all group relative"
-               title="Engineer Notebook"
-             >
-               <BookOpen className="w-4 h-4 transition-transform group-hover:scale-110" />
-               <div className="absolute inset-0 bg-cyan-400 opacity-0 group-hover:opacity-10 transition-opacity" />
-             </a>
+          <div className="mb-4">
              <div className="w-1 h-32 bg-slate-800 rounded-full overflow-hidden flex flex-col justify-end">
                 <motion.div animate={{ height: ['40%', '60%', '20%', '80%', '40%'] }} className="w-full bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
              </div>

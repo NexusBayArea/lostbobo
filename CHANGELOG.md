@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation**: Updated README.md with full environment variable table, Google OAuth setup SOP, and correct naming conventions. Updated ARCHITECTURE.md, GEMINI.md, AI_DIRECTIVES.md with correct env var names.
 - **Dashboard**: Changed tier label from "Beta Pilot" to "Pilot". Alpha Cockpit link now opens in a new tab (`target="_blank"`).
 - **Engineer Notebook**: New `/notebook` page with 6 sections (Context, Parameters, Observations, Hypotheses, Next Experiments, Freeform Notes). Autosaves to Supabase `notebooks` table with debounced optimistic UI. Added notebook icon link to Alpha Cockpit sidebar that opens in new tab. Created `005_engineer_notebook.sql` migration with RLS policies and `updated_at` trigger.
+- **Notebook Placement**: Moved Notebook link from Alpha Cockpit sidebar to Dashboard sidebar (under Alpha Cockpit). Uses same icon size and font style as Alpha Cockpit link. Opens in new tab.
 
 ---
 

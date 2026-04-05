@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Play, BarChart3, FileText, Settings, Cpu, Loader2, ShieldAlert, Zap, Layers, RefreshCw, AlertTriangle, MonitorPlay } from 'lucide-react';
+import { Play, BarChart3, FileText, Settings, Cpu, Loader2, ShieldAlert, Zap, Layers, RefreshCw, AlertTriangle, MonitorPlay, BookOpen } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Navigation } from '@/components/Navigation';
 import { ConfigurationPanel, type Parameter } from '@/sections/dashboard/ConfigurationPanel';
@@ -151,6 +151,15 @@ export function Dashboard() {
               >
                 <Zap className="w-5 h-5 flex-shrink-0 group-hover:animate-pulse" />
                 {sidebarOpen && <span className="text-sm font-medium">Alpha Cockpit</span>}
+              </a>
+              <a
+                href="/notebook"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/5 transition-all group`}
+              >
+                <BookOpen className="w-5 h-5 flex-shrink-0 group-hover:animate-pulse" />
+                {sidebarOpen && <span className="text-sm font-medium">Note Book</span>}
               </a>
               
               {isAdmin && (
