@@ -259,6 +259,37 @@ infisical secrets set GOOGLE_CLIENT_SECRET="<your-client-secret>" --env=prod
 
 ---
 
+## 10. Database Migrations (Supabase)
+
+After adding new `.sql` files to `supabase/migrations/`, push them to Supabase:
+
+### Via Supabase CLI
+
+```bash
+# Link project (one-time)
+./node_modules/supabase/bin/supabase.exe link --project-ref ldzztrnghaaonparyggz
+
+# Push all pending migrations
+./node_modules/supabase/bin/supabase.exe db push
+```
+
+### Via Supabase Dashboard
+
+1. Go to **Supabase Dashboard** → **SQL Editor**
+2. Copy the contents of the new migration file
+3. Paste and run
+
+### Recent Migrations
+
+| File | Purpose |
+|---|---|
+| `005_engineer_notebook.sql` | `notebooks` table with RLS, autosave support |
+| `004_platform_alerts.sql` | `platform_alerts` table for billing/thermal alerts |
+| `003_profiles_table.sql` | User profiles with tier/role tracking |
+| `002_beta_schema_normalization.sql` | Core tables: `simulations`, `certificates`, `documents` |
+
+---
+
 ## 7. Docker Images
 
 | Image | Tags | Size |
