@@ -406,7 +406,7 @@ ssh x4bhfoq0frq1dq-64410b1f@ssh.runpod.io -p 22
 
 | Setting | Value |
 |---|---|
-| Pod ID | `ummbzsi4bg4puf` |
+| Pod ID | `qz1ilg2fi9osa0` |
 | GPU | NVIDIA A40 |
 | Image | `simhpcworker/simhpc-worker:latest` |
 | Ports | 22/tcp (SSH), 8888/http (Jupyter) |
