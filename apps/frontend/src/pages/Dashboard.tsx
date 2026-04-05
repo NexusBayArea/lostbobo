@@ -143,13 +143,15 @@ export function Dashboard() {
             <Separator className="bg-slate-800" />
 
             <div className="space-y-1">
-              <Link
-                to="/dashboard/alpha"
+              <a
+                href="/dashboard/alpha"
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/5 transition-all group`}
               >
                 <Zap className="w-5 h-5 flex-shrink-0 group-hover:animate-pulse" />
                 {sidebarOpen && <span className="text-sm font-medium">Alpha Cockpit</span>}
-              </Link>
+              </a>
               
               {isAdmin && (
                 <Link
@@ -265,7 +267,7 @@ export function Dashboard() {
                   <Card className="bg-slate-900 border-slate-800 p-12 text-center">
                     <Settings className="w-12 h-12 text-slate-800 mx-auto mb-4" />
                     <h2 className="text-xl font-bold text-white mb-2">Account Control</h2>
-                    <p className="text-slate-400 mb-6">Configuration for {user?.email} — Tier: {isAdmin ? 'Administrator' : 'Beta Pilot'}</p>
+                    <p className="text-slate-400 mb-6">Configuration for {user?.email} — Tier: {isAdmin ? 'Administrator' : 'Pilot'}</p>
                     <Button variant="outline" className="border-slate-800 text-slate-400">Manage Subscription</Button>
                   </Card>
                 )}
