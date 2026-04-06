@@ -45,6 +45,12 @@ with open(path, 'w') as f: f.write(content)"
     echo "🛠️ Injecting CORS fix into worker.py..."
     printf '\nfrom fastapi.middleware.cors import CORSMiddleware\napp.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"], allow_credentials=True)\n' >> /runpod-volume/app/worker.py
     ;;
+  start-api)
+    echo "🚀 Starting SimHPC Worker API..."
+    cd /runpod-volume/app
+    nohup uvicorn worker:app --host 0.0.0.0 --port 8000 --reload > /runpod-volume/api.log 2>&1 &
+    echo "✅ API started in background. Logs: /runpod-volume/api.log"
+    ;;
   status)
     echo "📊 SimHPC Stack Status:"
     POD_ID=$(infisical secrets get RUNPOD_ID --plain 2>/dev/null || echo "UNKNOWN")
@@ -52,6 +58,6 @@ with open(path, 'w') as f: f.write(content)"
     echo "Frontend: https://simhpc.com"
     ;;
   *)
-    echo "Usage: simhpc {deploy|check-db|fix-all|fix-cors|status}"
+    echo "Usage: simhpc {deploy|check-db|fix-all|fix-cors|start-api|status}"
     ;;
 esac
