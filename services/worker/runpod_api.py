@@ -30,7 +30,7 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
 # Pod creation defaults (override via env)
 DEFAULT_GPU_TYPE = os.getenv("RUNPOD_GPU_TYPE", "NVIDIA A40")
-DEFAULT_IMAGE = os.getenv("RUNPOD_WORKER_IMAGE", "simhpcworker/simhpc-worker:v2.2.1")
+DEFAULT_IMAGE = os.getenv("RUNPOD_WORKER_IMAGE", "simhpcworker/simhpc-worker:latest")
 DEFAULT_CLOUD_TYPE = os.getenv("RUNPOD_CLOUD_TYPE", "SECURE")
 DEFAULT_CONTAINER_DISK_GB = int(os.getenv("RUNPOD_CONTAINER_DISK_GB", "20"))
 DEFAULT_VOLUME_GB = int(os.getenv("RUNPOD_VOLUME_GB", "0"))
@@ -50,7 +50,9 @@ GPU_COST_PER_HOUR = {
 }
 
 logger = logging.getLogger("runpod_api")
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 redis_client = redis.from_url(REDIS_URL, decode_responses=True)
 
@@ -101,14 +103,17 @@ def _save_pods(pods: list):
 
 def _record_event(event_type: str, pod_id: str = "", details: str = ""):
     """Append to a capped Redis list for audit trail."""
-    entry = json.dumps({
-        "ts": datetime.utcnow().isoformat(),
-        "event": event_type,
-        "pod_id": pod_id,
-        "details": details,
-    })
+    entry = json.dumps(
+        {
+            "ts": datetime.utcnow().isoformat(),
+            "event": event_type,
+            "pod_id": pod_id,
+            "details": details,
+        }
+    )
     redis_client.lpush("runpod_events", entry)
     redis_client.ltrim("runpod_events", 0, 499)  # keep last 500
+
 
 def _update_cost_tracking(pod_count: int, gpu_type: str = DEFAULT_GPU_TYPE):
     """Accumulate estimated cost in Redis."""
@@ -163,7 +168,8 @@ def list_pods() -> list[dict]:
             "pod_id": p["id"],
             "name": p.get("name", "unknown"),
             "status": p.get("desiredStatus", "UNKNOWN"),
-            "gpu_type": p.get("gpuDisplayName") or (p.get("machine") or {}).get("gpuDisplayName", "N/A"),
+            "gpu_type": p.get("gpuDisplayName")
+            or (p.get("machine") or {}).get("gpuDisplayName", "N/A"),
             "image": p.get("imageName", "unknown"),
             "uptime_sec": uptime,
             "cost_estimate_usd": round(cost_est, 4),
@@ -378,16 +384,16 @@ def get_fleet_status() -> dict:
         },
         "cost": {
             "today_usd": round(today_cost, 4),
-            "hourly_burn_usd": round(
-                sum(p.get("cost_per_hr", 0) for p in running), 4
-            ),
+            "hourly_burn_usd": round(sum(p.get("cost_per_hr", 0) for p in running), 4),
             "idle_shutdown_sec": IDLE_TIMEOUT,
         },
         "scaling": {
             "idle_sec": round(idle_sec, 1),
             "idle_timeout": IDLE_TIMEOUT,
             "scale_up_cooldown": SCALE_UP_COOLDOWN,
-            "will_shutdown_in": max(0, round(IDLE_TIMEOUT - idle_sec, 1)) if idle_sec > 0 else None,
+            "will_shutdown_in": max(0, round(IDLE_TIMEOUT - idle_sec, 1))
+            if idle_sec > 0
+            else None,
         },
         "recent_events": events,
         "timestamp": datetime.utcnow().isoformat(),
@@ -411,9 +417,9 @@ def get_cost_summary() -> dict:
         "running_pods": len(running),
         "cost_without_autoscaler_daily": round(hourly * 24, 2),  # if left running 24/7
         "cost_with_autoscaler_daily": round(today, 4),  # actual (autoscaler stops idle)
-        "savings_percent": round(
-            (1 - (today / max(hourly * 24, 0.01))) * 100, 1
-        ) if hourly > 0 else 100.0,
+        "savings_percent": round((1 - (today / max(hourly * 24, 0.01))) * 100, 1)
+        if hourly > 0
+        else 100.0,
         "timestamp": datetime.utcnow().isoformat(),
     }
 

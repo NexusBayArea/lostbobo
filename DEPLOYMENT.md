@@ -415,14 +415,22 @@ After adding new `.sql` files to `supabase/migrations/`, push them to Supabase:
 The RunPod worker runs on demand GPU pods managed by the autoscaler:
 
 ```
-GitHub → Docker Hub → RunPod (auto-pull & restart)
+Docker → builds worker image
+   ↓
+Docker Hub → stores image (simhpcworker/simhpc-worker:latest)
+   ↓
+RunPod Template → defines GPU config, volume, environment
+   ↓
+Autoscaler → monitors Redis queue, creates/stops pods via API
+   ↓
+Worker → pulls job from Redis, processes, returns results
 ```
 
 ### Prerequisites
 
 - Docker Hub credentials (`DOCKER_ACCESS_TOKEN`, `DOCKER_USERNAME`) in GitHub Secrets
 - RunPod API key and pod ID stored in **Infisical**
-- Worker image: `simhpcworker/simhpc-worker:latest`
+- Worker image: `simhpcworker/simhpc-worker:latest` (configurable via `RUNPOD_WORKER_IMAGE` env var)
 - Autoscaler image: `simhpcworker/simhpc-autoscaler:latest`
 
 ### Step-by-Step SOP
