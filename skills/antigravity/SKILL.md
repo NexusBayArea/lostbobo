@@ -125,14 +125,20 @@ docker push simhpcworker/simhpc-autoscaler:latest
 
 ### Manual Deploy (RunPod)
 
+All secrets fetched from Infisical (no hardcoded keys):
+
 ```bash
 # Via GitHub Actions - go to Actions > Deploy to RunPod > Run workflow
-# Or use the API:
+# Or use the API (key from Infisical):
 curl -X POST "https://api.runpod.io/graphql" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $RUNPOD_API_KEY" \
   -d '{"query": "mutation { podRestart(podId: \"$RUNPOD_POD_ID\") { id status } }"}'
 ```
+
+**Required Infisical Secrets:**
+- `RUNPOD_API_KEY`
+- `RUNPOD_POD_ID`
 
 ## Examples
 - "Run the Infisical handshake to connect to the vault"

@@ -208,7 +208,7 @@ Same as Worker: `INFISICAL_CLIENT_ID`, `INFISICAL_CLIENT_SECRET`
 
 ## 4. Auto-Deploy to RunPod
 
-Automatically restarts your RunPod pod after a successful Docker image push.
+Automatically restarts your RunPod pod after a successful Docker image push. All secrets fetched from **Infisical** - no API keys stored in GitHub.
 
 ### How It Works
 
@@ -227,12 +227,14 @@ Automatically restarts your RunPod pod after a successful Docker image push.
 
 ### Manual Deploy to RunPod
 
-Use the "Deploy to RunPod" workflow from GitHub Actions:
+All secrets come from Infisical. Use the "Deploy to RunPod" workflow:
 
-1. Go to **Actions → Deploy to RunPod**
+1. Go to **GitHub → Actions → Deploy to RunPod**
 2. Click **Run workflow**
 3. Choose action: `restart`, `stop`, or `start`
 4. Click **Run workflow**
+
+The workflow fetches your RunPod credentials from Infisical automatically.
 
 ---
 
