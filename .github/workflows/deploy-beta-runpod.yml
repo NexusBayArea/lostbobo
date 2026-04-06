@@ -25,7 +25,7 @@ jobs:
         shell: bash
         env:
           INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_MACHINE_ID }}
-          INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_MACHINE_SECRET }}
+          INFISICAL_CLIENT_SECRET: ${{ secrets.MAC_ID_SEC }}
         run: |
           # Use Machine ID authentication (Client ID + Secret) for CI/CD
           # This avoids the "not connected" error that stems from using tokens without an initialized project
