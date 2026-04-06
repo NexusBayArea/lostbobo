@@ -1,23 +1,37 @@
 import uvicorn
 import os
 import sys
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-# 1. Point specifically to the directory containing worker.py
-# On your pod, this is /runpod-volume/app
-app_path = "/runpod-volume/app"
-
-# Fallback for local development if /runpod-volume/app doesn't exist
-if not os.path.exists(app_path):
-    app_path = os.path.join(os.getcwd(), "services", "api")
-    entry_point = "api:app"
+# Setup for SimHPC
+# Ensure we check the current directory and potential /runpod-volume/app
+pod_app_path = "/runpod-volume/app"
+if os.path.exists(pod_app_path):
+    sys.path.append(pod_app_path)
+    os.chdir(pod_app_path)
 else:
-    entry_point = "worker:app"
+    # Fallback for local development
+    local_worker_path = os.path.join(os.getcwd(), "services", "worker")
+    if local_worker_path not in sys.path:
+        sys.path.append(local_worker_path)
 
-sys.path.append(app_path)
-os.chdir(app_path)
+# This ensures the app object has CORS before starting
+try:
+    from worker import app
+except ImportError as e:
+    print(f"❌ Critical Error: Could not import 'app' from 'worker.py'. Path: {sys.path}")
+    raise e
+
+# Force add CORS middleware just in case
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+    allow_credentials=True,
+)
 
 if __name__ == "__main__":
-    print(f"Starting FastAPI server from {app_path}...")
-    # 2. Change 'services.api.api:app' to 'worker:app' 
-    # This matches the worker.py file found in your app folder
-    uvicorn.run(entry_point, host="0.0.0.0", port=8000, reload=True)
+    print(f"🚀 Starting SimHPC Worker API (Port 8000)...")
+    uvicorn.run(app, host="0.0.0.0", port=8000)

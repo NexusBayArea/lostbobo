@@ -21,8 +21,30 @@ from redis import Redis
 from redis.exceptions import ConnectionError as RedisConnectionError
 from fpdf import FPDF
 from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
+
+# --- Worker API for Health Checks & CORS ---
+app = FastAPI(title="SimHPC Worker API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/health")
+@app.get("/api/v1/health")
+def health():
+    return {"status": "healthy", "worker": "online", "timestamp": datetime.utcnow().isoformat()}
+
+@app.get("/api/v1/simulations")
+def read_sims():
+    return {"status": "connected", "message": "SimHPC Worker reaching out."}
 
 MAX_CONCURRENT_JOBS = int(os.getenv("MAX_CONCURRENT_JOBS", "2"))
 active_jobs = 0

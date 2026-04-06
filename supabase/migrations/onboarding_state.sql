@@ -42,3 +42,19 @@ CREATE TRIGGER update_onboarding_state_updated_at
     BEFORE UPDATE ON onboarding_state
     FOR EACH ROW
     EXECUTE PROCEDURE update_updated_at_column();
+
+
+-- 1. Function to create the onboarding row
+CREATE OR REPLACE FUNCTION public.handle_new_user_onboarding()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.onboarding_state (user_id, current_step)
+  VALUES (new.id, 'welcome');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 2. Trigger that runs whenever a new user is added to auth.users
+CREATE OR REPLACE TRIGGER on_auth_user_created_onboarding
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user_onboarding();
