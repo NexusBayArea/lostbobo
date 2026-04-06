@@ -20,6 +20,8 @@ begin
 end;
 $$ language plpgsql;
 
+-- Avoid duplicate trigger error
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
 after insert on auth.users
 for each row execute procedure public.handle_new_user();
@@ -59,6 +61,8 @@ begin
 end;
 $$ language plpgsql;
 
+-- Avoid duplicate trigger error
+drop trigger if exists update_simulations_updated_at on public.simulations;
 create trigger update_simulations_updated_at
 before update on public.simulations
 for each row execute procedure update_updated_at_column();
@@ -75,6 +79,7 @@ create table if not exists public.usage_events (
 );
 
 -- 5. Weekly Usage View
+-- Using OR REPLACE for views
 create or replace view public.weekly_usage as
 select
   user_id,
@@ -145,31 +150,42 @@ alter table public.simulations enable row level security;
 alter table public.usage_events enable row level security;
 alter table public.subscriptions enable row level security;
 
--- Policies
+-- Policies (DROP and CREATE to avoid "already exists")
+-- Profiles
+drop policy if exists "Users can view own profile" on public.profiles;
 create policy "Users can view own profile"
 on public.profiles
 for select using (auth.uid() = id);
 
+drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
 on public.profiles
 for update using (auth.uid() = id);
 
+-- Onboarding
+drop policy if exists "Users manage onboarding" on public.onboarding_state;
 create policy "Users manage onboarding"
 on public.onboarding_state
 for all
 using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
 
+-- Simulations
+drop policy if exists "Users manage simulations" on public.simulations;
 create policy "Users manage simulations"
 on public.simulations
 for all
 using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
 
+-- Usage
+drop policy if exists "Users view usage" on public.usage_events;
 create policy "Users view usage"
 on public.usage_events
 for select using (auth.uid() = user_id);
 
+-- Subscriptions
+drop policy if exists "Users view subscription" on public.subscriptions;
 create policy "Users view subscription"
 on public.subscriptions
 for select using (auth.uid() = user_id);
