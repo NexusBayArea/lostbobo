@@ -3,11 +3,7 @@ name: Deploy to RunPod
 on:
   workflow_dispatch:
     inputs:
-      image_tag:
-        description: 'Docker image tag to deploy (e.g., latest, v2.5.3)'
-        required: false
-        default: 'latest'
-      pod_action:
+      action:
         description: 'Pod action'
         required: true
         default: 'restart'
@@ -17,9 +13,6 @@ on:
           - stop
           - start
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   deploy-runpod:
     runs-on: ubuntu-latest
@@ -28,7 +21,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Infisical CLI
         run: |
@@ -39,14 +32,15 @@ jobs:
         run: |
           infisical run --env="prod" -- bash -c '
             echo "Pod ID: $RUNPOD_POD_ID"
-            echo "Action: ${{ github.event.inputs.pod_action }}"
+            echo "Action: ${{ github.event.inputs.action }}"
             
-            # GraphQL mutation based on action
-            if [ "${{ github.event.inputs.pod_action }}" = "restart" ]; then
+            ACTION="${{ github.event.inputs.action }}"
+            
+            if [ "$ACTION" = "restart" ]; then
               mutation='"'"'mutation { podRestart(podId: "'"$RUNPOD_POD_ID"'") { id status } }'"'"'
-            elif [ "${{ github.event.inputs.pod_action }}" = "stop" ]; then
+            elif [ "$ACTION" = "stop" ]; then
               mutation='"'"'mutation { podStop(podId: "'"$RUNPOD_POD_ID"'") { id status } }'"'"'
-            elif [ "${{ github.event.inputs.pod_action }}" = "start" ]; then
+            elif [ "$ACTION" = "start" ]; then
               mutation='"'"'mutation { podStart(podId: "'"$RUNPOD_POD_ID"'") { id status } }'"'"'
             fi
             
@@ -59,7 +53,6 @@ jobs:
             
             echo "Response: $response"
             
-            # Check for errors
             if echo "$response" | grep -q '"errors"'; then
               echo "Error: GraphQL errors detected"
               echo "$response"
