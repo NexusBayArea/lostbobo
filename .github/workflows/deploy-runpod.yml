@@ -13,9 +13,6 @@ on:
           - stop
           - start
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   deploy-runpod:
     runs-on: ubuntu-latest
@@ -39,10 +36,9 @@ jobs:
       - name: Deploy to RunPod
         run: |
           infisical run --projectId=f8464ba0-1b93-45a1-86b5-c8ea5a81a2a4 --env=prod -- python3 -c "
-import os
 import runpod
+import os
 
-runpod.api_key = os.getenv('RUNPOD_API_KEY')
 pod_id = os.getenv('RUNPOD_ID')
 action = os.getenv('ACTION', 'restart')
 

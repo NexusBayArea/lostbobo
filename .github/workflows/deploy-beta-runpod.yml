@@ -4,52 +4,41 @@ on:
   push:
     branches: [ "main" ]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true # v2.5.2 Standards
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      # 1. Install Infisical CLI to pull build-time secrets
       - name: Install Infisical CLI
         run: |
           curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo bash
-          sudo apt-get install -y infisical
+          sudo apt-get update && sudo apt-get install -y infisical
 
-      # 2. Login & Build using Infisical Token
       - name: Docker Login & Build
-        shell: bash
-        env:
-          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
         run: |
-          infisical run --env="beta" -- bash -c '
-            echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            docker build -t $DOCKERHUB_USERNAME/core-defense-app:latest .
-            docker push $DOCKERHUB_USERNAME/core-defense-app:latest
+          infisical run --projectId=f8464ba0-1b93-45a1-86b5-c8ea5a81a2a4 --env=beta -- bash -c '
+            echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            docker build -t simhpcworker/simhpc-worker:latest -f Dockerfile.worker .
+            docker push simhpcworker/simhpc-worker:latest
           '
 
-      # 3. Deploy to RunPod via SSH (Secrets Injected to Memory)
-      - name: Deploy to RunPod
+      - name: Deploy to RunPod via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.RUN_POD_SSH_HOST }}
-          username: ${{ secrets.RUN_POD_SSH_USER }}
-          key: ${{ secrets.RUN_POD_SSH_KEY }}
-          port: ${{ secrets.RUN_POD_SSH_PORT }}
-          envs: INFISICAL_TOKEN
+          host: ${{ secrets.RUNPOD_SSH_HOST }}
+          username: ${{ secrets.RUNPOD_SSH_USER }}
+          key: ${{ secrets.RUNPOD_SSH_KEY }}
+          port: ${{ secrets.RUNPOD_SSH_PORT }}
           script: |
-            # Pull the latest image
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/core-defense-app:latest
-            # Restart with Infisical Token passed as an ENV
-            docker stop core-defense || true
-            docker rm core-defense || true
-            docker run -d --name core-defense \
+            docker pull simhpcworker/simhpc-worker:latest
+            docker stop simhpc-worker || true
+            docker rm simhpc-worker || true
+            docker run -d --name simhpc-worker \
               --gpus all \
-              -e INFISICAL_TOKEN="$INFISICAL_TOKEN" \
-              ${{ secrets.DOCKERHUB_USERNAME }}/core-defense-app:latest
+              simhpcworker/simhpc-worker:latest
+            echo "Container restarted with latest image"
