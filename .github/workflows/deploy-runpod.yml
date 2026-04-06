@@ -23,47 +23,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Install Infisical CLI
+      - name: Install Python and pip
         run: |
-          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo bash
-          sudo apt-get update && sudo apt-get install -y infisical
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+
+      - name: Install RunPod CLI
+        run: pip3 install runpod
 
       - name: RunPod Pod Action
         run: |
-          export INFISICAL_TOKEN="${{ secrets.INFISICAL_TOKEN }}"
-          
-          # Get all secrets from prod and extract what we need
-          infisical secrets --env=prod --path=/ --plain > /tmp/secrets.env
-          
-          RUNPOD_API_KEY=$(grep '^RUNPOD_API_KEY=' /tmp/secrets.env | cut -d'=' -f2-)
-          RUNPOD_POD_ID=$(grep '^RUNPOD_POD_ID=' /tmp/secrets.env | cut -d'=' -f2-)
-          
-          echo "=== Pod ID: $RUNPOD_POD_ID"
-          echo "=== Action: $ACTION"
-          
-          ACTION="${{ github.event.inputs.action }}"
-          
-          if [ "$ACTION" = "restart" ]; then
-            mutation="mutation { podRestart(podId: \"$RUNPOD_POD_ID\") { id status } }"
-          elif [ "$ACTION" = "stop" ]; then
-            mutation="mutation { podStop(podId: \"$RUNPOD_POD_ID\") { id status } }"
-          elif [ "$ACTION" = "start" ]; then
-            mutation="mutation { podStart(podId: \"$RUNPOD_POD_ID\") { id status } }"
-          fi
-          
-          echo "=== Mutation: $mutation"
-          
-          response=$(curl -s -X POST "https://api.runpod.io/graphql" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $RUNPOD_API_KEY" \
-            -d "{\"query\": \"$mutation\"}")
-          
-          echo "=== Response: $response"
-          
-          if echo "$response" | grep -q '"errors"'; then
-            echo "Error: GraphQL errors detected"
-            echo "$response"
-            exit 1
-          fi
-          
-          echo "Pod action completed successfully"
+          python3 -c "
+import os
+import runpod
+
+runpod.api_key = os.getenv('RUNPOD_API_KEY')
+pod_id = os.getenv('RUNPOD_ID')
+action = os.getenv('ACTION', 'restart')
+
+print(f'=== Pod ID: {pod_id}')
+print(f'=== Action: {action}')
+
+if action == 'restart':
+    print(f'Restarting pod {pod_id}...')
+    result = runpod.restart_pod(pod_id)
+elif action == 'stop':
+    print(f'Stopping pod {pod_id}...')
+    result = runpod.stop_pod(pod_id)
+elif action == 'start':
+    print(f'Starting pod {pod_id}...')
+    result = runpod.resume_pod(pod_id)
+
+print(f'=== Result: {result}')
+print('Pod action completed successfully')
+"
+        env:
+          RUNPOD_API_KEY: ${{ secrets.INFISICAL_TOKEN }}
+          RUNPOD_POD_ID: ${{ secrets.RUNPOD_POD_ID }}
+          ACTION: ${{ github.event.inputs.action }}
