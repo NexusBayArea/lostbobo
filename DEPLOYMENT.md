@@ -206,7 +206,37 @@ Same as Worker: `INFISICAL_CLIENT_ID`, `INFISICAL_CLIENT_SECRET`
 
 ---
 
-## 4. Audit Workflow (Ruff Lint)
+## 4. Auto-Deploy to RunPod
+
+Automatically restarts your RunPod pod after a successful Docker image push.
+
+### How It Works
+
+1. Push to `main` triggers worker/autoscaler Docker build
+2. Docker image pushes to Docker Hub
+3. On success, `auto-deploy-runpod` workflow triggers
+4. RunPod pod restarts to pull new image
+5. Waits for pod to be READY (RUNNING)
+
+### Required Infisical Secrets
+
+| Secret | Description |
+|---|---|
+| `RUNPOD_API_KEY` | RunPod API key |
+| `RUNPOD_POD_ID` | Your pod ID |
+
+### Manual Deploy to RunPod
+
+Use the "Deploy to RunPod" workflow from GitHub Actions:
+
+1. Go to **Actions → Deploy to RunPod**
+2. Click **Run workflow**
+3. Choose action: `restart`, `stop`, or `start`
+4. Click **Run workflow**
+
+---
+
+## 5. Audit Workflow (Ruff Lint)
 
 Runs automatically on every push to `main`:
 
@@ -222,7 +252,7 @@ Blocks deployment if lint fails.
 
 ---
 
-## 5. Local Development
+## 6. Local Development
 
 ### Frontend
 
@@ -247,7 +277,7 @@ Services:
 
 ---
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
 ### Build fails with TypeScript errors
 
@@ -275,7 +305,7 @@ Services:
 
 ---
 
-## 9. Google OAuth Setup (Supabase + Google Cloud Console)
+## 8. Google OAuth Setup (Supabase + Google Cloud Console)
 
 ### Prerequisites
 
@@ -339,7 +369,7 @@ infisical secrets set GOOGLE_CLIENT_SECRET="<your-client-secret>" --env=prod
 
 ---
 
-## 10. Database Migrations (Supabase)
+## 9. Database Migrations (Supabase)
 
 After adding new `.sql` files to `supabase/migrations/`, push them to Supabase:
 
@@ -370,7 +400,7 @@ After adding new `.sql` files to `supabase/migrations/`, push them to Supabase:
 
 ---
 
-## 11. RunPod GPU Worker Deployment
+## 10. RunPod GPU Worker Deployment
 
 ### Architecture
 
@@ -509,16 +539,16 @@ docker-compose up --build
 
 ---
 
-## 7. Docker Images
+## 8. Docker Images
 
 | Image | Tags | Size |
 |---|---|---|
-| `simhpcworker/simhpc-worker` | `latest`, `v2.5.0` | ~2.44GB |
-| `simhpcworker/simhpc-autoscaler` | `latest`, `v2.5.0` | ~57MB |
+| `simhpcworker/simhpc-worker` | `latest`, `v2.5.3` | ~2.44GB |
+| `simhpcworker/simhpc-autoscaler` | `latest`, `v2.5.3` | ~57MB |
 
 ---
 
-## 8. Quick Reference
+## 9. Quick Reference
 
 ### Deploy Everything
 

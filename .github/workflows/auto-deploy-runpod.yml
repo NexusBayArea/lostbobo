@@ -1,0 +1,120 @@
+name: Auto-Deploy to RunPod (Post-Image-Push)
+
+on:
+  workflow_run:
+    workflows:
+      - Deploy Worker
+      - Deploy Autoscaler
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  auto-deploy-runpod:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Determine which image was pushed
+        run: |
+          # Check which workflow completed and get the image details
+          if [ "${{ github.event.workflow_run.name }}" = "Deploy Worker" ]; then
+            echo "DEPLOY_TYPE=worker" >> $GITHUB_ENV
+            echo "IMAGE_NAME=simhpc-worker" >> $GITHUB_ENV
+          elif [ "${{ github.event.workflow_run.name }}" = "Deploy Autoscaler" ]; then
+            echo "DEPLOY_TYPE=autoscaler" >> $GITHUB_ENV
+            echo "IMAGE_NAME=simhpc-autoscaler" >> $GITHUB_ENV
+          fi
+          
+          echo "Deploy type: ${{ env.DEPLOY_TYPE }}"
+          echo "Image: ${{ env.IMAGE_NAME }}"
+
+      - name: Fetch secrets from Infisical
+        uses: Infisical/secrets-action@v1
+        with:
+          infisical_url: https://app.infisical.com
+          client_id: ${{ secrets.INFISICAL_CLIENT_ID }}
+          client_secret: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+          project_id: simhpc
+          env: prod
+          secrets: |
+            RUNPOD_API_KEY
+            RUNPOD_POD_ID
+
+      - name: Get current pod status
+        run: |
+          echo "Checking current pod status..."
+          
+          status_response=$(curl -s -X POST "https://api.runpod.io/graphql" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.RUNPOD_API_KEY }}" \
+            -d '{"query": "query { pod(input: { podId: \"${{ secrets.RUNPOD_POD_ID }}\" }) { id status runtime { upTimeInSeconds } } }"}')
+          
+          echo "Current status: $status_response"
+          
+          # Extract status
+          current_status=$(echo "$status_response" | grep -o '"status":"[^"]*"' | head -1 | cut -d'"' -f4)
+          echo "Current pod status: $current_status"
+
+      - name: Restart RunPod Pod to pull new image
+        run: |
+          echo "Restarting pod to pull new image..."
+          
+          response=$(curl -s -X POST "https://api.runpod.io/graphql" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.RUNPOD_API_KEY }}" \
+            -d '{"query": "mutation { podRestart(podId: \"${{ secrets.RUNPOD_POD_ID }}\") { id status } }"}')
+          
+          echo "Restart response: $response"
+          
+          # Check for errors
+          if echo "$response" | grep -q '"errors"'; then
+            echo "Error: GraphQL errors detected"
+            echo "$response"
+            exit 1
+          fi
+          
+          echo "Pod restarted successfully - new image will be pulled"
+
+      - name: Wait for pod to be ready
+        run: |
+          echo "Waiting for pod to come back up..."
+          max_attempts=30
+          attempt=0
+          
+          while [ $attempt -lt $max_attempts ]; do
+            attempt=$((attempt + 1))
+            
+            status_response=$(curl -s -X POST "https://api.runpod.io/graphql" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ secrets.RUNPOD_API_KEY }}" \
+              -d '{"query": "query { pod(input: { podId: \"${{ secrets.RUNPOD_POD_ID }}\" }) { id status } }"}')
+            
+            current_status=$(echo "$status_response" | grep -o '"status":"[^"]*"' | head -1 | cut -d'"' -f4)
+            echo "Attempt $attempt/$max_attempts: Pod status = $current_status"
+            
+            if [ "$current_status" = "RUNNING" ]; then
+              echo "Pod is now RUNNING"
+              exit 0
+            fi
+            
+            sleep 5
+          done
+          
+          echo "Pod did not come back within expected time"
+          exit 1
+
+      - name: Report deployment status
+        run: |
+          echo "=== Deployment Complete ==="
+          echo "Workflow: ${{ github.event.workflow_run.name }}"
+          echo "Image deployed: ${{ env.IMAGE_NAME }}"
+          echo "Pod ID: ${{ secrets.RUNPOD_POD_ID }}"
+          echo "Status: SUCCESS"

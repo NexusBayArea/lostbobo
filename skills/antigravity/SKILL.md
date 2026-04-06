@@ -106,8 +106,8 @@ git add -A && git commit -m "v2.5.3 release" && git push origin main
 | Component | Trigger | Result |
 |---|---|---|
 | Frontend | Push to `main` | Vercel auto-deploys |
-| Worker | `services/worker/**` or `Dockerfile.worker` | GitHub Actions → Docker Hub |
-| Autoscaler | `services/worker/runpod_api.py`, `autoscaler.py`, `Dockerfile.autoscaler` | GitHub Actions → Docker Hub |
+| Worker | `services/worker/**` or `Dockerfile.worker` | GitHub Actions → Docker Hub → Auto-restarts RunPod |
+| Autoscaler | `services/worker/runpod_api.py`, `autoscaler.py`, `Dockerfile.autoscaler` | GitHub Actions → Docker Hub → Auto-restarts RunPod |
 
 ### Manual Deploy (Worker)
 
@@ -121,6 +121,17 @@ docker push simhpcworker/simhpc-worker:latest
 ```bash
 docker build -f Dockerfile.autoscaler -t simhpcworker/simhpc-autoscaler:latest .
 docker push simhpcworker/simhpc-autoscaler:latest
+```
+
+### Manual Deploy (RunPod)
+
+```bash
+# Via GitHub Actions - go to Actions > Deploy to RunPod > Run workflow
+# Or use the API:
+curl -X POST "https://api.runpod.io/graphql" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $RUNPOD_API_KEY" \
+  -d '{"query": "mutation { podRestart(podId: \"$RUNPOD_POD_ID\") { id status } }"}'
 ```
 
 ## Examples

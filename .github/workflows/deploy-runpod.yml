@@ -1,0 +1,70 @@
+name: Deploy to RunPod
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag to deploy (e.g., latest, v2.5.3)'
+        required: false
+        default: 'latest'
+      pod_action:
+        description: 'Pod action'
+        required: true
+        default: 'restart'
+        type: choice
+        options:
+          - restart
+          - stop
+          - start
+
+jobs:
+  deploy-runpod:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Fetch secrets from Infisical
+        uses: Infisical/secrets-action@v1
+        with:
+          infisical_url: https://app.infisical.com
+          client_id: ${{ secrets.INFISICAL_CLIENT_ID }}
+          client_secret: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+          project_id: simhpc
+          env: prod
+          secrets: |
+            RUNPOD_API_KEY
+            RUNPOD_POD_ID
+
+      - name: Restart RunPod Pod
+        run: |
+          echo "Pod ID: ${{ secrets.RUNPOD_POD_ID }}"
+          echo "Action: ${{ github.event.inputs.pod_action }}"
+          
+          # GraphQL mutation based on action
+          if [ "${{ github.event.inputs.pod_action }}" = "restart" ]; then
+            mutation='mutation { podRestart(podId: "${{ secrets.RUNPOD_POD_ID }}") { id status } }'
+          elif [ "${{ github.event.inputs.pod_action }}" = "stop" ]; then
+            mutation='mutation { podStop(podId: "${{ secrets.RUNPOD_POD_ID }}") { id status } }'
+          elif [ "${{ github.event.inputs.pod_action }}" = "start" ]; then
+            mutation='mutation { podStart(podId: "${{ secrets.RUNPOD_POD_ID }}") { id status } }'
+          fi
+          
+          echo "Running: $mutation"
+          
+          response=$(curl -s -X POST "https://api.runpod.io/graphql" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.RUNPOD_API_KEY }}" \
+            -d '{"query": "'"$mutation"'" }')
+          
+          echo "Response: $response"
+          
+          # Check for errors
+          if echo "$response" | grep -q '"errors"'; then
+            echo "Error: GraphQL errors detected"
+            echo "$response"
+            exit 1
+          fi
+          
+          echo "Pod action completed successfully"
