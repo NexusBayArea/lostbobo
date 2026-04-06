@@ -23,16 +23,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Install Infisical CLI
+      - name: Debug - List secrets
         run: |
+          echo "Testing Infisical CLI..."
           curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo bash
           sudo apt-get install -y infisical
+          infisical --version
 
       - name: RunPod Pod Action
         run: |
           infisical run --env="prod" -- bash -c '
-            echo "Pod ID: $RUNPOD_POD_ID"
-            echo "Action: ${{ github.event.inputs.action }}"
+            echo "=== DEBUG: Pod ID: $RUNPOD_POD_ID"
+            echo "=== DEBUG: Action: $ACTION"
             
             ACTION="${{ github.event.inputs.action }}"
             
@@ -44,14 +46,14 @@ jobs:
               mutation='"'"'mutation { podStart(podId: "'"$RUNPOD_POD_ID"'") { id status } }'"'"'
             fi
             
-            echo "Running: $mutation"
+            echo "=== DEBUG: Mutation: $mutation"
             
             response=$(curl -s -X POST "https://api.runpod.io/graphql" \
               -H "Content-Type: application/json" \
               -H "Authorization: Bearer $RUNPOD_API_KEY" \
               -d '"'"'{"query": "'"$mutation"'"}'"'"')
             
-            echo "Response: $response"
+            echo "=== DEBUG Response: $response"
             
             if echo "$response" | grep -q '"errors"'; then
               echo "Error: GraphQL errors detected"
