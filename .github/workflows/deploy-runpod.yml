@@ -38,7 +38,7 @@ jobs:
 
       - name: Deploy to RunPod
         run: |
-          infisical run --env=prod -- python3 -c "
+          infisical run --projectId=f8464ba0-1b93-45a1-86b5-c8ea5a81a2a4 --env=prod -- python3 -c "
 import os
 import runpod
 
