@@ -183,8 +183,8 @@ Set in **GitHub → Repo Settings → Secrets → Actions**:
 |---|---|
 | `INFISICAL_MACHINE_IDENTITY_ID` | Infisical machine identity ID (Settings → Machine Identities) |
 | `MAC_ID_SEC` | Infisical machine identity secret |
-| `DOCKER_ACCESS_TOKEN` | Docker Hub access token (from Infisical) |
-| `DOCKER_USERNAME` | Docker Hub username (from Infisical) |
+| `DOCKER_LOGIN` | Docker Hub username (from Infisical) |
+| `DOCKER_PW_TOKEN` | Docker Hub access token (from Infisical) |
 
 > **Note**: Docker credentials are fetched from Infisical at runtime via the Infisical action. Only the Infisical machine identity credentials need to be stored in GitHub.
 
