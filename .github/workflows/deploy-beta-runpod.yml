@@ -17,15 +17,18 @@ jobs:
 
       - name: Install Infisical CLI
         run: |
+          sudo apt-get update && sudo apt-get install -y bash curl
           curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo bash
-          sudo apt-get install -y infisical
+          sudo apt-get update && sudo apt-get install -y infisical
 
       - name: Load Secrets from Infisical
         shell: bash
         env:
-          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+          INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_MACHINE_ID }}
+          INFISICAL_CLIENT_SECRET: ${{ secrets.INFISICAL_MACHINE_SECRET }}
         run: |
-          # Use export and append to GITHUB_ENV properly
+          # Use Machine ID authentication (Client ID + Secret) for CI/CD
+          # This avoids the "not connected" error that stems from using tokens without an initialized project
           infisical export --env="beta" --format=dotenv | while read -r line; do
             echo "$line" >> "$GITHUB_ENV"
           done
