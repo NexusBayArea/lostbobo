@@ -31,25 +31,36 @@ jobs:
           curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo bash
           sudo apt-get update && sudo apt-get install -y infisical
 
-      - name: Deploy to RunPod via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.RUN_POD_SSH_HOST }}
-          username: ${{ secrets.RUN_POD_SSH_USER }}
-          key: ${{ secrets.RUN_POD_SSH_KEY }}
-          port: ${{ secrets.RUN_POD_SSH_PORT }}
-          envs: INFISICAL_TOKEN
-          script: |
-            echo "Pulling latest worker image..."
-            docker pull simhpcworker/simhpc-worker:latest
-            
-            echo "Restarting container..."
-            docker stop simhpc-worker || true
-            docker rm simhpc-worker || true
-            
-            docker run -d --name simhpc-worker \
-              --gpus all \
-              -e INFISICAL_TOKEN="$INFISICAL_TOKEN" \
-              simhpcworker/simhpc-worker:latest
-            
-            echo "Container restarted with latest image"
+      - name: Install Python and RunPod SDK
+        run: |
+          sudo apt-get install -y python3 python3-pip
+          pip3 install runpod
+
+      - name: Deploy to RunPod
+        run: |
+          infisical run --env=prod -- python3 -c "
+import os
+import runpod
+
+runpod.api_key = os.getenv('RUNPOD_API_KEY')
+pod_id = os.getenv('RUNPOD_ID')
+action = os.getenv('ACTION', 'restart')
+
+print(f'=== Pod ID: {pod_id}')
+print(f'=== Action: {action}')
+
+if action == 'restart':
+    print(f'Restarting pod {pod_id}...')
+    result = runpod.restart_pod(pod_id)
+elif action == 'stop':
+    print(f'Stopping pod {pod_id}...')
+    result = runpod.stop_pod(pod_id)
+elif action == 'start':
+    print(f'Starting pod {pod_id}...')
+    result = runpod.resume_pod(pod_id)
+
+print(f'=== Result: {result}')
+print('Pod action completed successfully')
+"
+        env:
+          ACTION: ${{ github.event.inputs.action }}
