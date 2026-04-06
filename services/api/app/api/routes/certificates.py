@@ -9,9 +9,14 @@ from datetime import datetime
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+
+def verify_auth(authorization: str = Header(None)) -> dict:
+    """Stub replaced by init_routes()."""
+    raise RuntimeError("verify_auth not initialized — call init_routes() first")
+
+
 supabase_client: Any = None
 r_client: Any = None
-verify_auth: Any = None
 get_job: Any = None
 update_job_field: Any = None
 
@@ -58,15 +63,19 @@ async def generate_certificate(
 
     if supabase_client:
         try:
-            supabase_client.table("certificates").insert({
-                "id": cert_id,
-                "simulation_id": sim_id,
-                "verification_hash": verification_hash,
-                "storage_url": pdf_url,
-            }).execute()
-            supabase_client.table("simulations").update({
-                "certificate_id": cert_id,
-            }).eq("job_id", sim_id).execute()
+            supabase_client.table("certificates").insert(
+                {
+                    "id": cert_id,
+                    "simulation_id": sim_id,
+                    "verification_hash": verification_hash,
+                    "storage_url": pdf_url,
+                }
+            ).execute()
+            supabase_client.table("simulations").update(
+                {
+                    "certificate_id": cert_id,
+                }
+            ).eq("job_id", sim_id).execute()
         except Exception as e:
             logger.error(f"Certificate creation failed: {e}")
 
@@ -88,9 +97,13 @@ async def verify_certificate(cert_id: str):
         raise HTTPException(503, "Verification service unavailable")
 
     try:
-        result = supabase_client.table("certificate_verification_view").select("*").eq(
-            "certificate_id", cert_id
-        ).single().execute()
+        result = (
+            supabase_client.table("certificate_verification_view")
+            .select("*")
+            .eq("certificate_id", cert_id)
+            .single()
+            .execute()
+        )
 
         if not result.data:
             return {"verified": False, "message": "Certificate not found"}

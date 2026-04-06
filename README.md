@@ -109,6 +109,9 @@ To ensure zero-leak security, SimHPC uses **Infisical** for all sensitive creden
 - **Injection**: Use `infisical run -- [command]` to inject secrets at runtime.
 - **Setup**: Run `infisical init` in the project root first to create `.infisical.json`. Verify with `infisical run -- cmd /c "set" | findstr SB_`.
 - **Naming**: Infisical may use `SB_URL`/`SB_ANON_KEY` instead of `SUPABASE_URL`. The Supabase client checks both.
+
+> **Important**: When adding secrets to Infisical, do NOT use "Supabase" in the secret name. Use "SB" instead (e.g., `SB_URL`, `SB_SECRET_KEY`, `SB_JWT_SECRET`, `SB_PUB_KEY`, `SB_TOKEN`). Infisical blocks secrets containing "supabase" in the name. The app maps these to the correct environment variables internally.
+
 - **Managed Keys**: `RUNPOD_POD_ID`, `RUNPOD_SSH_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SIMHPC_API_KEY`.
 - **Placeholder Pattern**: See `.env.example` for the required keys. Actual values never hit the disk.
 

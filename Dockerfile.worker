@@ -1,4 +1,4 @@
-# Use NVIDIA CUDA base with Jupyter pre-installed
+# Use NVIDIA CUDA base
 FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04
 
 # Prevent interactive prompts during build
@@ -7,33 +7,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies, Python, SSH, and Jupyter
+# Install system dependencies
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-dev \
-    python3-pip \
     git \
     curl \
-    build-essential \
-    openssh-server \
-    wget \
     && rm -rf /var/lib/apt/lists/*
-
-# Install Jupyter
-RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir jupyterlab notebook
-
-# Configure SSH
-RUN mkdir /var/run/sshd && \
-    echo 'PermitRootLogin yes' >> /etc/ssh/sshd_config && \
-    echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config && \
-    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
-    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
-
-# Add non-root user and create Jupyter runtime directory
-RUN groupadd -r appuser && useradd -r -g appuser -s /sbin/nologin appuser && \
-    mkdir -p /home/appuser/.local/share/jupyter /home/appuser/.jupyter && \
-    chown -R appuser:appuser /home/appuser /app
 
 # Copy requirements first to leverage Docker cache
 COPY services/worker/requirements.txt ./requirements.txt
@@ -45,21 +25,7 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 COPY services/worker/worker.py .
 
 # Ensure the worker is executable
-RUN chmod +x worker.py && chown appuser:appuser worker.py
+RUN chmod +x worker.py
 
-# Expose ports for SSH (22), Jupyter (8888), and worker (19123)
-EXPOSE 22 8888 19123
-
-# Create startup script with proper user handling
-RUN echo '#!/bin/bash' > /start.sh && \
-    echo 'export HOME=/home/appuser' >> /start.sh && \
-    echo 'mkdir -p /run/sshd' >> /start.sh && \
-    echo '/usr/sbin/sshd' >> /start.sh && \
-    echo 'cd /home/appuser && jupyter lab --ip=0.0.0.0 --no-browser --allow-root --NotebookApp.token="" --NotebookApp.password="" &' >> /start.sh && \
-    echo 'python3 -u worker.py' >> /start.sh && \
-    chmod +x /start.sh
-
-USER appuser
-
-# Run startup script
-CMD ["/start.sh"]
+# Run the worker directly (no Jupyter, no SSH - production mode)
+CMD ["python3", "-u", "worker.py"]

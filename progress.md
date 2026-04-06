@@ -5,7 +5,55 @@
 
 ## Current Status
 
+- **v2.5.2**: Fixed Supabase key authentication (JWT) + Worker heartbeat fix + API deployed to RunPod
+- **v2.5.1**: FastAPI Dependency Injection Fix + RunPod URL Fix + Route Ordering Fix + Worker Queue Fix + Queue Key Alignment + Lazy Redis + Docker .env Removal + Admin Import Fix + Route Import Fix + Control Data Fix
 - **v2.5.0**: Structural Consolidation (Single Source of Truth), Unified Worker Plane, Schema Normalization, **Simulation Usage Quota & Anti-Spam Enforcement**, **Health Check Endpoint**, **Worker Heartbeat Always-On**, **Ruff Lint Clean (0 errors)**, **Pre-Commit Framework + GitHub Actions CI**, **Unified Deployment Pipeline**, **RunPod Auto-Updater**, **Admin RBAC (ProtectedRoute)**, **Admin Dashboard (Sidebar + KPIs)**, **Supabase Edge Function (Fleet Metrics)**, **Platform Alerts + Billing Threshold**, **Panic Button (Terminate All Fleet)**, **Real-Time Telemetry Hook**, **Guidance Engine (Mercury AI)**, **Docker Path Alignment**, **Race Condition Fix**, **Credential Sanitization**, **Infisical Universal Auth (RogWin)**, **Docker Worker Image v2.5.0 Built**, **Supabase CLI Linked & Deployed (ldzztrnghaaonparyggz)**.
+
+---
+
+## FastAPI Dependency Injection Fix (v2.5.1)
+
+### Problem: Startup Crash - `ValueError: no signature found for builtin type <class 'dict'>`
+
+FastAPI was crashing at API startup when inspecting the `Depends(verify_auth)` pattern. The module-level `verify_auth: Any = None` caused FastAPI to try to introspect `None` (or Python's built-in `dict` type) which has no callable signature.
+
+### Fix: Stub Function Pattern
+
+Replaced all module-level `None` defaults with proper stub functions that FastAPI can introspect at import/include time:
+
+```python
+# Before (broken)
+verify_auth: Any = None
+
+# After (working)
+def verify_auth(authorization: str = Header(None)) -> dict:
+    """Stub replaced by init_routes(). If called, app wasn't initialized."""
+    raise RuntimeError("verify_auth not initialized — call init_routes() first")
+```
+
+Applied to: `verify_auth` in `simulations.py`, `control.py`, `certificates.py`, `verify_admin` in `admin.py`.
+
+### Additional Fixes in v2.5.1
+
+1. **RunPod Status URL Fix**: `get_job_status` was missing `pod_id` in the URL path (was `/status/{job_id}`, now `/{pod_id}/status/{job_id}`)
+
+2. **enqueue_job Signature Fix**: Changed `enqueue_job(sim_id, job_data)` to `enqueue_job(job_data)` to match `job_queue.py` signature
+
+3. **Route Ordering Fix**: Moved `/simulations/usage` route above `/{sim_id}` to prevent `/usage` from being caught as a sim_id parameter
+
+4. **Worker Queue Busy Loop Fix**: Changed `lpush` to `rpush` when pushing back jobs at capacity to prevent tight busy loop
+
+5. **Queue Key Alignment**: Changed `job_queue.py` from `"jobs:pending"` to use `os.getenv("QUEUE_NAME", "simhpc_jobs")` — aligns with worker's `QUEUE_NAME` default
+
+6. **Lazy Redis Connection**: Wrapped Redis connection in `get_redis()` lazy init function instead of connecting at import time — prevents crash during docker-compose startup or Vercel cold start
+
+7. **Docker .env Removal**: Removed `COPY services/api/.env ./` from `Dockerfile.api` — secrets should be passed as runtime environment variables, not baked into image
+
+8. **Admin Import Fix**: Removed broken `sys.path.append` import of `autoscaler.py` from admin.py — replaced with fallback that indicates Redis pub/sub IPC not implemented
+
+9. **Route Import Fix**: Fixed `onboarding.py` relative imports (`...schemas.onboarding`) that would fail in Docker — now uses try/except with absolute imports
+
+10. **Control Data Fix**: Removed hardcoded fake alerts from `control.py` — now fetches real alerts from Redis keys `alert:*` and timeline from `timeline:*`
 - **v2.4.1-DEV**: Mission Control Cockpit Synchronization + Persistent Onboarding (Autosave & Cross-Device Resume).
 - **v2.4.0-DEV**: Interactive Onboarding (Guided Walkthrough) + Event-Driven Trigger Engine.
 - **v2.3.0**: Option C Autoscaler (Stop/Resume) + Network Volume Persistence + "Wake GPU" Admin Panel.

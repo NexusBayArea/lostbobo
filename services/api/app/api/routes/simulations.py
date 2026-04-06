@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from fastapi import APIRouter, HTTPException, Depends, Header
 from typing import Optional, Any, Dict
 from pydantic import BaseModel
 import uuid
@@ -25,11 +25,30 @@ class RobustnessRunRequest(BaseModel):
     input_params: Optional[Dict[str, Any]] = None
 
 
+def verify_auth(authorization: str = Header(None)) -> dict:
+    """Stub replaced by init_routes(). If called, app wasn't initialized."""
+    raise RuntimeError("verify_auth not initialized — call init_routes() first")
+
+
+def check_concurrent_runs(user_id: str) -> bool:
+    """Stub replaced by init_routes()."""
+    raise RuntimeError("check_concurrent_runs not initialized")
+
+
+async def increment_user_usage(user_id: str) -> None:
+    """Stub replaced by init_routes()."""
+    raise RuntimeError("increment_user_usage not initialized")
+
+
+async def get_user_usage(user_id: str) -> dict:
+    """Stub replaced by init_routes()."""
+    raise RuntimeError("get_user_usage not initialized")
+
+
 # Shared dependencies imported at module level
 # These are set by the main app during startup
 supabase_client: Any = None
 r_client: Any = None
-verify_auth: Any = None
 enqueue_job: Any = None
 get_job: Any = None
 set_job: Any = None
@@ -139,10 +158,10 @@ class RunPodJobClient:
 
     async def get_job_status(self, job_id: str) -> dict:
         """Poll job status from RunPod."""
-        if not self.api_key:
-            raise RuntimeError("RUNPOD_API_KEY not configured")
+        if not self.api_key or not self.pod_id:
+            raise RuntimeError("RUNPOD_API_KEY or RUNPOD_POD_ID not configured")
 
-        url = f"{self.base_url}/status/{job_id}"
+        url = f"{self.base_url}/{self.pod_id}/status/{job_id}"
 
         try:
             response = requests.get(
@@ -550,7 +569,7 @@ async def create_simulation(
         "input_params": input_params,
         "scenario_name": scenario_name,
     }
-    enqueue_job(sim_id, job_data)
+    enqueue_job(job_data)
     await increment_user_usage(user_id)
 
     # Launch async background pipeline (non-blocking)
@@ -616,6 +635,20 @@ async def list_simulations(
     return {"simulations": results[:limit]}
 
 
+@router.get("/simulations/usage", tags=["Simulations"])
+async def get_usage(
+    user: dict = Depends(verify_auth),
+):
+    """Get user's weekly simulation usage."""
+    user_id = user["user_id_internal"]
+    usage = await get_user_usage(user_id)
+    return {
+        "used": usage.get("runs_used", 0),
+        "limit": 10,
+        "remaining": max(0, 10 - usage.get("runs_used", 0)),
+    }
+
+
 @router.get("/simulations/{sim_id}", tags=["Simulations"])
 async def get_simulation(
     sim_id: str,
@@ -626,7 +659,6 @@ async def get_simulation(
     if not job:
         raise HTTPException(404, "Simulation not found")
 
-    # Verify ownership
     if job.get("user_id") != user["user_id_internal"] and user["type"] != "api_key":
         raise HTTPException(403, "Access denied")
 
@@ -643,15 +675,12 @@ async def cancel_simulation(
     if not job:
         raise HTTPException(404, "Simulation not found")
 
-    # Verify ownership
     if job.get("user_id") != user["user_id_internal"] and user["type"] != "api_key":
         raise HTTPException(403, "Access denied")
 
-    # Update status to cancelled
     job["status"] = "cancelled"
     set_job(sim_id, job)
 
-    # Also update in Supabase if available
     if supabase_client:
         try:
             supabase_client.table("simulations").update({"status": "cancelled"}).eq(
@@ -680,20 +709,6 @@ async def export_pdf(
         raise HTTPException(404, "PDF not available")
 
     return {"pdf_url": pdf_url, "simulation_id": sim_id}
-
-
-@router.get("/simulations/usage", tags=["Simulations"])
-async def get_usage(
-    user: dict = Depends(verify_auth),
-):
-    """Get user's weekly simulation usage."""
-    user_id = user["user_id_internal"]
-    usage = await get_user_usage(user_id)
-    return {
-        "used": usage.get("runs_used", 0),
-        "limit": 10,  # Explicitly using the requested limit
-        "remaining": max(0, 10 - usage.get("runs_used", 0)),
-    }
 
 
 @router.get("/simulations/{sim_id}/status", tags=["Simulations"])

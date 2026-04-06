@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, Header
 from typing import Any
 import os
 import json
@@ -9,8 +9,13 @@ from datetime import datetime
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+
+def verify_admin(authorization: str = Header(None)) -> bool:
+    """Stub replaced by init_routes()."""
+    raise RuntimeError("verify_admin not initialized — call init_routes() first")
+
+
 r_client: Any = None
-verify_admin: Any = None
 warm_pod_fn: Any = None
 
 
@@ -19,16 +24,13 @@ def init_routes(redis, admin_dep):
     r_client = redis
     verify_admin = admin_dep
 
-    # Try to import warm_pod from autoscaler
-    import sys
-    sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "worker"))
-    try:
-        from autoscaler import warm_pod
-        warm_pod_fn = warm_pod
-    except ImportError:
-        def _fallback():
-            return {"status": "error", "message": "Autoscaler module not found"}
-        warm_pod_fn = _fallback
+    def _fallback():
+        return {
+            "status": "error",
+            "message": "Warm pod via Redis pub/sub not implemented",
+        }
+
+    warm_pod_fn = _fallback
 
 
 @router.post("/fleet/warm", tags=["Admin — Fleet"])
@@ -71,8 +73,8 @@ async def get_fleet_readiness(_: bool = Depends(verify_admin)):
             "pod_ids": running,
             "message": (
                 "Pod running and worker connected — ready for simulations."
-                if ready else
-                "Pod starting up — check back in a few seconds."
+                if ready
+                else "Pod starting up — check back in a few seconds."
             ),
             "timestamp": datetime.now().isoformat(),
         }
@@ -207,12 +209,17 @@ async def stop_pod(pod_id: str, _: bool = Depends(verify_admin)):
         active = json.loads(r_client.get("active_pods") or "[]")
         active = [p for p in active if p != pod_id]
         r_client.set("active_pods", json.dumps(active))
-        r_client.lpush("runpod_events", json.dumps({
-            "ts": datetime.now().isoformat(),
-            "event": "pod_stop_requested",
-            "pod_id": pod_id,
-            "details": "via admin API",
-        }))
+        r_client.lpush(
+            "runpod_events",
+            json.dumps(
+                {
+                    "ts": datetime.now().isoformat(),
+                    "event": "pod_stop_requested",
+                    "pod_id": pod_id,
+                    "details": "via admin API",
+                }
+            ),
+        )
         return {"status": "ok", "pod_id": pod_id, "action": "stop_requested"}
     except Exception as e:
         raise HTTPException(500, f"Pod stop error: {e}")
@@ -225,12 +232,17 @@ async def terminate_pod(pod_id: str, _: bool = Depends(verify_admin)):
         active = json.loads(r_client.get("active_pods") or "[]")
         active = [p for p in active if p != pod_id]
         r_client.set("active_pods", json.dumps(active))
-        r_client.lpush("runpod_events", json.dumps({
-            "ts": datetime.now().isoformat(),
-            "event": "pod_terminate_requested",
-            "pod_id": pod_id,
-            "details": "via admin API",
-        }))
+        r_client.lpush(
+            "runpod_events",
+            json.dumps(
+                {
+                    "ts": datetime.now().isoformat(),
+                    "event": "pod_terminate_requested",
+                    "pod_id": pod_id,
+                    "details": "via admin API",
+                }
+            ),
+        )
         return {"status": "ok", "pod_id": pod_id, "action": "terminate_requested"}
     except Exception as e:
         raise HTTPException(500, f"Pod termination error: {e}")

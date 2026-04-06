@@ -30,6 +30,8 @@ infisical init
 
 This connects to the `v2.5.2-BETA` Secret Vault. All subsequent commands use `infisical run --` for secret injection.
 
+> **Important**: When adding secrets to Infisical, do NOT use "Supabase" in the secret name. Use "SB" instead (e.g., `SB_URL`, `SB_SECRET_KEY`, `SB_JWT_SECRET`, `SB_PUB_KEY`, `SB_TOKEN`). Infisical blocks secrets containing "supabase" in the name.
+
 ### Secret-Safe Build
 
 Build Docker images without local `.env` files:

@@ -53,8 +53,13 @@ try:
     from supabase import create_client
 
     if SUPABASE_URL and SUPABASE_SERVICE_KEY:
-        supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-        logger.info("Supabase client initialized")
+        try:
+            supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+            logger.info("Supabase client initialized")
+        except Exception as e:
+            logger.warning(
+                f"Supabase client init failed (non-fatal): {e}. Continuing without Supabase."
+            )
 except ImportError:
     logger.warning("Supabase not available, heartbeat disabled")
 
@@ -228,6 +233,7 @@ def process_job(job: dict):
 
 def send_heartbeat():
     """Send heartbeat to Supabase."""
+    return  # Disabled - using Redis pods:last_used for autoscaler instead
     if not supabase:
         return
     try:
@@ -297,8 +303,7 @@ def main():
             if job_data:
                 with lock:
                     if active_jobs >= MAX_CONCURRENT_JOBS:
-                        # At capacity — push job back to front of queue
-                        redis_client.lpush(QUEUE_NAME, job_data)
+                        redis_client.rpush(QUEUE_NAME, job_data)
                         time.sleep(1)
                         continue
 

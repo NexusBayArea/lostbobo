@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from typing import Any, Dict, List
 import logging
 from datetime import datetime, timedelta
@@ -6,8 +6,13 @@ from datetime import datetime, timedelta
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+
+def verify_auth(authorization: str = Header(None)) -> dict:
+    """Stub replaced by init_routes()."""
+    raise RuntimeError("verify_auth not initialized — call init_routes() first")
+
+
 r_client: Any = None
-verify_auth: Any = None
 update_job_field: Any = None
 get_job: Any = None
 
@@ -29,34 +34,69 @@ async def get_controlroom_state(user: dict = Depends(verify_auth)):
     keys = r_client.keys("job:*")
     for k in keys:
         job = r_client.hgetall(k)
-        if job.get("user_id") == user_id and job.get("status") in ["running", "pending", "processing", "auditing"]:
-            active_runs.append({
-                "id": k.split(":")[1],
-                "status": job.get("status"),
-                "model_name": job.get("mesh_name", "Thermal Simulation"),
-            })
+        if job.get("user_id") == user_id and job.get("status") in [
+            "running",
+            "pending",
+            "processing",
+            "auditing",
+        ]:
+            active_runs.append(
+                {
+                    "id": k.split(":")[1],
+                    "status": job.get("status"),
+                    "model_name": job.get("mesh_name", "Thermal Simulation"),
+                }
+            )
 
-    alerts = [
-        {"id": "a1", "type": "warning", "message": "Hallucination risk detected in thermal gradient.", "timestamp": datetime.now().isoformat()},
-        {"id": "a2", "type": "info", "message": "Convergence locked at 10e-6.", "timestamp": (datetime.now() - timedelta(minutes=5)).isoformat()},
-    ]
+    # Fetch real alerts from Redis
+    alerts = []
+    alert_keys = r_client.keys("alert:*")
+    for ak in alert_keys:
+        alert = r_client.hgetall(ak)
+        if alert:
+            alerts.append(alert)
+
+    # Fetch real timeline events from Redis
+    timeline = []
+    timeline_keys = r_client.keys("timeline:*")
+    for tk in timeline_keys:
+        event = r_client.hgetall(tk)
+        if event:
+            timeline.append(event)
 
     timeline = [
-        {"id": "e1", "type": "dispatch", "label": "🟢 Dispatch", "severity": "info", "timestamp": (datetime.now() - timedelta(minutes=10)).isoformat()},
-        {"id": "e2", "type": "convergence", "label": "💠 Convergence Lock", "severity": "success", "timestamp": (datetime.now() - timedelta(minutes=8)).isoformat()},
+        {
+            "id": "e1",
+            "type": "dispatch",
+            "label": "🟢 Dispatch",
+            "severity": "info",
+            "timestamp": (datetime.now() - timedelta(minutes=10)).isoformat(),
+        },
+        {
+            "id": "e2",
+            "type": "convergence",
+            "label": "💠 Convergence Lock",
+            "severity": "success",
+            "timestamp": (datetime.now() - timedelta(minutes=8)).isoformat(),
+        },
     ]
 
     return {
         "active_runs": active_runs,
         "audit_alerts": alerts,
         "timeline_events": timeline,
-        "telemetry": {"gpu_load": 42 if active_runs else 0, "status": "nominal" if active_runs else "idle"},
+        "telemetry": {
+            "gpu_load": 42 if active_runs else 0,
+            "status": "nominal" if active_runs else "idle",
+        },
         "guidance": "Safety Factor (1.4x) maintained. Recommend Proceed.",
     }
 
 
 @router.post("/control/command", tags=["Cockpit — Operator Console"])
-async def execute_control_command(action: str, run_id: str, user: dict = Depends(verify_auth)):
+async def execute_control_command(
+    action: str, run_id: str, user: dict = Depends(verify_auth)
+):
     """Execute high-stakes engineering actions."""
     logger.info(f"Control Command: {action} on {run_id}")
     if action == "intercept":
@@ -74,7 +114,13 @@ async def execute_control_command(action: str, run_id: str, user: dict = Depends
 @router.get("/control/timeline", tags=["Cockpit — Timeline"])
 async def get_control_timeline(user: dict = Depends(verify_auth)):
     return [
-        {"id": "1", "type": "dispatch", "label": "Simulation Dispatched", "severity": "info", "timestamp": datetime.now().isoformat()},
+        {
+            "id": "1",
+            "type": "dispatch",
+            "label": "Simulation Dispatched",
+            "severity": "info",
+            "timestamp": datetime.now().isoformat(),
+        },
     ]
 
 
