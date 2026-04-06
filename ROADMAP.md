@@ -41,6 +41,8 @@ SimHPC is a cloud-based GPU-accelerated finite element simulation platform with 
 - [x] **Option C Infrastructure (v2.3.0)** - Stop/Resume strategy with Network Volume persistence (March 2026)
 - [x] **Docker Hub Registry (v2.2.1)** - Published images: simhpcworker/simhpc-api, simhpc-worker, simhpc-autoscaler (March 2026)
 - [x] **Cockpit Backend Sync (v2.4.1)** - Unified O-D-I-A-V loop state aggregator and explicit command APIs (April 2026)
+- [x] **Supabase Initialization Fix (v2.5.3)** - Fixed Vercel environment variable injection via `envPrefix` (April 2026)
+- [x] **Logo Styling Update (v2.5.3)** - Removed glows/shadows and updated to theme-aware colors (April 2026)
 
 ### Phase 2: Enterprise Features (Completed ✅)
 

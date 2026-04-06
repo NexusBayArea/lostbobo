@@ -17,5 +17,5 @@ export const supabase =
     : null;
 
 if (!supabase) {
-  console.error('Supabase client not initialized. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON env vars.');
+  console.error('Supabase client not initialized. Ensure VITE_SUPABASE_URL (or SUPABASE_URL) and VITE_SUPABASE_ANON (or VITE_SUPABASE_ANON_KEY or SUPABASE_ANON_KEY) are set in your environment.');
 }

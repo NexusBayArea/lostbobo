@@ -26,7 +26,7 @@ export function SignUp() {
     setError('');
 
     if (!supabase) {
-      setError('Supabase client not initialized');
+      setError('Supabase client not initialized. Please verify your environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON).');
       setLoading(false);
       return;
     }
@@ -43,7 +43,7 @@ export function SignUp() {
 
   const handleGoogleSignUp = async () => {
     if (!supabase) {
-      setError('Supabase client not initialized');
+      setError('Supabase client not initialized. Please verify your environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON).');
       return;
     }
     await supabase.auth.signInWithOAuth({

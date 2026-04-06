@@ -22,12 +22,16 @@ CREATE INDEX IF NOT EXISTS idx_notebook_entries_created ON notebook_entries(user
 
 -- Updated_at trigger
 CREATE OR REPLACE FUNCTION update_notebook_entry_updated_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER 
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   NEW.updated_at = now();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 DROP TRIGGER IF EXISTS set_notebook_entry_updated_at ON notebook_entries;
 CREATE TRIGGER set_notebook_entry_updated_at

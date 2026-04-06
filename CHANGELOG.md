@@ -5,6 +5,23 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.3] - 2026-04-05
+
+### Fixed
+
+- **SQL Security (Linter)**: Hardened PostgreSQL functions and views against search path hijacking and RLS bypass:
+  - Added `SET search_path = public` to `update_updated_at_column` and `update_notebook_entry_updated_at` trigger functions.
+  - Set `SECURITY DEFINER` on trigger functions for consistent execution.
+  - Added `WITH (security_invoker = true)` to `simulation_history` and `certificate_verification_view` views to ensure they respect querying user's RLS policies.
+- **Supabase Initialization (Vercel)**: Fixed "Supabase client not initialized" error on Vercel by adding `envPrefix: ['VITE_', 'SUPABASE_']` to `vite.config.ts`. This allows Vite to pick up environment variables provided by the Supabase-Vercel integration (`SUPABASE_URL`, `SUPABASE_ANON_KEY`).
+- **Auth Error Messaging**: Improved error messages on SignIn and SignUp pages when the Supabase client is uninitialized, providing actionable guidance on environment variables.
+- **Environment Schema**: Updated `frontendSchema` and `env/client.ts` to include all possible Supabase environment variable variants for better robustness.
+
+### Changed
+
+- **Logo Styling**: Removed all glow and shadow effects from the SimHPC logo icon and text ("Sim" and "HPC") for a cleaner, flatter aesthetic.
+- **Logo Colors**: Updated "Sim" text and icon to use theme-aware colors (`slate-900` in light mode, `white` in dark mode) and "HPC" text to a consistent blue (`blue-600`/`blue-500`).
+
 ## [2.5.2] - 2026-04-04
 
 ### Fixed

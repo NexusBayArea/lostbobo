@@ -130,7 +130,18 @@ DROP POLICY IF EXISTS "simulation_events_service_role" ON simulation_events;
 CREATE POLICY "simulation_events_service_role" ON simulation_events FOR ALL USING (true) WITH CHECK (true);
 
 -- 9. UPDATED_AT TRIGGER
-CREATE OR REPLACE FUNCTION update_updated_at_column() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW(); RETURN NEW; END; $$ language 'plpgsql';
+CREATE OR REPLACE FUNCTION update_updated_at_column() 
+RETURNS TRIGGER 
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$ 
+BEGIN 
+  NEW.updated_at = NOW(); 
+  RETURN NEW; 
+END; 
+$$;
+
 DROP TRIGGER IF EXISTS update_simulations_updated_at ON simulations;
 CREATE TRIGGER update_simulations_updated_at BEFORE UPDATE ON simulations FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -138,11 +149,13 @@ CREATE TRIGGER update_simulations_updated_at BEFORE UPDATE ON simulations FOR EA
 ALTER PUBLICATION supabase_realtime ADD TABLE simulations;
 
 -- 11. VERIFICATION VIEW
-CREATE OR REPLACE VIEW certificate_verification_view AS
+CREATE OR REPLACE VIEW certificate_verification_view 
+WITH (security_invoker = true) AS
 SELECT c.id AS certificate_id, c.simulation_id, c.verification_hash, c.storage_url, c.created_at,
        s.hallucination_score, s.audit_result, s.status AS simulation_status
 FROM certificates c JOIN simulations s ON s.id = c.simulation_id;
 
 -- 12. BACKWARD COMPAT VIEW
-CREATE OR REPLACE VIEW simulation_history AS
+CREATE OR REPLACE VIEW simulation_history 
+WITH (security_invoker = true) AS
 SELECT id, user_id, job_id, scenario_name, status, result_summary, report_url, created_at FROM simulations;
