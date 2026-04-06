@@ -21,11 +21,15 @@ jobs:
       - name: Install Infisical CLI
         run: |
           curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo bash
-          sudo apt-get install -y infisical
+          sudo apt-get update && sudo apt-get install -y infisical
+
+      - name: Initialize Infisical
+        run: |
+          infisical init --projectId=f8464ba0-1b93-45a1-86b5-c8ea5a81a2a4 --plaintext-output || true
 
       - name: Build and push worker image
         run: |
-          infisical run --env="prod" -- bash -c '
+          infisical run --projectId=f8464ba0-1b93-45a1-86b5-c8ea5a81a2a4 --env=prod -- bash -c '
             echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
             
             docker build -f ./Dockerfile.worker -t simhpcworker/simhpc-worker:latest .
