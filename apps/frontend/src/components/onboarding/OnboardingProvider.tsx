@@ -86,7 +86,10 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' })
         .then(({ error }) => {
-          if (error) console.warn('Onboarding autosave failed:', error.message);
+          if (error) {
+            console.error('Onboarding autosave failed:', error.message);
+            return;
+          }
         });
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));

@@ -60,7 +60,10 @@ Single source of truth for all simulation state. Replaces the legacy `simulation
 | `simulation_events` | Append-only event log for audit trail |
 | `worker_heartbeat` | Worker health pings (existing) |
 | `leads` | Lead qualification funnel (existing) |
-| `onboarding_state` | User onboarding progress (existing) |
+| `profiles` | Extends auth.users, stores email and billable plan (free/pro/enterprise) |
+| `onboarding_state` | User onboarding progress, references profiles |
+| `usage_events` | Granular event logging (run_started, run_completed) to enforce weekly limits |
+| `subscriptions` | Optional billing metadata (Stripe IDs, current_period_end) |
 | `demo_access` | Magic link demo tokens (existing) |
 
 ### TypeScript Type Locations
