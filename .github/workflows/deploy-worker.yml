@@ -10,40 +10,27 @@ on:
       - 'Dockerfile.worker'
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy-worker:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-      - name: Fetch secrets from Infisical
-        uses: Infisical/secrets-action@v1
-        with:
-          # The base URL of your Infisical instance
-          infisical_url: https://app.infisical.com
-          # Encoded secret (client_id:client_secret) - use GitHub secret for machine identity
-          # Set INFISICAL_CLIENT_ID and INFISICAL_CLIENT_SECRET as GitHub secrets
-          client_id: ${{ secrets.INFISICAL_CLIENT_ID }}
-          client_secret: ${{ secrets.INFISICAL_CLIENT_SECRET }}
-          # Project and environment
-          project_id: simhpc
-          env: prod
-          # Secrets to fetch (as env vars)
-          secrets: |
-            DOCKER_ACCESS_TOKEN
-            DOCKER_USERNAME
-
-      - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo bash
+          sudo apt-get install -y infisical
 
       - name: Build and push worker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile.worker
-          push: true
-          tags: |
-            simhpcworker/simhpc-worker:latest
-            simhpcworker/simhpc-worker:v2.5.3
+        run: |
+          infisical run --env="prod" -- bash -c '
+            echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            
+            docker build -f ./Dockerfile.worker -t simhpcworker/simhpc-worker:latest .
+            docker push simhpcworker/simhpc-worker:latest
+          '

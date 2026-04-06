@@ -12,35 +12,27 @@ on:
       - 'services/worker/requirements-autoscaler.txt'
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy-autoscaler:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-      - name: Fetch secrets from Infisical
-        uses: Infisical/secrets-action@v1
-        with:
-          infisical_url: https://app.infisical.com
-          client_id: ${{ secrets.INFISICAL_CLIENT_ID }}
-          client_secret: ${{ secrets.INFISICAL_CLIENT_SECRET }}
-          project_id: simhpc
-          env: prod
-          secrets: |
-            DOCKER_ACCESS_TOKEN
-            DOCKER_USERNAME
-
-      - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo bash
+          sudo apt-get install -y infisical
 
       - name: Build and push autoscaler image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile.autoscaler
-          push: true
-          tags: |
-            simhpcworker/simhpc-autoscaler:latest
-            simhpcworker/simhpc-autoscaler:v2.5.3
+        run: |
+          infisical run --env="prod" -- bash -c '
+            echo "$DOCKER_ACCESS_TOKEN" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            
+            docker build -f ./Dockerfile.autoscaler -t simhpcworker/simhpc-autoscaler:latest .
+            docker push simhpcworker/simhpc-autoscaler:latest
+          '

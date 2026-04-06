@@ -154,3 +154,26 @@ curl -X POST "https://api.runpod.io/graphql" \
 | **Vercel** | Infisical Vercel Integration auto-syncs `VITE_SUPABASE_URL`, `VITE_API_URL` |
 | **RunPod** | Autoscaler uses `INFISICAL_TOKEN` to pull `MERCURY_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY` dynamically |
 | **GitHub Actions** | Infisical secrets-action fetches Docker credentials from Infisical at runtime. Only `INFISICAL_CLIENT_ID` and `INFISICAL_CLIENT_SECRET` stored in GitHub. |
+
+## Skill 5: Action-Vault Sync
+
+Verifies Infisical secrets are ready for GitHub consumption.
+
+### Commands
+
+```bash
+# Check secrets in prod environment
+infisical export --env="prod" --format="dotenv"
+echo "✅ Antigravity: Secrets verified in Infisical prod environment."
+```
+
+## Skill 6: Silent Deploy
+
+Forces a fresh GitHub push that triggers the Infisical-injected workflow.
+
+```bash
+git add .
+git commit -m "v2.5.3: Secret-Ops Migration"
+git push origin main
+echo "✅ Antigravity: Deployment triggered. Check GitHub Actions."
+```
