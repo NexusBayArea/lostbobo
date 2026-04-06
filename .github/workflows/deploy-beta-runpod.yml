@@ -27,9 +27,8 @@ jobs:
           INFISICAL_CLIENT_ID: ${{ secrets.INFISICAL_MACHINE_ID }}
           INFISICAL_CLIENT_SECRET: ${{ secrets.MAC_ID_SEC }}
         run: |
-          # Explicitly provide the project-slug to avoid the need for 'infisical init'
-          # Replace 'simhpc-idps' with your actual Infisical project slug if it's different
-          infisical export --project="simhpc-idps" --env="beta" --format=dotenv | while read -r line; do
+          # Use projectId from your .infisical.json to bypass the init requirement
+          infisical export --projectId="f8464ba0-1b93-45a1-86b5-c8ea5a81a2a4" --env="beta" --format=dotenv | while read -r line; do
             echo "$line" >> "$GITHUB_ENV"
           done
 
