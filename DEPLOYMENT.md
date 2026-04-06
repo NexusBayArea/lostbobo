@@ -568,7 +568,50 @@ docker-compose up --build
 
 ---
 
-## 9. Quick Reference
+## 10. RunPod Deployment Pipeline (v2.5.3)
+
+SimHPC v2.5.3 introduces a streamlined, one-command deployment pipeline for the GPU worker fleet.
+
+### Automated Deployment Script (`scripts/deploy_to_runpod.py`)
+
+This script handles the full orchestration of the worker infrastructure:
+1. **Secret Fetching**: Pulls `RUNPOD_API_KEY`, `REDIS_URL`, and other essentials from **Infisical**.
+2. **Image Preparation**: Builds the `Dockerfile.worker` and pushes it to Docker Hub.
+3. **Pod Lifecycle**: 
+   - Terminates the existing pod (using the ID stored in Infisical).
+   - Creates a new **NVIDIA A40** pod with verified port mappings (8888, 8000, 22).
+   - Injects all required environment variables directly into the container.
+4. **Secret Sync**: Updates the `RUNPOD_ID` in Infisical so subsequent commands target the correct pod.
+
+### SimHPC CLI Skill (`scripts/simhpc.sh`)
+
+A bash wrapper for common operational tasks on the worker pod:
+
+- **`simhpc deploy`**: Execute the full Python deployment pipeline.
+- **`simhpc logs`**: View real-time logs from the FastAPI server running on the pod.
+- **`simhpc restart-api`**: Bounce the FastAPI server without restarting the entire pod.
+
+**Usage**:
+```bash
+# Make executable (one-time)
+chmod +x scripts/simhpc.sh
+
+# Deploy to RunPod
+./scripts/simhpc.sh deploy
+```
+
+### Verified Pod Entry Point
+
+The API on the RunPod volume is served from `/runpod-volume/app/worker.py`. The `run_api.py` script is pre-configured to handle this structure:
+
+```bash
+# To run the API manually on the pod:
+python3 /runpod-volume/app/run_api.py
+```
+
+---
+
+## 11. Quick Reference
 
 ### Deploy Everything
 
