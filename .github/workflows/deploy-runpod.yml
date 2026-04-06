@@ -30,13 +30,13 @@ jobs:
 
       - name: RunPod Pod Action
         run: |
-          # Export token and run infisical to get secrets
           export INFISICAL_TOKEN="${{ secrets.INFISICAL_TOKEN }}"
           
-          infisical secrets export --env=prod --secret-names=RUNPOD_API_KEY,RUNPOD_POD_ID --format=json > /tmp/secrets.json
+          # Get all secrets from prod and extract what we need
+          infisical secrets --env=prod --path=/ --plain > /tmp/secrets.env
           
-          RUNPOD_API_KEY=$(grep -o '"RUNPOD_API_KEY": *"[^"]*"' /tmp/secrets.json | cut -d'"' -f4)
-          RUNPOD_POD_ID=$(grep -o '"RUNPOD_POD_ID": *"[^"]*"' /tmp/secrets.json | cut -d'"' -f4)
+          RUNPOD_API_KEY=$(grep '^RUNPOD_API_KEY=' /tmp/secrets.env | cut -d'=' -f2-)
+          RUNPOD_POD_ID=$(grep '^RUNPOD_POD_ID=' /tmp/secrets.env | cut -d'=' -f2-)
           
           echo "=== Pod ID: $RUNPOD_POD_ID"
           echo "=== Action: $ACTION"
