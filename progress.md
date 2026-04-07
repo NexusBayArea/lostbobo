@@ -5,7 +5,29 @@
 
 ## Current Status
 
-- **v2.5.5**: **RunPod Sync Script** + **Dynamic Pod Synchronization** + **Infisical/Vercel Atomic Updates** + **In-Memory Cache Fallback** + `get_cache()` / `is_redis_available()` helpers + Health Check Enhancement
+- **v2.5.5**: **RunPod Sync Script** + **Dynamic Pod Synchronization** + **Infisical/Vercel Atomic Updates** + **In-Memory Cache Fallback** + **Vault-First Protocol** + **Ruff Lint Fixes** + **Vercel Build Fix (APIReference removed)**
+
+## v2.5.5 Fixes: Vault-First + Lint Fixes
+
+### Vault-First Protocol
+- `deploy_unified.py` reads `RUNPOD_API_KEY` from env (not hardcoded)
+- `sync-pod.sh` automates Infisical + Vercel updates
+- SKILL.md updated with security runbook
+
+### Ruff Lint Fixes (worker.py)
+- Fixed one-line if statements (E701) in `upload_report()` and `update_simulation()`
+- Added `global active_jobs` in `main()` function
+
+### Vercel Build Fix
+- Removed non-existent `./APIReference` export from `pages/index.ts`
+
+### Required Environment Variables for RunPod Pod
+| Key | Value |
+|-----|-------|
+| `ALLOWED_ORIGINS` | CORS allowed origins |
+| `REDIS_URL` | Redis connection string |
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service key |
 
 ## v2.5.5: Dynamic Pod Synchronization + Infisical Integration
 
