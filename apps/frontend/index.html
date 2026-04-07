@@ -1,22 +1,230 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="SimHPC - AI-Powered Monte Carlo Simulation Platform" />
-    <title>SimHPC — Mercury AI</title>
-    <script>
-      (function() {
-        var theme = localStorage.getItem('theme');
-        if (!theme) {
-          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+
+    <!-- ═══════════════════════════════════════════════════
+         CORE SEO
+    ═══════════════════════════════════════════════════ -->
+    <title>SimHPC — Robustness Analysis Platform for R&D Teams</title>
+    <meta
+      name="description"
+      content="SimHPC is a robustness analysis platform for engineering R&D teams. Run GPU-accelerated parameter sweeps, Latin Hypercube and Sobol GSA, and get AI-generated interpretation reports — all in the cloud."
+    />
+    <meta
+      name="keywords"
+      content="FEM simulation cloud, GPU finite element analysis, thermal simulation platform, structural analysis SaaS, robustness analysis, Sobol sensitivity analysis, MFEM, SUNDIALS, engineering simulation AI, HPC cloud platform"
+    />
+    <meta name="author" content="SimHPC" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href="https://simhpc.com/" />
+
+    <!-- ═══════════════════════════════════════════════════
+         OPEN GRAPH (Social + GEO crawlers read this)
+    ═══════════════════════════════════════════════════ -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SimHPC" />
+    <meta property="og:url" content="https://simhpc.com/" />
+    <meta property="og:title" content="SimHPC — Robustness Analysis Platform for R&D Teams" />
+    <meta
+      property="og:description"
+      content="Run GPU-accelerated robustness analysis in the cloud. Latin Hypercube, Monte Carlo, and Sobol GSA with AI-generated engineering reports. Built for R&D teams who need fast, auditable simulation workflows."
+    />
+    <meta property="og:image" content="https://simhpc.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="SimHPC platform — GPU-accelerated engineering simulation dashboard" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- ═══════════════════════════════════════════════════
+         TWITTER / X CARD
+    ═══════════════════════════════════════════════════ -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@simhpc" />
+    <meta name="twitter:title" content="SimHPC — Robustness Analysis Platform for R&D Teams" />
+    <meta
+      name="twitter:description"
+      content="GPU-accelerated robustness analysis with Latin Hypercube, Sobol GSA, and AI-generated engineering reports. Built for R&D teams."
+    />
+    <meta name="twitter:image" content="https://simhpc.com/og-image.png" />
+    <meta name="twitter:image:alt" content="SimHPC simulation dashboard" />
+
+    <!-- ═══════════════════════════════════════════════════
+         AEO — JSON-LD STRUCTURED DATA
+         Targets: Google, Bing, ChatGPT, Perplexity, Claude
+    ═══════════════════════════════════════════════════ -->
+
+    <!-- 1. SoftwareApplication schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "SimHPC",
+      "url": "https://simhpc.com",
+      "applicationCategory": "EngineeringApplication",
+      "operatingSystem": "Web",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Free Tier",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "5 simulation runs per week, baseline and stress scenarios, up to 5,000 mesh nodes."
+        },
+        {
+          "@type": "Offer",
+          "name": "Professional",
+          "description": "50 runs per week, AI-generated PDF reports, PDF export, custom scenarios, up to 50,000 mesh nodes."
+        },
+        {
+          "@type": "Offer",
+          "name": "Enterprise",
+          "description": "Unlimited runs, Sobol GSA, API access, unlimited mesh nodes."
         }
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        }
-      })();
+      ],
+      "description": "SimHPC is a robustness analysis platform for engineering R&D teams. It runs GPU-accelerated parameter sweeps using Latin Hypercube Sampling, Monte Carlo, ±5%/±10% perturbation, and Sobol global sensitivity analysis on MFEM + SUNDIALS finite element simulations. AI-generated engineering interpretation reports are produced by Mercury AI (Inception Labs) and numerically cross-checked against deterministic solver outputs.",
+      "featureList": [
+        "GPU-accelerated FEM simulation (MFEM + SUNDIALS)",
+        "Robustness analysis with Latin Hypercube and Sobol GSA",
+        "AI-generated engineering interpretation reports (Mercury AI)",
+        "PDF export with Unicode engineering symbols",
+        "Real-time simulation telemetry via WebSocket",
+        "Multi-tier access control (Free / Professional / Enterprise)",
+        "Demo magic-link access for alpha pilots",
+        "RunPod GPU autoscaling with cost tracking"
+      ],
+      "screenshot": "https://simhpc.com/og-image.png",
+      "softwareVersion": "2.1.0",
+      "creator": {
+        "@type": "Organization",
+        "name": "SimHPC",
+        "url": "https://simhpc.com"
+      }
+    }
     </script>
+
+    <!-- 2. Organization schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "SimHPC",
+      "url": "https://simhpc.com",
+      "logo": "https://simhpc.com/logo.png",
+      "sameAs": [],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "technical support",
+        "availableLanguage": "English"
+      },
+      "description": "SimHPC builds cloud-based GPU-accelerated simulation infrastructure for engineering R&D teams. The platform integrates high-order finite element solvers with AI-powered analysis to accelerate design validation."
+    }
+    </script>
+
+    <!-- 3. FAQPage schema (AEO — answers questions directly in search/AI results) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is SimHPC?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "SimHPC is a robustness analysis platform for engineering R&D teams. It runs GPU-accelerated parameter sweeps and sensitivity analysis on structural and thermal finite element simulations, using MFEM and SUNDIALS solvers, and generates AI-powered interpretation reports via Mercury AI."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What simulation solvers does SimHPC use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "SimHPC uses MFEM for high-order finite element discretization and SUNDIALS (specifically CVODE and ARKODE) for adaptive time integration. These are deterministic physics solvers; AI is used only for interpreting results, never for the physics."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is robustness analysis in SimHPC?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Robustness analysis in SimHPC runs multiple simulation variations using parameter perturbation methods including ±5%, ±10%, Latin Hypercube Sampling, Monte Carlo, and Sobol global sensitivity analysis (GSA). It computes confidence intervals, variance, and ranks parameters by their influence on simulation outputs."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does SimHPC generate engineering reports?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "SimHPC uses Mercury AI (by Inception Labs) to generate structured engineering interpretation reports from simulation output data. Reports include simulation summaries, key output metrics, sensitivity rankings, uncertainty assessments, and suggested next steps. All AI output is cross-checked against deterministic solver results for numerical consistency."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What GPU infrastructure does SimHPC run on?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "SimHPC runs on RunPod GPU pods (NVIDIA A40 and RTX 3090) with an autoscaler that spins pods up when jobs are queued and terminates them after idle timeout to minimize cost."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is SimHPC suitable for enterprise R&D teams?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. SimHPC's Enterprise tier offers unlimited simulation runs, Sobol global sensitivity analysis, API access, and unlimited mesh nodes. It is designed for R&D teams that need repeatable, auditable simulation workflows with structured metadata and reproducibility controls."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- ═══════════════════════════════════════════════════
+         GEO — MACHINE-READABLE PRODUCT SIGNAL
+         Helps AI crawlers (GPTBot, PerplexityBot, ClaudeBot)
+         understand the product without hallucinating.
+    ═══════════════════════════════════════════════════ -->
+    <meta name="product-category" content="Engineering Simulation Software" />
+    <meta name="product-subcategory" content="Finite Element Analysis, Robustness Analysis, Sensitivity Analysis" />
+    <meta name="technology-stack" content="MFEM, SUNDIALS, Mercury AI, RunPod, Supabase, Redis, FastAPI, React, Vite" />
+    <meta name="deployment" content="Cloud SaaS — Vercel frontend, RunPod GPU backend" />
+    <meta name="audience" content="Mechanical engineers, structural engineers, thermal engineers, R&D teams, simulation engineers" />
+    <meta name="use-case" content="FEM simulation, thermal analysis, structural analysis, robustness analysis, parameter sweeps, Sobol GSA, AI engineering reports" />
+
+    <!-- ═══════════════════════════════════════════════════
+         PERFORMANCE — RESOURCE HINTS
+    ═══════════════════════════════════════════════════ -->
+    <!-- Supabase (auth + realtime) -->
+    <link rel="preconnect" href="https://ldzztrnghaaonparyggz.supabase.co" />
+    <!-- SimHPC API -->
+    <link rel="preconnect" href="https://api.simhpc.com" />
+    <!-- Stripe — dns-prefetch only (loaded lazily) -->
+    <link rel="dns-prefetch" href="https://js.stripe.com" />
+    <link rel="dns-prefetch" href="https://api.stripe.com" />
+
+    <!-- ═══════════════════════════════════════════════════
+         FAVICON + THEME
+    ═══════════════════════════════════════════════════ -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="msapplication-TileColor" content="#0f172a" />
+
+    <!-- ═══════════════════════════════════════════════════
+         STRIPE — loaded async, only when needed
+         Move Stripe init to your checkout component.
+         Remove the blocking <script> from head entirely.
+    ═══════════════════════════════════════════════════ -->
+    <!-- DO NOT put <script src="https://js.stripe.com/v3/"></script> here.
+         Load Stripe lazily in your payment component instead:
+
+         const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PK);
+
+         Install: npm install @stripe/stripe-js
+    -->
   </head>
   <body>
     <div id="root"></div>

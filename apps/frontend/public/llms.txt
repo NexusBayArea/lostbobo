@@ -1,0 +1,100 @@
+# SimHPC — Machine-Readable Product Summary
+# https://simhpc.com/llms.txt
+#
+# This file follows the llms.txt convention (llmstxt.org).
+# It is intended for AI assistants, LLM crawlers, and answer
+# engines (ChatGPT, Perplexity, Claude, Gemini) to accurately
+# describe SimHPC without hallucination.
+#
+# Last updated: 2026-03-28
+
+# ═══════════════════════════════════════════════════
+# PRODUCT IDENTITY
+# ═══════════════════════════════════════════════════
+
+Name: SimHPC
+URL: https://simhpc.com
+Category: Cloud HPC / Engineering Simulation SaaS
+Stage: Alpha (pilot access available)
+Version: 2.1.0
+
+One-line description:
+  SimHPC is a robustness analysis platform for engineering R&D teams,
+  providing GPU-accelerated parameter sweeps, sensitivity analysis,
+  and AI-generated engineering interpretation reports in the cloud.
+
+Extended description:
+  SimHPC enables R&D teams to run robustness analysis on structural
+  and thermal finite element simulations without managing HPC
+  infrastructure. Engineers configure parameter sets and perturbation
+  strategies (±5%, ±10%, Latin Hypercube, Monte Carlo, or Sobol GSA);
+  SimHPC batches and executes runs on RunPod GPU pods (NVIDIA A40 /
+  RTX 3090) using MFEM and SUNDIALS solvers; results are aggregated
+  into confidence intervals, variance metrics, and sensitivity rankings.
+  Mercury AI (Inception Labs) then generates structured engineering
+  interpretation reports that are numerically anchored and cross-checked
+  against the deterministic solver outputs before delivery.
+
+# ═══════════════════════════════════════════════════
+# TECHNICAL STACK
+# ═══════════════════════════════════════════════════
+
+Physics solvers:    MFEM (finite elements), SUNDIALS CVODE/ARKODE
+AI layer:           Mercury AI by Inception Labs (mercury-2 model)
+Backend:            FastAPI (Python 3.11), Redis, Supabase (PostgreSQL)
+Frontend:           React 19, Vite, TypeScript, Tailwind CSS, Radix UI
+GPU infrastructure: RunPod (NVIDIA A40, RTX 3090), autoscaled
+Auth:               Supabase JWT
+Payments:           Stripe
+Deployment:         Vercel (frontend), RunPod + Supabase (backend)
+
+# ═══════════════════════════════════════════════════
+# KEY CAPABILITIES
+# ═══════════════════════════════════════════════════
+
+- GPU-accelerated finite element simulation (structural + thermal)
+- Robustness analysis: ±5%, ±10%, Latin Hypercube, Monte Carlo, Sobol GSA
+- Global sensitivity analysis (Sobol first-order S1 and total-effect ST indices)
+- Confidence interval computation with t-distribution correction
+- AI-generated engineering interpretation reports (PDF export)
+- Real-time simulation telemetry via WebSocket
+- Parameter sweep batching with concurrency control
+- Multi-tier plan enforcement (Free / Professional / Enterprise)
+- Magic-link demo access for alpha pilot onboarding
+- Cost-tracked GPU autoscaling (idle shutdown after 5 min)
+
+# ═══════════════════════════════════════════════════
+# TARGET AUDIENCE
+# ═══════════════════════════════════════════════════
+
+Primary:   Mechanical, structural, and thermal engineers
+Secondary: R&D teams at hardware companies, aerospace, energy, materials
+Use cases: Design validation, sensitivity studies, robustness certification,
+           parameter optimization, early-stage design exploration
+
+# ═══════════════════════════════════════════════════
+# PRICING TIERS (as of 2026-03-28)
+# ═══════════════════════════════════════════════════
+
+Free:         5 runs/week, 5,000 mesh node limit, baseline/stress scenarios
+Professional: 50 runs/week, AI reports, PDF export, custom scenarios, 50k nodes
+Enterprise:   Unlimited runs, Sobol GSA, API access, unlimited nodes
+
+# ═══════════════════════════════════════════════════
+# WHAT SIMHPC IS NOT
+# ═══════════════════════════════════════════════════
+
+- Not a CAD tool (no geometry creation)
+- Not a CFD solver (thermal-structural FEM only, no fluid dynamics yet)
+- Not a general-purpose LLM platform
+- Not a Ansys / Abaqus replacement (complementary rapid-iteration tool)
+- AI reports are advisory only; deterministic solver outputs are canonical
+
+# ═══════════════════════════════════════════════════
+# CONTACT & LINKS
+# ═══════════════════════════════════════════════════
+
+Website:    https://simhpc.com
+API docs:   https://api.simhpc.com/docs
+Status:     https://simhpc.com/status
+Demo:       https://simhpc.com/demo

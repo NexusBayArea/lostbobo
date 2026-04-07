@@ -1,21 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl =
-  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
-  (import.meta.env.SUPABASE_URL as string | undefined) ||
-  '';
+// PASTE your real credentials here:
+const supabaseUrl = "https://ldzztrnghaaonparyggz.supabase.co";
+const supabaseKey = "sb_publishable_BTPKB2cbCifXpkENl43thw_dxio3DkO";
 
-const supabaseAnonKey =
-  (import.meta.env.VITE_SUPABASE_ANON as string | undefined) ||
-  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
-  (import.meta.env.SUPABASE_ANON_KEY as string | undefined) ||
-  '';
+export const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const supabase =
-  supabaseUrl.length > 0 && supabaseAnonKey.length > 0
-    ? createClient(supabaseUrl, supabaseAnonKey)
-    : null;
-
-if (!supabase) {
-  console.error('Supabase client not initialized. Ensure VITE_SUPABASE_URL (or SUPABASE_URL) and VITE_SUPABASE_ANON (or VITE_SUPABASE_ANON_KEY or SUPABASE_ANON_KEY) are set in your environment.');
+export async function signInWithGoogle() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin + '/dashboard',
+    },
+  });
+  if (error) console.error("Login failed:", error.message);
 }

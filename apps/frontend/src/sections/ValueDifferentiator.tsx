@@ -22,7 +22,7 @@ export function ValueDifferentiator() {
   return (
     <section
       ref={ref}
-      className="py-24 lg:py-32 bg-background dark:bg-slate-900"
+      className="py-24 lg:py-32 bg-white dark:bg-slate-900"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -89,7 +89,7 @@ export function ValueDifferentiator() {
             className="relative"
           >
             <div className="absolute -inset-px bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl" />
-            <div className="relative bg-background dark:bg-slate-800 rounded-2xl p-8">
+            <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-8">
               <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                 <Check className="w-5 h-5 text-green-500" />
                 SimHPC Workflow

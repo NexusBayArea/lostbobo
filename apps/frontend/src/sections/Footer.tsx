@@ -1,31 +1,36 @@
 import { Link } from 'react-router-dom';
 import { SimHPCLogo } from '@/components/SimHPCLogo';
-import { Github, Linkedin } from 'lucide-react';
+import { Linkedin } from 'lucide-react';
 
 const footerLinks = {
   product: [
     { label: 'Features', href: '/#features' },
-    { label: 'Pricing', href: '/#pricing' },
-    { label: 'Documentation', href: '/docs' },
-    { label: 'API Reference', href: '/api' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'Documents', href: '/docs' },
+    { label: 'API Reference', href: '/api-reference' },
   ],
   company: [
     { label: 'About', href: '/about' },
-    { label: 'Careers', href: '/careers' },
     { label: 'Contact', href: '/contact' },
-    { label: 'Blog', href: '/blog' },
   ],
   legal: [
     { label: 'Terms of Service', href: '/terms' },
     { label: 'Privacy Policy', href: '/privacy' },
     { label: 'Cookie Policy', href: '/cookies' },
+    { label: 'CCPA', href: '/ccpa' },
+    { label: 'DPA', href: '/dpa' },
   ],
 };
 
+const XIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932L18.901 1.153zM17.61 20.644h2.039L6.486 3.24H4.298L17.61 20.644z" />
+  </svg>
+);
+
 const socialLinks = [
-  { icon: Github, href: 'https://github.com/simhpc', label: 'GitHub' },
-  { icon: 'X', href: 'https://x.com/simhpc', label: 'X' },
-  { icon: Linkedin, href: 'https://linkedin.com/company/simhpc', label: 'LinkedIn' },
+  { icon: XIcon, href: 'https://x.com/SimHPC', label: 'X' },
+  { icon: Linkedin, href: 'https://www.linkedin.com/company/simhpc', label: 'LinkedIn' },
 ];
 
 export function Footer() {
@@ -37,7 +42,7 @@ export function Footer() {
           <div className="col-span-2 lg:col-span-2">
             <SimHPCLogo className="mb-6" />
             <p className="text-slate-400 text-sm leading-relaxed max-w-xs mb-6">
-              GPU-accelerated finite element simulation with quantified confidence. 
+              GPU-accelerated finite element simulation with quantified confidence.
               Built for engineering teams that need answers they can trust.
             </p>
             {/* Social Links */}
@@ -51,13 +56,7 @@ export function Footer() {
                   className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-slate-700 hover:text-white transition-colors"
                   aria-label={social.label}
                 >
-                  {social.icon === 'X' ? (
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-                    </svg>
-                  ) : (
-                    <social.icon className="w-5 h-5" />
-                  )}
+                  <social.icon className="w-5 h-5" />
                 </a>
               ))}
             </div>

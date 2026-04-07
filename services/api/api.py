@@ -69,20 +69,13 @@ RUNPOD_API_KEY = os.getenv("RUNPOD_API_KEY")
 RUNPOD_POD_ID = os.getenv("RUNPOD_POD_ID")
 RUNPOD_BASE_URL = f"https://api.runpod.ai/v2/{RUNPOD_POD_ID}" if RUNPOD_POD_ID else None
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-if "localhost" in REDIS_URL and os.getenv("VERCEL"):
-    logger.error(
-        "WARNING: Using localhost Redis on Vercel will fail. Ensure REDIS_URL is set to a public instance."
-    )
-
 MAX_ACTIVE_RUNS = 5
 
-_ALLOWED_ORIGINS = os.getenv(
+ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:59824,http://127.0.0.1:59824,https://*.vercel.app,https://simhpc.nexusbayarea.com,https://simhpc.com",
+    "http://localhost:3000,http://localhost:5173,http://localhost:59824,http://127.0.0.1:59824,https://*.vercel.app,https://simhpc.nexusbayarea.com,https://simhpc.com",
 ).split(",")
-
-CORS_ORIGINS = [origin.strip() for origin in _ALLOWED_ORIGINS if origin.strip()]
+CORS_ORIGINS = [origin.strip() for origin in ALLOWED_ORIGINS if origin.strip()]
 
 # --- Supabase Client ---
 try:
@@ -151,8 +144,113 @@ async def get_weekly_usage(user_id: str) -> int:
         return 0
 
 
-# --- REDIS CLIENT ---
-r_client = redis.from_url(REDIS_URL, decode_responses=True)
+# --- REDIS CLIENT WITH FALLBACK ---
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
+
+class InMemoryCache:
+    """Fallback cache when Redis is unavailable."""
+
+    def __init__(self):
+        self._cache = {}
+
+    def get(self, key):
+        return self._cache.get(key)
+
+    def set(self, key, value, ex=None):
+        self._cache[key] = value
+
+    def setex(self, key, time, value):
+        self._cache[key] = value
+
+    def delete(self, key):
+        self._cache.pop(key, None)
+
+    def hset(self, name, key=None, value=None, mapping=None):
+        if name not in self._cache:
+            self._cache[name] = {}
+        if mapping:
+            self._cache[name].update(mapping)
+        elif key is not None:
+            self._cache[name][key] = value
+
+    def hget(self, name, key):
+        return self._cache.get(name, {}).get(key)
+
+    def hgetall(self, name):
+        return self._cache.get(name, {})
+
+    def keys(self, pattern="*"):
+        if pattern == "*":
+            return list(self._cache.keys())
+        return [k for k in self._cache.keys() if pattern.replace("*", "") in k]
+
+    def incr(self, key):
+        val = int(self._cache.get(key, 0)) + 1
+        self._cache[key] = str(val)
+        return val
+
+    def expire(self, key, time):
+        pass
+
+    def ping(self):
+        return True
+
+    def pipeline(self):
+        return InMemoryPipeline(self)
+
+
+class InMemoryPipeline:
+    """Fake pipeline for in-memory fallback."""
+
+    def __init__(self, cache):
+        self.cache = cache
+        self.commands = []
+
+    def delete(self, key):
+        self.commands.append(("delete", key))
+        return self
+
+    def hset(self, name, mapping=None):
+        self.commands.append(("hset", name, mapping))
+        return self
+
+    def expire(self, key, time):
+        self.commands.append(("expire", key, time))
+        return self
+
+    def execute(self):
+        for cmd in self.commands:
+            if cmd[0] == "delete":
+                self.cache.delete(cmd[1])
+            elif cmd[0] == "hset" and cmd[2]:
+                self.cache.hset(cmd[1], mapping=cmd[2])
+            elif cmd[0] == "expire":
+                self.cache.expire(cmd[1], cmd[2])
+        self.commands = []
+
+
+r_client = None
+redis_available = False
+try:
+    r_client = redis.from_url(REDIS_URL, decode_responses=True)
+    r_client.ping()
+    redis_available = True
+    logger.info(f"Redis connected: {REDIS_URL}")
+except Exception as e:
+    logger.warning(f"Redis unavailable: {e}. Using in-memory fallback.")
+    r_client = InMemoryCache()
+    redis_available = False
+
+
+def get_cache():
+    """Returns the cache client (Redis or fallback)."""
+    return r_client
+
+
+def is_redis_available():
+    """Check if we're using actual Redis."""
+    return redis_available
 
 
 # --- RUNPOD CLIENT ---
@@ -809,15 +907,19 @@ async def telemetry_worker():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting SimHPC Unified Platform")
+    logger.info("Starting SimHPC Unified Platform v2.5.4")
+    logger.info(f"CORS Origins: {CORS_ORIGINS}")
 
     # Validate Redis connection at startup
     try:
         r_client.ping()
-        logger.info("Redis connection verified")
+        logger.info(
+            "Cache: Redis connected"
+            if not isinstance(r_client, InMemoryCache)
+            else "Cache: In-memory fallback active"
+        )
     except Exception as e:
-        logger.error(f"Redis connection failed: {e}")
-        logger.warning("Continuing without Redis for debugging. Simulations will fail until REDIS_URL is fixed.")
+        logger.error(f"Cache check failed: {e}")
 
     # Validate API key is configured
     if not API_KEY:
@@ -839,22 +941,28 @@ async def lifespan(app: FastAPI):
     logger.info("SimHPC Platform shutting down")
 
 
-app = FastAPI(title="SimHPC Platform", version="2.5.3", lifespan=lifespan)
+app = FastAPI(title="SimHPC Platform", version="2.5.4", lifespan=lifespan)
 
-# Add this BEFORE any other routes
+# CORS from Infisical/Environment
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"],
+    max_age=600,
 )
 
-# Explicitly handle OPTIONS requests for the specific path
-@app.options("/api/v1/simulations")
-async def preflight_simulations():
-    return {}
+# Additional regex for Vercel preview domains
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"^https://.*\.vercel\.app$",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+logger.info(f"CORS origins: {CORS_ORIGINS}")
 
 # --- ROUTE INITIALIZATION ---
 simulations_router.init_routes(
@@ -981,22 +1089,23 @@ async def get_system_status():
 @app.get("/api/v1/health", tags=["System — Health"])
 async def health_check():
     """
-    Unified Health Check for v2.5.0.
+    Unified Health Check for v2.5.4.
     Verifies API, Redis, and Supabase connectivity.
     """
     health_status = {
         "status": "healthy",
         "timestamp": datetime.utcnow().isoformat(),
-        "services": {"api": "online", "redis": "offline", "supabase": "offline"},
+        "services": {"api": "online", "cache": "in_memory", "supabase": "offline"},
+        "cache_mode": "in_memory_fallback" if not redis_available else "redis",
     }
 
-    # 1. Check Redis
+    # 1. Check Cache (Redis or fallback)
     try:
         if r_client.ping():
-            health_status["services"]["redis"] = "online"
+            health_status["services"]["cache"] = "online"
     except Exception as e:
         health_status["status"] = "degraded"
-        logger.error(f"Health Check: Redis unreachable: {e}")
+        logger.error(f"Health Check: Cache check failed: {e}")
 
     # 2. Check Supabase
     try:

@@ -1,10 +1,33 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Play } from 'lucide-react';
+import { ArrowRight, Play, Loader2 } from 'lucide-react';
 import { AnimatedMesh } from '@/components/AnimatedMesh';
 import { ConfidenceGraph } from '@/components/ConfidenceGraph';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
 export function Hero() {
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
+
+  const handleDemoClick = async () => {
+    try {
+      setIsDemoLoading(true);
+      const response = await fetch('https://40n3yh92ugakps-8000.proxy.runpod.net/demo/general', {
+        method: 'POST',
+      });
+      const data = await response.json();
+      if (data.redirect_url) {
+        window.location.href = `https://40n3yh92ugakps-8000.proxy.runpod.net${data.redirect_url}`;
+      } else {
+        throw new Error('No redirect URL received');
+      }
+    } catch (error) {
+      console.error('Demo error:', error);
+      toast.error('Failed to launch demo. Please try again.');
+      setIsDemoLoading(false);
+    }
+  };
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-background dark:bg-slate-900">
       {/* Animated Mesh Background */}
@@ -68,13 +91,18 @@ export function Hero() {
                 Run a Simulation
                 <ArrowRight className="w-5 h-5" />
               </Link>
-              <Link
-                to="/dashboard"
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 text-base font-medium text-slate-700 dark:text-slate-300 bg-background dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-muted dark:hover:bg-slate-700 transition-all hover:scale-[1.02]"
+              <button
+                onClick={handleDemoClick}
+                disabled={isDemoLoading}
+                className="inline-flex items-center justify-center gap-2 px-6 py-4 text-base font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hover:scale-[1.02] disabled:opacity-70"
               >
-                <Play className="w-5 h-5" />
-                See Robustness in Action
-              </Link>
+                {isDemoLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Play className="w-5 h-5" />
+                )}
+                Explore Live Demo
+              </button>
             </motion.div>
 
             {/* Trust Badges */}
@@ -106,7 +134,7 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="relative"
           >
-            <div className="relative bg-background/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-2xl">
+            <div className="relative bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-2xl">
               {/* Confidence Graph */}
               <div className="mb-6">
                 <ConfidenceGraph />
@@ -162,7 +190,7 @@ export function Hero() {
       </div>
 
       {/* Bottom Gradient Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background dark:from-slate-900 to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-slate-900 to-transparent pointer-events-none" />
     </section>
   );
 }

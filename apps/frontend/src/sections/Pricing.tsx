@@ -7,7 +7,7 @@ const plans = [
   {
     name: 'Starter',
     description: 'Rapid Engineering Answers',
-    price: 299,
+    price: 99,
     priceUnit: '/month',
     features: [
       '5 simulations per month',
@@ -28,7 +28,7 @@ const plans = [
   {
     name: 'Professional',
     description: 'Engineering Confidence',
-    price: 499,
+    price: 299,
     priceUnit: '/month',
     features: [
       '25 simulations per month',
@@ -75,7 +75,7 @@ export function Pricing() {
     <section
       id="pricing"
       ref={ref}
-      className="py-24 lg:py-32 bg-background dark:bg-slate-900"
+      className="py-24 lg:py-32 bg-white dark:bg-slate-900"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -235,7 +235,7 @@ export function Pricing() {
           transition={{ duration: 0.7, delay: 0.4 }}
           className="text-center text-sm text-slate-500 dark:text-slate-400 mt-8"
         >
-          Free trial, no credit card required.
+          All plans include a 14-day free trial. No credit card required.
         </motion.p>
       </div>
     </section>

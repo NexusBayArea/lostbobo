@@ -5,6 +5,91 @@
 
 ## Current Status
 
+- **v2.5.5**: **RunPod Sync Script** + **Dynamic Pod Synchronization** + **Infisical/Vercel Atomic Updates** + **In-Memory Cache Fallback** + `get_cache()` / `is_redis_available()` helpers + Health Check Enhancement
+
+## v2.5.5: Dynamic Pod Synchronization + Infisical Integration
+
+### Phase 4: Pod Metadata Sync
+When a new Pod is provisioned, values propagate to secrets vault and trigger frontend rebuild.
+
+**sync-pod.sh** (`scripts/sync-pod.sh`):
+```bash
+./scripts/sync-pod.sh <POD_ID>
+# Updates: RUNPOD_POD_ID, VITE_API_URL in Infisical
+# Triggers: Vercel redeploy with new URL
+```
+
+### In-Memory Cache Fallback
+API now gracefully falls back to in-memory cache when Redis is unavailable.
+
+**New Helpers:**
+- `get_cache()` - Returns Redis or InMemoryCache
+- `is_redis_available()` - Returns bool for cache mode detection
+- Health check now shows `cache_mode: "redis" | "in_memory_fallback"`
+
+### Updated Master Deploy Flow
+```bash
+# 1. Build & Push Docker
+docker build -f Dockerfile.unified -t simhpcworker/simhpc-unified:latest .
+docker push simhpcworker/simhpc-unified:latest
+
+# 2. Provision New Pod
+NEW_POD_ID=$(python3 scripts/deploy_unified.py | grep -oP '(?<=pod_id: )[a-z0-9]+')
+
+# 3. Sync Metadata
+./scripts/sync-pod.sh $NEW_POD_ID
+
+# 4. Update GitHub
+git add . && git commit -m "deploy: update pod to $NEW_POD_ID" && git push
+
+# 5. Fleet Synced
+```
+
+---
+
+- **v2.5.4**: SimHPC Skills System + Git Auto-Deploy + Env-Based CORS + **Unified Deployment (API+Worker+Autoscaler in Single Pod)** + **Dynamic Sync Script** + Docker Lean Images + Infisical Integration + Multi-Stage Builds + Non-Root Execution + CVE Remediations + PYTHONPATH Fix for Module Imports + **Vercel Build Fix (APIReference import)** + **Deployment Skills (Vercel, GitHub Safe Push, deploy_all.sh)** + **Supabase SB_ Secret Sync (sb-sync.sh)** + **Zod Downgrade to 3.24.4** + **Vite Chunk Size Optimization** + **Supabase Real Credentials** + **CORS Fix (Allow All Origins + Vercel Regex)**
+
+## Deployment Skills System (v2.5.4)
+
+### Skills Structure
+```
+skills/
+├── antigravity/     # AI agent skills
+├── deployment/       # Deployment pipeline skills
+│   ├── SKILL.md
+│   ├── vercel-deploy.md
+│   └── github-safe-push.md
+├── docker/         # Docker optimization
+├── runpod/         # RunPod deployment
+└── ...
+```
+
+### Master Deploy Script (deploy_all.sh)
+```bash
+#!/bin/bash
+echo "[1/5] Running Local Build Test..."
+infisical run -- npm run build
+
+if [ $? -ne 0 ]; then
+    echo "Local build failed. Fix pathing/imports before pushing."
+    exit 1
+fi
+
+echo "[2/5] Build passed. Syncing Infisical..."
+infisical secrets push
+
+echo "[3/5] Deploying to Vercel..."
+infisical run --env=production -- vercel --prod --yes
+
+echo "[4/5] Fixing Git Casing..."
+git rm -r --cached .
+git add .
+git commit -m "fix: resolve APIReference pathing and sync v2.5.4"
+
+echo "[5/5] Pushing to GitHub..."
+git push origin main
+```
+
 - **v2.5.3**: Full Fleet Build (Worker, API, Autoscaler) + Security Hardening (Non-Root Execution) + CVE Remediations + Infisical Integration + CORS Policy Update (Allow All Origins) + Integrated SimHPC Skill Tool (`fix-all`) + `run_api.py` Entry Point Audit + Vercel Deployment Preparation
 - **v2.5.2**: Fixed Supabase key authentication (JWT) + Worker heartbeat fix + API deployed to RunPod
 - **v2.5.1**: FastAPI Dependency Injection Fix + RunPod URL Fix + Route Ordering Fix + Worker Queue Fix + Queue Key Alignment + Lazy Redis + Docker .env Removal + Admin Import Fix + Route Import Fix + Control Data Fix

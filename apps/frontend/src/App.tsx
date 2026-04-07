@@ -1,69 +1,69 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/hooks/useTheme';
-import { OnboardingProvider } from '@/components/onboarding/OnboardingProvider';
-import { HomePage } from '@/pages/HomePage';
+import { Hero } from '@/sections/Hero';
+import { Stack } from '@/sections/Stack';
+import { ValueDifferentiator } from '@/sections/ValueDifferentiator';
+import { WhoItsFor } from '@/sections/WhoItsFor';
+
+import { Dashboard } from '@/pages/Dashboard';
+import ExperimentNotebook from '@/pages/ExperimentNotebook';
+import { Benchmarks } from '@/pages/Benchmarks';
+import { Pricing } from '@/pages/Pricing';
+import { About } from '@/pages/About';
+import { Docs } from '@/pages/Docs';
+import { APIReference } from '@/pages';
+import { CCPA } from '@/pages/CCPA';
+import { DPA } from '@/pages/DPA';
+import { CookiePolicy } from '@/pages/CookiePolicy';
 import { SignIn } from '@/pages/SignIn';
 import { SignUp } from '@/pages/SignUp';
-import { Dashboard } from '@/pages/Dashboard';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { AdminAnalyticsPage } from '@/pages/admin/AdminAnalyticsPage';
-import { AlphaControlRoom } from '@/pages/AlphaControlRoom';
-import { EngineerNotebook } from '@/pages/EngineerNotebook';
-import Terms from '@/pages/legal/Terms';
-import Privacy from '@/pages/legal/Privacy';
-import Cookies from '@/pages/legal/Cookies';
-import ApiReference from '@/pages/ApiReference';
-import Documentation from '@/pages/Documentation';
+import { Terms } from '@/pages/Terms';
+import { Privacy } from '@/pages/Privacy';
+import { Contact } from '@/pages/Contact';
 
-export default function App() {
+import { CookieConsent } from '@/components/CookieConsent';
+import { PageLayout } from '@/components/PageLayout';
+
+console.log('SimHPC: App.tsx loaded.');
+
+function HomePage() {
+  return (
+    <PageLayout>
+      <Hero />
+      <Stack />
+      <ValueDifferentiator />
+      <WhoItsFor />
+    </PageLayout>
+  );
+}
+
+function App() {
+  console.log('SimHPC: App component rendering...');
   return (
     <ThemeProvider>
-      <OnboardingProvider>
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/dashboard/live"
-            element={
-              <ProtectedRoute>
-                <AlphaControlRoom />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/notebook"
-            element={
-              <ProtectedRoute>
-                <EngineerNotebook />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/analytics"
-            element={
-              <ProtectedRoute requireAdmin>
-                <AdminAnalyticsPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/signin" element={<SignIn />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
-          <Route path="/cookies" element={<Cookies />} />
-          <Route path="/api" element={<ApiReference />} />
-          <Route path="/docs" element={<Documentation />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/notebook" element={<ExperimentNotebook />} />
+          <Route path="/benchmarks" element={<Benchmarks />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/docs" element={<Docs />} />
+          <Route path="/api-reference" element={<APIReference />} />
+          <Route path="/ccpa" element={<CCPA />} />
+          <Route path="/dpa" element={<DPA />} />
+          <Route path="/cookies" element={<CookiePolicy />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
-      </OnboardingProvider>
+        <CookieConsent />
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
 
+export default App;

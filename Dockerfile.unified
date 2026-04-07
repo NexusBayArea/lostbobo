@@ -1,41 +1,39 @@
-# Unified SimHPC: FastAPI + Worker in one container
 FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-
+ENV PYTHONPATH=/app
 WORKDIR /app
 
-# System dependencies
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
-    python3-pip \
-    python3-dev \
-    git \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+    python3-pip python3-dev git curl bash gcc && \
+    curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash && \
+    apt-get install -y infisical && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install API dependencies first (larger, changes less often)
-COPY services/api/requirements.txt ./api-requirements.txt
-RUN pip3 install --no-cache-dir -r api-requirements.txt
+RUN pip3 install --no-cache-dir --upgrade pip setuptools>=78.1.1 wheel>=0.38.1
 
-# Install Worker dependencies
-COPY services/worker/requirements.txt ./worker-requirements.txt
-RUN pip3 install --no-cache-dir -r worker-requirements.txt
+COPY services/worker/requirements.txt ./req-worker.txt
+COPY services/worker/requirements-autoscaler.txt ./req-auto.txt
+RUN pip3 install --no-cache-dir -r req-worker.txt && \
+    pip3 install --no-cache-dir -r req-auto.txt
 
-# Copy API source
-COPY services/api/ ./services/api/
-
-# Copy Worker source
-COPY services/worker/ ./services/worker/
-
-# Copy app directory (routes, services, schemas)
+COPY services/api/api.py .
+COPY services/api/auth_utils.py .
+COPY services/api/demo_access.py .
+COPY services/api/job_queue.py .
 COPY services/api/app/ ./app/
 
-# Copy startup script
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+COPY services/worker/worker.py .
+COPY services/worker/runpod_api.py .
+COPY services/worker/autoscaler.py .
 
-# Expose FastAPI port
+COPY services/worker/start.sh .
+
+RUN useradd -m simuser && \
+    chown -R simuser:simuser /app && \
+    chmod +x start.sh
+
+USER simuser
+
 EXPOSE 8000
-
-# Run both API and worker
-CMD ["/start.sh"]
+CMD ["./start.sh"]

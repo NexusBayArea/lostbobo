@@ -1,0 +1,79 @@
+# ═══════════════════════════════════════════════════
+# SimHPC — robots.txt
+# https://simhpc.com/robots.txt
+#
+# GEO: Explicitly grant AI crawlers access so that
+# GPTBot, PerplexityBot, ClaudeBot, and Gemini can
+# index SimHPC and surface it in AI-generated answers.
+# ═══════════════════════════════════════════════════
+
+# ── Standard search crawlers ───────────────────────
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 2
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 3
+
+User-agent: Slurp
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# ── GEO: AI answer engine crawlers ─────────────────
+# Grant access so SimHPC appears in AI-generated answers
+# for queries like "best cloud FEM simulation platform"
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# ── Block scrapers and bad bots ────────────────────
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# ── Block private routes from all crawlers ─────────
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /demo/
+Disallow: /_vercel/
+Disallow: /static/chunks/
+
+# ── Sitemap ────────────────────────────────────────
+Sitemap: https://simhpc.com/sitemap.xml
