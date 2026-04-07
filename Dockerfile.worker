@@ -1,23 +1,42 @@
+# Use NVIDIA CUDA base
 FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04
 
+# Prevent interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Set working directory
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3-pip python3-dev git curl && \
-    rm -rf /var/lib/apt/lists/*
+# Install system dependencies and security updates
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy and install requirements
+# FIX: Remediate CVE-2024-6345, CVE-2022-40897, and CVE-2025-47273
+# Force upgrade setuptools and wheel to patched versions (78.1.1+ and 0.38.1+)
+RUN pip3 install --no-cache-dir --upgrade pip setuptools>=78.1.1 wheel>=0.38.1
+
+# Copy requirements
 COPY services/worker/requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Copy source and scripts
+# Copy source and orchestrator
 COPY services/worker/worker.py .
 COPY services/worker/start.sh .
-RUN chmod +x start.sh
 
-# Expose the API port
+# FIX: Remediate "No default non-root user found"
+# Create a dedicated user for SimHPC
+RUN useradd -m simuser && \
+    chown -R simuser:simuser /app && \
+    chmod +x start.sh worker.py
+
+# Switch to non-root user for execution
+USER simuser
+
+# Expose API port
 EXPOSE 8000
 
-# Launch both API and Worker
+# Launch both API and Worker via the orchestrator
 CMD ["./start.sh"]
