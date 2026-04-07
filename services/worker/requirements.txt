@@ -1,20 +1,7 @@
-# === Worker image (GPU compute plane) ===
-
-# Core
-redis>=5.0.0
-python-dotenv>=1.0.0
-httpx>=0.28.0
-
-# Supabase — PINNED to avoid pyiceberg transitive dependency
-supabase>=2.3.0,<2.16.0
-
-# Physics
-numpy>=1.26.0
-scipy>=1.12.0
-
-# Report generation
-fpdf2>=2.7.0
-
-# RunPod SDK
-runpod>=1.1.0
-requests>=2.32.0
+fastapi
+uvicorn
+python-dotenv
+redis
+requests
+fpdf
+supabase
