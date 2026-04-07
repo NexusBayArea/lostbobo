@@ -5,29 +5,35 @@
 
 ## Current Status
 
-- **v2.5.5**: **RunPod Sync Script** + **Dynamic Pod Synchronization** + **Infisical/Vercel Atomic Updates** + **In-Memory Cache Fallback** + **Vault-First Protocol** + **Ruff Lint Fixes** + **Vercel Build Fix (APIReference removed)**
+- **v2.5.5**: **RunPod Sync Script** + **Dynamic Pod Synchronization** + **Infisical/Vercel Atomic Updates** + **In-Memory Cache Fallback** + **Vault-First Protocol** + **SB_ Env Prefix** (Infisical compatibility)
 
-## v2.5.5 Fixes: Vault-First + Lint Fixes
+## v2.5.5: SB_ Env Prefix for Infisical
 
-### Vault-First Protocol
-- `deploy_unified.py` reads `RUNPOD_API_KEY` from env (not hardcoded)
-- `sync-pod.sh` automates Infisical + Vercel updates
-- SKILL.md updated with security runbook
+### Problem
+Infisical flags secrets containing "SUPABASE" as sensitive. All Supabase env vars must use `SB_` prefix.
 
-### Ruff Lint Fixes (worker.py)
-- Fixed one-line if statements (E701) in `upload_report()` and `update_simulation()`
-- Added `global active_jobs` in `main()` function
+### Changes
+| Old | New |
+|-----|-----|
+| `SUPABASE_URL` | `SB_URL` |
+| `SUPABASE_SERVICE_ROLE_KEY` | `SB_SERVICE_KEY` |
+| `SUPABASE_JWT_SECRET` | `SB_JWT_SECRET` |
+| `SUPABASE_AUDIENCE` | `SB_AUDIENCE` |
 
-### Vercel Build Fix
-- Removed non-existent `./APIReference` export from `pages/index.ts`
+### Files Updated
+- `services/api/api.py`
+- `services/api/auth_utils.py`
+- `services/api/demo_access.py`
 
-### Required Environment Variables for RunPod Pod
+### Required RunPod Pod Environment Variables
 | Key | Value |
 |-----|-------|
+| `SB_URL` | Supabase project URL |
+| `SB_SERVICE_KEY` | Supabase service role key |
+| `SB_JWT_SECRET` | Supabase JWT secret |
+| `SB_AUDIENCE` | `authenticated` |
 | `ALLOWED_ORIGINS` | CORS allowed origins |
 | `REDIS_URL` | Redis connection string |
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service key |
 
 ## v2.5.5: Dynamic Pod Synchronization + Infisical Integration
 
