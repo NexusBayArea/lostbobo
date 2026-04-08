@@ -1,17 +1,15 @@
 #!/bin/bash
-
 set -e
 
-echo "[1/4] Syncing Infisical to GitHub..."
-git add . 
-git commit -m "ci: trigger docker build and deploy to RunPod"
+echo "[1/3] Local Build Test..."
+npm run build
+
+echo "[2/3] Syncing to GitHub..."
+git add .
+git commit -m "ci: deploy SimHPC v2.5.6 via native sync"
 git push origin main
 
-echo "[2/4] Waiting for Docker build..."
-sleep 30
-
-echo "[3/4] Deploying to RunPod..."
+echo "[3/3] Triggering RunPod via GitHub Action..."
 gh workflow run auto-deploy-runpod.yml
 
-echo "[4/4] Deployment triggered."
 echo "=== Deployment Complete ==="
