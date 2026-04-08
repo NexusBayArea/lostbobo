@@ -26,8 +26,11 @@ jobs:
 
       - name: Debug Docker credentials
         run: |
-          echo "Username: ${{ secrets.DOCKER_LOGIN }}"
-          echo "Password length: ${{ secrets.DOCKER_PW_TOKEN.length }}"
+          echo "DOCKER_LOGIN value: '$DOCKER_LOGIN'"
+          echo "DOCKER_PW_TOKEN length: ${#DOCKER_PW_TOKEN}"
+        env:
+          DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+          DOCKER_PW_TOKEN: ${{ secrets.DOCKER_PW_TOKEN }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
