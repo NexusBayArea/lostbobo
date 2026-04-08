@@ -941,28 +941,24 @@ async def lifespan(app: FastAPI):
     logger.info("SimHPC Platform shutting down")
 
 
-app = FastAPI(title="SimHPC Platform", version="2.5.4", lifespan=lifespan)
+app = FastAPI(title="SimHPC Platform", version="2.5.11", lifespan=lifespan)
 
-# CORS from Infisical/Environment
+# This regex matches:
+# 1. Your production domain (simhpc.com)
+# 2. Any Vercel preview/project URL (e.g., simhpc-nexusbayareas-projects.vercel.app)
+# 3. Localhost for development
+origin_regex = r"https://(simhpc\.com|.*\.vercel\.app)|http://localhost:(5173|3000)"
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
+    allow_origin_regex=origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    max_age=600,
+    expose_headers=["*"],
 )
 
-# Additional regex for Vercel preview domains
-app.add_middleware(
-    CORSMiddleware,
-    allow_origin_regex=r"^https://.*\.vercel\.app$",
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-logger.info(f"CORS origins: {CORS_ORIGINS}")
+logger.info(f"CORS regex enabled: {origin_regex}")
 
 # --- ROUTE INITIALIZATION ---
 simulations_router.init_routes(

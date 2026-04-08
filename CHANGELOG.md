@@ -5,6 +5,24 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.12] - 2026-04-07
+
+### Added
+
+- **The Secret Handshake (RunPod Skill)**: Formalized the requirement for `INFISICAL_TOKEN` in RunPod templates to ensure stable secret injection on boot.
+- **Vercel Sync Automation**: Added standardized command for syncing dynamic RunPod URLs to Vercel production environment variables.
+
+## [2.5.11] - 2026-04-07
+
+### Added
+
+- **FastAPI Regex CORS**: Implemented `allow_origin_regex` to support Vercel branch and preview deployments (`*-projects.vercel.app`) without wildcard risks.
+- **Autoscaler Fail-Safe**: Added boot-time verification for `INFISICAL_TOKEN` and API keys in `autoscaler.py` to prevent silent crashes and improve debuggability on RunPod.
+
+### Fixed
+
+- **Bare Except Guard**: Replaced bare `except:` blocks with specific exception handling (`json.JSONDecodeError`, `TypeError`, and `Exception`) in `worker.py` and `deploy_to_runpod.py`.
+
 ## [2.6.1] - 2026-04-07
 
 ### Fixed

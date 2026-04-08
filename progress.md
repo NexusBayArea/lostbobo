@@ -6,9 +6,290 @@
 
 ## Current Status
 
-- **v2.5.7**: **Vercel Proxy Layer Enabled** + **vercel.json API Rewrite** + **Permanent CORS Fix**
+- **v2.5.12**: **Secret Handshake Skill** + **Vercel Sync Automation** + **INFISICAL_TOKEN Injection**
+- **v2.5.11**: **Regex CORS (Vercel Branch Support)** + **Autoscaler Fail-Safe** + **Idempotency Keys** + **Job Status Persistence (Supabase)** + **Clean Architecture**
 
-## v2.5.7: Vercel Proxy Layer Active (April 2026)
+## v2.5.11: Reliability Features (April 2026)
+
+### 1. Idempotency Keys (prevent duplicate runs)
+
+**Frontend sends header:**
+```http
+POST /api/v1/simulations
+Idempotency-Key: <uuid>
+```
+
+**Supabase table:**
+```sql
+create table idempotency_keys (
+  key text primary key,
+  user_id uuid not null,
+  request_hash text not null,
+  response jsonb,
+  status text default 'processing',
+  created_at timestamp default now()
+);
+```
+
+**API logic:**
+```python
+def hash_request(body: dict) -> str:
+    return hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest()
+
+# Check existing
+existing = supabase.table("idempotency_keys").select("*").eq("key", key).execute()
+if existing.data:
+    if existing.data[0]["request_hash"] == request_hash:
+        return existing.data[0]["response"]  # Return cached
+    raise HTTPException(409, "Idempotency key reuse with different payload")
+```
+
+---
+
+### 2. Job Status Persistence (Supabase = Source of Truth)
+
+**Redis = transport, Supabase = truth**
+
+**Table:**
+```sql
+create table simulations (
+  id uuid primary key,
+  user_id uuid,
+  status text check (status in ('queued','running','completed','failed')),
+  input jsonb,
+  result jsonb,
+  error text,
+  created_at timestamp default now(),
+  updated_at timestamp default now()
+);
+```
+
+**API writes on enqueue:**
+```python
+supabase.table("simulations").insert({
+    "id": job_id,
+    "user_id": user["user_id"],
+    "status": "queued",
+    "input": data
+}).execute()
+```
+
+**Worker state transitions:**
+```python
+# On start
+supabase.table("simulations").update({"status": "running"}).eq("id", job_id).execute()
+
+# On success
+supabase.table("simulations").update({"status": "completed", "result": result}).eq("id", job_id).execute()
+
+# On failure
+supabase.table("simulations").update({"status": "failed", "error": str(e)}).eq("id", job_id).execute()
+```
+
+---
+
+### Final Architecture
+
+```
+Frontend
+   ↓ (Idempotency-Key)
+API (FastAPI)
+   ├── verifies user
+   ├── enforces idempotency
+   ├── writes "queued" → Supabase
+   └── pushes job → Redis
+
+Worker
+   ├── pops job
+   ├── updates "running"
+   ├── executes simulation
+   ├── updates "completed"/"failed"
+   └── publishes event (WebSocket)
+
+Supabase = SOURCE OF TRUTH
+Redis = TRANSPORT LAYER
+```
+
+### Problems Solved
+
+| Problem | Fixed by |
+|---------|----------|
+| Duplicate runs | Idempotency keys |
+| Lost job state | Supabase persistence |
+| Worker crash mid-job | Status recoverable |
+| Retry duplication | Same job_id reused |
+| UI inconsistency | DB = truth |
+
+---
+
+## v2.5.10: Advanced Features (April 2026)
+
+### 1. Auth Passthrough (Supabase → API → Worker)
+
+**API verifies JWT and injects user context into job:**
+
+```python
+# services/api/auth.py
+def verify_user(authorization: str = Header(None)):
+    token = authorization.replace("Bearer ", "")
+    payload = jwt.decode(token, SB_JWT_SECRET, algorithms=["HS256"])
+    return {
+        "user_id": payload.get("sub"),
+        "email": payload.get("email"),
+        "role": payload.get("role"),
+    }
+
+# Enqueue with user context
+job = {
+    "id": str(uuid.uuid4()),
+    "payload": data,
+    "user": user,  # ✅ user_id, email, role
+    "created_at": time.time(),
+}
+```
+
+**Worker accesses user context:**
+
+```python
+job = json.loads(job_raw)
+user = job.get("user", {})
+user_id = user.get("user_id")
+tier = user.get("role")
+```
+
+---
+
+### 2. Retry + Dead Letter Queue (DLQ)
+
+**Queue Strategy:**
+
+| Queue | Purpose |
+|-------|---------|
+| `simhpc_jobs` | Main queue |
+| `simhpc_jobs_retry` | Retry queue |
+| `simhpc_jobs_dlq` | Dead letter |
+
+**Worker logic:**
+
+```python
+MAX_RETRIES = 3
+
+def process_job(job):
+    try:
+        run_simulation(job)
+    except Exception as e:
+        job["retries"] = job.get("retries", 0) + 1
+        job["error"] = str(e)
+
+        if job["retries"] < MAX_RETRIES:
+            redis.rpush("simhpc_jobs_retry", json.dumps(job))
+        else:
+            redis.rpush("simhpc_jobs_dlq", json.dumps(job))
+```
+
+---
+
+### 3. WebSocket Real-Time Updates
+
+**API WebSocket endpoint:**
+
+```python
+# services/api/ws.py
+connections = defaultdict(list)
+
+async def websocket_endpoint(ws: WebSocket, user_id: str):
+    await ws.accept()
+    connections[user_id].append(ws)
+    try:
+        while True: await ws.receive_text()
+    except: connections[user_id].remove(ws)
+```
+
+**Worker publishes events via Redis:**
+
+```python
+redis.publish("simhpc_events", json.dumps({
+    "user_id": user_id,
+    "event": {"job_id": job_id, "status": status}
+}))
+```
+
+**Frontend connects:**
+
+```ts
+const ws = new WebSocket(`wss://api.com/ws?user_id=${user.id}`)
+ws.onmessage = (msg) => updateStatus(JSON.parse(msg.data))
+```
+
+---
+
+### Architecture Summary
+
+```
+Frontend → Vercel /api/* → API (JWT verify) → Redis queue → Worker
+                       ↓                    ↓                    ↓
+                   WebSocket          Job + user           publish events
+                   (real-time)        context              → Redis pubsub
+```
+
+### GitHub Secrets Required
+
+| Secret | Description |
+|--------|-------------|
+| `INFISICAL_CLIENT_ID` | Infisical client ID |
+| `INFISICAL_CLIENT_SECRET` | Infisical client secret |
+| `INFISICAL_PROJECT_ID` | Infisical project ID |
+| `DOCKER_LOGIN` | Docker Hub username |
+| `DOCKER_PW_TOKEN` | Docker Hub password/token |
+| `RUNPOD_API_KEY` | RunPod API key |
+| `RUNPOD_ID` | RunPod pod ID |
+
+---
+
+## v2.5.9: Architecture Fixed (April 2026)
+
+### ⚠️ VERIFIED WORKING (Production Checklist)
+
+- [ ] Frontend ONLY calls `/api/*` (not direct runpod.net)
+- [ ] No CORS issues (proxy handles routing)
+- [ ] Vercel proxy returning 200 for /api/v1/*
+- [ ] Worker pulling jobs from Redis successfully
+
+### Changes Applied
+
+1. **Worker = Pure Compute** - Removed FastAPI, CORS, HTTP endpoints from worker
+   - Worker now ONLY consumes Redis queue
+   - Single shared Redis client (not per-loop)
+   - Single job format: JSON with `id`, `status`, `progress`
+
+2. **Clean Architecture**:
+   ```
+   Frontend → Vercel /api/* → Proxy → RunPod API → Redis → Worker
+   ```
+
+### Key Design Rules
+
+| Rule | Description |
+|------|-------------|
+| One HTTP surface | API handles all HTTP, Worker has none |
+| One job format | JSON only: `{"id": "...", "status": "queued"}` |
+| Frontend → /api/* | Never call RunPod directly from browser |
+
+### GitHub Secrets Required
+
+| Secret | Description |
+|--------|-------------|
+| `INFISICAL_CLIENT_ID` | Infisical client ID |
+| `INFISICAL_CLIENT_SECRET` | Infisical client secret |
+| `INFISICAL_PROJECT_ID` | Infisical project ID |
+| `DOCKER_LOGIN` | Docker Hub username |
+| `DOCKER_PW_TOKEN` | Docker Hub password/token |
+| `RUNPOD_API_KEY` | RunPod API key |
+| `RUNPOD_ID` | RunPod pod ID |
+
+---
+
+## v2.5.8: Blockers Fixed (April 2026)
 
 ### Changes Applied
 

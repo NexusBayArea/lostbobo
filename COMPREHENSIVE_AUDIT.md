@@ -1,8 +1,8 @@
 # Comprehensive Audit Summary (April 2026)
 
 > **Date**: April 7, 2026  
-> **Version**: v2.5.7  
-> **Status**: Vercel Proxy Layer Active - CORS Fixed ✅
+> **Version**: v2.5.11  
+> **Status**: Reliability Features Added ✅
 
 ---
 
@@ -159,22 +159,46 @@ Update your GitHub workflow to `node-version: 22` (or 20 is fine but deprecated)
 
 ### Minor Issues
 
-- `vercel.json` rewrites everything to `/` — fine for SPA but ensure API proxy (if used) is handled.
-- `index.html` has hardcoded Supabase URL and some outdated links.
-- `worker.py` still has simulation placeholders (good for testing, replace with real physics when ready).
-- `progress.md` mentions v2.5.5 proxy layer — implement if CORS remains stubborn.
+- `vercel.json` now routes `/api/*` to proxy
+- `index.html` has hardcoded Supabase URL and some outdated links
+- `worker.py` still has simulation placeholders (good for testing)
 
 ---
 
-## Recommended Next Steps (Priority Order)
+## Recommended Next Steps (Priority Order) - ALL FIXED ✅
 
-1. **Fix CORS on current pod** (update `ALLOWED_ORIGINS` exactly as above) + test `/health`.
-2. **Fix Vercel build** (remove `APIReference` import) + push → redeploy frontend.
-3. **Update Vercel env** `VITE_API_URL` to current pod (`https://40n3yh92ugakps-8000.proxy.runpod.net`).
-4. **Clean `worker.py`** lint + push to green CI.
-5. **Hard refresh dashboard** and test robustness start + user profile fetch.
+1. **CORS Fixed** - Vercel proxy layer eliminates CORS issues
+2. **Vercel Build Fixed** - Removed `AlphaControlRoom` import, fixed build
+3. **CI Fixed** - Ruff format applied, Infisical uses token auth
+4. **Worker Fixed** - `worker.py` is now pure compute (no FastAPI)
+5. **Architecture Fixed** - Clean split: API handles HTTP, Worker is queue consumer
 
-Once these are done, the "Failed to fetch" + CORS errors should vanish, and simulations should start.
+---
+
+## Final Architecture (v2.5.10)
+
+```
+Frontend (Vercel)
+   ↓
+WebSocket + /api/* (Vercel proxy)
+   ↓
+RunPod API (FastAPI - JWT verify + WebSocket)
+   ↓
+Redis (queue + pubsub for events)
+   ↓
+Worker (pure compute + publish events)
+```
+
+### Key Features
+
+| Feature | Description |
+|---------|-------------|
+| Auth Passthrough | JWT verified, user context in job |
+| Retry + DLQ | 3 retries, dead letter queue for failed jobs |
+| WebSocket | Real-time status updates (no polling) |
+| Job Format | JSON only: `{"id", "user", "payload", "retries"}` |
+| Idempotency Keys | Prevents duplicate runs |
+| Job Persistence | Supabase = source of truth |
 
 ---
 

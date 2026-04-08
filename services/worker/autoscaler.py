@@ -20,10 +20,17 @@ DEMO READINESS:
 """
 
 import os
+import sys
 import json
 import time
 import logging
 from datetime import datetime
+
+# --- FAIL-SAFE CHECK (v2.5.11) ---
+if not os.getenv("INFISICAL_TOKEN") and not os.getenv("RUNPOD_API_KEY"):
+    print("❌ CRITICAL: No INFISICAL_TOKEN or API Keys found.")
+    print("The container is likely unauthenticated. Shutting down.")
+    sys.exit(1)
 
 import redis
 from runpod_api import (

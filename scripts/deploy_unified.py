@@ -11,14 +11,17 @@ runpod.api_key = API_KEY
 print("=== Deploying SimHPC Unified Pod ===")
 
 new_pod = runpod.create_pod(
-    name="SimHPC-Unified-v2.5.5",
+    name="SimHPC-Unified-v2.5.11",
     image_name="simhpcworker/simhpc-unified:latest",
     gpu_type_id="NVIDIA A40",
     gpu_count=1,
     volume_in_gb=20,
     container_disk_in_gb=20,
     ports="8000/http",
-    env={"PYTHONUNBUFFERED": "1"},
+    env={
+        "PYTHONUNBUFFERED": "1",
+        "INFISICAL_TOKEN": os.getenv("INFISICAL_TOKEN", "st.647...your_token_here...")
+    },
 )
 
 print(f"Pod ID: {new_pod['id']}")

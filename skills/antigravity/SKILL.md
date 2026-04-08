@@ -143,6 +143,17 @@ curl -X POST "https://api.runpod.io/graphql" \
 **Required GitHub Secrets:**
 - `INFISICAL_TOKEN` (from Infisical → Settings → Access Tokens)
 
+## Skill 4: The Secret Handshake (v2.5.12)
+
+Whenever a new RunPod template is created, the `INFISICAL_TOKEN` must be the first variable added. This allows the `CMD` in your Dockerfile to successfully "unlock" the vault and retrieve the `REDIS_URL`, `SUPABASE_KEY`, and `ADMIN_SECRET` required for the Unified Plane.
+
+### Commands
+
+**Sync Dynamic RunPod URL to Vercel:**
+```bash
+infisical run --env=production -- vercel env add VITE_API_URL production https://{NEW_POD_ID}-8000.proxy.runpod.net --force
+```
+
 ## Examples
 - "Run the Infisical handshake to connect to the vault"
 - "Build a secret-safe Docker image without a local .env"
