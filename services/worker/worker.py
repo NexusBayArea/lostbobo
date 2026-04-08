@@ -5,14 +5,11 @@ SimHPC RunPod Worker (v2.5.3) - Optimized with CORS & FastAPI
 
 import os
 import json
-import hashlib
 import time
 import logging
 import threading
-import requests
 from datetime import datetime
 from redis import Redis
-from redis.exceptions import ConnectionError as RedisConnectionError
 from fpdf import FPDF
 from dotenv import load_dotenv
 from fastapi import FastAPI

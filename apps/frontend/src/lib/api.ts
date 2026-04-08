@@ -1,6 +1,6 @@
 
-// Point to the RunPod Proxy URL
-const API_BASE_URL = 'https://40n3yh92ugakps-8000.proxy.runpod.net/api/v1';
+// Point to the Vercel Proxy (which redirects to RunPod)
+const API_BASE_URL = '/api/api/v1';
 const API_KEY = 'shpc_live_40n3yh92ugakps';
 
 const getHeaders = (token?: string) => {

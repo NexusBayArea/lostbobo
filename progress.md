@@ -182,7 +182,9 @@ echo "[5/5] Pushing to GitHub..."
 git push origin main
 ```
 
-- **v2.5.3**: Full Fleet Build (Worker, API, Autoscaler) + Security Hardening (Non-Root Execution) + CVE Remediations + Infisical Integration + CORS Policy Update (Allow All Origins) + Integrated SimHPC Skill Tool (`fix-all`) + `run_api.py` Entry Point Audit + Vercel Deployment Preparation
+- **v2.5.5**: Unified API Proxy (Vercel) Implementation + Vercel Build Fix (APIReference) + Python Worker Lint Fix (`ruff --fix`) + Frontend API Proxy Alignment + Deployment SOP v2.5.5
+- **v2.5.4**: Detailed Error Surface in `api.ts` + Empty Token Guard + Infisical Machine Identity v2.5.4
+- **v2.5.3**: Full Fleet Build (Worker, API, Autoscaler) + Security Hardening (Non-Root Execution) + CVE Remediations + Infisical Integration + CORS Policy Update (Exposed Headers + Explicit OPTIONS Preflight) + Integrated SimHPC Skill Tool (`fix-all`) + `run_api.py` Entry Point Audit + Vercel Deployment Preparation
 - **v2.5.2**: Fixed Supabase key authentication (JWT) + Worker heartbeat fix + API deployed to RunPod
 - **v2.5.1**: FastAPI Dependency Injection Fix + RunPod URL Fix + Route Ordering Fix + Worker Queue Fix + Queue Key Alignment + Lazy Redis + Docker .env Removal + Admin Import Fix + Route Import Fix + Control Data Fix
 - **v2.5.0**: Structural Consolidation (Single Source of Truth), Unified Worker Plane, Schema Normalization, **Simulation Usage Quota & Anti-Spam Enforcement**, **Health Check Endpoint**, **Worker Heartbeat Always-On**, **Ruff Lint Clean (0 errors)**, **Pre-Commit Framework + GitHub Actions CI**, **Unified Deployment Pipeline**, **RunPod Auto-Updater**, **Admin RBAC (ProtectedRoute)**, **Admin Dashboard (Sidebar + KPIs)**, **Supabase Edge Function (Fleet Metrics)**, **Platform Alerts + Billing Threshold**, **Panic Button (Terminate All Fleet)**, **Real-Time Telemetry Hook**, **Guidance Engine (Mercury AI)**, **Docker Path Alignment**, **Race Condition Fix**, **Credential Sanitization**, **Infisical Universal Auth (RogWin)**, **Docker Worker Image v2.5.0 Built**, **Supabase CLI Linked & Deployed (ldzztrnghaaonparyggz)**.

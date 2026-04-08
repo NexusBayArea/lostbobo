@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const BASE_URL = process.env.RUNPOD_API_URL;
+  const BASE_URL = process.env.RUNPOD_API_URL || "https://40n3yh92ugakps-8000.proxy.runpod.net";
 
   const path = req.query.path?.join("/") || "";
   const url = `${BASE_URL}/${path}`;

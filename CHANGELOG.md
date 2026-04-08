@@ -5,6 +5,19 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.5] - 2026-04-07
+
+### Added
+
+- **Unified API Proxy (Vercel)**: Implemented `/api/[...path].ts` serverless function to eliminate CORS issues permanently. All frontend calls now route through `/api/api/v1/` to the RunPod fleet.
+- **Vercel Auth Passthrough**: Configured the proxy to pass Supabase JWT tokens to the backend orchestrator.
+
+### Fixed
+
+- **Vercel Build Error (APIReference)**: Verified and corrected the `APIReference` export in `apps/frontend/src/pages/index.ts`.
+- **Python Worker Lint Failure**: Fixed `F401` unused imports in `services/worker/worker.py` using `ruff`.
+- **Frontend API Alignment**: Updated `apps/frontend/src/lib/api.ts` to use the new unified proxy layer.
+
 ## [2.5.4] - 2026-04-06
 
 ### Added
@@ -17,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Simulation Start Error (405)**: Added detailed error message surfacing in `api.ts` — now shows actual HTTP status and backend error detail instead of generic "Failed to start simulation"
+- **CORS Preflight Fix**: Added explicit `OPTIONS` handler for `/api/v1/simulations` and enabled `expose_headers=["*"]` in `api.py` to resolve cross-origin blocks on Vercel deployments.
 - **Empty Token Guard**: Added authentication check in `Dashboard.tsx` before calling simulation API
 - **Infisical CI Workflow**: Updated `deploy-beta-runpod.yml` — replaced deprecated `--projectId` flag with `.infisical.json` init step, updated env var names from `INFISICAL_CLIENT_ID`/`INFISICAL_CLIENT_SECRET` to `INFISICAL_MACHINE_IDENTITY_ID`/`MAC_ID_SEC`
 
