@@ -5,12 +5,57 @@
 
 ## Current Status
 
-- **v2.5.5**: **RunPod Sync Script** + **Dynamic Pod Synchronization** + **Infisical/Vercel Atomic Updates** + **In-Memory Cache Fallback** + **Vault-First Protocol** + **SB_ Env Prefix** (Infisical compatibility)
+- **v2.5.5**: **Vercel Proxy Layer** + **Unified `/api/*` Route** + **Auth Passthrough** + **Permanent CORS Fix**
+
+## v2.5.5 Architecture: Vercel Proxy Layer
+
+### Problem
+CORS errors persist between frontend (Vercel) and backend (RunPod) due to origin mismatches.
+
+### Solution: Vercel API Route Proxy (`api/[...path].ts`)
+```ts
+export default async function handler(req, res) {
+  const BASE_URL = process.env.RUNPOD_API_URL;
+  const path = req.query.path?.join("/") || "";
+  const url = `${BASE_URL}/${path}`;
+
+  const response = await fetch(url, {
+    method: req.method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: req.headers.authorization || "",
+    },
+    body: req.method !== "GET" && req.method !== "HEAD" ? JSON.stringify(req.body) : undefined,
+  });
+
+  res.status(response.status).send(await response.text());
+}
+```
+
+### Benefits
+- Eliminates CORS permanently (server-to-server)
+- Centralized auth passthrough
+- Unified `/api/*` layer for all backend calls
+- Easy to add logging/rate limiting
+
+### Frontend Changes
+```ts
+// Before (CORS issues)
+fetch("https://runpod-pod.proxy.runpod.net/api/v1/...")
+
+// After (proxy)
+fetch("/api/api/v1/...")
+```
+
+### Environment Variables (Vercel)
+- `RUNPOD_API_URL` = `https://{POD_ID}-8000.proxy.runpod.net`
+
+---
 
 ## v2.5.5: SB_ Env Prefix for Infisical
 
 ### Problem
-Infisical flags secrets containing "SUPABASE" as sensitive. All Supabase env vars must use `SB_` prefix.
+Infisical flags secrets containing "SUPABASE" as sensitive.
 
 ### Changes
 | Old | New |
@@ -19,11 +64,6 @@ Infisical flags secrets containing "SUPABASE" as sensitive. All Supabase env var
 | `SUPABASE_SERVICE_ROLE_KEY` | `SB_SERVICE_KEY` |
 | `SUPABASE_JWT_SECRET` | `SB_JWT_SECRET` |
 | `SUPABASE_AUDIENCE` | `SB_AUDIENCE` |
-
-### Files Updated
-- `services/api/api.py`
-- `services/api/auth_utils.py`
-- `services/api/demo_access.py`
 
 ### Required RunPod Pod Environment Variables
 | Key | Value |
@@ -34,6 +74,30 @@ Infisical flags secrets containing "SUPABASE" as sensitive. All Supabase env var
 | `SB_AUDIENCE` | `authenticated` |
 | `ALLOWED_ORIGINS` | CORS allowed origins |
 | `REDIS_URL` | Redis connection string |
+
+---
+
+## Pending Fixes (Not Yet Applied)
+
+### 1. APIReference Import Fix
+File: `apps/frontend/src/pages/index.ts`
+- Remove or fix `./APIReference` import that doesn't exist
+
+### 2. Ruff Lint Fixes
+File: `services/worker/worker.py`
+- Remove unused imports: `hashlib`, `requests`, `ConnectionError`
+- Fix one-line if statements (E701)
+
+### 3. GitHub Actions Node Version
+Update to Node 22:
+```yaml
+uses: actions/setup-node@v4
+with:
+  node-version: 22
+```
+
+### 4. Manifest 401 Fix
+Ensure `/site.webmanifest` exists in `/public` or remove from HTML
 
 ## v2.5.5: Dynamic Pod Synchronization + Infisical Integration
 
