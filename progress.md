@@ -6,9 +6,72 @@
 
 ## Current Status
 
-- **v2.6.3**: **Infisical Project ID Fix** + **AdminAnalyticsPage Path Fixed** + **Workflow Updates**
+- **v2.6.5**: **AlphaControlRoom Integration** + **Dashboard Tab Fix** + **401 Fixes** + **Health Check**
 
-## v2.6.3: Workflow Fixes (April 2026)
+## v2.6.5: AlphaControlRoom Integration (April 2026)
+
+### 1. AlphaControlRoom Integration
+
+**Problem:** Cockpit wasn't appearing on dashboard due to routing mismatch.
+
+**Fix:** Integrate AlphaControlRoom as a tab inside Dashboard:
+
+```tsx
+// Dashboard.tsx - Update activeTab default
+const [activeTab, setActiveTab] = useState('cockpit');
+
+// Add tab trigger
+<TabsTrigger value="cockpit">Alpha Cockpit</TabsTrigger>
+
+// Add content
+{activeTab === 'cockpit' && <AlphaControlRoom />}
+```
+
+### 2. Routing Fix
+
+**App.tsx:** Simplified routes - Dashboard is the parent, AlphaControlRoom nested inside.
+
+### 3. 401/Manifest Fix
+
+**Problem:** `site.webmanifest` returning 401 due to Vercel Deployment Protection.
+
+**Fix:**
+- Go to Vercel Dashboard → Settings → Deployment Protection
+- Disable Vercel Authentication for preview branches
+- OR ensure `site.webmanifest` exists in `public/` folder
+
+### 4. User Profile Fetch Fix
+
+**Problem:** "Failed to fetch user profile" - missing or invalid Supabase keys.
+
+**Fix:** Ensure these environment variables are set in Vercel:
+- `VITE_SUPABASE_URL` - Must match Supabase Dashboard exactly
+- `VITE_SUPABASE_ANON_KEY` - Must match Supabase Dashboard exactly
+- `VITE_API_URL` - Must match current RunPod ID
+
+### 5. Health Check Checklist
+
+Run this before deploying to verify everything works:
+
+1. **Vercel Auth:** Is Deployment Protection OFF? (Prevents 401 on manifest)
+2. **Pod Identity:** Does `VITE_API_URL` match the current active RunPod ID?
+3. **Supabase Auth:** Can you manually log in via `/login` page? (Tests if keys work)
+
+---
+
+## v2.6.4: Infisical CLI Fix (April 2026)
+
+### Fixes Applied
+
+1. **Infisical CLI Upgrade** - Added `sudo infisical upgrade` after installation
+2. **Project Init** - Added `.infisical.json` creation with workspace ID
+3. **Token Auth** - Using `--token=$INFISICAL_TOKEN` instead of env var
+
+### Workflow Files Fixed
+
+- `deploy-beta-runpod.yml` - Added project init + token flag
+- `auto-deploy-runpod.yml` - Added project init + token flag
+- `deploy_all.sh` - Updated with project ID
 
 ### Fixes Applied
 
