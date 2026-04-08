@@ -1086,6 +1086,12 @@ async def get_system_status():
     }
 
 
+@app.get("/health", tags=["System — Health"])
+async def health():
+    """Simple health check for proxy resolution."""
+    return {"status": "ok", "timestamp": datetime.now().isoformat()}
+
+
 @app.get("/api/v1/health", tags=["System — Health"])
 async def health_check():
     """

@@ -182,6 +182,7 @@ echo "[5/5] Pushing to GitHub..."
 git push origin main
 ```
 
+- **v2.5.6**: Advanced Dynamic API Proxy (Vercel) + Cold Start Resilience (Retry/Backoff) + Caching + `@app.get("/health")` Endpoint + Resolved CORS permanently
 - **v2.5.5**: Unified API Proxy (Vercel) Implementation + Vercel Build Fix (APIReference) + Python Worker Lint Fix (`ruff --fix`) + Frontend API Proxy Alignment + Deployment SOP v2.5.5
 - **v2.5.4**: Detailed Error Surface in `api.ts` + Empty Token Guard + Infisical Machine Identity v2.5.4
 - **v2.5.3**: Full Fleet Build (Worker, API, Autoscaler) + Security Hardening (Non-Root Execution) + CVE Remediations + Infisical Integration + CORS Policy Update (Exposed Headers + Explicit OPTIONS Preflight) + Integrated SimHPC Skill Tool (`fix-all`) + `run_api.py` Entry Point Audit + Vercel Deployment Preparation

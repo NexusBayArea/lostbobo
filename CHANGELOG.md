@@ -5,6 +5,21 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.6] - 2026-04-07
+
+### Added
+
+- **Advanced Unified Proxy (Vercel)**:
+  - **Dynamic Pod Resolution**: Automatically fetches active RunPod URLs via GraphQL API—no more hardcoded URLs.
+  - **Cold Start Resilience**: Exponential backoff (max 5 retries) for handling GPU pod spin-ups.
+  - **Resolved Endpoint Caching**: Caches RunPod URLs for 60s to minimize API overhead.
+  - **Vercel-Side Redundancy**: Handles `NO_PODS` scenarios with a 503 status for frontend recovery.
+- **Dedicated Health Endpoint**: Added `/health` to `api.py` for lightweight proxy-level verification.
+
+### Fixed
+
+- **CORS Persistence**: Final elimination of CORS blocks by enforcing server-side proxying only.
+
 ## [2.5.5] - 2026-04-07
 
 ### Added
