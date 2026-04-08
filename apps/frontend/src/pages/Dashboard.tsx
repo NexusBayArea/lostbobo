@@ -214,9 +214,9 @@ export function Dashboard() {
 
           {/* Internal Links */}
           {internalLinks.map((link) => (
-            <Link
+            <button
               key={link.id}
-              to={link.path}
+              onClick={() => window.open(link.path, "_blank")}
               className={cn(
                 'w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all',
                 'text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/10',
@@ -236,7 +236,7 @@ export function Dashboard() {
                   </motion.span>
                 )}
               </AnimatePresence>
-            </Link>
+            </button>
           ))}
 
           <div className="pt-2 border-t border-slate-200 dark:border-slate-700">

@@ -73,6 +73,9 @@ To launch the full "Mission Control" stack locally using Infisical for secret in
 
 ## v2.5.4: RunPod Pipeline & Resilience
 
+- **Alpha Control Link**: Now opens in new tab linking to AlphaControlRoom
+- **Experiment Notebook**: Opens in new tab from dashboard sidebar
+
 - **API Endpoint Fix**: Fixed `/api/v1/usage` → `/api/v1/simulations/usage` mismatch
 - **Robustness Request Model**: Added `RobustnessRunRequest` Pydantic model for proper request validation
 - **Cancel Endpoint**: Added `DELETE /api/v1/simulations/{sim_id}` for job cancellation
