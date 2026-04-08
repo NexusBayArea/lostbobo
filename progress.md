@@ -6,7 +6,23 @@
 
 ## Current Status
 
-- **v2.6.7**: **Manifest Link Disabled** + **Vercel Auth Fix**
+- **v2.6.8**: **User Profile Endpoint Added** + **API Fix**
+
+## v2.6.8: User Profile Endpoint (April 2026)
+
+### Fix Applied
+
+Added `/api/v1/user/profile` endpoint to `services/api/api.py`:
+
+```python
+@app.get("/api/v1/user/profile")
+async def get_user_profile(authorization: str = Header(None)):
+    # Returns user profile with tier and usage
+```
+
+This fixes "Failed to fetch user profile" error.
+
+---
 
 ## v2.6.7: Manifest Fix (April 2026)
 

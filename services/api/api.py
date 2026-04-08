@@ -1088,6 +1088,35 @@ async def health():
     return {"status": "ok", "timestamp": datetime.now().isoformat()}
 
 
+@app.get("/api/v1/user/profile", tags=["User"])
+async def get_user_profile(authorization: str = Header(None)):
+    """
+    Get current user profile with tier and usage.
+    """
+    if not authorization:
+        raise HTTPException(401, "Missing authorization token")
+
+    auth_payload = verify_user(authorization)
+    user_id = auth_payload.get("sub")
+
+    try:
+        if supabase_client:
+            user_profile = (
+                supabase_client.table("profiles")
+                .select("*")
+                .eq("id", user_id)
+                .single()
+                .execute()
+            )
+            profile = user_profile.data
+            if profile:
+                return profile
+    except Exception as e:
+        logger.warning(f"Failed to fetch user profile: {e}")
+
+    return {"id": user_id, "tier": "free", "runs_used": 0, "plan": "free"}
+
+
 @app.get("/api/v1/health", tags=["System — Health"])
 async def health_check():
     """
