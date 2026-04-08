@@ -1,6 +1,8 @@
 #!/bin/bash
 
-echo "[1/5] Running Local Build Test..."
+set -e
+
+echo "[1/6] Running Local Build Test..."
 infisical run -- npm run build
 
 if [ $? -ne 0 ]; then
@@ -8,16 +10,26 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "[2/5] Build passed. Syncing Infisical..."
+echo "[2/6] Build passed. Syncing Infisical..."
 infisical secrets push
 
-echo "[3/5] Deploying to Vercel..."
+echo "[3/6] Deploying to Vercel..."
 infisical run --env=production --projectId=f8464ba0-1b93-45a1-86b5-c8ea5a81a2a4 -- vercel --prod --yes
 
-echo "[4/5] Fixing Git Casing..."
-git rm -r --cached .
-git add .
-git commit -m "fix: workflow updates v2.6.4 - Infisical CLI fix"
-
-echo "[5/5] Pushing to GitHub..."
+echo "[4/6] Triggering Docker build and push to Docker Hub..."
+# This will trigger the deploy.yml workflow which handles Docker login
+git add . 
+git commit -m "ci: trigger docker build and deploy to RunPod"
 git push origin main
+
+echo "[5/6] Waiting for GitHub Actions to complete..."
+# Wait for workflow to complete
+sleep 10
+
+echo "[6/6] Triggering RunPod restart (auto-deploy-runpod workflow)..."
+gh workflow run auto-deploy-runpod.yml
+
+echo "=== Deployment Complete ==="
+echo "- Vercel: https://simhpc.com"
+echo "- Docker: simhpcworker/simhpc-unified:latest"
+echo "- RunPod: Auto-deploy workflow triggered"

@@ -47,19 +47,68 @@ bash scripts/deploy_all.sh
 ```bash
 #!/bin/bash
 
-echo "[1/4] Syncing Infisical Secrets..."
+set -e
+
+echo "[1/6] Running Local Build Test..."
+infisical run -- npm run build
+
+echo "[2/6] Build passed. Syncing Infisical..."
 infisical secrets push
 
-echo "[2/4] Deploying to Vercel (Production)..."
-infisical run --env=production -- vercel --prod --yes
+echo "[3/6] Deploying to Vercel..."
+infisical run --env=production --projectId=f8464ba0-1b93-45a1-86b5-c8ea5a81a2a4 -- vercel --prod --yes
 
-echo "[3/4] Updating GitHub Repository..."
-git add .
-git commit -m "chore: production deploy v2.5.4 unified plane"
+echo "[4/6] Triggering Docker build..."
+git add . 
+git commit -m "ci: trigger docker build and deploy to RunPod"
 git push origin main
 
-echo "[4/4] Fleet Synchronized."
+echo "[5/6] Triggering RunPod restart..."
+gh workflow run auto-deploy-runpod.yml
+
+echo "=== Deployment Complete ==="
 ```
+
+## GitHub Actions Workflow (deploy.yml)
+
+The workflow now fetches Docker credentials from Infisical before logging in:
+
+```yaml
+- name: Install Infisical CLI
+  run: |
+    curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+    sudo apt-get update
+    sudo apt-get install infisical -y
+
+- name: Export Docker credentials from Infisical
+  env:
+    INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+    INFISICAL_PROJECT_ID: f8464ba0-1b93-45a1-86b5-c8ea5a81a2a4
+  run: |
+    eval "$(infisical export --env=production --format=export)"
+    echo "DOCKER_USER=$DOCKER_USERNAME" >> $GITHUB_ENV
+    echo "DOCKER_PASS=$DOCKER_PASSWORD" >> $GITHUB_ENV
+
+- name: Login to Docker Hub
+  uses: docker/login-action@v3
+  with:
+    username: ${{ env.DOCKER_USER }}
+    password: ${{ env.DOCKER_PASS }}
+```
+
+### Required GitHub Secrets
+
+| Secret | Source |
+|--------|--------|
+| `INFISICAL_TOKEN` | Infisical → Settings → Machine Identity |
+| `INFISICAL_PROJECT_ID` | f8464ba0-1b93-45a1-86b5-c8ea5a81a2a4 |
+
+### Required Infisical Secrets
+
+| Key | Purpose |
+|-----|---------|
+| `DOCKER_USERNAME` | Docker Hub username |
+| `DOCKER_PASSWORD` | Docker Hub password/token |
 
 ## Skills Overview
 
