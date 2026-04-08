@@ -71,32 +71,15 @@ To launch the full "Mission Control" stack locally using Infisical for secret in
 - **Safety**: `MAX_PODS=3`, budget caps enforced, Redis-persisted activity state
 - **Warm Control**: `Wake GPU` button uses `/api/v1/admin/fleet/warm` for 90s wake-ups.
 
-## v2.5.4: RunPod Pipeline & Resilience
+## v2.5.6: Port 8888 Migration & SB Prefix
 
-- **Alpha Control Link**: Now opens in new tab linking to AlphaControlRoom
-- **Experiment Notebook**: Opens in new tab from dashboard sidebar
-- **Vercel Routing Fix**: Updated vercel.json rewrites to redirect all paths to index.html for proper React Router deep linking
+- **Port Migration**: Changed from port 8000 to 8888 for RunPod compatibility
+- **SB Prefix**: Supabase keys now use SB_ prefix for Infisical compatibility
 - **Docker Images Pushed**: 
-  - simhpcworker/simhpc-unified:latest (GPU worker + API + autoscaler)
-  - simhpcworker/simhpc-worker:latest (GPU physics worker)
-  - simhpcworker/simhpc-api:latest (FastAPI orchestrator)
-  - simhpcworker/simhpc-autoscaler:latest (RunPod autoscaler)
-
-### To deploy to RunPod (when Infisical available):
-
-```bash
-# Restart existing pod to pull new image
-infisical run -- python scripts/restart_pod.py
-
-# Or sync pod metadata to Infisical & Vercel
-./scripts/sync-pod.sh q41n3g4zwr84wt
-```
-
-**Current Pod**: RunPod ID stored in Infisical. Fetch with:
-```bash
-infisical secrets get RUNPOD_POD_ID --env=production
-```
-API URL: `https://{POD_ID}-8888.proxy.runpod.net`
+  - simhpcworker/simhpc-unified:latest (v2.5.6 - combined API + Worker + Autoscaler)
+  - simhpcworker/simhpc-worker:latest
+  - simhpcworker/simhpc-api:latest
+  - simhpcworker/simhpc-autoscaler:latest
 
 - **API Endpoint Fix**: Fixed `/api/v1/usage` → `/api/v1/simulations/usage` mismatch
 - **Robustness Request Model**: Added `RobustnessRunRequest` Pydantic model for proper request validation
