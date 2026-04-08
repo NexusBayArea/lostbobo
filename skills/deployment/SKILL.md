@@ -87,6 +87,37 @@ echo "[4/4] Deployment triggered."
 - **ALWAYS** use `DOCKER_PW_TOKEN` for PAT
 - **NO** Infisical CLI in YAML - secrets sync natively via GitHub App
 
+## Skill 10: SSH Deployment Logic
+
+| Secret | Purpose |
+|--------|---------|
+| `SSH_HOST` | Remote IP of the GPU/A40 instance |
+| `SSH_USERNAME` | SSH username (usually `root`) |
+| `SSH_PRIVATE_KEY` | Ed25519 or RSA private key for passwordless entry |
+
+```yaml
+- name: Deploy to RunPod via SSH
+  uses: appleboy/ssh-action@v1.0.3
+  with:
+    host: ${{ secrets.SSH_HOST }}
+    username: ${{ secrets.SSH_USERNAME }}
+    key: ${{ secrets.SSH_PRIVATE_KEY }}
+    port: 22
+    script: |
+      docker pull simhpcworker/simhpc-unified:latest
+      docker stop simhpc-unified || true
+      docker rm simhpc-unified || true
+      docker run -d --name simhpc-unified --gpus all simhpcworker/simhpc-unified:latest
+```
+
+### Required Infisical Secrets for SSH
+
+```bash
+infisical secrets set SSH_HOST="[YOUR_SERVER_IP]"
+infisical secrets set SSH_USERNAME="root"
+infisical secrets set SSH_PRIVATE_KEY="[PASTE_YOUR_PRIVATE_KEY]"
+```
+
 ## Skills Overview
 
 ### 1. Vercel Deploy
