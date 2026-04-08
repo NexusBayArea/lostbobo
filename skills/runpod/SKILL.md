@@ -1,7 +1,7 @@
 ---
 name: runpod-push
 description: Build, push, and deploy SimHPC worker to RunPod GPU instances with Infisical secret management.
-version: 2.5.5
+version: 2.5.6
 license: MIT
 compatibility: opencode
 ---
@@ -10,26 +10,24 @@ compatibility: opencode
 
 Build, push, and deploy SimHPC unified stack to RunPod GPU instances.
 
-## Version: 2.5.5
+## Version: 2.5.6 (Port 8888 Migration)
 
 ## Vault-First Protocol
 
-**Golden Rule:** Never put secrets in files tracked by Git. Use `os.getenv()` or `process.env`.
+**Golden Rule:** Never put secrets in files tracked by Git. Use `os.getenv()` or `infisical run --` to inject secrets at runtime.
 
 ### Required Infisical Keys
 
 | Key | Purpose |
 |-----|---------|
+| `PORT` | Set to `8888` for RunPod compatibility |
 | `RUNPOD_API_KEY` | Provisioning new pods |
-| `VITE_API_URL` | Dynamic proxy URL for frontend |
+| `VITE_API_URL` | Dynamic proxy URL (`https://{ID}-8888.proxy.runpod.net`) |
 | `ALLOWED_ORIGINS` | CORS origins |
-| `REDIS_URL` | Cache connection |
-| `SUPABASE_JWT_SECRET` | Auth verification |
-| `SIMHPC_API_KEY` | API access |
 
 ## Unified Deployment
 
-Deploy API, Worker, and Autoscaler in a single pod for maximum performance.
+The stack is now configured to use **Port 8888**, as it is the most reliable "open" port on standard RunPod templates.
 
 ### Dockerfile.unified
 
@@ -41,7 +39,7 @@ ENV PYTHONPATH=/app
 WORKDIR /app
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
-    python3-pip python3-dev git curl bash gcc && \
+    python3-pip python3-dev git curl bash gcc psmisc && \
     curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash && \
     apt-get install -y infisical && \
     rm -rf /var/lib/apt/lists/*
@@ -71,7 +69,7 @@ RUN useradd -m simuser && \
 
 USER simuser
 
-EXPOSE 8000
+EXPOSE 8888
 CMD ["./start.sh"]
 ```
 
@@ -79,14 +77,16 @@ CMD ["./start.sh"]
 
 ```bash
 #!/bin/bash
+echo "🚀 Starting SimHPC v2.5.6 Unified..."
 
-echo "Starting SimHPC v2.5.5 Unified..."
+# Ensure Port 8888 is free (kills default Jupyter Lab)
+fuser -k 8888/tcp || true
 
 cd /app
 export PYTHONPATH=/app
 
-echo "Starting FastAPI Gateway (Port 8000)..."
-python3 -m uvicorn api:app --host 0.0.0.0 --port 8000 --forwarded-allow-ips='*' &
+echo "Starting FastAPI Gateway (Port 8888)..."
+python3 -m uvicorn api:app --host 0.0.0.0 --port 8888 --forwarded-allow-ips='*' &
 
 echo "Starting Physics Worker..."
 python3 -u worker.py &
@@ -116,7 +116,7 @@ python scripts/deploy_unified.py
 ```bash
 #!/bin/bash
 POD_ID=$1
-HTTPS_URL="https://${POD_ID}-8000.proxy.runpod.net"
+HTTPS_URL="https://${POD_ID}-8888.proxy.runpod.net"
 
 infisical secrets set RUNPOD_POD_ID=$POD_ID --env=production
 infisical secrets set VITE_API_URL=$HTTPS_URL --env=production
@@ -124,32 +124,11 @@ infisical run --env=production -- vercel env add VITE_API_URL production $HTTPS_
 infisical run --env=production -- vercel --prod --yes --force
 ```
 
-## Complete Deploy Flow
+## Current Deployment (v2.5.6)
 
-```bash
-#!/bin/bash
-
-echo "[1/4] Building & Pushing Docker..."
-docker build -f Dockerfile.unified -t simhpcworker/simhpc-unified:latest .
-docker push simhpcworker/simhpc-unified:latest
-
-echo "[2/4] Provisioning Pod..."
-NEW_POD_ID=$(python3 scripts/deploy_unified.py | grep -oP '(?<=pod_id: )[a-z0-9]+')
-
-echo "[3/4] Syncing to Infisical & Vercel..."
-./scripts/sync-pod.sh $NEW_POD_ID
-
-echo "[4/4] Updating GitHub..."
-git add . && git commit -m "deploy: pod $NEW_POD_ID" && git push
-
-echo "Fleet Synchronized."
-```
-
-## Current Deployment (v2.5.5)
-
-| Service | Pod ID | HTTP Proxy |
-|---------|--------|------------|
-| Unified | q41n3g4zwr84wt | https://q41n3g4zwr84wt-8000.proxy.runpod.net |
+| Service | Pod ID | HTTP Proxy (8888) |
+|---------|--------|-------------------|
+| Unified | q41n3g4zwr84wt | https://q41n3g4zwr84wt-8888.proxy.runpod.net |
 
 **Docker Image**: simhpcworker/simhpc-unified:latest (pushed April 8, 2026)
 
@@ -157,12 +136,11 @@ echo "Fleet Synchronized."
 
 ## Manual Pod Restart (to pull new image)
 
-If the pod needs to pick up a new Docker image (must have RUNPOD_API_KEY from Infisical):
 ```bash
-# Using the restart script with Infisical
+# Restart existing pod to pull new image
 infisical run -- python scripts/restart_pod.py
 
-# Or manually:
+# Or manually via RunPod CLI:
 runpod stop q41n3g4zwr84wt
 runpod start q41n3g4zwr84wt
 ```

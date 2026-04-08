@@ -92,7 +92,7 @@ infisical run -- python scripts/restart_pod.py
 ./scripts/sync-pod.sh q41n3g4zwr84wt
 ```
 
-**Current Pod**: q41n3g4zwr84wt (https://q41n3g4zwr84wt-8000.proxy.runpod.net)
+**Current Pod**: q41n3g4zwr84wt (https://q41n3g4zwr84wt-8888.proxy.runpod.net)
 
 - **API Endpoint Fix**: Fixed `/api/v1/usage` → `/api/v1/simulations/usage` mismatch
 - **Robustness Request Model**: Added `RobustnessRunRequest` Pydantic model for proper request validation

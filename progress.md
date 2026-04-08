@@ -6,7 +6,17 @@
 
 ## Current Status
 
-- **v2.6.12**: **AlphaControlRoom Route Added** + **Link Fixed**
+- **v2.6.13**: **AlphaControlRoom Fixed** + **Route Added**
+
+## v2.6.13: AlphaControlRoom Fix (April 2026)
+
+### Fix Applied
+
+1. **Simplified AlphaControlRoom.tsx** - Removed broken imports
+2. **Added route** `/dashboard/alpha` → AlphaControlRoom
+3. **Sidebar link** now points to `/dashboard/alpha`
+
+---
 
 ## v2.6.12: AlphaControlRoom Route (April 2026)
 

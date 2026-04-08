@@ -4,6 +4,20 @@ Welcome to the **SimHPC Alpha Pilot**! This guide will help you run your first p
 
 ---
 
+## Alpha Control Room (Mission Control)
+
+The **Alpha Control Room** is your command center for real-time simulation management. Access it at `/dashboard/alpha` - it features the **O-D-I-A-V Loop**:
+
+- **O**bserve - Live telemetry & fleet status
+- **D**etect - Anomaly detection & alerts
+- **I**nvestigate - Deep-dive into simulation lineage
+- **A**ct - Operator console for intervention
+- **V**erify - AI guidance for next actions
+
+The cockpit displays real-time GPU utilization, memory, temperature, power metrics, active simulation queue, and design lineage tree. Use the left sidebar to switch between operational modes.
+
+---
+
 ## What You Can Do
 
 * Run real simulations

@@ -13,7 +13,9 @@ if not API_KEY:
     sys.exit(1)
 
 if not INFISICAL_TOKEN:
-    print("⚠️  WARNING: INFISICAL_TOKEN is missing. The pod will boot but fail to pull secrets.")
+    print(
+        "⚠️  WARNING: INFISICAL_TOKEN is missing. The pod will boot but fail to pull secrets."
+    )
 
 runpod.api_key = API_KEY
 
@@ -28,19 +30,16 @@ try:
         gpu_count=1,
         volume_in_gb=20,
         container_disk_in_gb=20,
-        ports="8000/http",
-        env={
-            "PYTHONUNBUFFERED": "1",
-            "INFISICAL_TOKEN": INFISICAL_TOKEN
-        },
+        ports="8888/http",
+        env={"PYTHONUNBUFFERED": "1", "INFISICAL_TOKEN": INFISICAL_TOKEN},
     )
 
     # 3. Print the Pod ID clearly for the CLI to capture
     # Note: runpod-python returns a dictionary; the ID is in ['id']
-    pod_id = new_pod['id']
+    pod_id = new_pod["id"]
     print(f"\n🚀 DEPLOYMENT SUCCESSFUL")
     print(f"POD_ID: {pod_id}")
-    print(f"HTTP_PROXY: https://{pod_id}-8000.proxy.runpod.net")
+    print(f"HTTP_PROXY: https://{pod_id}-8888.proxy.runpod.net")
 
 except Exception as e:
     print(f"❌ DEPLOYMENT FAILED: {e}")

@@ -9,7 +9,7 @@ if [ -z "$POD_ID" ]; then
     exit 1
 fi
 
-HTTPS_URL="https://${POD_ID}-8000.proxy.runpod.net"
+HTTPS_URL="https://${POD_ID}-8888.proxy.runpod.net"
 
 echo "Injecting Pod Metadata into Infisical..."
 infisical secrets set RUNPOD_POD_ID=$POD_ID --env=production
