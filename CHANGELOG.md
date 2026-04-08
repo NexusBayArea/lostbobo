@@ -5,6 +5,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.13] - 2026-04-07
+
+### Added
+
+- **"No-Env" Infisical Strategy**: Fully transitioned the stack to use Infisical CLI for secret injection, eliminating the need for local `.env` files.
+- **Dynamic CORS (Regex)**: Replaced hardcoded origin lists in `api.py` with a flexible regex pattern to support all Vercel project subdomains and branch previews.
+- **Refined Deployment Script**: Updated `deploy_unified.py` to capture `INFISICAL_TOKEN` from the local session and correctly output `POD_ID` for CLI automation.
+- **Autoscaler Fail-Fast**: Implemented a critical check in `autoscaler.py` to shutdown immediately if the `INFISICAL_TOKEN` is missing, preventing "zombie" states.
+
 ## [2.5.12] - 2026-04-07
 
 ### Added

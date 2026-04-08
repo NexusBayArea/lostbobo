@@ -6,6 +6,7 @@
 
 ## Current Status
 
+- **v2.5.13**: **Full "No-Env" Transition** + **Dynamic CORS (Regex)** + **Automated POD_ID Capture** + **Autoscaler Fail-Fast**
 - **v2.5.12**: **Secret Handshake Skill** + **Vercel Sync Automation** + **INFISICAL_TOKEN Injection**
 - **v2.5.11**: **Regex CORS (Vercel Branch Support)** + **Autoscaler Fail-Safe** + **Idempotency Keys** + **Job Status Persistence (Supabase)** + **Clean Architecture**
 
