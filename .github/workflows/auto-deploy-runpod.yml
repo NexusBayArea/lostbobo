@@ -22,6 +22,11 @@ jobs:
         with:
           ref: main
 
+      - name: Debug secrets
+        run: |
+          echo "RUNPOD_API_KEY set: ${{ secrets.RUNPOD_API_KEY != '' }}"
+          echo "RUNPOD_POD_ID set: ${{ secrets.RUNPOD_POD_ID != '' }}"
+
       - name: Restart RunPod to pull new image
         env:
           RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
