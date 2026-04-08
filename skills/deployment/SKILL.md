@@ -118,6 +118,25 @@ infisical secrets set SSH_USERNAME="root"
 infisical secrets set SSH_PRIVATE_KEY="[PASTE_YOUR_PRIVATE_KEY]"
 ```
 
+## Skill 11: RunPod Infrastructure Constraints (v2.6.4)
+
+**NO HALLUCINATIONS**: Use only these exact key names from Infisical:
+
+| Service | Infisical Key | GitHub Action Reference |
+|---------|---------------|------------------------|
+| Auth | `RUNPOD_API_KEY` | `${{ secrets.RUNPOD_API_KEY }}` |
+| Auth | `RUNPOD_USERNAME` | `${{ secrets.RUNPOD_USERNAME }}` |
+| Network | `RUNPOD_ID` | `${{ secrets.RUNPOD_ID }}` |
+| Network | `RUNPOD_SSH` | `${{ secrets.RUNPOD_SSH }}` |
+| Network | `RUNPOD_TCP_PORT_22` | `${{ secrets.RUNPOD_TCP_PORT_22 }}` |
+| Network | `RUNPOD_HTTPS` | `${{ secrets.RUNPOD_HTTPS }}` |
+| SSH Key | `RUNPOD_SSH_KEY` | `${{ secrets.RUNPOD_SSH_KEY }}` |
+
+**Rules:**
+- **DO NOT** use `SSH_HOST`, `VITE_API_URL`, or `RUNPOD_POD_ID`
+- **USE** `RUNPOD_SSH` for SSH address and `RUNPOD_TCP_PORT_22` for port
+- All values must be in Infisical and synced via GitHub App
+
 ## Skills Overview
 
 ### 1. Vercel Deploy
