@@ -6,7 +6,20 @@
 
 ## Current Status
 
-- **v2.6.9**: **Alpha Control Room Added to Dashboard** + **Navigation Update**
+- **v2.6.10**: **Manifest Fixed** + **crossorigin Added** + **Alpha Control New Tab**
+
+## v2.6.10: Manifest Fix (April 2026)
+
+### Fix Applied
+
+1. **Manifest Link** - Uncommented and added `crossorigin="use-credentials"`:
+   ```html
+   <link rel="manifest" href="/site.webmanifest" crossorigin="use-credentials" />
+   ```
+
+2. **Alpha Control** - Opens in new tab, links to `/admin/analytics`
+
+---
 
 ## v2.6.9: Alpha Control Room Integration (April 2026)
 
