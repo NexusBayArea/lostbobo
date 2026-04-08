@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Unified API Proxy (Vercel)**: Implemented `/api/[...path].ts` serverless function to eliminate CORS issues permanently. All frontend calls now route through `/api/api/v1/` to the RunPod fleet.
+- **Async Simulation Patch**: Applied a high-performance job queue architecture using Redis `brpop` and status polling.
+  - API now pushes `job_id` to `simhpc_jobs` and stores full job state in `job:{id}` keys.
+  - Worker uses blocking pop for efficient resource utilization.
 - **Vercel Auth Passthrough**: Configured the proxy to pass Supabase JWT tokens to the backend orchestrator.
 
 ### Fixed

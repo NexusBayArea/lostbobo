@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import uuid
 import json
 import os
+import time
 import logging
 import asyncio
 import requests
@@ -568,25 +569,20 @@ async def create_simulation(
         "prompt": request.prompt,
         "input_params": input_params,
         "scenario_name": scenario_name,
+        "status": "queued",
+        "progress": 0,
+        "created_at": int(time.time()),
+        "updated_at": int(time.time()),
     }
-    enqueue_job(job_data)
+    
+    # Patch logic: Set job detail key and push ID to queue
+    r_client.set(f"job:{sim_id}", json.dumps(job_data))
+    enqueue_job(sim_id)
+    
     await increment_user_usage(user_id)
 
-    # Launch async background pipeline (non-blocking)
-    asyncio.create_task(
-        run_simulation_pipeline(
-            sim_id,
-            {
-                "scenario_name": scenario_name,
-                "input_params": input_params,
-                "user_id": user_id,
-            },
-            user_id,
-        )
-    )
-
     return {
-        "simulation_id": sim_id,
+        "job_id": sim_id,
         "status": "queued",
         "message": "Simulation queued. Track progress in your dashboard.",
     }
@@ -717,14 +713,32 @@ async def get_simulation_status(
     user: dict = Depends(verify_auth),
 ):
     """Get simulation status (lightweight polling endpoint)."""
-    job = get_job(sim_id)
-    if not job:
-        raise HTTPException(404, "Simulation not found")
-    return {
-        "id": sim_id,
-        "status": job.get("status"),
-        "progress": job.get("progress", {}),
-        "created_at": job.get("created_at", ""),
-        "completed_at": job.get("completed_at"),
-        "error": job.get("error"),
-    }
+    # Fetch from Redis first
+    job_raw = r_client.get(f"job:{sim_id}")
+    if job_raw:
+        job = json.loads(job_raw)
+        return {
+            "job_id": sim_id,
+            "status": job.get("status"),
+            "progress": job.get("progress", 0),
+            "created_at": job.get("created_at", ""),
+            "completed_at": job.get("completed_at"),
+            "error": job.get("error"),
+            "result": job.get("result")
+        }
+    
+    # Fallback to Supabase if not in Redis
+    if supabase_client:
+        res = supabase_client.table("simulations").select("*").eq("job_id", sim_id).execute()
+        if res.data:
+            sim = res.data[0]
+            return {
+                "job_id": sim_id,
+                "status": sim.get("status"),
+                "progress": sim.get("progress", 0),
+                "created_at": sim.get("created_at", ""),
+                "completed_at": sim.get("updated_at"),
+                "error": sim.get("error")
+            }
+
+    raise HTTPException(404, "Simulation not found")

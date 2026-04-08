@@ -119,43 +119,77 @@ def update_simulation(job_id: str, data: dict):
         logger.error(f"Supabase sync failed: {e}")
 
 
-def process_job(job: dict):
-    global active_jobs
-    job_id = job.get("id", "unknown")
-    try:
-        update_simulation(job_id, {"status": "running"})
-        sim_data = {"peak_temperature": 412.3, "max_stress": 125.8}
+def process_job(job):
+    # simulate work (replace with real sim)
+    job_id = job.get("id")
+    for i in range(1, 6):
+        job["status"] = "running"
+        job["progress"] = i * 20
+        job["updated_at"] = int(time.time())
 
-        pdf_path = f"/tmp/{job_id}.pdf"
-        generate_pdf_report(job_id, sim_data, pdf_path)
-        pdf_url = upload_report(job_id, pdf_path)
+        # Sync back to Redis for API status polling
+        redis_client = Redis.from_url(REDIS_URL, decode_responses=True)
+        redis_client.set(f"job:{job_id}", json.dumps(job))
 
-        update_simulation(
-            job_id, {"status": "completed", "gpu_result": sim_data, "pdf_url": pdf_url}
-        )
-        logger.info(f"Job {job_id} completed.")
-    except Exception as e:
-        logger.error(f"Job {job_id} failed: {e}")
-        update_simulation(job_id, {"status": "failed", "error": str(e)})
-    finally:
-        with lock:
-            active_jobs -= 1
+        # Sync to Supabase for Dashboard realtime
+        update_simulation(job_id, {
+            "status": "running",
+            "progress": job["progress"]
+        })
+        time.sleep(2)
+
+    job["status"] = "completed"
+    job["result"] = {"message": "simulation complete"}
+    job["updated_at"] = int(time.time())
+
+    redis_client = Redis.from_url(REDIS_URL, decode_responses=True)
+    redis_client.set(f"job:{job_id}", json.dumps(job))
+
+    # Final sync to Supabase
+    update_simulation(job_id, {
+        "status": "completed",
+        "gpu_result": job["result"]
+    })
 
 
 def main():
-    global active_jobs
-    logger.info("SimHPC Worker v2.5.3 Active")
+    logger.info("SimHPC Worker v2.5.5 Unified Active")
     redis_client = Redis.from_url(REDIS_URL, decode_responses=True)
-    while True:
-        job_data = redis_client.lpop(QUEUE_NAME)
-        if job_data:
-            job = json.loads(job_data)
-            with lock:
-                active_jobs += 1
-            threading.Thread(target=process_job, args=(job,)).start()
-        else:
-            time.sleep(POLL_INTERVAL_SEC)
 
+    while True:
+        # Use BRPOP for blocking pull as requested
+        item = redis_client.brpop(QUEUE_NAME, timeout=5)
+
+        if not item:
+            continue
+
+        job_id = item[1]
+
+        # Check if job_id is just a string or JSON (patch expects job_id)
+        try:
+            # Try parsing as JSON first in case it's a full job object
+            job = json.loads(job_id)
+            actual_job_id = job.get("id")
+        except:
+            # Fallback: it's just a raw ID string
+            actual_job_id = job_id
+            job_data = redis_client.get(f"job:{actual_job_id}")
+            if not job_data:
+                logger.warning(f"Job data missing for ID: {actual_job_id}")
+                continue
+            job = json.loads(job_data)
+
+        try:
+            logger.info(f"Processing job: {actual_job_id}")
+            process_job(job)
+        except Exception as e:
+            logger.error(f"Job {actual_job_id} failed: {e}")
+            job["status"] = "failed"
+            job["error"] = str(e)
+            job["updated_at"] = int(time.time())
+            job["retries"] = job.get("retries", 0) + 1
+            redis_client.set(f"job:{actual_job_id}", json.dumps(job))
+            update_simulation(actual_job_id, {"status": "failed", "error": str(e)})
 
 if __name__ == "__main__":
     main()

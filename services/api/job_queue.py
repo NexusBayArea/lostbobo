@@ -24,17 +24,19 @@ def get_redis():
     return _r
 
 
-def enqueue_job(payload: dict) -> str:
-    """Push a job to the worker queue. Returns job_id."""
-    job_id = str(uuid.uuid4())
+def enqueue_job(job_input: any) -> str:
+    """Push a job ID or full job object to the worker queue."""
+    if isinstance(job_input, str):
+        # Patch-style: Just push the ID
+        job_id = job_input
+        payload = job_id
+    else:
+        # Legacy-style: Generate ID and push object
+        job_id = job_input.get("id") or str(uuid.uuid4())
+        job_input["id"] = job_id
+        payload = json.dumps(job_input)
 
-    job = {
-        "id": job_id,
-        "payload": payload,
-        "status": "pending",
-    }
-
-    get_redis().lpush(QUEUE_NAME, json.dumps(job))
+    get_redis().lpush(QUEUE_NAME, payload)
     return job_id
 
 
