@@ -6,7 +6,23 @@
 
 ## Current Status
 
-- **v2.6.5**: **AlphaControlRoom Integration** + **Dashboard Tab Fix** + **401 Fixes** + **Health Check**
+- **v2.6.6**: **site.webmanifest Fix** + **Infisical CLI Fix** + **401 Fix**
+
+## v2.6.6: Manifest & CLI Fix (April 2026)
+
+### Fixes Applied
+
+1. **site.webmanifest Created** - Added `apps/frontend/public/site.webmanifest` to fix 401 error
+2. **Infisical CLI** - Removed `infisical upgrade` command (not available in all versions)
+
+### 401 Error Fix (Vercel Deployment Protection)
+
+If `site.webmanifest` still returns 401:
+1. Go to Vercel Dashboard → Settings → Deployment Protection
+2. Disable Vercel Authentication for preview/production
+3. OR add manifest link with crossorigin in index.html
+
+---
 
 ## v2.6.5: AlphaControlRoom Integration (April 2026)
 
