@@ -7,6 +7,7 @@ import { WhoItsFor } from '@/sections/WhoItsFor';
 
 import { Dashboard } from '@/pages/Dashboard';
 import ExperimentNotebook from '@/pages/ExperimentNotebook';
+import { AlphaControlRoom } from '@/pages/AlphaControlRoom';
 import { AdminAnalyticsPage } from './pages/admin/AdminAnalyticsPage';
 import { Benchmarks } from '@/pages/Benchmarks';
 import { Pricing } from '@/pages/Pricing';
@@ -75,6 +76,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ExperimentNotebook />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/alpha"
+            element={
+              <ProtectedRoute>
+                <AlphaControlRoom />
               </ProtectedRoute>
             }
           />

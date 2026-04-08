@@ -32,7 +32,7 @@ const sidebarItems = [
 
 // External links that open in new tabs
 const externalLinks = [
-  { id: 'alpha', label: 'Alpha Control', icon: Cpu, url: '/admin/analytics' },
+  { id: 'alpha', label: 'Alpha Control', icon: Cpu, url: '/dashboard/alpha' },
 ];
 
 const DEFAULT_PARAMETERS: Parameter[] = [
