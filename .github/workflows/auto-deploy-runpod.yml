@@ -2,12 +2,9 @@ name: Auto-Deploy to RunPod (Post-Image-Push)
 
 on:
   workflow_run:
-    workflows:
-      - Deploy to Docker Hub
-    types:
-      - completed
-    branches:
-      - main
+    workflows: ["Deploy to Docker Hub"]
+    types: [completed]
+    branches: [main]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -16,71 +13,44 @@ jobs:
   auto-deploy-runpod:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    permissions:
-      contents: read
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          ref: main
+        uses: actions/checkout@v4
 
       - name: Restart RunPod to pull new image
         env:
           RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
-          RUNPOD_POD_ID: ${{ secrets.RUNPOD_POD_ID }}
+          RUNPOD_ID: ${{ secrets.RUNPOD_ID }}
         run: |
-          echo "Restarting pod to pull new image..."
-          
+          echo "Triggering Pod Restart for ID: $RUNPOD_ID"
           response=$(curl -s -X POST "https://api.runpod.io/graphql" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $RUNPOD_API_KEY" \
-            -d "{\"query\": \"mutation { podRestart(podId: \\"$RUNPOD_POD_ID\\") { id status } }\"}")
-          
-          echo "Restart response: $response"
+            -d "{\"query\": \"mutation { podRestart(podId: \\"$RUNPOD_ID\\") { id status } }\"}")
           
           if echo "$response" | grep -q "\"errors\""; then
-            echo "Error: GraphQL errors detected"
-            echo "$response"
+            echo "Deployment Failed: $response"
             exit 1
           fi
-          
-          echo "Pod restarted - new image will be pulled"
+          echo "Pod restarted successfully. Pulling simhpc-unified:latest..."
 
       - name: Wait for pod to be ready
         env:
           RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
-          RUNPOD_POD_ID: ${{ secrets.RUNPOD_POD_ID }}
+          RUNPOD_ID: ${{ secrets.RUNPOD_ID }}
         run: |
-          echo "Waiting for pod to come back up..."
-          max_attempts=30
           attempt=0
-          
-          while [ $attempt -lt $max_attempts ]; do
+          while [ $attempt -lt 20 ]; do
             attempt=$((attempt + 1))
-            
             status_response=$(curl -s -X POST "https://api.runpod.io/graphql" \
               -H "Content-Type: application/json" \
               -H "Authorization: Bearer $RUNPOD_API_KEY" \
-              -d "{\"query\": \"query { pod(input: { podId: \\"$RUNPOD_POD_ID\\"}) { id status } }\"}")
-            
+              -d "{\"query\": \"query { pod(input: { podId: \\"$RUNPOD_ID\\"}) { id status } }\"}")
             current_status=$(echo "$status_response" | grep -o "\"status\":\"[^\"]*\"" | head -1 | cut -d"\"" -f4)
-            echo "Attempt $attempt/$max_attempts: Pod status = $current_status"
-            
             if [ "$current_status" = "RUNNING" ]; then
-              echo "Pod is now RUNNING"
+              echo "Pod is RUNNING."
               exit 0
             fi
-            
-            sleep 5
+            sleep 10
           done
-          
-          echo "Pod did not come back within expected time"
           exit 1
-
-      - name: Report deployment status
-        run: |
-          echo "=== Deployment Complete ==="
-          echo "Workflow: ${{ github.event.workflow_run.name }}"
-          echo "Image deployed: simhpcworker/simhpc-unified:latest"
-          echo "Status: SUCCESS"

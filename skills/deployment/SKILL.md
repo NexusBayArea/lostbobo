@@ -137,6 +137,13 @@ infisical secrets set SSH_PRIVATE_KEY="[PASTE_YOUR_PRIVATE_KEY]"
 - **USE** `RUNPOD_SSH` for SSH address and `RUNPOD_TCP_PORT_22` for port
 - All values must be in Infisical and synced via GitHub App
 
+## Skill 12: RunPod Ground Truth (v2.6.4)
+
+**API Key**: `RUNPOD_API_KEY` - Use for GraphQL/Python scripts
+**Pod Identifier**: `RUNPOD_ID` - Never use `RUNPOD_POD_ID`
+**SSH**: `RUNPOD_SSH`, `RUNPOD_TCP_PORT_22` - Only if using SSH deployment
+**Automation**: We deploy via API `podRestart` - no SSH keys needed
+
 ## Skills Overview
 
 ### 1. Vercel Deploy
