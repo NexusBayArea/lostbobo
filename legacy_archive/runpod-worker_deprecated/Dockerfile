@@ -20,4 +20,4 @@ ENV MODEL_PATH=/workspace/models/mistral-7b-v0.1
 ENV SIMHPC_KEY=${SIMHPC_KEY}
 
 # Start command
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8888"]
