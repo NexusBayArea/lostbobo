@@ -40,19 +40,48 @@ jobs:
             simhpcworker/simhpc-worker:latest
             simhpcworker/simhpc-worker:v2.5.3
 
-      - name: Reset RunPod Pod
+      - name: Reset RunPod Pod (with fallback)
         env:
           RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
           RUNPOD_ID: ${{ secrets.RUNPOD_ID }}
         run: |
-          echo "Resetting pod: $RUNPOD_ID to pull latest image..."
+          echo "Checking pod status for: $RUNPOD_ID"
+          
+          status_response=$(curl -s -X POST "https://api.runpod.io/graphql" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $RUNPOD_API_KEY" \
+            -d "{\"query\": \"query { pod(input: { podId: \\\"$RUNPOD_ID\\\" }) { id desiredStatus } }\"}")
+          echo "Current status: $status_response"
+          
+          # Try podReset first
+          echo "Attempting podReset..."
           RESPONSE=$(curl -s -X POST "https://api.runpod.io/graphql" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $RUNPOD_API_KEY" \
             -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id } }\"}")
-          echo "Response: $RESPONSE"
+          echo "podReset response: $RESPONSE"
+          
           if echo "$RESPONSE" | grep -q "\"errors\""; then
-            echo "Error resetting pod"
-            exit 1
+            echo "podReset failed, falling back to stop+resume..."
+            
+            stop_resp=$(curl -s -X POST "https://api.runpod.io/graphql" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $RUNPOD_API_KEY" \
+              -d "{\"query\": \"mutation { podStop(input: { podId: \\\"$RUNPOD_ID\\\" }) { id } }\"}")
+            echo "Stop: $stop_resp"
+            sleep 5
+            
+            resume_resp=$(curl -s -X POST "https://api.runpod.io/graphql" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $RUNPOD_API_KEY" \
+              -d "{\"query\": \"mutation { podResume(input: { podId: \\\"$RUNPOD_ID\\\", gpuCount: 1 }) { id } }\"}")
+            echo "Resume: $resume_resp"
+            
+            if echo "$resume_resp" | grep -q "\"errors\""; then
+              echo "Fallback failed!"
+              exit 1
+            fi
+            echo "Pod cycle completed"
+          else
+            echo "Pod reset successfully"
           fi
-          echo "Pod reset successfully"
