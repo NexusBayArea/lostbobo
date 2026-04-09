@@ -10,6 +10,9 @@ import asyncio
 import httpx
 from datetime import datetime
 
+# Import add_usage_event from parent module for Authority Alignment
+from services.api.api import add_usage_event
+
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
@@ -664,7 +667,8 @@ async def create_simulation(
     # Increment active jobs counter (O(1))
     increment_active_runs_fn(user_id)
 
-    await increment_user_usage(user_id)
+    # Authority Alignment: Buffer usage event for batch flush
+    add_usage_event(user_id, 1, "simulation")
 
     return {
         "job_id": sim_id,

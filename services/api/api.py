@@ -917,6 +917,12 @@ async def flush_usage_to_supabase():
     SUPABASE_URL = os.getenv("SUPABASE_URL", "")
     SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
 
+    # Wait for app to start and get the HTTP client
+    while True:
+        await asyncio.sleep(1)
+        if hasattr(flush_usage_to_supabase, "app_started"):
+            break
+
     while True:
         await asyncio.sleep(flush_interval)
 
@@ -933,28 +939,22 @@ async def flush_usage_to_supabase():
             continue
 
         try:
-            # Use Supabase REST API for bulk insert via httpx
-            client: httpx.AsyncClient = httpx.AsyncClient()
+            # Use the Async Integrity client from lifespan (singleton)
+            client = flush_usage_to_supabase.http_client
             response = await client.post(
                 f"{SUPABASE_URL}/rest/v1/usage_logs",
                 json=batch_to_send,
                 headers={
                     "apikey": SUPABASE_KEY,
                     "Authorization": f"Bearer {SUPABASE_KEY}",
+                    "Content-Type": "application/json",
                     "Prefer": "return=minimal",
                 },
-                timeout=10.0,
             )
-            await client.aclose()
-            if response.status_code in (200, 201):
-                logger.info(f"Flushed {len(batch_to_send)} usage events to Supabase")
-            else:
-                logger.error(
-                    f"Usage flush failed: {response.status_code} {response.text}"
-                )
+            response.raise_for_status()
+            logger.info(f"Flushed {len(batch_to_send)} usage events to Supabase")
         except Exception as e:
             logger.error(f"Batch flush failed: {e}")
-            # Re-add to buffer for retry on next cycle (simplified - in production use dead letter queue)
 
 
 async def telemetry_worker():
@@ -1006,6 +1006,9 @@ async def lifespan(app: FastAPI):
     bg_worker = asyncio.create_task(telemetry_worker())
     recovery_task = asyncio.create_task(simulations_router.recovery_worker())
     usage_flush_task = asyncio.create_task(flush_usage_to_supabase())
+
+    # Set the HTTP client reference for the flush task
+    flush_usage_to_supabase.http_client = app.state.http_client
 
     # Initialize Onboarding Service
     global onboarding_service
