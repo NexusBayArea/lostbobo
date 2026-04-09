@@ -6,43 +6,35 @@
 
 ## Current Status
 
-- **v2.6.6**: **Lean Dockerfile.unified** + **podReset for deployments** + **Clean secret list**
+- **v2.6.6**: **API-Only Deployment** (no SSH) + **podReset** + **Clean secrets**
 
-## v2.6.6: Lean Deployment Pipeline (April 2026)
+## v2.6.6: API-Only Deployment (April 2026)
 
 ### Changes Applied
 
-1. **Dockerfile.unified** - Lean single-layer build
-   - Removed Infisical CLI install (secrets via native GitHub sync)
-   - Added jq for scripting
-   - Single RUN layer with cleanup
+1. **All SSH steps removed** - Replaced with podReset GraphQL mutation
+   - `deploy.yml` - Uses podReset
+   - `auto-deploy-runpod.yml` - Uses podReset
+   - `deploy-beta-runpod.yml` - Uses podReset
+   - `deploy-runpod.yml` - Uses podReset
 
-2. **podReset** - Required for fresh image pulls
-   - `podRestart` uses cached image layers
-   - `podReset` forces fresh docker pull (required for CI/CD)
+2. **GraphQL fixes** - Removed `status` field from mutations (API schema change)
+   - podReset returns `{ id }` only
+   - Status query uses `desiredStatus`
 
-3. **Lean Secrets** - Only CRITICAL vars needed:
+3. **Lean Secrets** - Only CRITICAL vars:
    - `RUNPOD_API_KEY` (CRITICAL)
    - `RUNPOD_ID` (CRITICAL)
    - `DOCKER_LOGIN` (CRITICAL)
    - `DOCKER_PW_TOKEN` (CRITICAL)
-   - Delete: `RUNPOD_SSH_KEY`, `RUNPOD_JUPYTER_PW`, `RUNPOD_USERNAME`
+   - Delete: `RUNPOD_SSH_KEY`, `RUNPOD_SSH`, `RUNPOD_TCP_PORT_22`, `RUNPOD_USERNAME`
 
-4. **Docker SKILL.md** - Updated with build SOP
+### PodReset vs PodRestart
 
-### Build via GitHub Actions
-
-```bash
-git push origin main
-# CI builds and pushes all images to Docker Hub
-```
-
-### Manual (if CI fails)
-
-```bash
-docker build -f Dockerfile.unified -t simhpcworker/simhpc-unified:latest .
-docker push simhpcworker/simhpc-unified:latest
-```
+| Action | Effect | Use Case |
+|--------|--------|----------|
+| `podRestart` | Reboots container, uses cached image | Quick debug |
+| `podReset` | Wipes container, pulls fresh image | **CI/CD deployments (REQUIRED)** |
 
 ---
 

@@ -1,16 +1,16 @@
 ---
 name: deployment
 description: Complete deployment pipeline for SimHPC - Vercel, GitHub, Docker Hub, Supabase, and RunPod.
-version: 2.6.4
+version: 2.6.6
 license: MIT
-compatibility: opencode
+ compatibility: opencode
 ---
 
 # Deployment Skill Set
 
-Complete deployment pipeline for SimHPC v2.6.4.
+Complete deployment pipeline for SimHPC v2.6.6.
 
-## Version: 2.6.4
+## Version: 2.6.6
 
 ## Docker Images
 
@@ -23,20 +23,44 @@ All images pushed to Docker Hub:
 | simhpcworker/simhpc-api | latest | FastAPI orchestrator |
 | simhpcworker/simhpc-autoscaler | latest | RunPod autoscaler |
 
-## Supabase Keys (SB Prefix)
+## API-Only Deployment (v2.6.6)
 
-**Important**: Infisical doesn't allow "SUPABASE" in key names. Use SB_ prefix:
+**No SSH** - All deployments use GraphQL API:
 
-| Infisical Key | Mapped To |
-|--------------|-----------|
-| SB_URL | VITE_SUPABASE_URL / SUPABASE_URL |
-| SB_ANON_KEY | VITE_SUPABASE_ANON_KEY / SUPABASE_ANON_KEY |
-| SB_SERVICE_ROLE_KEY | SUPABASE_SERVICE_ROLE_KEY |
-| SB_PROJECT_ID | Supabase project ref |
+### Secrets (v2.6.6) - Only CRITICAL vars
+
+| Secret | Purpose | Status |
+|--------|---------|--------|
+| `RUNPOD_API_KEY` | GraphQL API key | CRITICAL |
+| `RUNPOD_ID` | Pod identifier | CRITICAL |
+| `DOCKER_LOGIN` | Docker Hub username | CRITICAL |
+| `DOCKER_PW_TOKEN` | Docker Hub PAT | CRITICAL |
+
+**Delete if present:**
+- `RUNPOD_SSH_KEY` - Not needed
+- `RUNPOD_SSH` - Not needed
+- `RUNPOD_TCP_PORT_22` - Not needed
+- `RUNPOD_USERNAME` - Not needed
 
 ## GitHub Actions Workflow (deploy.yml)
 
-### Secrets (v2.6.4) - Strict Naming
+### PodReset Mutation
+
+```yaml
+- name: Reset RunPod Pod
+  run: |
+    RESPONSE=$(curl -s -X POST "https://api.runpod.io/graphql" \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $RUNPOD_API_KEY" \
+      -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id } }\"}")
+```
+
+### PodReset vs PodRestart
+
+| Action | Effect | Use Case |
+|--------|--------|----------|
+| `podRestart` | Reboots container, uses cached image | Quick debug |
+| `podReset` | Wipes container, pulls fresh image | **CI/CD deployments (REQUIRED)** |
 
 | Secret | Value |
 |--------|-------|

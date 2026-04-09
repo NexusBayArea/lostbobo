@@ -10,7 +10,7 @@ compatibility: opencode
 
 Build, push, and deploy SimHPC unified stack to RunPod GPU instances.
 
-## Version: 2.6.5 (Port 8888 + podReset)
+## Version: 2.6.6 (Port 8888 + podReset + API-Only)
 
 ## Vault-First Protocol
 
