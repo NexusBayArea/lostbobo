@@ -41,6 +41,10 @@ htmlcov/
 docs/
 everything-claude-code/
 
+# AI Agent Memory (not needed in container)
+skills/
+instructions/
+
 # Development files
 .env
 .env.local

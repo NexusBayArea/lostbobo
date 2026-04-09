@@ -1,0 +1,28 @@
+STRICT DEPLOYMENT RULES for SimHPC:
+
+1. NEVER use `git add .` or `git add -A`. Only stage files relevant to the specific task.
+
+2. NEVER commit:
+   - `.md` files (except README.md, CHANGELOG.md)
+   - `skills/` directory
+   - `instructions/` directory
+
+3. BEFORE pushing, run `git status` to verify only code files are staged.
+
+4. Focus on:
+   - `services/` (backend)
+   - `apps/` (frontend)
+   - `.github/workflows/` (CI/CD)
+   - `Dockerfile*` files
+
+5. Allowed config files:
+   - `package.json`
+   - `vercel.json`
+   - `.env.example`
+   - `.gitignore`
+   - `.dockerignore`
+
+6. Build & Deploy:
+   - Use `Dockerfile.unified` for unified image
+   - Use podReset for RunPod deployment (no SSH)
+   - Only deploy when explicitly requested

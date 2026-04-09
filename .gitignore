@@ -109,7 +109,13 @@ desktop.ini
 # Git
 .git-rewrite/
 
-# --- SimHPC Monorepo Specifics ---
+# --- AI Agent Memory & Skills (Local Only) ---
+# AI agents use these for context, but don't deploy to GitHub
+skills/
+instructions/
+*.md
+!README.md
+!CHANGELOG.md
 apps/**/node_modules/
 apps/**/dist/
 apps/**/build/
