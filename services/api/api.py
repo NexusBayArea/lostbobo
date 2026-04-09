@@ -886,6 +886,76 @@ class ConnectionManager:
 manager = ConnectionManager()
 telemetry_queue = asyncio.Queue()
 
+# --- Authority Alignment: Usage Buffer ---
+# Buffers usage events for batch flush to Supabase (prevents write pressure)
+USAGE_BUFFER: list = []
+USAGE_BUFFER_LOCK = asyncio.Lock()
+
+
+def add_usage_event(
+    user_id: str, amount: int, feature_type: str, metadata: dict = None
+):
+    """
+    Add a usage event to the buffer for batch processing.
+    Use this instead of direct Supabase writes to prevent write pressure.
+    """
+    global USAGE_BUFFER
+    event = {
+        "user_id": user_id,
+        "amount": amount,
+        "feature_type": feature_type,
+        "metadata": metadata or {},
+    }
+    # Note: In high-concurrency, consider using a queue instead of list
+    USAGE_BUFFER.append(event)
+
+
+async def flush_usage_to_supabase():
+    """Background task to batch-write usage events to Supabase."""
+    global USAGE_BUFFER
+    flush_interval = 10  # seconds
+    SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+    SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+
+    while True:
+        await asyncio.sleep(flush_interval)
+
+        if not USAGE_BUFFER:
+            continue
+
+        # Get buffer contents
+        async with USAGE_BUFFER_LOCK:
+            batch_to_send = USAGE_BUFFER.copy()
+            USAGE_BUFFER.clear()
+
+        if not SUPABASE_URL or not SUPABASE_KEY:
+            logger.warning("SUPABASE_URL or key not set, skipping usage flush")
+            continue
+
+        try:
+            # Use Supabase REST API for bulk insert via httpx
+            client: httpx.AsyncClient = httpx.AsyncClient()
+            response = await client.post(
+                f"{SUPABASE_URL}/rest/v1/usage_logs",
+                json=batch_to_send,
+                headers={
+                    "apikey": SUPABASE_KEY,
+                    "Authorization": f"Bearer {SUPABASE_KEY}",
+                    "Prefer": "return=minimal",
+                },
+                timeout=10.0,
+            )
+            await client.aclose()
+            if response.status_code in (200, 201):
+                logger.info(f"Flushed {len(batch_to_send)} usage events to Supabase")
+            else:
+                logger.error(
+                    f"Usage flush failed: {response.status_code} {response.text}"
+                )
+        except Exception as e:
+            logger.error(f"Batch flush failed: {e}")
+            # Re-add to buffer for retry on next cycle (simplified - in production use dead letter queue)
+
 
 async def telemetry_worker():
     """Background worker to broadcast telemetry from queue to websockets."""
@@ -935,6 +1005,7 @@ async def lifespan(app: FastAPI):
 
     bg_worker = asyncio.create_task(telemetry_worker())
     recovery_task = asyncio.create_task(simulations_router.recovery_worker())
+    usage_flush_task = asyncio.create_task(flush_usage_to_supabase())
 
     # Initialize Onboarding Service
     global onboarding_service
@@ -949,6 +1020,7 @@ async def lifespan(app: FastAPI):
     await app.state.http_client.aclose()
     bg_worker.cancel()
     recovery_task.cancel()
+    usage_flush_task.cancel()
     logger.info("SimHPC Platform shutting down")
 
 
