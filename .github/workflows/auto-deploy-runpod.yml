@@ -24,19 +24,19 @@ jobs:
         run: |
           echo "Targeting Pod: $RUNPOD_ID"
           
-          # 1. ATTEMPT POD RESET
-          echo "--- Attempting podReset ---"
-          RESET_RESP=$(curl -s -X POST "https://api.runpod.io/graphql" \
+          # 1. ATTEMPT PRIMARY METHOD: podReset
+          echo "--- Attempting podReset (Primary) ---"
+          RESPONSE=$(curl -s -X POST "https://api.runpod.io/graphql" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $RUNPOD_API_KEY" \
             -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id } }\"}")
-          echo "Reset Response: $RESET_RESP"
+          
+          echo "API Response: $RESPONSE"
 
-          # Check if Reset succeeded
-          if echo "$RESET_RESP" | grep -q "\"errors\"" || [[ -z "$RESET_RESP" ]]; then
-            echo "podReset failed or returned error. Triggering fallback cycle..."
+          if echo "$RESPONSE" | grep -q "\"errors\"" || [[ -z "$RESPONSE" ]]; then
+            echo "podReset failed. Triggering fallback cycle (Stop -> Resume)..."
             
-            # 2. FALLBACK: STOP
+            # 2. FALLBACK STAGE 1: STOP
             echo "--- Fallback Stage 1: Stopping Pod ---"
             STOP_RESP=$(curl -s -X POST "https://api.runpod.io/graphql" \
               -H "Content-Type: application/json" \
@@ -44,9 +44,10 @@ jobs:
               -d "{\"query\": \"mutation { podStop(input: { podId: \\\"$RUNPOD_ID\\\" }) { id } }\"}")
             echo "Stop Response: $STOP_RESP"
             
-            sleep 15
+            echo "Waiting 20 seconds for GPU release..."
+            sleep 20
             
-            # 3. FALLBACK: RESUME
+            # 3. FALLBACK STAGE 2: RESUME
             echo "--- Fallback Stage 2: Resuming Pod ---"
             RESUME_RESP=$(curl -s -X POST "https://api.runpod.io/graphql" \
               -H "Content-Type: application/json" \
@@ -55,12 +56,12 @@ jobs:
             echo "Resume Response: $RESUME_RESP"
 
             if echo "$RESUME_RESP" | grep -q "\"errors\""; then
-              echo "Critical Error: Both Reset and Resume failed."
+              echo "CRITICAL ERROR: Both Reset and Resume failed."
               exit 1
             fi
-            echo "Pod successfully cycled (Stop -> Resume)"
+            echo "Pod successfully cycled via Fallback"
           else
-            echo "Pod reset successfully on the first try"
+            echo "Pod successfully reset on the first try"
           fi
 
       - name: Wait for pod
