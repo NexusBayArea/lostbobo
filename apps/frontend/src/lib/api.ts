@@ -94,6 +94,12 @@ class ApiClient {
     });
   }
 
+  async getUsage(token: string): Promise<{ used: number; limit: number; remaining: number }> {
+    return this.request<{ used: number; limit: number; remaining: number }>('/simulations/usage', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  }
+
   async subscribe(plan: string, token: string): Promise<{ url: string }> {
     return this.request<{ url: string }>('/subscribe', {
       method: 'POST',

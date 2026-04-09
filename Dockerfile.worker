@@ -36,7 +36,7 @@ RUN useradd -m simuser && \
 USER simuser
 
 # Expose API port
-EXPOSE 8000
+EXPOSE 8888
 
 # Launch both API and Worker via the orchestrator
 CMD ["./start.sh"]

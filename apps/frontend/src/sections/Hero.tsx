@@ -12,12 +12,12 @@ export function Hero() {
   const handleDemoClick = async () => {
     try {
       setIsDemoLoading(true);
-      const response = await fetch('https://40n3yh92ugakps-8000.proxy.runpod.net/demo/general', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/demo/general`, {
         method: 'POST',
       });
       const data = await response.json();
       if (data.redirect_url) {
-        window.location.href = `https://40n3yh92ugakps-8000.proxy.runpod.net${data.redirect_url}`;
+        window.location.href = `${import.meta.env.VITE_API_URL}${data.redirect_url}`;
       } else {
         throw new Error('No redirect URL received');
       }

@@ -1,48 +1,131 @@
-# SimHPC v2.6.5 Unified - API + Worker + Autoscaler
-# Port: 8888
+# ═══════════════════════════════════════════════════════════
+# SimHPC Production Unified Dockerfile (v2.6.26)
+# Optimized for: layer caching, health checks, security, efficiency
+# ═══════════════════════════════════════════════════════════════════
 
-FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04
+FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04 AS base
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONPATH=/app
-WORKDIR /app
+# ───────────────────────────────────────────────────────────
+# Stage 1: Base - System dependencies & security hardening
+# ───────────────────────────────────────────────────────────
 
-# Single RUN layer - update, install, cleanup
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    APP_HOME=/app \
+    PYTHONPATH=/app \
+    HF_HOME=/workspace/huggingface \
+    VLLM_CACHE=/workspace/vllm_cache
+
+WORKDIR $APP_HOME
+
+# Install system dependencies in single layer
 RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
-    python3-pip python3-dev git curl bash gcc psmisc jq && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    python3-pip \
+    python3-dev \
+    git \
+    curl \
+    bash \
+    gcc \
+    psmisc \
+    jq \
+    redis-tools \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip in same layer
+# Upgrade pip
 RUN pip3 install --no-cache-dir --upgrade pip setuptools>=78.1.1 wheel>=0.38.1
 
-# Copy requirements and install dependencies
-COPY services/worker/requirements.txt ./req-worker.txt
-COPY services/worker/requirements-autoscaler.txt ./req-auto.txt
+# Create non-root user for security
+RUN useradd -m -u 1000 simuser && \
+    mkdir -p $APP_HOME && \
+    chown -R simuser:simuser $APP_HOME
+
+# ───────────────────────────────────────────────────────────
+# Stage 2: Dependencies - Cached layer for pip packages
+# ───────────────────────────────────────────────────────────
+
+FROM base AS builder
+
+# Copy requirements files first (maximum layer cache efficiency)
+COPY --chown=simuser:simuser services/worker/requirements.txt ./req-worker.txt
+COPY --chown=simuser:simuser services/worker/requirements-autoscaler.txt ./req-auto.txt
+
+# Install Python dependencies
 RUN pip3 install --no-cache-dir -r req-worker.txt && \
     pip3 install --no-cache-dir -r req-auto.txt
 
+# Verify critical packages installed
+RUN python3 -c "import fastapi, redis, pydantic, httpx, supabase; print('✓ Core dependencies OK')"
+
+# ───────────────────────────────────────────────────────────
+# Stage 3: Runtime - Final optimized image
+# ───────────────────────────────────────────────────────────
+
+FROM base AS runtime
+
+# Copy Python dependencies from builder
+COPY --from=builder /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
 # Copy API files
-COPY services/api/api.py .
-COPY services/api/auth_utils.py .
-COPY services/api/demo_access.py .
-COPY services/api/job_queue.py .
-COPY services/api/app/ ./app/
+COPY --chown=simuser:simuser services/api/api.py .
+COPY --chown=simuser:simuser services/api/auth_utils.py .
+COPY --chown=simuser:simuser services/api/demo_access.py .
+COPY --chown=simuser:simuser services/api/job_queue.py .
+COPY --chown=simuser:simuser services/api/app/ ./app/
 
 # Copy Worker files
-COPY services/worker/worker.py .
-COPY services/worker/runpod_api.py .
-COPY services/worker/autoscaler.py .
+COPY --chown=simuser:simuser services/worker/worker.py .
+COPY --chown=simuser:simuser services/worker/runpod_api.py .
+COPY --chown=simuser:simuser services/worker/autoscaler.py .
 
 # Copy startup script
-COPY services/worker/start.sh .
+COPY --chown=simuser:simuser services/worker/start.sh .
 
-# Create non-root user
-RUN useradd -m simuser && \
-    chown -R simuser:simuser /app && \
-    chmod +x start.sh
+# Set permissions
+RUN chmod +x start.sh
 
+# Switch to non-root user
 USER simuser
 
+# ───────────────────────────────────────────────────────────
+# Health Checks
+# ───────────────────────────────────────────────────────────
+
+# Health check: Verify API is responding on port 8888
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8888/api/v1/health || exit 1
+
+# ───────────────────────────────────────────────────────────
+# Expose Port
+# ───────────────────────────────────────────────────────────
+
 EXPOSE 8888
-CMD ["/bin/bash", "-c", "fuser -k 8888/tcp || true && ./start.sh"]
+
+# ───────────────────────────────────────────────────────────
+# Startup Command - Unified (API + Worker + Autoscaler)
+# ───────────────────────────────────────────────────────────
+
+# Uses start.sh which runs all three services in background
+CMD ["./start.sh"]
+
+# ═══════════════════════════════════════════════════════════
+# Build Optimization Notes
+# ═══════════════════════════════════════════════════════════
+#
+# Layer Caching Strategy:
+# 1. Base image (nvidia/cuda) → cached
+# 2. System deps → cached
+# 3. requirements.txt → rebuilds if changed
+# 4. Application code → rebuilds if changed
+#
+# To build:
+#   docker build -f Dockerfile.unified -t simhpcworker/simhpc-unified:latest .
+#   docker build -f Dockerfile.unified -t simhpcworker/simhpc-unified:latest . --build-arg BUILDKIT_INLINE_CACHE=1
+#
+# For Docker Hub:
+#   docker build -f Dockerfile.unified -t simhpcworker/simhpc-unified:latest .
+#   docker push simhpcworker/simhpc-unified:latest
+#
+# ═══════════════════════════════════════════════════════════

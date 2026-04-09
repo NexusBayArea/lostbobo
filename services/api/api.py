@@ -46,6 +46,7 @@ from app.api.routes import simulations as simulations_router  # noqa: E402
 from app.api.routes import certificates as certificates_router  # noqa: E402
 from app.api.routes import control as control_router  # noqa: E402
 from app.api.routes import admin as admin_router  # noqa: E402
+from app.api.routes import ws as ws_router  # noqa: E402
 
 # Import local services (API-only — no numpy/scipy/matplotlib)
 from auth_utils import verify_user  # noqa: E402
@@ -95,6 +96,48 @@ try:
 except ImportError:
     supabase_client = None
     logger.warning("supabase-py not installed — control commands restricted")
+
+
+# --- WORKER REGISTRY ---
+def get_active_workers() -> List[dict]:
+    """Retrieve all active workers from the Redis registry."""
+    active_worker_ids = r_client.smembers("workers:active")
+    workers = []
+
+    for wid in active_worker_ids:
+        # Check heartbeat
+        if not r_client.exists(f"worker:heartbeat:{wid}"):
+            # Stale worker, prune it
+            r_client.srem("workers:active", wid)
+            r_client.delete(f"worker:metadata:{wid}")
+            continue
+
+        metadata = r_client.hgetall(f"worker:metadata:{wid}")
+        if metadata:
+            workers.append(metadata)
+
+    return workers
+
+
+async def check_compute_availability():
+    """Ensure at least one worker is alive before enqueuing."""
+    workers = get_active_workers()
+    if not workers:
+        logger.error("No active workers found in registry")
+        # Fallback: check if we should trigger an autoscale event
+        r_client.lpush(
+            "runpod_events",
+            json.dumps(
+                {
+                    "ts": datetime.now().isoformat(),
+                    "event": "no_workers_available",
+                    "details": "Job submission failed due to empty registry",
+                }
+            ),
+        )
+        raise HTTPException(503, "no_active_pods")
+    return workers
+
 
 # --- LIMITS & RATE LIMITING ---
 WEEKLY_LIMIT = 10
@@ -468,115 +511,63 @@ USAGE_WINDOW_DAYS = 7  # Rolling 7-day window for Free tier
 
 
 async def get_user_usage(user_id: str) -> dict:
-    """Get current usage stats for a user."""
+    """Get current usage stats for a user (Supabase Authority)."""
     try:
-        # Check Redis for usage data
-        usage_key = f"usage:{user_id}"
-        usage_data = r_client.get(usage_key)
-
-        if usage_data:
-            data = json.loads(usage_data)
-            reset_timestamp = datetime.fromisoformat(data.get("reset_timestamp", ""))
-
-            # Check if window has expired
-            if datetime.now() > reset_timestamp:
-                # Reset usage
-                new_reset = datetime.now() + timedelta(days=USAGE_WINDOW_DAYS)
-                reset_data = {
-                    "runs_used": 0,
-                    "reset_timestamp": new_reset.isoformat(),
-                    "last_updated": datetime.now().isoformat(),
-                }
-                r_client.setex(
-                    usage_key, USAGE_WINDOW_DAYS * 86400, json.dumps(reset_data)
-                )
-                return reset_data
-
-            return data
-        else:
-            # Initialize new usage record
-            reset_timestamp = datetime.now() + timedelta(days=USAGE_WINDOW_DAYS)
-            initial_data = {
-                "runs_used": 0,
-                "reset_timestamp": reset_timestamp.isoformat(),
-                "last_updated": datetime.now().isoformat(),
-            }
-            r_client.setex(
-                usage_key, USAGE_WINDOW_DAYS * 86400, json.dumps(initial_data)
-            )
-            return initial_data
-
+        used = await get_weekly_usage(user_id)
+        
+        # Reset timestamp is now illustrative of the rolling window
+        # In a strict rolling window, the oldest run "expires" 7 days after it was created.
+        next_reset = datetime.now() + timedelta(days=USAGE_WINDOW_DAYS)
+        
+        return {
+            "runs_used": used,
+            "reset_timestamp": next_reset.isoformat(),
+            "last_updated": datetime.now().isoformat(),
+        }
     except Exception as e:
-        logger.error(f"Error getting user usage: {e}")
-        # Return default usage data on error
-        reset_timestamp = datetime.now() + timedelta(days=USAGE_WINDOW_DAYS)
+        logger.error(f"Error getting user usage from Supabase: {e}")
         return {
             "runs_used": 0,
-            "reset_timestamp": reset_timestamp.isoformat(),
+            "reset_timestamp": (datetime.now() + timedelta(days=USAGE_WINDOW_DAYS)).isoformat(),
             "last_updated": datetime.now().isoformat(),
         }
 
 
 async def increment_user_usage(user_id: str, runs: int = 1) -> bool:
-    """Increment user usage count. Returns True if within limits."""
-    try:
-        usage_key = f"usage:{user_id}"
-        usage_data = r_client.get(usage_key)
-
-        if not usage_data:
-            # Initialize if not exists
-            reset_timestamp = datetime.now() + timedelta(days=USAGE_WINDOW_DAYS)
-            data = {
-                "runs_used": runs,
-                "reset_timestamp": reset_timestamp.isoformat(),
-                "last_updated": datetime.now().isoformat(),
-            }
-            r_client.setex(usage_key, USAGE_WINDOW_DAYS * 86400, json.dumps(data))
-            return True
-
-        data = json.loads(usage_data)
-        reset_timestamp = datetime.fromisoformat(data.get("reset_timestamp", ""))
-
-        # Check if window has expired
-        if datetime.now() > reset_timestamp:
-            # Reset and start new window
-            reset_timestamp = datetime.now() + timedelta(days=USAGE_WINDOW_DAYS)
-            data["runs_used"] = runs
-            data["reset_timestamp"] = reset_timestamp.isoformat()
-        else:
-            # Increment within current window
-            data["runs_used"] = data.get("runs_used", 0) + runs
-
-        data["last_updated"] = datetime.now().isoformat()
-        r_client.setex(usage_key, USAGE_WINDOW_DAYS * 86400, json.dumps(data))
-        return True
-
-    except Exception as e:
-        logger.error(f"Error incrementing user usage: {e}")
-        return False
+    """
+    Deprecated: Usage is now implicitly incremented by DB insert in create_simulation.
+    This remains as a no-op for backward compatibility.
+    """
+    return True
 
 
 async def check_concurrent_runs(user_id: str) -> bool:
-    """Check if user has any running simulations."""
+    """Check if user has any running simulations using O(1) counter."""
     try:
-        # Look for jobs belonging to this user with status 'running'
-        pattern = "job:*"
-        user_keys = r_client.keys(pattern)
-
-        for key in user_keys:
-            job_data = r_client.hgetall(key)
-            if (
-                job_data
-                and job_data.get("user_id") == user_id
-                and job_data.get("status") == "running"
-            ):
-                return True  # User has a running job
-
-        return False
-
+        active_runs = int(r_client.get(f"user:{user_id}:active_runs") or 0)
+        return active_runs > 0
     except Exception as e:
         logger.error(f"Error checking concurrent runs: {e}")
-        return False  # Assume no concurrent runs on error
+        return False
+
+
+def increment_active_runs(user_id: str):
+    """Increment the active runs counter for a user."""
+    try:
+        r_client.incr(f"user:{user_id}:active_runs")
+    except Exception as e:
+        logger.error(f"Failed to increment active runs: {e}")
+
+
+def decrement_active_runs(user_id: str):
+    """Decrement the active runs counter for a user."""
+    try:
+        # Ensure it doesn't go below 0
+        val = r_client.decr(f"user:{user_id}:active_runs")
+        if val < 0:
+            r_client.set(f"user:{user_id}:active_runs", 0)
+    except Exception as e:
+        logger.error(f"Failed to decrement active runs: {e}")
 
 
 # --- UTILS ---
@@ -810,32 +801,34 @@ async def check_plan_limits(
 
 
 # --- IDEMPOTENCY ---
-async def check_idempotency(idempotency_key: str, user_id: str) -> Optional[str]:
+async def reserve_idempotency(user_id: str, idempotency_key: str, sim_id: str) -> bool:
     """
-    Check if request is idempotent. Returns existing run_id if found.
-    Uses Redis with 24hr TTL.
+    Atomically reserve an idempotency key.
+    Returns True if reserved, False if already exists.
     """
     if not idempotency_key:
-        return None
+        return True
 
     key = f"idempotency:{user_id}:{idempotency_key}"
-    existing = r_client.get(key)
+    # SET with NX (set if not exists) and EX (expire in 24hrs)
+    return bool(r_client.set(key, sim_id, nx=True, ex=86400))
 
-    if existing:
-        logger.info(
-            f"Idempotent request detected: {idempotency_key}, existing run: {existing}"
-        )
-        return existing
 
-    # Store new key
-    return None
+async def get_idempotency_value(user_id: str, idempotency_key: str) -> Optional[str]:
+    """Retrieve the simulation ID associated with an idempotency key."""
+    if not idempotency_key:
+        return None
+    return r_client.get(f"idempotency:{user_id}:{idempotency_key}")
+
+
+async def check_idempotency(idempotency_key: str, user_id: str) -> Optional[str]:
+    """Backward compatible stub for check_idempotency."""
+    return await get_idempotency_value(user_id, idempotency_key)
 
 
 def store_idempotency(idempotency_key: str, user_id: str, run_id: str):
-    """Store idempotency key mapping."""
-    if idempotency_key:
-        key = f"idempotency:{user_id}:{idempotency_key}"
-        r_client.setex(key, 86400, run_id)  # 24hr TTL
+    """Backward compatible stub for store_idempotency."""
+    pass
 
 
 # --- RATE LIMITER ---
@@ -983,6 +976,11 @@ simulations_router.init_routes(
     get_weekly_usage,
     WEEKLY_LIMIT,
     telemetry_queue,
+    check_compute_availability,
+    reserve_idempotency_fn=reserve_idempotency,
+    get_idempotency_value_fn=get_idempotency_value,
+    increment_active_runs_fn=increment_active_runs,
+    decrement_active_runs_fn=decrement_active_runs,
 )
 
 certificates_router.init_routes(
@@ -999,6 +997,7 @@ app.include_router(admin_router.router, prefix="/api/v1/admin", tags=["Admin"])
 app.include_router(
     onboarding_router.router, prefix="/api/v1/onboarding", tags=["Onboarding"]
 )
+app.include_router(ws_router.router, tags=["WebSocket"])
 
 
 # --- USAGE & RATE LIMITING ENDPOINTS ---

@@ -46,6 +46,31 @@ async def get_user_usage(user_id: str) -> dict:
     raise RuntimeError("get_user_usage not initialized")
 
 
+async def check_compute_availability_fn():
+    """Stub replaced by init_routes()."""
+    raise RuntimeError("check_compute_availability_fn not initialized")
+
+
+async def reserve_idempotency_fn(user_id: str, key: str, sim_id: str) -> bool:
+    """Stub replaced by init_routes()."""
+    raise RuntimeError("reserve_idempotency_fn not initialized")
+
+
+async def get_idempotency_value_fn(user_id: str, key: str) -> Optional[str]:
+    """Stub replaced by init_routes()."""
+    raise RuntimeError("get_idempotency_value_fn not initialized")
+
+
+def increment_active_runs_fn(user_id: str):
+    """Stub replaced by init_routes()."""
+    raise RuntimeError("increment_active_runs_fn not initialized")
+
+
+def decrement_active_runs_fn(user_id: str):
+    """Stub replaced by init_routes()."""
+    raise RuntimeError("decrement_active_runs_fn not initialized")
+
+
 # Shared dependencies imported at module level
 # These are set by the main app during startup
 supabase_client: Any = None
@@ -92,6 +117,11 @@ def init_routes(
     weekly_usage_fn=None,
     weekly_limit=10,
     telemetry_queue_ref=None,
+    compute_availability_fn=None,
+    reserve_idempotency_fn_ref=None,
+    get_idempotency_value_fn_ref=None,
+    increment_active_runs_fn_ref=None,
+    decrement_active_runs_fn_ref=None,
 ):
     global supabase_client, r_client, verify_auth, enqueue_job, get_job, set_job
     global update_job_field, PLAN_LIMITS, UserPlan, record_simulation_start
@@ -100,8 +130,11 @@ def init_routes(
         store_idempotency, \
         check_concurrent_runs, \
         increment_user_usage, \
-        get_user_usage
+        get_user_usage, \
+        check_compute_availability_fn
     global check_rate_limit_fn, get_weekly_usage_fn, WEEKLY_LIMIT, telemetry_queue
+    global reserve_idempotency_fn, get_idempotency_value_fn, increment_active_runs_fn, decrement_active_runs_fn
+
     supabase_client = supabase
     r_client = redis
     verify_auth = auth_dep
@@ -123,6 +156,11 @@ def init_routes(
     get_weekly_usage_fn = weekly_usage_fn
     WEEKLY_LIMIT = weekly_limit
     telemetry_queue = telemetry_queue_ref
+    check_compute_availability_fn = compute_availability_fn
+    reserve_idempotency_fn = reserve_idempotency_fn_ref
+    get_idempotency_value_fn = get_idempotency_value_fn_ref
+    increment_active_runs_fn = increment_active_runs_fn_ref
+    decrement_active_runs_fn = decrement_active_runs_fn_ref
 
 
 # --- INTERNAL: RunPod Job Client ---
@@ -498,6 +536,27 @@ async def create_simulation(
     plan = user.get("plan", UserPlan.FREE)
     limits = PLAN_LIMITS[plan]
 
+    # 0. Check worker availability (Full Infra Registry)
+    await check_compute_availability_fn()
+
+    # 0.1 Idempotency Check (Atomic)
+    # Using a temporary UUID if we need to reserve, otherwise we get existing sim_id
+    temp_sim_id = str(uuid.uuid4())
+    idempotency_key = request.input_params.get("idempotency_key") if request.input_params else None
+    
+    if idempotency_key:
+        is_new = await reserve_idempotency_fn(user_id, idempotency_key, temp_sim_id)
+        if not is_new:
+            existing_id = await get_idempotency_value_fn(user_id, idempotency_key)
+            return {
+                "job_id": existing_id,
+                "status": "already_exists",
+                "message": "Duplicate request detected. Returning existing job ID.",
+            }
+        sim_id = temp_sim_id
+    else:
+        sim_id = temp_sim_id
+
     # 1. Rate limit — prevent spam clicking (10s cooldown)
     if check_rate_limit_fn:
         check_rate_limit_fn(user_id)
@@ -522,8 +581,6 @@ async def create_simulation(
     has_running = await check_concurrent_runs(user_id)
     if has_running and plan == UserPlan.FREE:
         raise HTTPException(409, "Free tier allows only one concurrent simulation.")
-
-    sim_id = str(uuid.uuid4())
 
     # Extract config from request
     config = request.config
@@ -578,6 +635,9 @@ async def create_simulation(
     # Patch logic: Set job detail key and push ID to queue
     r_client.set(f"job:{sim_id}", json.dumps(job_data))
     enqueue_job(sim_id)
+    
+    # Increment active jobs counter (O(1))
+    increment_active_runs_fn(user_id)
     
     await increment_user_usage(user_id)
 

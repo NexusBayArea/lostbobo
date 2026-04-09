@@ -10,7 +10,7 @@ interface RunControlPanelProps {
   numRuns: number;
   samplingMethod: string;
   activeParams: number;
-  userBalance: number;
+  remainingRuns: number;
 }
 
 export function RunControlPanel({ 
@@ -20,7 +20,7 @@ export function RunControlPanel({
   numRuns: initialNumRuns,
   samplingMethod: initialMethod,
   activeParams,
-  userBalance = 5000 // Mock default
+  remainingRuns = 0
 }: RunControlPanelProps) {
   const [method, setMethod] = useState<'lhs' | 'sobol'>(
     initialMethod === 'sobol' ? 'sobol' : 'lhs'
@@ -33,10 +33,9 @@ export function RunControlPanel({
     return method === 'sobol' ? baseN * (D + 2) : baseN;
   }, [method, baseN, activeParams]);
 
-  // Pricing logic: 2 tokens per simulation for Sobol, 5 for LHS
-  const pricePerRun = method === 'sobol' ? 2 : 5;
-  const estimatedCost = requiredRuns * pricePerRun + 50;
-  const canAfford = userBalance >= estimatedCost;
+  // Backend currently tracks "runs" as the unit of limit
+  const estimatedCost = 1; // 1 run from the weekly quota
+  const canAfford = remainingRuns >= estimatedCost;
 
   const handleInitialize = () => {
     onStartRun({
@@ -111,12 +110,12 @@ export function RunControlPanel({
             <p className="text-xl font-mono font-bold text-slate-900 dark:text-white">{requiredRuns}</p>
           </div>
           <div className="space-y-1 text-right">
-            <span className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-semibold">Estimated Cost</span>
+            <span className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-semibold">Quota Usage</span>
             <p className={cn(
               "text-xl font-mono font-bold",
               canAfford ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
             )}>
-              {estimatedCost} <span className="text-xs">SHPC</span>
+              1 <span className="text-xs">Run</span>
             </p>
           </div>
         </div>
@@ -158,13 +157,13 @@ export function RunControlPanel({
               ) : (
                 <>
                   <AlertCircle size={20} />
-                  Insufficient Tokens
+                  Limit Reached
                 </>
               )}
             </button>
             {!canAfford && (
               <button className="w-full text-blue-600 dark:text-blue-400 text-sm font-semibold hover:underline">
-                Purchase Compute Tokens
+                Upgrade Plan for More Runs
               </button>
             )}
           </div>
@@ -174,7 +173,7 @@ export function RunControlPanel({
             className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-bold bg-red-50 dark:bg-red-900/20 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all border border-red-100 dark:border-red-900/30"
           >
             <X className="w-5 h-5" />
-            Cancel and Refund Credits
+            Cancel and Stop Simulation
           </button>
         )}
       </div>

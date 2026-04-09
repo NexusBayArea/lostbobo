@@ -108,7 +108,7 @@ export function AdminAnalyticsPage() {
     try {
       const token = await getToken();
       // Panic button logic via API trigger
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/admin/fleet/panic`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8888'}/api/v1/admin/fleet/panic`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });

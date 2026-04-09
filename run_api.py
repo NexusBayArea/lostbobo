@@ -20,7 +20,9 @@ else:
 try:
     from worker import app
 except ImportError as e:
-    print(f"❌ Critical Error: Could not import 'app' from 'worker.py'. Path: {sys.path}")
+    print(
+        f"❌ Critical Error: Could not import 'app' from 'worker.py'. Path: {sys.path}"
+    )
     raise e
 
 # Force add CORS middleware just in case
@@ -33,5 +35,5 @@ app.add_middleware(
 )
 
 if __name__ == "__main__":
-    print(f"🚀 Starting SimHPC Worker API (Port 8000)...")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print(f"🚀 Starting SimHPC Worker API (Port 8888)...")
+    uvicorn.run(app, host="0.0.0.0", port=8888)

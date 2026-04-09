@@ -51,7 +51,20 @@ export function Dashboard() {
   const [currentRunId, setCurrentRunId] = useState<string | null>(null);
   const [currentStatus, setCurrentStatus] = useState<'pending' | 'running' | 'completed' | 'failed' | 'queued' | 'processing'>('queued');
   const [progress, setProgress] = useState(0);
-  const [userBalance, setUserBalance] = useState(5000);
+  const [usage, setUsage] = useState<{ used: number; limit: number; remaining: number } | null>(null);
+
+  useEffect(() => {
+    const fetchUsage = async () => {
+      try {
+        const token = getToken();
+        const stats = await api.getUsage(token);
+        setUsage(stats);
+      } catch (error) {
+        console.error('Failed to fetch usage stats:', error);
+      }
+    };
+    if (user) fetchUsage();
+  }, [user]);
 
   // Robustness Config State
   const [robustnessEnabled, setRobustnessEnabled] = useState(true);
@@ -396,7 +409,7 @@ export function Dashboard() {
                 numRuns={numRuns}
                 samplingMethod={samplingMethod}
                 activeParams={parameters.filter(p => p.perturbable).length}
-                userBalance={userBalance}
+                userBalance={usage?.remaining ?? 0}
               />
 
               {isRunning && (

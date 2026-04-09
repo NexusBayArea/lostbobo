@@ -36,7 +36,7 @@ with open(path, 'w') as f: f.write(content)"
     
     # Restart the API if lsof is available
     if command -v lsof >/dev/null 2>&1; then
-        kill -9 $(lsof -t -i:8000) 2>/dev/null
+        kill -9 $(lsof -t -i:8888) 2>/dev/null
     fi
     python3 /runpod-volume/app/run_api.py &
     echo "✅ API Restored with CORS."
@@ -48,20 +48,20 @@ with open(path, 'w') as f: f.write(content)"
   start-api)
     echo "🚀 Starting SimHPC Worker API..."
     cd /runpod-volume/app
-    nohup uvicorn worker:app --host 0.0.0.0 --port 8000 --reload > /runpod-volume/api.log 2>&1 &
+    nohup uvicorn worker:app --host 0.0.0.0 --port 8888 --reload > /runpod-volume/api.log 2>&1 &
     echo "✅ API started in background. Logs: /runpod-volume/api.log"
     ;;
   restart-api)
     echo "🔄 Restarting SimHPC Worker API..."
     pkill -f uvicorn
     sleep 2
-    cd /runpod-volume/app && nohup uvicorn worker:app --host 0.0.0.0 --port 8000 --reload > /runpod-volume/api.log 2>&1 &
+    cd /runpod-volume/app && nohup uvicorn worker:app --host 0.0.0.0 --port 8888 --reload > /runpod-volume/api.log 2>&1 &
     echo "✅ API restarted in background. Logs: /runpod-volume/api.log"
     ;;
   status)
     echo "📊 SimHPC Stack Status:"
     POD_ID=$(infisical secrets get RUNPOD_ID --plain 2>/dev/null || echo "UNKNOWN")
-    echo "RunPod API: https://${POD_ID}-8000.proxy.runpod.net/health"
+    echo "RunPod API: https://${POD_ID}-8888.proxy.runpod.net/health"
     echo "Frontend: https://simhpc.com"
     ;;
   *)
