@@ -7,7 +7,7 @@ import os
 import time
 import logging
 import asyncio
-import requests
+import httpx
 from datetime import datetime
 
 router = APIRouter()
@@ -92,6 +92,7 @@ get_user_usage: Any = None
 check_rate_limit_fn: Any = None
 get_weekly_usage_fn: Any = None
 telemetry_queue: Any = None
+http_client: Any = None
 WEEKLY_LIMIT: int = 10
 
 
@@ -122,6 +123,7 @@ def init_routes(
     get_idempotency_value_fn_ref=None,
     increment_active_runs_fn_ref=None,
     decrement_active_runs_fn_ref=None,
+    http_client_ref=None,
 ):
     global supabase_client, r_client, verify_auth, enqueue_job, get_job, set_job
     global update_job_field, PLAN_LIMITS, UserPlan, record_simulation_start
@@ -133,7 +135,12 @@ def init_routes(
         get_user_usage, \
         check_compute_availability_fn
     global check_rate_limit_fn, get_weekly_usage_fn, WEEKLY_LIMIT, telemetry_queue
-    global reserve_idempotency_fn, get_idempotency_value_fn, increment_active_runs_fn, decrement_active_runs_fn
+    global \
+        reserve_idempotency_fn, \
+        get_idempotency_value_fn, \
+        increment_active_runs_fn, \
+        decrement_active_runs_fn, \
+        http_client
 
     supabase_client = supabase
     r_client = redis
@@ -161,16 +168,29 @@ def init_routes(
     get_idempotency_value_fn = get_idempotency_value_fn_ref
     increment_active_runs_fn = increment_active_runs_fn_ref
     decrement_active_runs_fn = decrement_active_runs_fn_ref
+    http_client = http_client_ref
 
 
 # --- INTERNAL: RunPod Job Client ---
 class RunPodJobClient:
-    """Client for submitting and polling RunPod jobs."""
+    """Client for submitting and polling RunPod jobs (async)."""
 
-    def __init__(self, api_key: str = None, pod_id: str = None):
+    def __init__(
+        self,
+        api_key: str = None,
+        pod_id: str = None,
+        http_client: httpx.AsyncClient = None,
+    ):
         self.api_key = api_key or os.getenv("RUNPOD_API_KEY")
         self.pod_id = pod_id or os.getenv("RUNPOD_POD_ID")
         self.base_url = "https://api.runpod.ai/v2"
+        self._client = http_client
+
+    async def _get_client(self) -> httpx.AsyncClient:
+        """Get or create async HTTP client."""
+        if self._client is None:
+            return httpx.AsyncClient(timeout=30.0)
+        return self._client
 
     async def run_job(self, payload: dict) -> str:
         """Submit a job to RunPod and return job ID."""
@@ -180,11 +200,12 @@ class RunPodJobClient:
         url = f"{self.base_url}/{self.pod_id}/run"
 
         try:
-            response = requests.post(
+            client = await self._get_client()
+            response = await client.post(
                 url,
                 json={"input": payload},
                 headers={"Authorization": f"Bearer {self.api_key}"},
-                timeout=30,
+                timeout=30.0,
             )
             response.raise_for_status()
             data = response.json()
@@ -203,10 +224,11 @@ class RunPodJobClient:
         url = f"{self.base_url}/{self.pod_id}/status/{job_id}"
 
         try:
-            response = requests.get(
+            client = await self._get_client()
+            response = await client.get(
                 url,
                 headers={"Authorization": f"Bearer {self.api_key}"},
-                timeout=10,
+                timeout=10.0,
             )
             response.raise_for_status()
             return response.json()
@@ -222,10 +244,11 @@ class RunPodJobClient:
         url = f"{self.base_url}/{self.pod_id}/cancel/{job_id}"
 
         try:
-            response = requests.post(
+            client = await self._get_client()
+            response = await client.post(
                 url,
                 headers={"Authorization": f"Bearer {self.api_key}"},
-                timeout=10,
+                timeout=10.0,
             )
             return response.status_code == 200
         except Exception as e:
@@ -299,7 +322,7 @@ async def run_simulation_pipeline(run_id: str, payload: dict, user_id: str):
             enqueue_job(run_id, payload)
 
         # Step 4: Submit to RunPod if configured
-        client = RunPodJobClient()
+        client = RunPodJobClient(http_client=http_client)
 
         if client.api_key and client.pod_id and not runpod_job_id:
             try:
@@ -542,8 +565,10 @@ async def create_simulation(
     # 0.1 Idempotency Check (Atomic)
     # Using a temporary UUID if we need to reserve, otherwise we get existing sim_id
     temp_sim_id = str(uuid.uuid4())
-    idempotency_key = request.input_params.get("idempotency_key") if request.input_params else None
-    
+    idempotency_key = (
+        request.input_params.get("idempotency_key") if request.input_params else None
+    )
+
     if idempotency_key:
         is_new = await reserve_idempotency_fn(user_id, idempotency_key, temp_sim_id)
         if not is_new:
@@ -631,14 +656,14 @@ async def create_simulation(
         "created_at": int(time.time()),
         "updated_at": int(time.time()),
     }
-    
+
     # Patch logic: Set job detail key and push ID to queue
     r_client.set(f"job:{sim_id}", json.dumps(job_data))
     enqueue_job(sim_id)
-    
+
     # Increment active jobs counter (O(1))
     increment_active_runs_fn(user_id)
-    
+
     await increment_user_usage(user_id)
 
     return {
@@ -784,12 +809,17 @@ async def get_simulation_status(
             "created_at": job.get("created_at", ""),
             "completed_at": job.get("completed_at"),
             "error": job.get("error"),
-            "result": job.get("result")
+            "result": job.get("result"),
         }
-    
+
     # Fallback to Supabase if not in Redis
     if supabase_client:
-        res = supabase_client.table("simulations").select("*").eq("job_id", sim_id).execute()
+        res = (
+            supabase_client.table("simulations")
+            .select("*")
+            .eq("job_id", sim_id)
+            .execute()
+        )
         if res.data:
             sim = res.data[0]
             return {
@@ -798,7 +828,7 @@ async def get_simulation_status(
                 "progress": sim.get("progress", 0),
                 "created_at": sim.get("created_at", ""),
                 "completed_at": sim.get("updated_at"),
-                "error": sim.get("error")
+                "error": sim.get("error"),
             }
 
     raise HTTPException(404, "Simulation not found")

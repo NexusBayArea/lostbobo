@@ -514,11 +514,11 @@ async def get_user_usage(user_id: str) -> dict:
     """Get current usage stats for a user (Supabase Authority)."""
     try:
         used = await get_weekly_usage(user_id)
-        
+
         # Reset timestamp is now illustrative of the rolling window
         # In a strict rolling window, the oldest run "expires" 7 days after it was created.
         next_reset = datetime.now() + timedelta(days=USAGE_WINDOW_DAYS)
-        
+
         return {
             "runs_used": used,
             "reset_timestamp": next_reset.isoformat(),
@@ -528,7 +528,9 @@ async def get_user_usage(user_id: str) -> dict:
         logger.error(f"Error getting user usage from Supabase: {e}")
         return {
             "runs_used": 0,
-            "reset_timestamp": (datetime.now() + timedelta(days=USAGE_WINDOW_DAYS)).isoformat(),
+            "reset_timestamp": (
+                datetime.now() + timedelta(days=USAGE_WINDOW_DAYS)
+            ).isoformat(),
             "last_updated": datetime.now().isoformat(),
         }
 
@@ -903,6 +905,19 @@ async def lifespan(app: FastAPI):
     logger.info("Starting SimHPC Unified Platform v2.5.4")
     logger.info(f"CORS Origins: {CORS_ORIGINS}")
 
+    # Initialize async HTTP client for external API calls
+    limits = httpx.Limits(max_keepalive_connections=20, max_connections=100)
+    timeout = httpx.Timeout(60.0, connect=10.0)
+    app.state.http_client = httpx.AsyncClient(
+        limits=limits, timeout=timeout, trust_env=True
+    )
+    logger.info("Async HTTP client initialized")
+
+    # Initialize runpod_service with the async client
+    from app.services import runpod_service
+
+    runpod_service.init_http_client(app.state.http_client)
+
     # Validate Redis connection at startup
     try:
         r_client.ping()
@@ -929,6 +944,9 @@ async def lifespan(app: FastAPI):
         logger.info("Onboarding service initialized")
 
     yield
+
+    # Cleanup
+    await app.state.http_client.aclose()
     bg_worker.cancel()
     recovery_task.cancel()
     logger.info("SimHPC Platform shutting down")
@@ -981,6 +999,7 @@ simulations_router.init_routes(
     get_idempotency_value_fn=get_idempotency_value,
     increment_active_runs_fn=increment_active_runs,
     decrement_active_runs_fn=decrement_active_runs,
+    http_client_ref=app.state.http_client,
 )
 
 certificates_router.init_routes(
