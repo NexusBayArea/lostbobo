@@ -105,27 +105,6 @@ Use the master deploy script for one-click deployment:
 bash scripts/deploy_all.sh
 ```
 
-## Master Script (deploy_all.sh)
-
-```bash
-#!/bin/bash
-set -e
-
-echo "[1/3] Local Build Test..."
-npm run build
-
-echo "[2/3] Syncing to GitHub..."
-git add .
-git commit -m "ci: deploy SimHPC v2.6.4"
-git push origin main
-
-echo "[3/3] Triggering RunPod via GitHub Action..."
-# Requires gh auth login locally
-gh workflow run auto-deploy-runpod.yml
-
-echo "=== Deployment Triggered ==="
-```
-
 ## Deployment Flow
 
 ```
@@ -135,16 +114,56 @@ echo "=== Deployment Triggered ==="
          │
          ▼
 ┌─────────────────┐
-│  Deploy to      │ ──→ Docker Hub (simhpcworker/*)
-│  Docker Hub     │
+│  Build Matrix   │ ──→ worker, api, autoscaler (parallel)
+│  (Docker)       │
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│  Auto-Deploy    │ ──→ RunPod (podRestart API)
-│  RunPod         │
+│  Push Images    │ ──→ SHA + latest tags
+│  (Docker Hub)   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Deploy RunPod  │ ──→ API restart (no SSH)
+│  (podRestart)  │
 └─────────────────┘
 ```
+
+## GitHub Actions Workflow
+
+### Docker Build (Parallel)
+
+```yaml
+- name: Build & Push Image
+  run: |
+    docker build \
+      -f Dockerfile.unified \
+      -t simhpcworker/simhpc-unified:latest \
+      -t simhpcworker/simhpc-unified:${{ github.sha }} \
+      .
+    docker push simhpcworker/simhpc-unified:latest
+```
+
+### RunPod Deploy (API)
+
+```yaml
+- name: Deploy to RunPod (API)
+  run: |
+    response=$(curl -s -X POST "https://api.runpod.io/graphql" \
+      -H "Content-Type: application/json" \
+      -H "Authorization: Bearer $RUNPOD_API_KEY" \
+      -d "{\"query\": \"mutation { podRestart(podId: \\"$RUNPOD_ID\\") { id status } }\"}")
+```
+
+## Dockerfile Paths
+
+| Image | Dockerfile |
+|-------|------------|
+| simhpc-unified | `Dockerfile.unified` |
+| simhpc-worker | `Dockerfile.worker` |
+| simhpc-autoscaler | `Dockerfile.autoscaler` |
 
 ## Examples
 
