@@ -15,6 +15,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -29,22 +32,6 @@ jobs:
             .
           docker push simhpcworker/simhpc-unified:latest
 
-      - name: Build & Push Worker Image
-        run: |
-          docker build \
-            -f Dockerfile.worker \
-            -t simhpcworker/simhpc-worker:latest \
-            .
-          docker push simhpcworker/simhpc-worker:latest
-
-      - name: Build & Push Autoscaler Image
-        run: |
-          docker build \
-            -f Dockerfile.autoscaler \
-            -t simhpcworker/simhpc-autoscaler:latest \
-            .
-          docker push simhpcworker/simhpc-autoscaler:latest
-
       - name: Deploy to RunPod (API)
         env:
           RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
@@ -55,16 +42,16 @@ jobs:
           response=$(curl -s -X POST "https://api.runpod.io/graphql" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $RUNPOD_API_KEY" \
-            -d "{\"query\": \"mutation { podRestart(podId: \\"$RUNPOD_ID\\") { id status } }\"}")
+            -d "{\"query\": \"mutation { podRestart(podId: \\\"$RUNPOD_ID\\\") { id status } }\"}")
           
-          echo "Response: $response"
+          echo "Restart response: $response"
           
-          if echo "$response" | grep -q "\"errors\""; then
-            echo "Error restarting pod"
+          if echo "$response" | jq -e '.errors' > /dev/null 2>&1; then
+            echo "API Error detected"
             exit 1
           fi
           
-          echo "Pod restarted"
+          echo "Pod restart triggered"
 
       - name: Wait for pod
         env:
@@ -72,18 +59,30 @@ jobs:
           RUNPOD_ID: ${{ secrets.RUNPOD_ID }}
         run: |
           attempt=0
+          
           while [ $attempt -lt 30 ]; do
             attempt=$((attempt + 1))
-            status_response=$(curl -s -X POST "https://api.runpod.io/graphql" \
+            
+            response=$(curl -s -X POST "https://api.runpod.io/graphql" \
               -H "Content-Type: application/json" \
               -H "Authorization: Bearer $RUNPOD_API_KEY" \
-              -d "{\"query\": \"query { pod(input: { podId: \\"$RUNPOD_ID\\"}) { id status } }\"}")
-            current_status=$(echo "$status_response" | grep -o "\"status\":\"[^\"]*\"" | head -1 | cut -d'"' -f4)
-            echo "Attempt $attempt: $current_status"
-            if [ "$current_status" = "RUNNING" ]; then
-              echo "Pod RUNNING"
+              -d "{\"query\": \"query { pod(input: { podId: \\\"$RUNPOD_ID\\\" }) { id desiredStatus } }\"}")
+            
+            echo "Attempt $attempt: $response"
+            
+            status=$(echo "$response" | jq -r '.data.pod.desiredStatus // empty')
+            
+            if [ "$status" = "RUNNING" ]; then
+              echo "Pod is RUNNING"
               exit 0
             fi
+            
+            if [ -n "$status" ]; then
+              echo "Current status: $status"
+            fi
+            
             sleep 5
           done
+          
+          echo "Pod did not reach RUNNING state"
           exit 1
