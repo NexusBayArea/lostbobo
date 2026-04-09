@@ -1,5 +1,7 @@
 
-// Point to the Vercel Proxy (which redirects to RunPod)
+// src/lib/api.ts
+import { toast } from 'sonner';
+
 const API_BASE_URL = '/api/api/v1';
 const API_KEY = import.meta.env.VITE_API_KEY || '';
 
@@ -16,6 +18,78 @@ const getHeaders = (token?: string) => {
   
   return headers;
 };
+
+class ApiClient {
+  private baseUrl: string;
+
+  constructor() {
+    this.baseUrl = API_BASE_URL;
+  }
+
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {},
+    showToast: boolean = true
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+
+    const config: RequestInit = {
+      ...options,
+      headers: {
+        ...getHeaders(options.headers?.Authorization?.split(' ')[1]),
+        ...options.headers,
+      },
+      credentials: 'include',
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const contentType = response.headers.get('content-type');
+      let data: any;
+
+      if (contentType?.includes('application/json')) {
+        data = await response.json();
+      } else {
+        data = await response.text();
+      }
+
+      if (!response.ok) {
+        const errorMessage = data?.error || data?.message || data?.detail || `HTTP ${response.status}`;
+        
+        if (showToast) {
+          toast.error(errorMessage, { duration: 6000 });
+        }
+        throw new Error(errorMessage);
+      }
+
+      return data as T;
+    } catch (error: any) {
+      console.error(`API Error [${endpoint}]:`, error);
+      if (showToast && !error.message?.includes('Failed to fetch')) {
+        toast.error(error.message || 'Request failed');
+      }
+      throw error;
+    }
+  }
+
+  async get<T>(endpoint: string, showToast = true): Promise<T> {
+    return this.request<T>(endpoint, { method: 'GET' }, showToast);
+  }
+
+  async post<T>(endpoint: string, body: any, showToast = true): Promise<T> {
+    return this.request<T>(endpoint, { method: 'POST', body: JSON.stringify(body) }, showToast);
+  }
+
+  async put<T>(endpoint: string, body: any, showToast = true): Promise<T> {
+    return this.request<T>(endpoint, { method: 'PUT', body: JSON.stringify(body) }, showToast);
+  }
+
+  async delete<T>(endpoint: string, showToast = true): Promise<T> {
+    return this.request<T>(endpoint, { method: 'DELETE' }, showToast);
+  }
+}
+
+export const api = new ApiClient();
 
 export interface ParameterConfig {
   name: string;

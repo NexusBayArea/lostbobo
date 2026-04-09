@@ -58,13 +58,14 @@ All images pushed to Docker Hub:
 - **ALWAYS** use `DOCKER_PW_TOKEN` for PAT
 - **NO** Infisical CLI in YAML - secrets sync natively via GitHub App
 
-## Skill 10: SSH Deployment Logic
+## Skill 10: RunPod API Deployment (v2.6.4)
+
+**No SSH** - We use GraphQL API to restart pods:
 
 | Secret | Purpose |
 |--------|---------|
-| `RUNPOD_SSH` | SSH host IP |
-| `RUNPOD_USERNAME` | SSH username (usually `root`) |
-| `RUNPOD_SSH_KEY` | Private key for passwordless entry |
+| `RUNPOD_API_KEY` | GraphQL API authentication |
+| `RUNPOD_ID` | Pod identifier |
 
 ## Skill 11: RunPod Infrastructure Constraints (v2.6.4)
 

@@ -10,7 +10,7 @@ compatibility: opencode
 
 Build, push, and deploy SimHPC unified stack to RunPod GPU instances.
 
-## Version: 2.6.4 (Port 8888 + SSH Deployment)
+## Version: 2.6.4 (Port 8888 + API Deployment)
 
 ## Vault-First Protocol
 
@@ -21,18 +21,17 @@ Build, push, and deploy SimHPC unified stack to RunPod GPU instances.
 | Key | Purpose |
 |-----|---------|
 | `PORT` | Set to `8888` for RunPod compatibility |
-| `RUNPOD_API_KEY` | Provisioning new pods |
+| `RUNPOD_API_KEY` | GraphQL API for pod lifecycle |
+| `RUNPOD_ID` | Pod identifier for restart |
 | `VITE_API_URL` | Dynamic proxy URL (`https://{ID}-8888.proxy.runpod.net`) |
 | `ALLOWED_ORIGINS` | CORS origins |
 
-### RunPod Secrets (v2.6.4)
+### RunPod Secrets (v2.6.4) - API Only, No SSH
 
 | Secret | Value |
 |--------|-------|
-| `RUNPOD_SSH` | SSH host IP (e.g., `194.68.245.17`) |
-| `RUNPOD_TCP_PORT_22` | SSH port (e.g., `22167`) |
-| `RUNPOD_USERNAME` | SSH username (usually `root`) |
-| `RUNPOD_SSH_KEY` | Private key content |
+| `RUNPOD_API_KEY` | GraphQL API key |
+| `RUNPOD_ID` | Pod ID |
 
 ## Unified Deployment
 
@@ -115,7 +114,7 @@ git push origin main
 # The workflow will:
 # 1. Login to Docker Hub (using native synced secrets)
 # 2. Build & push simhpcworker/simhpc-unified:latest
-# 3. Deploy to RunPod via SSH
+# 3. Deploy to RunPod via GraphQL API (podRestart)
 ```
 
 ### sync-pod.sh
@@ -125,17 +124,12 @@ git push origin main
 POD_ID=$1
 HTTPS_URL="https://${POD_ID}-8888.proxy.runpod.net"
 
-infisical secrets set RUNPOD_POD_ID=$POD_ID --env=production
+infisical secrets set RUNPOD_ID=$POD_ID --env=production
 infisical secrets set VITE_API_URL=$HTTPS_URL --env=production
 infisical run --env=production -- vercel env add VITE_API_URL production $HTTPS_URL --force
 ```
 
 ## Current Deployment (v2.6.4)
-
-**Note**: Pod ID is dynamic and stored in Infisical. Fetch with:
-```bash
-infisical secrets get RUNPOD_ID --env=production
-```
 
 | Service | HTTP Proxy (8888) |
 |---------|-------------------|
@@ -145,18 +139,17 @@ infisical secrets get RUNPOD_ID --env=production
 
 **Vercel**: https://simhpc.com
 
-## Manual Pod Restart
+## Manual Pod Restart (GraphQL API)
 
 ```bash
 # Get current pod ID from Infisical
 POD_ID=$(infisical secrets get RUNPOD_ID --env=production --plain)
 
-# Restart to pull new image
-infisical run -- python scripts/restart_pod.py
-
-# Or manually via RunPod CLI:
-runpod stop $POD_ID
-runpod start $POD_ID
+# Restart via GraphQL API (no SSH needed)
+curl -s -X POST "https://api.runpod.io/graphql" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $RUNPOD_API_KEY" \
+  -d "{\"query\": \"mutation { podRestart(podId: \\\"$POD_ID\\\") { id status } }\"}"
 ```
 
 ## Config Sync (Drift Detection)

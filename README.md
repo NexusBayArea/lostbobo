@@ -71,14 +71,15 @@ To launch the full "Mission Control" stack locally using Infisical for secret in
 - **Safety**: `MAX_PODS=3`, budget caps enforced, Redis-persisted activity state
 - **Warm Control**: `Wake GPU` button uses `/api/v1/admin/fleet/warm` for 90s wake-ups.
 
-## v2.6.4: Native Secret Sync & SSH Deployment
+## v2.6.4: Native Secret Sync & API Deployment
 
 - **Native Secret Sync**: Uses Infisical GitHub App integration (no CLI in CI)
 - **Port Migration**: Port 8888 for RunPod compatibility
 - **SB Prefix**: Supabase keys use SB_ prefix for Infisical compatibility
 - **Docker Images**: simhpcworker/simhpc-unified:latest (v2.6.4)
-- **SSH Deployment**: RunPod via appleboy/ssh-action with RUNPOD_SSH secrets
-- **Secrets**: DOCKER_LOGIN, DOCKER_PW_TOKEN, RUNPOD_SSH, RUNPOD_TCP_PORT_22, RUNPOD_USERNAME, RUNPOD_SSH_KEY
+- **API Deployment**: RunPod via GraphQL `podRestart` (no SSH)
+- **Secrets**: DOCKER_LOGIN, DOCKER_PW_TOKEN, RUNPOD_API_KEY, RUNPOD_ID
+- **Frontend Proxy**: Vercel `/api/api/v1` → RunPod (CORS-free)
 
 - **API Endpoint Fix**: Fixed `/api/v1/usage` → `/api/v1/simulations/usage` mismatch
 - **Robustness Request Model**: Added `RobustnessRunRequest` Pydantic model for proper request validation
