@@ -10,7 +10,7 @@ compatibility: opencode
 
 Build, push, and deploy SimHPC unified stack to RunPod GPU instances.
 
-## Version: 2.6.4 (Port 8888 + API Deployment)
+## Version: 2.6.5 (Port 8888 + podReset)
 
 ## Vault-First Protocol
 
@@ -26,7 +26,7 @@ Build, push, and deploy SimHPC unified stack to RunPod GPU instances.
 | `VITE_API_URL` | Dynamic proxy URL (`https://{ID}-8888.proxy.runpod.net`) |
 | `ALLOWED_ORIGINS` | CORS origins |
 
-### RunPod Secrets (v2.6.4) - API Only, No SSH
+### RunPod Secrets (v2.6.5) - API Only, No SSH
 
 | Secret | Value |
 |--------|-------|
@@ -135,7 +135,7 @@ infisical run --env=production -- vercel env add VITE_API_URL production $HTTPS_
 |---------|-------------------|
 | Unified | https://{POD_ID}-8888.proxy.runpod.net |
 
-**Docker Image**: simhpcworker/simhpc-unified:latest (v2.6.4)
+**Docker Image**: simhpcworker/simhpc-unified:latest (v2.6.5)
 
 **Vercel**: https://simhpc.com
 

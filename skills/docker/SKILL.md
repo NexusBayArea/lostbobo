@@ -1,16 +1,59 @@
 ---
 name: docker-lean
 description: Keep Docker images small and system clean for high-performance GPU pods like SimHPC A40s.
-version: 2.5.4
+version: 2.6.5
 license: MIT
-compatibility: opencode
+ compatibility: opencode
 ---
 
 # Docker Lean Skill Set
 
 Essential skills for keeping images small and your system clean.
 
-## Version: 2.5.4
+## Version: 2.6.5
+
+## SimHPC Dockerfile Paths (v2.6.5)
+
+| Image | Dockerfile | Context |
+|-------|------------|---------|
+| simhpc-unified | `Dockerfile.unified` | Root (combined API + Worker + Autoscaler) |
+| simhpc-worker | `Dockerfile.worker` | Root |
+| simhpc-api | `Dockerfile.api` | Root |
+| simhpc-autoscaler | `Dockerfile.autoscaler` | Root |
+
+### Build Commands
+
+```bash
+# Unified (single pod - v2.6.5 default)
+docker build -f Dockerfile.unified -t simhpcworker/simhpc-unified:latest .
+
+# Individual services
+docker build -f Dockerfile.worker -t simhpcworker/simhpc-worker:latest .
+docker build -f Dockerfile.api -t simhpcworker/simhpc-api:latest .
+docker build -f Dockerfile.autoscaler -t simhpcworker/simhpc-autoscaler:latest .
+```
+
+## GitHub Actions Build Matrix
+
+```yaml
+jobs:
+  build:
+    strategy:
+      matrix:
+        service: [worker, api, autoscaler]
+```
+
+### Dynamic Dockerfile Mapping
+
+```bash
+if [ "${{ matrix.service }}" = "worker" ]; then
+  echo "file=Dockerfile.worker" >> $GITHUB_OUTPUT
+elif [ "${{ matrix.service }}" = "api" ]; then
+  echo "file=Dockerfile.api" >> $GITHUB_OUTPUT
+elif [ "${{ matrix.service }}" = "autoscaler" ]; then
+  echo "file=Dockerfile.autoscaler" >> $GITHUB_OUTPUT
+fi
+```
 
 ## Skill 1: Multi-Stage Build
 
