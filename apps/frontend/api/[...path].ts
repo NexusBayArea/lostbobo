@@ -54,7 +54,7 @@ async function getRunpodUrl() {
   ) || pods[0];
 
   const port = pod.runtime.ports.find(
-    (p: any) => p.publicPort === 8000
+    (p: any) => p.publicPort === 8888
   );
 
   if (!port) {
