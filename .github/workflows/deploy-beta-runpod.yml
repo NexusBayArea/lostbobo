@@ -29,7 +29,7 @@ jobs:
           push: true
           tags: |
             simhpcworker/simhpc-worker:latest
-            simhpcworker/simhpc-worker:v${{ github.run_number }}
+            simhpcworker/simhpc-worker:${{ github.run_id }}
 
       - name: Reset RunPod Pod (resilient)
         env:

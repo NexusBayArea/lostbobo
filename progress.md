@@ -6,17 +6,16 @@
 
 ## Current Status
 
+- **v2.6.17**: **Unique Image Tagging** (Transitioned to github.run_id for traceability)
 - **v2.6.16**: **Port 8888 & Jupyter Conflict Resolution** (Formalized production port + start.sh guard)
-- **v2.6.15**: **Deployment Workflow Refinement** (Final v2.6.5 Protocol YAML)
 
-## v2.6.16: Port 8888 & Jupyter Conflict Resolution (April 2026)
+## v2.6.17: Unique Image Tagging (April 2026)
 
 ### Fixes Applied
 
-1. **Production Port 8888** - Confirmed Port 8888 as the canonical "Production Port" for RunPod Public Proxy compatibility.
-2. **Jupyter Conflict Guard** - Verified `start.sh` implements `fuser -k 8888/tcp` to terminate the default Jupyter server before starting FastAPI.
-3. **Unified Entrypoint** - Confirmed `api:app` (pointing to `services/api/api.py`) as the primary gateway for all SimHPC services.
-4. **Vercel Troubleshooting** - Documented the requirement to update `API_BASE_URL` in Vercel to match the `[POD_ID]-8888.proxy.runpod.net` format and trigger a manual redeploy.
+1. **GitHub Run ID Tagging** - Updated all Docker build and push commands to use `${{ github.run_id }}` as a versioned tag alongside `latest`.
+   - Affected files: `deploy-runpod.yml`, `deploy.yml`, `deploy-beta-runpod.yml`.
+   - Ensures each deployment has a unique, immutable image identifier for reliable rollbacks and auditing.
 
 ---
 
