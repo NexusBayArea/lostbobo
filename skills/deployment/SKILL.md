@@ -58,52 +58,53 @@ All images pushed to Docker Hub:
 - **ALWAYS** use `DOCKER_PW_TOKEN` for PAT
 - **NO** Infisical CLI in YAML - secrets sync natively via GitHub App
 
-## Skill 10: RunPod API Deployment (v2.6.4)
+## Skill 10: RunPod API Deployment (v2.6.6)
 
-**No SSH** - We use GraphQL API to restart pods:
+**No SSH** - We use GraphQL API to reset pods:
 
-| Secret | Purpose |
-|--------|---------|
-| `RUNPOD_API_KEY` | GraphQL API authentication |
-| `RUNPOD_ID` | Pod identifier |
+| Secret | Purpose | Status |
+|--------|---------|--------|
+| `RUNPOD_API_KEY` | GraphQL API authentication | CRITICAL |
+| `RUNPOD_ID` | Pod identifier for podReset | CRITICAL |
 
-## Skill 11: RunPod Infrastructure Constraints (v2.6.4)
+### Lean Secret List (v2.6.6)
 
-**NO HALLUCINATIONS**: Use only these exact key names from Infisical:
+Only these secrets are needed for the API-only deployment pipeline:
 
-| Service | Infisical Key | GitHub Action Reference |
-|---------|---------------|------------------------|
-| Auth | `RUNPOD_API_KEY` | `${{ secrets.RUNPOD_API_KEY }}` |
-| Auth | `RUNPOD_USERNAME` | `${{ secrets.RUNPOD_USERNAME }}` |
-| Network | `RUNPOD_ID` | `${{ secrets.RUNPOD_ID }}` |
-| Network | `RUNPOD_SSH` | `${{ secrets.RUNPOD_SSH }}` |
-| Network | `RUNPOD_TCP_PORT_22` | `${{ secrets.RUNPOD_TCP_PORT_22 }}` |
-| Network | `RUNPOD_HTTPS` | `${{ secrets.RUNPOD_HTTPS }}` |
-| SSH Key | `RUNPOD_SSH_KEY` | `${{ secrets.RUNPOD_SSH_KEY }}` |
+| Secret | Purpose | Status |
+|--------|---------|--------|
+| `RUNPOD_API_KEY` | podReset mutation | CRITICAL |
+| `RUNPOD_ID` | Which pod to reset | CRITICAL |
+| `DOCKER_LOGIN` | Docker Hub username | CRITICAL |
+| `DOCKER_PW_TOKEN` | Docker Hub PAT | CRITICAL |
 
-**Rules:**
-- **DO NOT** use `SSH_HOST`, `VITE_API_URL`, or `RUNPOD_POD_ID`
-- **USE** `RUNPOD_SSH` for SSH address and `RUNPOD_TCP_PORT_22` for port
-- All values must be in Infisical and synced via GitHub App
+**Delete these if present:**
+- `RUNPOD_SSH_KEY` - Not needed (API-only deploy)
+- `RUNPOD_JUPYTER_PW` - Not used (custom Dockerfile)
+- `RUNPOD_USERNAME` - Not needed (API-only deploy)
 
-## Skill 12: RunPod Ground Truth (v2.6.4)
+## Skill 11: RunPod Ground Truth (v2.6.6)
 
-**API Key**: `RUNPOD_API_KEY` - Use for GraphQL/Python scripts
-**Pod Identifier**: `RUNPOD_ID` - Never use `RUNPOD_POD_ID`
-**SSH**: `RUNPOD_SSH`, `RUNPOD_TCP_PORT_22` - Only if using SSH deployment
-**Automation**: We deploy via API `podReset` - no SSH keys needed
+**API Key**: `RUNPOD_API_KEY` - Use for GraphQL mutations
+**Pod Identifier**: `RUNPOD_ID` - The pod to reset/pull fresh image
+**Automation**: We deploy via API `podReset` - forces fresh docker pull
 
-## Skill 13: Port Precision (v2.6.4)
-- **SSH Port**: Always use `${{ secrets.RUNPOD_TCP_PORT_22 }}`
-- **Validation**: Never hardcode `22` - pull from Infisical
-- **Note**: We use API restart (`auto-deploy-runpod.yml`) instead of SSH
+## Skill 12: Pod Reset vs Restart
+
+| Action | Effect | Use Case |
+|--------|--------|----------|
+| `podRestart` | Reboots container, uses cached image | Quick debug |
+| `podReset` | Wipes container, pulls fresh image | **CI/CD deployments (REQUIRED)** |
+
+**Why podReset**: `podRestart` won't pull new Docker image layers — only `podReset` triggers a fresh `docker pull`.
 
 ## Quick Start
 
-Use the master deploy script for one-click deployment:
-
 ```bash
-bash scripts/deploy_all.sh
+# Push to main triggers:
+# 1. Build & push simhpcworker/simhpc-unified:latest
+# 2. podReset to pull fresh image
+git push origin main
 ```
 
 ## Deployment Flow

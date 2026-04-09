@@ -22,16 +22,21 @@ Build, push, and deploy SimHPC unified stack to RunPod GPU instances.
 |-----|---------|
 | `PORT` | Set to `8888` for RunPod compatibility |
 | `RUNPOD_API_KEY` | GraphQL API for pod lifecycle |
-| `RUNPOD_ID` | Pod identifier for restart |
+| `RUNPOD_ID` | Pod identifier for podReset |
 | `VITE_API_URL` | Dynamic proxy URL (`https://{ID}-8888.proxy.runpod.net`) |
 | `ALLOWED_ORIGINS` | CORS origins |
 
-### RunPod Secrets (v2.6.5) - API Only, No SSH
+### RunPod Secrets (v2.6.6) - API Only, No SSH
 
-| Secret | Value |
-|--------|-------|
-| `RUNPOD_API_KEY` | GraphQL API key |
-| `RUNPOD_ID` | Pod ID |
+| Secret | Purpose | Status |
+|--------|---------|--------|
+| `RUNPOD_API_KEY` | podReset mutation | CRITICAL |
+| `RUNPOD_ID` | Which pod to reset | CRITICAL |
+
+**Delete if present:**
+- `RUNPOD_SSH_KEY` - Not needed (API-only)
+- `RUNPOD_JUPYTER_PW` - Not used (custom Dockerfile)
+- `RUNPOD_USERNAME` - Not needed (API-only)
 
 ## Unified Deployment
 
