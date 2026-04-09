@@ -888,6 +888,8 @@ telemetry_queue = asyncio.Queue()
 
 # --- Authority Alignment: Usage Buffer ---
 # Buffers usage events for batch flush to Supabase (prevents write pressure)
+import os
+
 USAGE_BUFFER: list = []
 USAGE_BUFFER_LOCK = asyncio.Lock()
 
@@ -906,47 +908,30 @@ def add_usage_event(
         "feature_type": feature_type,
         "metadata": metadata or {},
     }
-    # Note: In high-concurrency, consider using a queue instead of list
     USAGE_BUFFER.append(event)
 
 
 async def flush_usage_to_supabase():
-    """Background task to batch-write usage events to Supabase."""
+    """Background task: Flushes the usage buffer every 10 seconds to avoid clogging."""
     global USAGE_BUFFER
-    flush_interval = 10  # seconds
-    SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-    SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
-
-    # Wait for app to start and get the HTTP client
     while True:
-        await asyncio.sleep(1)
-        if hasattr(flush_usage_to_supabase, "app_started"):
-            break
-
-    while True:
-        await asyncio.sleep(flush_interval)
+        await asyncio.sleep(10)  # 10-second heartbeat
 
         if not USAGE_BUFFER:
             continue
 
-        # Get buffer contents
         async with USAGE_BUFFER_LOCK:
             batch_to_send = USAGE_BUFFER.copy()
             USAGE_BUFFER.clear()
 
-        if not SUPABASE_URL or not SUPABASE_KEY:
-            logger.warning("SUPABASE_URL or key not set, skipping usage flush")
-            continue
-
         try:
             # Use the Async Integrity client from lifespan (singleton)
-            client = flush_usage_to_supabase.http_client
-            response = await client.post(
-                f"{SUPABASE_URL}/rest/v1/usage_logs",
+            response = await flush_usage_to_supabase.http_client.post(
+                f"{os.getenv('SUPABASE_URL')}/rest/v1/usage_logs",
                 json=batch_to_send,
                 headers={
-                    "apikey": SUPABASE_KEY,
-                    "Authorization": f"Bearer {SUPABASE_KEY}",
+                    "apikey": os.getenv("SUPABASE_SERVICE_ROLE_KEY"),
+                    "Authorization": f"Bearer {os.getenv('SUPABASE_SERVICE_ROLE_KEY')}",
                     "Content-Type": "application/json",
                     "Prefer": "return=minimal",
                 },
