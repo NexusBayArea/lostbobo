@@ -13,10 +13,10 @@ def build_index(dataset_path, output_dir):
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
-    print(f"Loading embedding model...")
+    print("Loading embedding model...")
     model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    print(f"Reading dataset...")
+    print("Reading dataset...")
     with open(dataset_path, "r", encoding="utf-8") as f:
         docs = f.read().split("\n\n")
     

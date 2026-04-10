@@ -1,19 +1,15 @@
-name: Deploy SimHPC
+name: deploy
 
 on:
   push:
     branches: [main]
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -21,55 +17,35 @@ jobs:
           username: ${{ secrets.DOCKER_LOGIN }}
           password: ${{ secrets.DOCKER_PW_TOKEN }}
 
-      - name: Build & Push Unified Image
+      - name: Build & Push Image (SHA tag)
         run: |
-          docker build -f Dockerfile.unified -t simhpcworker/simhpc-unified:latest -t simhpcworker/simhpc-unified:${{ github.run_id }} .
-          docker push simhpcworker/simhpc-unified:latest
-          docker push simhpcworker/simhpc-unified:${{ github.run_id }}
+          set -e
 
-      - name: Deploy to RunPod (resilient)
+          IMAGE=simhpcworker/simhpc-unified:${{ github.sha }}
+
+          docker build -f docker/images/Dockerfile.unified -t $IMAGE .
+          docker push $IMAGE
+
+          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+      - name: Deploy to RunPod (podReset)
         env:
           RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
-          RUNPOD_ID: ikzejthq1q7yt9
+          RUNPOD_ID: ${{ secrets.RUNPOD_ID }}
         run: |
-          echo "Targeting Pod: $RUNPOD_ID"
-          
-          # 1. ATTEMPT PRIMARY METHOD: podReset
-          echo "--- Attempting podReset (Primary) ---"
+          set -e
+
           RESPONSE=$(curl -s -X POST "https://api.runpod.io/graphql" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $RUNPOD_API_KEY" \
-            -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id } }\"}")
-          
-          echo "API Response: $RESPONSE"
+            -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id status } }\"}")
 
-          if echo "$RESPONSE" | grep -q "\"errors\"" || [[ -z "$RESPONSE" ]]; then
-            echo "podReset failed. Triggering fallback cycle (Stop -> Resume)..."
-            
-            # 2. FALLBACK STAGE 1: STOP
-            echo "--- Fallback Stage 1: Stopping Pod ---"
-            STOP_RESP=$(curl -s -X POST "https://api.runpod.io/graphql" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer $RUNPOD_API_KEY" \
-              -d "{\"query\": \"mutation { podStop(input: { podId: \\\"$RUNPOD_ID\\\" }) { id } }\"}")
-            echo "Stop Response: $STOP_RESP"
-            
-            echo "Waiting 20 seconds for GPU release..."
-            sleep 20
-            
-            # 3. FALLBACK STAGE 2: RESUME
-            echo "--- Fallback Stage 2: Resuming Pod ---"
-            RESUME_RESP=$(curl -s -X POST "https://api.runpod.io/graphql" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer $RUNPOD_API_KEY" \
-              -d "{\"query\": \"mutation { podResume(input: { podId: \\\"$RUNPOD_ID\\\", gpuCount: 1 }) { id } }\"}")
-            echo "Resume Response: $RESUME_RESP"
+          echo "$RESPONSE"
 
-            if echo "$RESUME_RESP" | grep -q "\"errors\""; then
-              echo "CRITICAL ERROR: Both Reset and Resume failed."
-              exit 1
-            fi
-            echo "Pod successfully cycled via Fallback"
-          else
-            echo "Pod successfully reset on the first try"
+          if [[ "$RESPONSE" == *"errors"* ]]; then
+            echo "Deployment failed"
+            exit 1
           fi
+
+      - name: Post-deploy wait
+        run: sleep 20

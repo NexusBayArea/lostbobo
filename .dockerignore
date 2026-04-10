@@ -78,3 +78,9 @@ checkpoints/
 
 # Supabase (DB migrations, not needed in app containers)
 supabase/
+
+# Docker files (build from root context, exclude dev files)
+# Note: docker/images/ and docker/scripts/ must be accessible for COPY
+docker/ci/
+docker/docs/
+docker/compose/

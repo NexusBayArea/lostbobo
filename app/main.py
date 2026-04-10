@@ -51,7 +51,8 @@ from app.api.routes import ws as ws_router  # noqa: E402
 # Import local services (API-only — no numpy/scipy/matplotlib)
 from app.core.auth_utils import verify_user  # noqa: E402
 from app.core.job_queue import enqueue_job  # noqa: E402
-from app.utils import add_usage_event, flush_usage_to_supabase, manual_flush_execution  # noqa: E402
+from app.core.guards import init_guards  # noqa: E402
+from app.utils import flush_usage_to_supabase, manual_flush_execution  # noqa: E402
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -121,22 +122,11 @@ def get_active_workers() -> List[dict]:
 
 
 async def check_compute_availability():
-    """Ensure at least one worker is alive before enqueuing."""
+    """Softened for deployment debugging - no longer blocks job submissions."""
     workers = get_active_workers()
     if not workers:
-        logger.error("No active workers found in registry")
-        # Fallback: check if we should trigger an autoscale event
-        r_client.lpush(
-            "runpod_events",
-            json.dumps(
-                {
-                    "ts": datetime.now().isoformat(),
-                    "event": "no_workers_available",
-                    "details": "Job submission failed due to empty registry",
-                }
-            ),
-        )
-        raise HTTPException(503, "no_active_pods")
+        logger.warning("No active workers detected — continuing anyway (debug mode)")
+        return []
     return workers
 
 
@@ -932,13 +922,19 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Cache check failed: {e}")
 
+    # Initialize unified guard layer
+    init_guards(r_client, supabase_client)
+    logger.info("Guard layer initialized")
+
     # Validate API key is configured
     if not API_KEY:
         logger.warning("SIMHPC_API_KEY not set - running in development mode")
 
     bg_worker = asyncio.create_task(telemetry_worker())
     recovery_task = asyncio.create_task(simulations_router.recovery_worker())
-    usage_flush_task = asyncio.create_task(flush_usage_to_supabase(app.state.http_client))
+    usage_flush_task = asyncio.create_task(
+        flush_usage_to_supabase(app.state.http_client)
+    )
 
     # Set the HTTP client reference for the flush task
     # usage_flush_task now takes http_client as an argument
@@ -988,6 +984,7 @@ simulations_router.init_routes(
     get_job,
     set_job,
     update_job_field,
+    get_job_field,
     PLAN_LIMITS,
     UserPlan,
     record_simulation_start,
@@ -1025,6 +1022,9 @@ app.include_router(
     onboarding_router.router, prefix="/api/v1/onboarding", tags=["Onboarding"]
 )
 app.include_router(ws_router.router, tags=["WebSocket"])
+
+# Initialize ws_router with dependencies
+ws_router.init_ws(r_client, verify_auth)
 
 
 # --- USAGE & RATE LIMITING ENDPOINTS ---

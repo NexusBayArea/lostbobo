@@ -1,8 +1,7 @@
-from fastapi import FastAPI, HTTPException, Security, Depends
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security.api_key import APIKeyHeader
 from pydantic import BaseModel
 import os
-import json
 from app.rag import query_rag
 
 app = FastAPI(title="SimHPC Alpha LLM Service")

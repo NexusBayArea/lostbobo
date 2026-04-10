@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import os
 import sys
 import subprocess
 import requests
@@ -67,7 +66,7 @@ def deploy():
     )
     print(f"Resume response: {resume_resp.text}")
 
-    print(f"\nDeployment complete!")
+    print("\nDeployment complete!")
     print(f"API URL: https://{POD_ID}-8888.proxy.runpod.net")
 
 

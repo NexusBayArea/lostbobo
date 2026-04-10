@@ -70,6 +70,8 @@ __pycache__/
 htmlcov/
 *.egg-info/
 .eggs/
+# Ruff linter cache
+.ruff_cache/
 # Jupyter
 .ipynb_checkpoints
 
@@ -131,3 +133,4 @@ packages/**/venv/
 !database.sql
 
 .vercel
+node_modules

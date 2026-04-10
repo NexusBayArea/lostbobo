@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-import os
 import sys
 import subprocess
-import requests
-import time
 
 # Configuration - Centralized for easy updates
 IMAGE_NAME = "simhpcworker/simhpc-worker:latest"
@@ -83,7 +80,7 @@ def deploy():
     print(f"🔒 Syncing new Pod ID to Infisical: {new_id}")
     run_command(f"infisical secrets set RUNPOD_ID={new_id}")
 
-    print(f"\n✅ Deployment Successful!")
+    print("\n✅ Deployment Successful!")
     print(f"🔗 API URL: https://{new_id}-8080.proxy.runpod.net")
 
 

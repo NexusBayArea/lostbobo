@@ -6,6 +6,7 @@ Implemented:
 - Heartbeats
 - Atomic concurrency counters (O(1))
 - Event emission for WebSocket + Autoscaler
+- Canonical Job schema (v2.6.11)
 """
 
 import os
@@ -16,6 +17,12 @@ import threading
 import uuid
 from datetime import datetime
 from redis import Redis
+
+# Import canonical schemas
+from app.models.job import Job, JobProgress, JobResult
+from app.models.event import JobEvent
+from app.core.job_store import serialize_event, now
+from app.core.validated_job_store import init_job_store
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -28,6 +35,7 @@ QUEUE_NAME = os.getenv("QUEUE_NAME", "simhpc_jobs")
 PROCESSING_QUEUE = os.getenv("PROCESSING_QUEUE", "simhpc_processing")
 DLQ_NAME = os.getenv("DLQ_NAME", "simhpc_dlq")
 EVENTS_CHANNEL = "jobs:events"
+RUNPOD_ENABLED = os.getenv("RUNPOD_ENABLED", "false").lower() == "true"
 
 # Retry config
 MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
@@ -35,20 +43,28 @@ RETRY_DELAY = int(os.getenv("RETRY_DELAY", "5"))
 
 WORKER_ID = os.getenv("WORKER_ID", f"worker-{uuid.uuid4().hex[:8]}")
 POD_IP = os.getenv("RUNPOD_POD_IP", "127.0.0.1")
-POD_PORT = os.getenv("WORKER_PORT", "8888")
+POD_PORT = os.getenv("WORKER_PORT", "8080")
 
 redis_client = Redis.from_url(REDIS_URL, decode_responses=True)
 
+# Initialize validated job store
+job_store = init_job_store(redis_client)
+
 
 def publish_event(event_type: str, data: dict):
-    """Publish event to Redis pub/sub for WebSocket + autoscaler."""
-    event = {
-        "type": event_type,
-        "data": data,
-        "worker_id": WORKER_ID,
-        "timestamp": int(time.time()),
-    }
-    redis_client.publish(EVENTS_CHANNEL, json.dumps(event))
+    """Publish canonical event to Redis pub/sub for WebSocket + autoscaler."""
+    event = JobEvent(
+        type=event_type,
+        job_id=data.get("job_id", ""),
+        user_id=data.get("user_id"),
+        status=data.get("status"),
+        progress=data.get("progress"),
+        result=data.get("result"),
+        error=data.get("error"),
+        retries=data.get("retries"),
+        timestamp=now(),
+    )
+    redis_client.publish(EVENTS_CHANNEL, serialize_event(event))
 
 
 # --- SUPABASE CONFIG ---
@@ -124,6 +140,15 @@ def process_job(job):
     user_id = job.get("user_id")
     tier = job.get("tier", "free")
 
+    # === EXECUTION IDEMPOTENCY GUARD ===
+    # Prevent duplicate execution if already executed
+    if redis_client.get(f"job:{job_id}:executed"):
+        logger.warning(f"Job {job_id} already executed, skipping")
+        return
+
+    # Mark job as executing (with TTL for crash recovery)
+    redis_client.setex(f"job:{job_id}:executing", 3600, "1")
+
     # Mark worker as busy
     redis_client.hset(f"worker:metadata:{WORKER_ID}", "status", "busy")
 
@@ -135,29 +160,35 @@ def process_job(job):
 
     try:
         for i in range(1, 6):
-            job["status"] = "running"
-            job["progress"] = i * 20
-            job["updated_at"] = int(time.time())
+            job.status = "running"
+            job.progress = JobProgress(percent=i * 20, stage="processing")
+            job.updated_at = now()
 
-            redis_client.set(f"job:{job_id}", json.dumps(job))
+            job_store.set_job(job)
             update_simulation(
-                job_id, {"status": "running", "progress": job["progress"]}
+                job_id, {"status": "running", "progress": job.progress.percent}
             )
 
-            # Emit job_progress event
             publish_event(
                 "job_progress",
-                {"job_id": job_id, "progress": job["progress"], "worker_id": WORKER_ID},
+                {
+                    "job_id": job_id,
+                    "progress": job.progress.percent,
+                    "worker_id": WORKER_ID,
+                },
             )
 
             time.sleep(2)
 
-        job["status"] = "completed"
-        job["result"] = {"message": "simulation complete"}
-        job["updated_at"] = int(time.time())
+        job.status = "completed"
+        job.result = JobResult(summary="simulation complete", output={})
+        job.completed_at = now()
+        job.updated_at = now()
 
-        redis_client.set(f"job:{job_id}", json.dumps(job))
-        update_simulation(job_id, {"status": "completed", "gpu_result": job["result"]})
+        job_store.set_job(job)
+        update_simulation(
+            job_id, {"status": "completed", "gpu_result": job.result.model_dump()}
+        )
 
         # Emit job_completed event
         publish_event(
@@ -173,6 +204,10 @@ def process_job(job):
         raise
 
     finally:
+        # Mark job as executed (prevent re-run after crash recovery)
+        if job_id:
+            redis_client.setex(f"job:{job_id}:executed", 86400, "1")  # 24h TTL
+            redis_client.delete(f"job:{job_id}:executing")
         # Mark worker as idle
         redis_client.hset(f"worker:metadata:{WORKER_ID}", "status", "idle")
         # Decrement active jobs counter (O(1))
@@ -191,61 +226,68 @@ def main():
     hb_thread.start()
 
     while True:
+        poll_attempt = 0
         # Use BRPOPLPUSH for crash recovery - move to processing queue
         raw_item = redis_client.brpoplpush(QUEUE_NAME, PROCESSING_QUEUE, timeout=5)
 
         if not raw_item:
+            poll_attempt += 1
+            # Exponential backoff for polling (max 10s)
+            sleep_time = min(1.5 * (poll_attempt + 1), 10)
+            time.sleep(sleep_time * 0.1)  # Short sleep on timeout
             continue
 
         try:
             job = json.loads(raw_item)
-        except json.JSONDecodeError:
-            logger.error(f"Invalid JSON in queue: {raw_item}")
-            continue
+            job_id = job.get("id")
+            if not job_id:
+                logger.error(f"Job missing ID: {job}")
+                continue
 
-        job_id = job.get("id")
-        if not job_id:
-            logger.error(f"Job missing ID: {job}")
-            continue
-
-        try:
+            job = Job.model_validate(job)
             logger.info(f"Processing job: {job_id}")
             process_job(job)
-            # Success - remove from processing queue
+
+            job_store.set_job(job) if job_store else redis_client.set(
+                f"job:{job_id}", job.model_dump_json()
+            )
             redis_client.lrem(PROCESSING_QUEUE, 1, raw_item)
 
         except Exception as e:
-            # Failure - remove from processing queue
             redis_client.lrem(PROCESSING_QUEUE, 1, raw_item)
 
-            logger.error(f"Job {job_id} failed: {e}")
-            retries = job.get("retries", 0) + 1
-            job["retries"] = retries
-            job["error"] = str(e)
-            job["updated_at"] = int(time.time())
+            logger.error(f"Job {job.id} failed: {e}")
+            job.retries = job.retries + 1 if job.retries else 1
+            job.error = str(e)
+            job.updated_at = int(time.time())
 
-            if retries <= MAX_RETRIES:
-                # Retry - put back in queue with delay
-                logger.warning(f"Retrying job {job_id} ({retries}/{MAX_RETRIES})")
-                time.sleep(RETRY_DELAY * retries)  # Exponential backoff
-                redis_client.lpush(QUEUE_NAME, json.dumps(job))
+            if job.retries <= MAX_RETRIES:
+                logger.warning(f"Retrying job {job.id} ({job.retries}/{MAX_RETRIES})")
+                time.sleep(RETRY_DELAY * job.retries)
+                redis_client.lpush(QUEUE_NAME, job.model_dump_json())
                 update_simulation(
-                    job_id, {"status": "retrying", "retries": retries, "error": str(e)}
+                    job.id,
+                    {"status": "retrying", "retries": job.retries, "error": str(e)},
                 )
                 publish_event(
                     "job_retrying",
-                    {"job_id": job_id, "retries": retries, "max_retries": MAX_RETRIES},
+                    {
+                        "job_id": job.id,
+                        "retries": job.retries,
+                        "max_retries": MAX_RETRIES,
+                    },
                 )
             else:
-                # Max retries exceeded - move to DLQ
-                logger.error(f"Job {job_id} moved to DLQ after {retries} attempts")
-                job["status"] = "failed"
-                redis_client.set(f"job:{job_id}", json.dumps(job))
-                # Move to DLQ
-                redis_client.lpush(DLQ_NAME, json.dumps(job))
-                update_simulation(job_id, {"status": "failed", "error": str(e)})
+                logger.error(f"Job {job.id} moved to DLQ after {job.retries} attempts")
+                job.status = "failed"
+                job_store.set_job(job) if job_store else redis_client.set(
+                    f"job:{job.id}", job.model_dump_json()
+                )
+                redis_client.lpush(DLQ_NAME, job.model_dump_json())
+                update_simulation(job.id, {"status": "failed", "error": str(e)})
                 publish_event(
-                    "job_dlq", {"job_id": job_id, "error": str(e), "retries": retries}
+                    "job_dlq",
+                    {"job_id": job.id, "error": str(e), "retries": job.retries},
                 )
 
 

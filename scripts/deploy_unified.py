@@ -37,7 +37,7 @@ try:
     # 3. Print the Pod ID clearly for the CLI to capture
     # Note: runpod-python returns a dictionary; the ID is in ['id']
     pod_id = new_pod["id"]
-    print(f"\n🚀 DEPLOYMENT SUCCESSFUL")
+    print("\n🚀 DEPLOYMENT SUCCESSFUL")
     print(f"POD_ID: {pod_id}")
     print(f"HTTP_PROXY: https://{pod_id}-8080.proxy.runpod.net")
 

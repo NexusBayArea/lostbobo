@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional, Any, Dict
 from pydantic import BaseModel
 import uuid
@@ -29,59 +29,15 @@ class RobustnessRunRequest(BaseModel):
     input_params: Optional[Dict[str, Any]] = None
 
 
-def verify_auth(authorization: str = Header(None)) -> dict:
-    """Stub replaced by init_routes(). If called, app wasn't initialized."""
-    raise RuntimeError("verify_auth not initialized — call init_routes() first")
-
-
-def check_concurrent_runs(user_id: str) -> bool:
-    """Stub replaced by init_routes()."""
-    raise RuntimeError("check_concurrent_runs not initialized")
-
-
-async def increment_user_usage(user_id: str) -> None:
-    """Stub replaced by init_routes()."""
-    raise RuntimeError("increment_user_usage not initialized")
-
-
-async def get_user_usage(user_id: str) -> dict:
-    """Stub replaced by init_routes()."""
-    raise RuntimeError("get_user_usage not initialized")
-
-
-async def check_compute_availability_fn():
-    """Stub replaced by init_routes()."""
-    raise RuntimeError("check_compute_availability_fn not initialized")
-
-
-async def reserve_idempotency_fn(user_id: str, key: str, sim_id: str) -> bool:
-    """Stub replaced by init_routes()."""
-    raise RuntimeError("reserve_idempotency_fn not initialized")
-
-
-async def get_idempotency_value_fn(user_id: str, key: str) -> Optional[str]:
-    """Stub replaced by init_routes()."""
-    raise RuntimeError("get_idempotency_value_fn not initialized")
-
-
-def increment_active_runs_fn(user_id: str):
-    """Stub replaced by init_routes()."""
-    raise RuntimeError("increment_active_runs_fn not initialized")
-
-
-def decrement_active_runs_fn(user_id: str):
-    """Stub replaced by init_routes()."""
-    raise RuntimeError("decrement_active_runs_fn not initialized")
-
-
-# Shared dependencies imported at module level
-# These are set by the main app during startup
+# Shared dependencies injected by init_routes()
 supabase_client: Any = None
 r_client: Any = None
+verify_auth: Any = None
 enqueue_job: Any = None
 get_job: Any = None
 set_job: Any = None
 update_job_field: Any = None
+get_job_field: Any = None
 PLAN_LIMITS: Any = None
 UserPlan: Any = None
 record_simulation_start: Any = None
@@ -92,9 +48,14 @@ store_idempotency: Any = None
 check_concurrent_runs: Any = None
 increment_user_usage: Any = None
 get_user_usage: Any = None
+check_compute_availability_fn: Any = None
 check_rate_limit_fn: Any = None
 get_weekly_usage_fn: Any = None
 telemetry_queue: Any = None
+reserve_idempotency_fn: Any = None
+get_idempotency_value_fn: Any = None
+increment_active_runs_fn: Any = None
+decrement_active_runs_fn: Any = None
 http_client: Any = None
 WEEKLY_LIMIT: int = 10
 
@@ -107,6 +68,7 @@ def init_routes(
     get_j,
     set_j,
     update_jf,
+    get_jf,
     plan_limits,
     user_plan,
     record_sim,
@@ -129,21 +91,13 @@ def init_routes(
     http_client_ref=None,
 ):
     global supabase_client, r_client, verify_auth, enqueue_job, get_job, set_job
-    global update_job_field, PLAN_LIMITS, UserPlan, record_simulation_start
+    global update_job_field, get_job_field, PLAN_LIMITS, UserPlan, record_simulation_start
     global validate_simulation_request, check_plan_limits, check_idempotency
-    global \
-        store_idempotency, \
-        check_concurrent_runs, \
-        increment_user_usage, \
-        get_user_usage, \
-        check_compute_availability_fn
+    global store_idempotency, check_concurrent_runs, increment_user_usage
+    global get_user_usage, check_compute_availability_fn
     global check_rate_limit_fn, get_weekly_usage_fn, WEEKLY_LIMIT, telemetry_queue
-    global \
-        reserve_idempotency_fn, \
-        get_idempotency_value_fn, \
-        increment_active_runs_fn, \
-        decrement_active_runs_fn, \
-        http_client
+    global reserve_idempotency_fn, get_idempotency_value_fn
+    global increment_active_runs_fn, decrement_active_runs_fn, http_client
 
     supabase_client = supabase
     r_client = redis
@@ -152,6 +106,7 @@ def init_routes(
     get_job = get_j
     set_job = set_j
     update_job_field = update_jf
+    get_job_field = get_jf
     PLAN_LIMITS = plan_limits
     UserPlan = user_plan
     record_simulation_start = record_sim
@@ -506,23 +461,27 @@ async def recovery_worker():
 
     while True:
         try:
-            keys = r_client.keys("job:*")
+            # Use SCAN instead of KEYS to avoid blocking Redis
+            keys = r_client.scan_iter(match="job:*")
 
             for key in keys:
                 try:
-                    job = r_client.hgetall(key)
-
-                    if not job:
+                    # Use JSON string instead of hash
+                    job_raw = r_client.get(key)
+                    if not job_raw:
                         continue
-
-                    status = job.get("status", "")
+                    job = json.loads(job_raw)
 
                     # Recover running/retrying jobs that lost their worker
-                    if status in ["running", "retrying"]:
+                    if job.get("status") in ["running", "retrying"]:
                         run_id = job.get("id") or key.split(":")[-1]
 
                         # Avoid duplicate recovery
                         if await acquire_lock(run_id, ttl=60):
+                            # Skip if already executed (prevent re-run)
+                            if r_client.get(f"job:{run_id}:executed"):
+                                logger.info(f"Skipping {run_id} - already executed")
+                                continue
                             logger.info(f"Recovering orphaned job {run_id}")
 
                             payload = {

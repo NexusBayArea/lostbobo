@@ -1,5 +1,4 @@
 import os
-import requests
 
 def download_sample_dataset():
     """Placeholder for downloading engineering documentation for RAG."""

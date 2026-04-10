@@ -5,7 +5,7 @@ WORKDIR /build
 # Security Patch: Force upgrade packaging tools before installing requirements
 RUN pip install --no-cache-dir --upgrade pip setuptools>=78.1.1 wheel>=0.38.1
 
-COPY services/api/requirements.txt .
+COPY app/api/requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # --- STAGE 2: Runtime ---
@@ -18,25 +18,25 @@ WORKDIR /app
 COPY --from=builder /install /usr/local
 
 # Copy your API code
-COPY services/api/api.py .
-COPY services/api/auth_utils.py .
-COPY services/api/demo_access.py .
-COPY services/api/job_queue.py .
-COPY services/api/app ./app
+COPY app/api/api.py .
+COPY app/core/auth_utils.py .
+COPY app/core/demo_access.py .
+COPY app/core/job_queue.py .
+COPY app/ ./app/
 
 # Ensure non-root ownership
 RUN adduser --disabled-password --gecos '' simuser && \
     chown -R simuser:simuser /app
 USER simuser
 
-EXPOSE 8888
+EXPOSE 8080 8000
 
-# Updated Healthcheck to match your v2.5.3 route
+# Updated Healthcheck to match your v2.6 route
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8888/api/v1/health')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/v1/health')" || exit 1
 
 CMD ["gunicorn", "api:app", \
      "-k", "uvicorn.workers.UvicornWorker", \
      "--workers", "2", \
-     "--bind", "0.0.0.0:8888", \
+     "--bind", "0.0.0.0:8080", \
      "--timeout", "120"]

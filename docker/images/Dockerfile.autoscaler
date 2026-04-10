@@ -8,10 +8,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc python3-dev
 # Security Patch
 RUN pip install --no-cache-dir --upgrade pip setuptools>=78.1.1 wheel>=0.38.1
 
-COPY services/worker/requirements-autoscaler.txt ./requirements.txt
+COPY app/services/worker/requirements-autoscaler.txt ./requirements.txt
 RUN pip install --user --no-cache-dir -r requirements.txt
 
-# STAGE 2: Production v2.5.3
+# STAGE 2: Production v2.6
 FROM python:3.11-slim
 WORKDIR /app
 
@@ -23,8 +23,10 @@ RUN apt-get update && apt-get install -y curl bash && \
 
 # Copy packages and code
 COPY --from=builder /root/.local /home/simuser/.local
-COPY services/worker/runpod_api.py .
-COPY services/worker/autoscaler.py .
+COPY app/services/worker/runpod_api.py .
+COPY app/services/worker/autoscaler.py .
+COPY app/core/job_queue.py .
+COPY app/ ./app/
 
 # Setup Non-Root User
 RUN useradd -m simuser && chown -R simuser:simuser /app

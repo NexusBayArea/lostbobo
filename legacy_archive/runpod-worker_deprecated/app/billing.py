@@ -1,6 +1,5 @@
 import os
 import requests
-import json
 from datetime import datetime, timedelta
 
 RUNPOD_API_KEY = os.getenv("RUNPOD_API_KEY")

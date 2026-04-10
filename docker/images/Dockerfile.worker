@@ -19,12 +19,12 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-reco
 RUN pip3 install --no-cache-dir --upgrade pip setuptools>=78.1.1 wheel>=0.38.1
 
 # Copy requirements
-COPY services/worker/requirements.txt .
+COPY app/services/worker/requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # Copy source and orchestrator
-COPY services/worker/worker.py .
-COPY services/worker/start.sh .
+COPY app/services/worker/worker.py .
+COPY app/services/worker/start.sh .
 
 # FIX: Remediate "No default non-root user found"
 # Create a dedicated user for SimHPC
@@ -35,8 +35,8 @@ RUN useradd -m simuser && \
 # Switch to non-root user for execution
 USER simuser
 
-# Expose API port
-EXPOSE 8888
+# Expose API port (8080 primary, 8000 backup)
+EXPOSE 8080 8000
 
 # Launch both API and Worker via the orchestrator
 CMD ["./start.sh"]

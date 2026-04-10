@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
-from typing import Dict, Any, Optional
+from typing import Optional
 import logging
 
 from app.models.onboarding import (

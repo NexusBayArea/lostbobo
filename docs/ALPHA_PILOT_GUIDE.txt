@@ -1,0 +1,135 @@
+# SimHPC Free Tier — Quick Start
+
+Welcome to the **SimHPC Alpha Pilot**! This guide will help you run your first physics-based simulation and master the core workflow in 10 minutes.
+
+---
+
+## Alpha Control Room (Mission Control)
+
+The **Alpha Control Room** is your command center for real-time simulation management. Access it at `/dashboard/alpha` - it features the **O-D-I-A-V Loop**:
+
+- **O**bserve - Live telemetry & fleet status
+- **D**etect - Anomaly detection & alerts
+- **I**nvestigate - Deep-dive into simulation lineage
+- **A**ct - Operator console for intervention
+- **V**erify - AI guidance for next actions
+
+The cockpit displays real-time GPU utilization, memory, temperature, power metrics, active simulation queue, and design lineage tree. Use the left sidebar to switch between operational modes.
+
+---
+
+## What You Can Do
+
+* Run real simulations
+* Change parameters and re-run
+* Compare results
+* Download PDF reports
+* 10 Free runs per week
+
+---
+
+## Step-by-Step (Do This First)
+
+### 1. Run Your First Simulation
+* Go to **Templates** in the Sidebar.
+* Select any starter simulation (e.g., Battery Cell V4).
+* Click **Run Robustness Analysis**.
+--> *This creates your baseline.*
+
+### 2. Wait for Completion
+* Open **Job Queue** or watch the live status.
+* Status will cycle from *Queued → Running → Completed*.
+--> *Free tier uses shared compute, so short waits are normal.*
+
+### 3. View Results
+* Open your completed job from the **Simulations** history.
+* Look at the **Output graph**, **Runtime**, and **AI Insight**.
+--> *This is your reference result.*
+
+### 4. Change ONE Parameter
+* Click **Modify / Re-run** on the results card.
+* Change only one value:
+  * **Iterations** (speed vs accuracy)
+  * **Grid size** (resolution)
+--> *Keep changes small to see clear trends.*
+
+### 5. Re-run Simulation
+* Click **Run** again and wait for completion.
+--> *Your second job is now processing on the NVIDIA GPU cluster.*
+
+### 6. Compare Results
+* Open both runs from your history.
+* Compare the **Runtime** and **Output differences**.
+--> *This is where real engineering value happens.*
+
+### 7. Download Report
+* Click **Download PDF** to save your analysis.
+--> *You now have a shareable engineering artifact.*
+
+---
+
+## How to Get the Most Value
+
+Do this loop 3–5 times: **Run → Change → Re-run → Compare**.
+
+You’ll quickly learn:
+* What affects performance
+* What affects accuracy
+* Where compute is wasted
+
+---
+
+## What to Expect (Free Tier Limits)
+
+* Slower runs (shared system)
+* Queue wait times
+* Limited parallel jobs
+--> *This is normal and intentional for the Alpha phase.*
+
+---
+
+## When to Upgrade
+
+Upgrade makes sense if:
+* You want faster runs (dedicated A40/RTX 3090)
+* You need multiple simulations at once
+* You’re doing serious structural optimization
+
+---
+
+> **Key Insight**: SimHPC is not just about running simulations. It’s about **Running → Changing → Comparing → Improving**. That loop is the core workflow.
+
+---
+
+**TL;DR**: Run a simulation → change one thing → run again → compare. That’s how you unlock value.
+
+---
+
+## 4. Troubleshooting & Feedback
+
+- **404 on Refresh**: If you refresh the page and see a 404, just navigate back to the root URL (<https://simhpc.com>). We are optimizing our Nginx routing for the pilot.
+- **"Supabase Credentials Missing" on GitHub Pages**: The backup site (<https://NexusBayArea.github.io/lostbobo>) may show this error because GitHub Pages does not inject environment variables at build time. **Use <https://simhpc.com> (Vercel) instead** — it works out of the box.
+- **Stripe/CSP Errors on GitHub Pages**: `github.io` domains block inline styles and third-party cookies. Stripe checkout and Supabase Auth may fail. **Use <https://simhpc.com> (Vercel) instead.**
+- **Link Expired**: Alpha links are valid for **7 days**. If yours expired, contact us at <deploy@simhpc.com>.
+- **System Health Indicators**: Check the left sidebar on the Dashboard. You'll see three status LEDs:
+  - **Mercury AI**: Shows if the AI assistant is online (green pulse = connected)
+  - **Sim Worker**: Shows if the RunPod GPU Pod is running and connected (green pulse = active)
+  - **Supabase DB**: Shows if the database is connected (green pulse = connected)
+
+  If any indicator is red, the service may be temporarily unavailable. The `Recent Jobs` log underneath will show if your job failed or is still queued.
+
+- **Worker Status**: GPU Pods are managed by a cost-aware autoscaler (v2.3.0) that "hibernates" (STOP instead of TERMINATE) pods after 5 minutes of idle.
+  - **Wake GPU**: If the dashboard shows "Stopped," click the blue **"Wake GPU"** button. This will resume your pod from hibernation. It takes about 90 seconds. We recommend doing this while you introduce your use case to others.
+  - **Job Queuing**: If you don't wake it manually, your first simulation run will trigger the wake-up automatically.
+
+- **Performance**: We are running on dedicated **RTX 3090/A40 GPU** clusters with **Network Volume persistence**. This means your solver caches and intermediate weights are preserved even when the pod sleeps.
+
+**Found a bug?** We’d love to hear from you. Send your feedback directly to <deploy@simhpc.com>.
+
+---
+
+*Thank you for helping us build the future of deterministic simulation!*
+
+---
+
+> **Mercury AI**: See [ARCHITECTURE.md](./ARCHITECTURE.md#appendix-mercury-ai-usage-in-alpha) for usage guidelines and health tests.

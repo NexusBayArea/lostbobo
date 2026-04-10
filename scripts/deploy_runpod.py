@@ -3,7 +3,6 @@
 SimHPC Deployment - RunPod Unified
 """
 
-import os
 import sys
 import subprocess
 import requests
@@ -88,7 +87,7 @@ def deploy():
     )
     print(f"Resume: {resume_resp.text}")
 
-    print(f"\n=== Done ===")
+    print("\n=== Done ===")
     print(f"Check: https://{POD_ID}-8888.proxy.runpod.net")
 
 

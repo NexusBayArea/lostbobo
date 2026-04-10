@@ -35,6 +35,6 @@ try:
         raise ValueError("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY")
     sb = create_client(sb_url, sb_key)
     sb.table("worker_heartbeat").select("*").limit(1).execute()
-    print(f"SUPABASE: Connected & worker_heartbeat table accessible")
+    print("SUPABASE: Connected & worker_heartbeat table accessible")
 except Exception as e:
     print(f"SUPABASE: Failed - {e}")

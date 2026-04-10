@@ -19,14 +19,11 @@ import numpy as np
 import json
 import asyncio
 import logging
-import random
 from typing import Dict, List, Any, Optional, Callable, Tuple
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from enum import Enum
-from concurrent.futures import ProcessPoolExecutor, as_completed
 import time
-from pathlib import Path
 
 from services.sensitivity import SobolAnalyzer
 
@@ -1057,18 +1054,18 @@ if __name__ == "__main__":
         print("ROBUSTNESS ANALYSIS RESULTS")
         print("=" * 60)
 
-        print(f"\nBaseline Result:")
+        print("\nBaseline Result:")
         print(f"  Max Temperature: {summary.baseline_result.max_temperature:.1f} K")
         print(f"  Peak Stress: {summary.baseline_result.peak_stress:.1f} MPa")
         print(
             f"  Convergence Time: {summary.baseline_result.convergence_time_sec:.1f} sec"
         )
 
-        print(f"\nSensitivity Ranking:")
+        print("\nSensitivity Ranking:")
         for s in summary.sensitivity_ranking:
             print(f"  {s.rank}. {s.parameter_name}: {s.influence_coefficient:.2f}")
 
-        print(f"\nStatistical Summary:")
+        print("\nStatistical Summary:")
         print(f"  Confidence Interval: ±{summary.confidence_interval_percent:.1f}%")
         print(f"  Variance: {summary.variance:.2f}")
         print(f"  Non-convergent cases: {summary.non_convergent_count}")
@@ -1076,7 +1073,7 @@ if __name__ == "__main__":
 
         # Generate AI report input
         ai_input = service.create_ai_report_input(summary)
-        print(f"\nAI Report Input (JSON):")
+        print("\nAI Report Input (JSON):")
         print(json.dumps(asdict(ai_input), indent=2))
 
     asyncio.run(demo())

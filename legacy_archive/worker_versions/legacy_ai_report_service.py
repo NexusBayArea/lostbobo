@@ -18,14 +18,13 @@ import logging
 import re
 import os
 from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, field, asdict
-from datetime import datetime, timedelta
-from pathlib import Path
+from dataclasses import dataclass, field
+from datetime import datetime
 import hashlib
 import redis
 import html
 from tenacity import retry, stop_after_attempt, wait_exponential
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, validator
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -108,13 +107,13 @@ class AIReport:
     def to_markdown(self) -> str:
         """Convert report to markdown format."""
         lines = [
-            f"# AI Interpretation Report",
-            f"",
+            "# AI Interpretation Report",
+            "",
             f"**Generated:** {self.generated_at}",
             f"**Report ID:** {self.report_id}",
-            f"",
+            "",
             "---",
-            f"",
+            "",
         ]
 
         for section in sorted(self.sections, key=lambda s: s.order):
@@ -122,13 +121,13 @@ class AIReport:
             lines.extend(
                 [
                     f"## {section.title}",
-                    f"",
+                    "",
                     content,
-                    f"",
+                    "",
                 ]
             )
 
-        lines.extend(["---", f"", f"**{self.disclaimer}**", f""])
+        lines.extend(["---", "", f"**{self.disclaimer}**", ""])
 
         return "\n".join(lines)
 
@@ -1045,7 +1044,7 @@ Requirements:
                 )
         else:
             if "within" not in guidance_lower and "below limit" not in guidance_lower:
-                flags.append(f"Guidance should mention stress is within elastic limits")
+                flags.append("Guidance should mention stress is within elastic limits")
 
         # Check stability threshold
         stability_exceeded = numerical_context["stability_threshold_exceeded"]

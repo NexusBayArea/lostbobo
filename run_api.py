@@ -1,7 +1,6 @@
 import uvicorn
 import os
 import sys
-from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # Setup for SimHPC
@@ -35,5 +34,5 @@ app.add_middleware(
 )
 
 if __name__ == "__main__":
-    print(f"🚀 Starting SimHPC Worker API (Port 8080)...")
+    print("🚀 Starting SimHPC Worker API (Port 8080)...")
     uvicorn.run(app, host="0.0.0.0", port=8080)

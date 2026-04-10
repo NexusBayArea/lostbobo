@@ -6,7 +6,7 @@ Mirrors core GraphQL logic from worker/runpod_api.py for direct responsiveness.
 import os
 import logging
 import httpx
-from typing import Optional, List, Dict
+from typing import List, Dict
 
 logger = logging.getLogger(__name__)
 

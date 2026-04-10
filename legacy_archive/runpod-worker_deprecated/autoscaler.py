@@ -1,8 +1,6 @@
 import os
 import time
-import json
 import logging
-from datetime import datetime
 from dotenv import load_dotenv
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -13,11 +11,8 @@ import redis
 from runpod_api import (
     list_pods,
     create_pod,
-    stop_pod,
     terminate_pod,
-    get_fleet_status,
     get_cost_summary,
-    health_check,
     _load_pods,
     _save_pods,
     _record_event,
@@ -160,7 +155,7 @@ def scale():
                     logger.error(f"Failed to terminate {pod_id}: {e}")
 
 def run():
-    logger.info(f"SimHPC Production Autoscaler v2.2.1 (GraphQL + Tenacity)")
+    logger.info("SimHPC Production Autoscaler v2.2.1 (GraphQL + Tenacity)")
     while True:
         try:
             scale()

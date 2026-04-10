@@ -16,9 +16,7 @@ Requires:
     - All required secrets in Infisical
 """
 
-import os
 import sys
-import json
 import subprocess
 import runpod
 
@@ -124,7 +122,7 @@ def recreate_pod(api_key, pod_id, env_vars):
     print(f"New pod created: {new_pod_id}")
 
     # Update RUNPOD_ID in Infisical
-    print(f"Updating RUNPOD_ID in Infisical...")
+    print("Updating RUNPOD_ID in Infisical...")
     cmd = f"set INFISICAL_CLIENT_ID={INFISICAL_CLIENT_ID}&& set INFISICAL_CLIENT_SECRET={INFISICAL_CLIENT_SECRET}&& infisical secrets set RUNPOD_ID={new_pod_id} --projectId={INFISICAL_PROJECT_ID}"
     subprocess.run(cmd, shell=True, capture_output=True)
 
@@ -161,7 +159,7 @@ def deploy():
     # Recreate pod with env vars
     new_pod_id = recreate_pod(secrets["RUNPOD_API_KEY"], secrets["RUNPOD_ID"], env_vars)
 
-    print(f"\n=== Worker deployment complete ===")
+    print("\n=== Worker deployment complete ===")
     print(f"Worker pod: {new_pod_id}")
 
 

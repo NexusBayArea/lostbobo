@@ -1,9 +1,10 @@
 # ═══════════════════════════════════════════════════════════
-# SimHPC Production Unified Dockerfile (v2.6.26)
-# Optimized for: layer caching, health checks, security, efficiency
-# ═══════════════════════════════════════════════════════════════════
+# SimHPC Unified Dockerfile (v2.7.0)
+# Optimized for: deterministic builds, minimal runtime, security
+# Build: docker build -f docker/images/Dockerfile.unified -t simhpcworker/simhpc-unified:latest .
+# ═══════════════════════════════════════════════════════════
 
-FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04 AS base
+FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04 AS base
 
 # ───────────────────────────────────────────────────────────
 # Stage 1: Base - System dependencies & security hardening
@@ -19,25 +20,23 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 WORKDIR $APP_HOME
 
-# Install system dependencies in single layer
-RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
+# Install system dependencies including supervisor and tini
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
     python3-pip \
     python3-dev \
-    git \
     curl \
     bash \
-    gcc \
     psmisc \
-    jq \
-    redis-tools \
-    && apt-get clean \
+    supervisor \
+    tini \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip
 RUN pip3 install --no-cache-dir --upgrade pip setuptools>=78.1.1 wheel>=0.38.1
 
 # Create non-root user for security
-RUN useradd -m -u 1000 simuser && \
+RUN useradd -m -u 10001 simuser && \
     mkdir -p $APP_HOME && \
     chown -R simuser:simuser $APP_HOME
 
@@ -48,8 +47,8 @@ RUN useradd -m -u 1000 simuser && \
 FROM base AS builder
 
 # Copy requirements files first (maximum layer cache efficiency)
-COPY --chown=simuser:simuser services/worker/requirements.txt ./req-worker.txt
-COPY --chown=simuser:simuser services/worker/requirements-autoscaler.txt ./req-auto.txt
+COPY --chown=simuser:simuser app/services/worker/requirements.txt ./req-worker.txt
+COPY --chown=simuser:simuser app/services/worker/requirements-autoscaler.txt ./req-auto.txt
 
 # Install Python dependencies
 RUN pip3 install --no-cache-dir -r req-worker.txt && \
@@ -65,26 +64,17 @@ RUN python3 -c "import fastapi, redis, pydantic, httpx, supabase; print('✓ Cor
 FROM base AS runtime
 
 # Copy Python dependencies from builder
-COPY --from=builder /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
-COPY --from=builder /usr/local/bin /usr/local/bin
+COPY --from=builder /usr/local /usr/local
 
-# Copy API files
-COPY --chown=simuser:simuser services/api/api.py .
-COPY --chown=simuser:simuser services/api/auth_utils.py .
-COPY --chown=simuser:simuser services/api/demo_access.py .
-COPY --chown=simuser:simuser services/api/job_queue.py .
-COPY --chown=simuser:simuser services/api/app/ ./app/
+# Copy App files
+COPY --chown=simuser:simuser app/ ./app/
 
-# Copy Worker files
-COPY --chown=simuser:simuser services/worker/worker.py .
-COPY --chown=simuser:simuser services/worker/runpod_api.py .
-COPY --chown=simuser:simuser services/worker/autoscaler.py .
-
-# Copy startup script
-COPY --chown=simuser:simuser services/worker/start.sh .
+# Copy supervisor config + start script
+COPY --chown=simuser:simuser docker/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
+COPY --chown=simuser:simuser docker/scripts/start.sh /start.sh
 
 # Set permissions
-RUN chmod +x start.sh
+RUN chmod +x /start.sh
 
 # Switch to non-root user
 USER simuser
@@ -101,31 +91,11 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 # Expose Ports
 # ───────────────────────────────────────────────────────────
 
-EXPOSE 8080 8000 8888
+EXPOSE 8080
 
 # ───────────────────────────────────────────────────────────
 # Startup Command - Unified (API + Worker + Autoscaler)
 # ───────────────────────────────────────────────────────────
 
-# Uses start.sh which runs all three services in background
-CMD ["./start.sh"]
-
-# ═══════════════════════════════════════════════════════════
-# Build Optimization Notes
-# ═══════════════════════════════════════════════════════════
-#
-# Layer Caching Strategy:
-# 1. Base image (nvidia/cuda) → cached
-# 2. System deps → cached
-# 3. requirements.txt → rebuilds if changed
-# 4. Application code → rebuilds if changed
-#
-# To build:
-#   docker build -f Dockerfile.unified -t simhpcworker/simhpc-unified:latest .
-#   docker build -f Dockerfile.unified -t simhpcworker/simhpc-unified:latest . --build-arg BUILDKIT_INLINE_CACHE=1
-#
-# For Docker Hub:
-#   docker build -f Dockerfile.unified -t simhpcworker/simhpc-unified:latest .
-#   docker push simhpcworker/simhpc-unified:latest
-#
-# ═══════════════════════════════════════════════════════════
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["/start.sh"]
