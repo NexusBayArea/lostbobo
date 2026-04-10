@@ -18,40 +18,13 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        manualChunks: (id: string) => {
-          // 1. Core React + Router (very stable)
-          if (id.includes("react") || id.includes("react-dom") || id.includes("react-router")) {
-            return "vendor-react";
-          }
-
-          // 2. Supabase (you use it heavily)
-          if (id.includes("@supabase")) {
-            return "vendor-supabase";
-          }
-
-          // 3. State management (Zustand, etc.)
-          if (id.includes("zustand") || id.includes("jotai") || id.includes("recoil")) {
-            return "vendor-state";
-          }
-
-          // 4. UI / Charts / Heavy visuals (common culprits in dashboards)
-          if (
-            id.includes("recharts") ||
-            id.includes("chart.js") ||
-            id.includes("framer-motion") ||
-            id.includes("lucide-react") ||
-            id.includes("sonner") ||
-            id.includes("@radix-ui")
-          ) {
-            return "vendor-ui";
-          }
-
-          // 5. Everything else from node_modules goes into a general vendor chunk
-          if (id.includes("node_modules")) {
-            return "vendor";
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
           }
         },
       },
     },
+
   },
 });
