@@ -18,9 +18,43 @@ export default defineConfig({
 
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor';
+        manualChunks: (id: string) => {
+          // 1. Core React + Router (MUST be in same chunk to avoid context issues)
+          if (
+            id.includes("react") || 
+            id.includes("react-dom") || 
+            id.includes("react-router") ||
+            id.includes("scheduler") ||
+            id.includes("prop-types")
+          ) {
+            return "vendor-core";
+          }
+
+          // 2. Supabase
+          if (id.includes("@supabase")) {
+            return "vendor-supabase";
+          }
+
+          // 3. State management
+          if (id.includes("zustand") || id.includes("jotai") || id.includes("recoil")) {        
+            return "vendor-state";
+          }
+
+          // 4. UI / Charts / Heavy visuals
+          if (
+            id.includes("recharts") ||
+            id.includes("chart.js") ||
+            id.includes("framer-motion") ||
+            id.includes("lucide-react") ||
+            id.includes("sonner") ||
+            id.includes("@radix-ui")
+          ) {
+            return "vendor-ui";
+          }
+
+          // 5. Everything else from node_modules
+          if (id.includes("node_modules")) {
+            return "vendor";
           }
         },
       },
