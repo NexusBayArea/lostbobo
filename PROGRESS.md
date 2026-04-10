@@ -236,3 +236,17 @@ docker push simhpcworker/simhpc-unified:latest
 - `.dockerignore` - Added docker/ exclusion
 - `skills/docker/SKILL.md` → v2.6.9 (new structure)
 - `skills/deployment/SKILL.md` → v2.6.22 (Docker paths)
+
+---
+
+## v2.7.1: Production Deployment & API Stabilization (April 2026)
+
+### Actions Taken
+- **GitHub Actions**: Updated deploy.yml to v2.7.1 standard (SHA tagging, podReset with error verification).
+- **RunPod Deployment**: Triggered a fresh pull and pod reset to verify the new unified container structure.
+- **Vercel Deployment**: Successfully pushed frontend to production with Infisical secret injection (VITE_ and NEXT_PUBLIC_).
+- **API Fixes**: Resolved critical syntax errors in simulations.py and updated init_routes to handle get_job_field dependencies.
+- **Frontend Optimization**: Implemented lazy loading for pages and custom build chunks in ite.config.ts to improve performance.
+
+### Status: ? DEPLOYED
+

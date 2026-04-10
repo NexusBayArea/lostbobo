@@ -5,6 +5,17 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.1] - 2026-04-10
+
+### Added
+- **Production Pipeline v2.7.1**: Fully automated deployment to Vercel and RunPod with SHA-based image tagging and podReset verification.
+- **Frontend Optimization**: Implemented lazy loading for heavy pages and optimized build chunks to reduce initial bundle size.
+
+### Fixed
+- **API Stub Alignment**: Resolved `init_routes` dependencies in `simulations.py`, fixing undefined `get_job_field` and redundant stubs.
+- **Critical Syntax Error**: Fixed a broken `HTTPException` call in `simulations.py` that would have crashed the API.
+- **Workflow Consolidation**: Replaced outdated RunPod deployment scripts with the unified `deploy.yml` v2.7.1 standard.
+
 ## [2.6.27] - 2026-04-09
 
 ### Fixed
