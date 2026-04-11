@@ -88,7 +88,7 @@ def deploy():
     print(f"Resume: {resume_resp.text}")
 
     print("\n=== Done ===")
-    print(f"Check: https://{POD_ID}-8888.proxy.runpod.net")
+    print(f"Check: https://{POD_ID}-8080.proxy.runpod.net")
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@
 
 set -e
 
-API_URL=${API_URL:-http://localhost:8888}
+API_URL=${API_URL:-http://localhost:8080}
 HEALTH_ENDPOINT="$API_URL/health"
 
 echo "⏳ Waiting for API health at $HEALTH_ENDPOINT..."

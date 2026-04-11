@@ -4,12 +4,12 @@
  *
  * Single source of truth for all frontend → backend communication.
  * Reads VITE_API_URL from environment so the same build works against:
- *   - Local dev:   http://localhost:8888
- *   - RunPod:      https://73atszmbozf16d-8888.proxy.runpod.net
+ *   - Local dev:   http://localhost:8080
+ *   - RunPod:      https://73atszmbozf16d-8080.proxy.runpod.net
  *   - Production:  https://api.simhpc.com
  *
  * Usage in .env.local:
- *   VITE_API_URL=http://localhost:8888
+ *   VITE_API_URL=http://localhost:8080
  *
  * Usage in Vercel dashboard (Environment Variables):
  *   VITE_API_URL=https://api.simhpc.com
@@ -28,7 +28,7 @@ if (!API_BASE) {
   console.error(
     "[SimHPC] VITE_API_URL is not set. " +
       "Add it to .env.local for dev or Vercel Environment Variables for prod.\n" +
-      "Example: VITE_API_URL=http://localhost:8888"
+      "Example: VITE_API_URL=http://localhost:8080"
   );
 }
 
@@ -298,7 +298,7 @@ export const api = {
    *   ws.onclose = () => console.log("done");
    */
   telemetrySocket(runId: string, token: string): WebSocket {
-    const wsBase = API_BASE?.replace(/^http/, "ws") ?? "ws://localhost:8888";
+    const wsBase = API_BASE?.replace(/^http/, "ws") ?? "ws://localhost:8080";
     return new WebSocket(`${wsBase}/api/v1/ws/telemetry/${runId}?token=${token}`);
   },
 };

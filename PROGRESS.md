@@ -617,3 +617,5 @@ ode_modules and .git while preserving the docker/ configuration tree.
 - **Tooling Upgrade**: Switched to uv for dependency management, achieving faster builds and deterministic locking via uv.lock.
 - **Container Standard**: Updated all Dockerfiles to utilize uv pip install for consistent environments across API and GPU workers.
 
+- **Port Unification**: Standardized all services, Dockerfiles, and scripts on port **8080** for consistent internal and external routing.
+

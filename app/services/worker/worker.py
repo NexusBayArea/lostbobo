@@ -217,7 +217,7 @@ def process_job(job):
 
 import httpx
 
-API_URL = os.getenv("API_URL", "http://localhost:8888")
+API_URL = os.getenv("API_URL", "http://localhost:8080")
 
 
 def wait_for_api():

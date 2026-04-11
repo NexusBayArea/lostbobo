@@ -150,7 +150,7 @@ echo "  docker-compose logs -f           # Follow all logs"
 echo ""
 
 echo "Check health individually:"
-echo "  docker exec simhpc-api curl http://localhost:8888/health"
+echo "  docker exec simhpc-api curl http://localhost:8080/health"
 echo "  docker exec simhpc-redis redis-cli ping"
 echo ""
 
@@ -164,8 +164,8 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 echo "API:"
-echo "  Health: http://localhost:8888/health"
-echo "  Docs: http://localhost:8888/docs"
+echo "  Health: http://localhost:8080/health"
+echo "  Docs: http://localhost:8080/docs"
 echo ""
 
 echo "Redis:"
@@ -222,11 +222,11 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 echo "Test API is healthy:"
-echo "  curl http://localhost:8888/health"
+echo "  curl http://localhost:8080/health"
 echo ""
 
 echo "Test CORS is working:"
-echo "  curl -i -X GET http://localhost:8888/api/v1/user/profile \\"
+echo "  curl -i -X GET http://localhost:8080/api/v1/user/profile \\"
 echo "    -H 'Origin: http://localhost:3000' \\"
 echo "    -H 'Authorization: Bearer <token>'"
 echo ""
@@ -251,14 +251,14 @@ echo ""
 echo "Q: Services won't start?"
 echo "A: Check logs: docker-compose logs"
 echo "   Common issues:"
-echo "   - Port already in use: lsof -i :8888 (kill process if needed)"
+echo "   - Port already in use: lsof -i :8080 (kill process if needed)"
 echo "   - Image not built: docker-compose build"
 echo "   - .env missing secrets: edit .env with your values"
 echo ""
 
 echo "Q: Health check failing?"
 echo "A: Check logs: docker-compose logs -f api"
-echo "   Verify endpoint: curl http://localhost:8888/health"
+echo "   Verify endpoint: curl http://localhost:8080/health"
 echo "   Check port is exposed: docker-compose ps"
 echo ""
 

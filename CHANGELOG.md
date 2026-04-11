@@ -21,11 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Architectural Upgrade**: Transitioned from `start.sh` to `supervisord` for process management in the Unified Pod, enabling independent restarts for API, Worker, and Autoscaler.
 - **Boot-Order Enforcement**: Implemented health-aware startup sequence (Redis → API → Worker/Autoscaler) using custom wait scripts.
-- **Port Alignment**: Standardized API orchestrator on port **8888** to match RunPod's internal routing and avoid Jupyter conflicts.
+- **Port Alignment**: Standardized API orchestrator on port **8080** to match RunPod's internal routing and avoid Jupyter conflicts.
 - **Log Management**: Implemented non-rotating `/dev/stdout` and `/dev/stderr` streaming for all sub-processes.
 
 ### Fixed
-- **Port Conflicts**: Added `fuser -k 8888/tcp` to the container command to prevent "Address already in use" errors from default RunPod services.
+- **Port Conflicts**: Added `fuser -k 8080/tcp` to the container command to prevent "Address already in use" errors from default RunPod services.
 - **Pathing Resolution**: Fixed working directory issues in `supervisord.conf` ensuring correct module resolution for the backend.
 - **API Health Check**: Enhanced `/health` endpoint to include real-time Redis connectivity verification.
 - **Autoscaler Resilience**: Added `system_ready` gate to prevent scaling actions before Redis is reachable.
@@ -66,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Strategic Diagnosis
 - **"Control-Plane Gap" Identification**: Diagnosed the root cause of `no_active_pods` error as a missing worker discovery and registry mechanism.
-- **Worker Process Conflict**: Identified that containers were defaulting to Jupyter Lab (Port 8888) instead of the SimHPC Worker API (Port 8888).
+- **Worker Process Conflict**: Identified that containers were defaulting to Jupyter Lab (Port 8080) instead of the SimHPC Worker API (Port 8080).
 - **Routing Analysis**: Discovered that non-compute requests were incorrectly dependent on active compute pods.
 
 ## [2.6.21] - 2026-04-09
@@ -86,7 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Duplicate API Declaration**: Resolved a critical TypeScript build error by merging duplicate `api` object declarations into the single `ApiClient` class in `apps/frontend/src/lib/api.ts`.
-- **RunPod Port Conflict**: Integrated a port 8888 guard in `Dockerfile.unified` and `start.sh` using `fuser -k 8888/tcp` to ensure the FastAPI orchestrator can bind to the port without Jupyter interference.
+- **RunPod Port Conflict**: Integrated a port 8080 guard in `Dockerfile.unified` and `start.sh` using `fuser -k 8080/tcp` to ensure the FastAPI orchestrator can bind to the port without Jupyter interference.
 - **GitHub Workflow Corruption**: Repaired the `deploy-runpod.yml` file, removing corrupted git diff markers and implementing the v2.6.5/v2.6.7 resilient deployment protocols (podReset + Fallback).
 - **Unique Image Tagging**: Updated all GitHub workflows to use `${{ github.run_id }}` for Docker tagging, ensuring unique, immutable images for every build.
 

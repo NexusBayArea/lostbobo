@@ -38,9 +38,9 @@ COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/scripts/ ./docker/scripts/
 RUN chmod +x docker/scripts/*.sh
 
-# RunPod expects API on 8888 for routing
-EXPOSE 8888
+# RunPod expects API on 8080 for routing
+EXPOSE 8080
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
-# Kill any existing Jupyter/RunPod services holding the port 8888, then start supervisor
-CMD ["sh", "-c", "fuser -k 8888/tcp || true && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
+# Kill any existing Jupyter/RunPod services holding the port 8080, then start supervisor
+CMD ["sh", "-c", "fuser -k 8080/tcp || true && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]

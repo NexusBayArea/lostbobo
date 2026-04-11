@@ -1,9 +1,0 @@
-fastapi
-uvicorn[standard]
-python-dotenv
-redis
-pydantic
-httpx
-supabase
-python-jose[cryptography]
-psycopg2-binary

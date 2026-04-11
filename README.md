@@ -54,7 +54,7 @@ To launch the full "Mission Control" stack locally using Infisical for secret in
 3. **Verify**:
 
    - **Frontend**: <http://localhost> (Dashboard with Cyan LEDs)
-   - **API Health**: <http://localhost:8888/api/v1/health> (returns `{"status": "healthy", ...}`)
+   - **API Health**: <http://localhost:8080/api/v1/health> (returns `{"status": "healthy", ...}`)
    - **Worker Logs**: Look for `Heartbeat sent` in terminal output
    - **Lint Clean**: `pre-commit run --all-files` — all passed
    - **CI Gate**: GitHub Actions runs ruff on every push to `main`/`v2.5.1-DEV`
@@ -74,7 +74,7 @@ To launch the full "Mission Control" stack locally using Infisical for secret in
 ## v2.6.4: Native Secret Sync & API Deployment
 
 - **Native Secret Sync**: Uses Infisical GitHub App integration (no CLI in CI)
-- **Port Migration**: Port 8888 for RunPod compatibility
+- **Port Migration**: Port 8080 for RunPod compatibility
 - **SB Prefix**: Supabase keys use SB_ prefix for Infisical compatibility
 - **Docker Images**: simhpcworker/simhpc-unified:latest (v2.6.4)
 - **API Deployment**: RunPod via GraphQL `podReset` (no SSH)

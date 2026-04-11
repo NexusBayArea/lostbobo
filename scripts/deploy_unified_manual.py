@@ -67,7 +67,7 @@ def deploy():
     print(f"Resume response: {resume_resp.text}")
 
     print("\nDeployment complete!")
-    print(f"API URL: https://{POD_ID}-8888.proxy.runpod.net")
+    print(f"API URL: https://{POD_ID}-8080.proxy.runpod.net")
 
 
 if __name__ == "__main__":

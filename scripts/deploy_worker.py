@@ -115,7 +115,7 @@ def recreate_pod(api_key, pod_id, env_vars):
         gpu_count=1,
         volume_in_gb=20,
         container_disk_in_gb=20,
-        ports="8888/http,22/tcp",
+        ports="8080/http,22/tcp",
         env=env_vars,
     )
     new_pod_id = pod["id"]
