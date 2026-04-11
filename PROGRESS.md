@@ -454,3 +454,11 @@ Achieve immediate 200 OK health check response from RunPod deployment by minimiz
 - All routes now active and accessible
 - Ready for Infisical-based deployment
 - Awaiting final verification and push
+
+## v2.7.8: OpenAPI Type Generation & Drift Guard (April 11, 2026)
+
+- Added `scripts/generate_openapi_types.sh` to fetch FastAPI OpenAPI spec and generate TypeScript types.
+- Updated `.github/workflows/deploy.yml` to run the script and fail on type drift.
+- Enforced schema contract via generated `shared/openapi-types.ts`.
+- Updated `progress.md` to document this change.
+
