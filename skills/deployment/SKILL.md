@@ -47,20 +47,19 @@ grep -r "API_KEY\|SECRET\|TOKEN\|PASSWORD" --include="*.env*" .
 # Should return NO matches in tracked files
 ```
 
-## Docker Images
+## Docker Images (v2.7.4)
 
-All images pushed to Docker Hub with SHA tagging (NOT latest):
+**IMPORTANT**: Use Docker Hub (GHCR has permission issues).
+
+All images pushed to Docker Hub with run_id tagging:
 
 | Image | Tag | Purpose |
 | :--- | :--- | :--- |
-| simhpcworker/simhpc-unified | `${{ github.sha }}` | Combined API + Worker + Autoscaler (Port 8080) |
-| simhpcworker/simhpc-worker | `${{ github.sha }}` | GPU physics worker |
-| simhpcworker/simhpc-api | `${{ github.sha }}` | FastAPI orchestrator |
-| simhpcworker/simhpc-autoscaler | `${{ github.sha }}` | RunPod autoscaler |
+| simhpcworker/simhpc-unified | `${{ github.run_id }}` | Combined API + Worker + Autoscaler (Port 8080) |
 
-**CRITICAL: Always use SHA tags, never deploy `latest` in production.**
+**Use `github.run_id` NOT `github.sha`** - RunPod caches images and needs unique tags to pull fresh.
 
-## Pipeline Verification Gates (v2.7.2)
+## Pipeline Verification Gates (v2.7.4)
 
 ### Failure Modes & Fixes
 
@@ -68,21 +67,20 @@ All images pushed to Docker Hub with SHA tagging (NOT latest):
 |-------|-------------|-----|
 | Docker push | Silent fail | Use `set -e` + exit on error |
 | podReset | Fire-and-forget | Parse GraphQL response, check for errors |
-| Tagging | `latest` cache | Use SHA tags (`${{ github.sha }}`) |
-| No digest enforcement | RunPod uses cached image | Deploy exact SHA, not tag |
-| File path mismatch | worker.py not found | Use correct paths: `app/api/api:app`, `app/services/worker/worker.py` |
+| Tagging | `latest` cache | Use run_id tags (`${{ github.run_id }}`) |
+| No digest enforcement | RunPod uses cached image | Deploy exact run_id, not tag |
+| File path mismatch | worker.py not found | Use correct paths: `app.main:app`, `app/services/worker/worker.py` |
+| GHCR permission | "installation not allowed" | Use Docker Hub instead |
+| Uppercase GHCR | "repository name must be lowercase" | Use lowercase org name |
 
 ### Verified Docker Push (MANDATORY)
 
 ```bash
 set -e
 
-IMAGE=simhpcworker/simhpc-unified:${{ github.sha }}
+IMAGE=simhpcworker/simhpc-unified:${{ github.run_id }}
 
-docker build -f docker/images/Dockerfile.unified -t $IMAGE .
-docker push $IMAGE
-
-echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+docker buildx build --platform linux/amd64 -f docker/images/Dockerfile.unified -t $IMAGE --push .
 ```
 
 ### Verified podReset (MANDATORY)
@@ -92,11 +90,11 @@ RESPONSE=$(curl -s -X POST "https://api.runpod.io/graphql" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $RUNPOD_API_KEY" \
   -H "x-apollo-operation-name: podReset" \
-  -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id status } }\"}")
+  -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id desiredStatus } }\"}")
 
 echo "RunPod response: $RESPONSE"
 
-if [[ "$RESPONSE" == *"errors"* ]] || [[ "$RESPONSE" == *"error"* ]]; then
+if [[ "$RESPONSE" == *"errors"* ]]; then
   echo "Deployment failed"
   exit 1
 fi

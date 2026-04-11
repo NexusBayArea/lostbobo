@@ -1,12 +1,12 @@
 ---
 name: docker-lean
 description: Minimal, reproducible Docker builds for SimHPC GPU workloads (A40 optimized).
-version: 2.8.0
+version: 2.8.1
 license: MIT
 compatibility: opencode
 ---
 
-# Docker Lean Skill Set (v2.8.0)
+# Docker Lean Skill Set (v2.8.1)
 
 Essential skills for keeping images small and your system clean.
 
@@ -53,21 +53,24 @@ simhpcworker/simhpc-autoscaler   ❌
 
 | Service | Dockerfile | Path | Entry |
 | :--- | :--- | :--- | :--- |
-| simhpc-unified | `docker/images/Dockerfile.unified` | `app/` | `app.api.api:app` |
+| simhpc-unified | `docker/images/Dockerfile.unified` | `app/` | `app.main:app` |
 
 ## Dockerfile.unified Structure
 
 ```dockerfile
 WORKDIR /app
 COPY app/ ./app/
-COPY docker/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
-COPY docker/scripts/start.sh /start.sh
+COPY app/services/worker/start.sh /app/start.sh
 ```
 
-### Key paths:
-- API: `/app/app/api/api.py` → uvicorn `app.api.api:app`
+### Key paths (IMPORTANT):
+- API: `/app/app/main.py` → uvicorn `app.main:app`
+- Health endpoint: `/api/v1/health` (in main.py, line 1146)
 - Worker: `/app/app/services/worker/worker.py`
 - Autoscaler: `/app/app/services/worker/autoscaler.py`
+- Start script: `/app/app/services/worker/start.sh`
+
+**Note**: Health endpoint is in `main.py`, not `api.py`. Use `app.main:app` for uvicorn.
 
 ## 502 Troubleshooting Guide
 

@@ -1,7 +1,7 @@
 ---
 name: runpod-push
 description: Build, push, and deploy SimHPC worker to RunPod GPU instances with Infisical secret management.
-version: 2.7.0
+version: 2.7.1
 license: MIT
 compatibility: opencode
 ---
@@ -10,7 +10,7 @@ compatibility: opencode
 
 Build, push, and deploy SimHPC unified stack to RunPod GPU instances.
 
-## Version: 2.7.0
+## Version: 2.7.1
 
 ## 🔐 SECURITY RULES (MANDATORY - NO EXCEPTIONS)
 
@@ -42,27 +42,32 @@ infisical run --env=production -- curl -H "Authorization: Bearer $RUNPOD_API_KEY
 
 | Key | Purpose |
 |-----|---------|
-| `PORT` | Set to `8888` for RunPod compatibility |
+| `PORT` | Set to `8080` for RunPod (primary) |
 | `RUNPOD_API_KEY` | GraphQL API for pod lifecycle |
 | `RUNPOD_ID` | Pod identifier for podReset |
-| `VITE_API_URL` | Dynamic proxy URL (`https://{ID}-8888.proxy.runpod.net`) |
+| `VITE_API_URL` | Dynamic proxy URL (`https://{ID}-8080.proxy.runpod.net`) |
 | `ALLOWED_ORIGINS` | CORS origins |
 
-### RunPod Secrets (v2.6.6) - API Only, No SSH
+### RunPod Secrets (v2.7.1)
 
 | Secret | Purpose | Status |
 |--------|---------|--------|
 | `RUNPOD_API_KEY` | podReset mutation | CRITICAL |
 | `RUNPOD_ID` | Which pod to reset | CRITICAL |
+| `DOCKER_LOGIN` | Docker Hub username | CRITICAL |
+| `DOCKER_PW_TOKEN` | Docker Hub PAT | CRITICAL |
 
-**Delete if present:**
-- `RUNPOD_SSH_KEY` - Not needed (API-only)
-- `RUNPOD_JUPYTER_PW` - Not used (custom Dockerfile)
-- `RUNPOD_USERNAME` - Not needed (API-only)
+## Unified Deployment (v2.7.1)
 
-## Unified Deployment
+The stack uses **Port 8080** (not 8888) - this is the primary port for the unified container.
 
-The stack is now configured to use **Port 8888**, as it is the most reliable "open" port on standard RunPod templates.
+### Image: Docker Hub (RECOMMENDED)
+
+```
+simhpcworker/simhpc-unified:latest
+```
+
+**IMPORTANT**: RunPod pod must be configured with this image URL. After podReset, it will pull the latest image from Docker Hub.
 
 ### Dockerfile.unified
 
