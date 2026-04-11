@@ -365,3 +365,31 @@ Achieve immediate 200 OK health check response from RunPod deployment by minimiz
 ### Status: ✅ IMPLEMENTED (April 11, 2026)
 - Files updated as per beta foundation specifications
 - Ready for commit and push to trigger GitHub Actions deployment
+
+---
+
+## v2.7.5: Critical Ruff Audit Fixes (April 11, 2026)
+
+### Issues Fixed
+- **F821 Undefined name 'app'**: Initialized `app = FastAPI()` before decorators
+- **E402 Import order violations**: Hoisted `load_dotenv` to absolute top
+- **Unused imports**: Removed 27+ unused imports (uuid, json, time, etc.)
+- **Redefinition**: Renamed parameter in `setex` to avoid clashing with `time` module
+- **Port standardization**: Set default to 8080 per SYSTEM.md
+
+### Key Changes in api.py
+1. Initialized `app = FastAPI()` immediately after imports
+2. Moved `load_dotenv` to top to satisfy PEP8/Ruff
+3. Cleaned up unused imports
+4. Fixed parameter naming conflict in MockRedis.setex
+5. Standardized port to 8080
+6. Kept core functionality: health endpoints, admin verification, alpha services
+
+### Compliance Notes
+- Uses Infisical compatibility: `infisical run -- python app/main.py`
+- Maintains architectural separation: routes commented out for later inclusion
+- Preserves Supabase dependency readiness for core/ initialization
+
+### Status: ✅ IMPLEMENTED (April 11, 2026)
+- Critical blockers resolved
+- Ready for router inclusion and Supabase integration
