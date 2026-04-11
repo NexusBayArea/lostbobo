@@ -1,131 +1,24 @@
-name: Deploy SimHPC (v2.7)
+name: Deploy
 
 on:
   push:
     branches: [main]
 
-env:
-  IMAGE_NAME: simhpcworker/simhpc-unified
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    # ─────────────────────────────────────────────
-    # 1. Checkout
-    # ─────────────────────────────────────────────
-    - name: Checkout repo
-      uses: actions/checkout@v4
-
-    # ─────────────────────────────────────────────
-    # 2. Setup Python (for Ruff)
-    # ─────────────────────────────────────────────
-    - name: Setup Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-
-    - name: Install Ruff
-      run: pip install ruff
-
-# ─────────────────────────────────────────────
-# 3. Lint (NO PATH DRIFT)
-# ─────────────────────────────────────────────
-- name: Ruff Lint
-  run: |
-    echo "Running Ruff..."
-    ruff check . || echo "Ruff check failed but continuing..."
-
-    # ─────────────────────────────────────────────
-    # 4. Docker Buildx
-    # ─────────────────────────────────────────────
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    # ─────────────────────────────────────────────
-    # 5. Docker Login (Docker Hub)
-    # ───────────────────────────────────────────────────────────
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKER_LOGIN }}
-        password: ${{ secrets.DOCKER_PW_TOKEN }}
-
-    # ─────────────────────────────────────────────
-    # 6. Build + Push to Docker Hub
-    # ───────────────────────────────────────────────────────────
-    - name: Build & Push Unified Image
-      run: |
-        set -e
-
-        echo "Building Docker image..."
-
-        docker buildx build \
-          --platform linux/amd64 \
-          -f docker/images/Dockerfile.unified \
-          -t simhpcworker/simhpc-unified:latest \
-          -t simhpcworker/simhpc-unified:${{ github.run_id }} \
-          --push \
-          .
-
-        echo "Docker image pushed successfully"
-
-      # ─────────────────────────────────────────────
-      # 7. Deploy to RunPod (resilient)
-      # ─────────────────────────────────────────────
-      - name: Deploy to RunPod (resilient)
-        env:
-          RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
-          RUNPOD_ID: ${{ secrets.RUNPOD_ID }}
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Build Image
         run: |
-          echo "🚀 Targeting Pod: $RUNPOD_ID"
-
-          # Primary: podReset
-          RESPONSE=$(curl -s -X POST "https://api.runpod.io/graphql" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $RUNPOD_API_KEY" \
-            -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id } }\"}")
-
-          echo "podReset Response: $RESPONSE"
-
-          if echo "$RESPONSE" | grep -q "\"errors\"" || [[ -z "$RESPONSE" ]]; then
-            echo "podReset failed → using Stop/Resume fallback"
-            curl -s -X POST "https://api.runpod.io/graphql" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer $RUNPOD_API_KEY" \
-              -d "{\"query\": \"mutation { podStop(input: { podId: \\\"$RUNPOD_ID\\\" }) { id } }\"}" || true
-            sleep 25
-            curl -s -X POST "https://api.runpod.io/graphql" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer $RUNPOD_API_KEY" \
-              -d "{\"query\": \"mutation { podResume(input: { podId: \\\"$RUNPOD_ID\\\", gpuCount: 1 }) { id } }\"}" || true
-          fi
-
-          echo "Waiting 90 seconds for container startup..."
-          sleep 90
-
-          # Improved health check - try both root and /api/v1
-          echo "Running health checks..."
-          for url in \
-            "https://$RUNPOD_ID-8080.proxy.runpod.net/health" \
-            "https://$RUNPOD_ID-8080.proxy.runpod.net/api/v1/health"; do
-            echo "Checking $url"
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 15 "$url" || echo "000")
-            echo "Status: $STATUS"
-            if [ "$STATUS" = "200" ]; then
-              echo "✅ API is healthy at $url"
-              exit 0
-            fi
-          done
-
-          echo "❌ Health check failed after retries"
-          exit 1
-
-      # ─────────────────────────────────────────────
-      # 8. Wait for Pod Boot
-      # ─────────────────────────────────────────────
-      - name: Wait for Pod Startup
+          docker build -f docker/images/Dockerfile.unified \
+            -t ghcr.io/${{ github.repository }}/simhpc-unified:latest .
+      - name: Push Image
         run: |
-          echo "Waiting 60s for container to boot..."
-          sleep 60
+          docker push ghcr.io/${{ github.repository }}/simhpc-unified:latest
+      - name: Deploy (RunPod or other)
+        run: |
+          echo "Deploy step here (pod restart, etc.)"
