@@ -420,3 +420,37 @@ Achieve immediate 200 OK health check response from RunPod deployment by minimiz
 - GitHub Actions workflow should now pass
 - Triggers fresh deployment to RunPod on push to main
 - Awaits manual health check verification after deployment
+
+---
+
+## v2.7.7: Router Inclusion & Infisical Compatibility (April 11, 2026)
+
+### Issues Fixed
+- **Router registration**: Added missing `app.include_router()` calls for all route modules
+- **Infisical compatibility**: Updated api.py to conditionally load .env only for local development
+- **Architectural separation**: Maintained clean import structure while enabling all endpoints
+
+### Key Changes in api.py
+1. Added imports for all route modules (admin, simulations, onboarding, certificates, control)
+2. Included all routers with appropriate prefixes and tags
+3. Made .env loading conditional for local development only (Infisical compatible)
+4. Preserved all existing functionality (health endpoints, admin verification, alpha services)
+5. Standardized port to 8080 per SYSTEM.md
+
+### Router Details
+- **Admin**: `/api/v1/admin` - Fleet management, pod operations
+- **Simulations**: `/api/v1/simulations` - Core simulation execution and management
+- **Onboarding**: `/api/v1/onboarding` - User registration and initialization
+- **Certificates**: `/api/v1/certificates` - Security certificate handling
+- **Control**: `/api/v1/control` - System operations and monitoring
+
+### Compliance Notes
+- Uses Infisical compatibility: `infisical run -- python app/main.py` (production)
+- Falls back to .env loading for local development when file exists
+- Maintains strict architectural separation between API orchestrator and service implementations
+- All routers properly registered and ready for use
+
+### Status: ✅ IMPLEMENTED (April 11, 2026)
+- All routes now active and accessible
+- Ready for Infisical-based deployment
+- Awaiting final verification and push

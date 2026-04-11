@@ -11,9 +11,20 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
+# Import routers
+from app.api.routes import admin as admin_router
+from app.api.routes import simulations as simulations_router
+from app.api.routes import onboarding as onboarding_router
+from app.api.routes import certificates as certificates_router
+from app.api.routes import control as control_router
+
 # 1. Initialize Environment & App immediately to prevent E402/F821
+# Note: For Infisical compatibility, we don't load .env here in production
+# Infisical injects env vars directly: `infisical run -- python app/main.py`
+# We keep this for local development fallback
 env_path = Path(__file__).parent.parent.parent / ".env"
-load_dotenv(env_path)
+if env_path.exists():
+    load_dotenv(env_path)
 
 app = FastAPI(title="SimHPC API", version="2.6.7")
 
@@ -25,6 +36,29 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(
+    admin_router.router, prefix="/api/v1/admin", tags=["Admin — Fleet Management"]
+)
+app.include_router(
+    simulations_router.router, prefix="/api/v1/simulations", tags=["Simulations — Core"]
+)
+app.include_router(
+    onboarding_router.router,
+    prefix="/api/v1/onboarding",
+    tags=["Onboarding — User Management"],
+)
+app.include_router(
+    certificates_router.router,
+    prefix="/api/v1/certificates",
+    tags=["Certificates — Security"],
+)
+app.include_router(
+    control_router.router,
+    prefix="/api/v1/control",
+    tags=["Control — System Operations"],
 )
 
 
