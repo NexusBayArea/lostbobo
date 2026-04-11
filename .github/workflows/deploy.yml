@@ -50,7 +50,7 @@ jobs:
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
-        username: ${{ github.actor }}
+        username: ${{ github.actor | lower }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
     # ─────────────────────────────────────────────
@@ -65,8 +65,8 @@ jobs:
         docker buildx build \
           --platform linux/amd64 \
           -f docker/images/Dockerfile.unified \
-          -t ghcr.io/${{ github.actor }}/simhpc-unified:latest \
-          -t ghcr.io/${{ github.actor }}/simhpc-unified:${{ github.run_id }} \
+          -t ghcr.io/${{ github.actor | lower }}/simhpc-unified:latest \
+          -t ghcr.io/${{ github.actor | lower }}/simhpc-unified:${{ github.run_id }} \
           --push \
           .
 
