@@ -36,7 +36,7 @@ from fastapi import (  # noqa: E402
     WebSocket,
 )
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
-from fastapi.responses import JSONResponse  # noqa: E402
+
 from pydantic import BaseModel, Field, validator  # noqa: E402
 
 # --- ONBOARDING IMPORTS ---
@@ -1205,7 +1205,7 @@ async def health_check():
         logger.error(f"Health Check: Supabase unreachable: {e}")
 
     if health_status["status"] == "degraded":
-        return JSONResponse(status_code=503, content=health_status)
+        raise HTTPException(status_code=503, detail=health_status)
 
     return health_status
 
