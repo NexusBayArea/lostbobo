@@ -5,6 +5,18 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.6] - 2026-04-10
+
+### Added
+- **Hardened Autoscaler v2.7.6**: Implemented production-safe scaling with scale-up (20s) and scale-down (30s) cooldowns to prevent thrashing.
+- **Idempotency Guard**: Added `sim:processed` set-based idempotency to the worker to ensure exactly-once execution across pod restarts.
+- **Cost Control Layer**: Implemented aggressive scale-down logic when the queue is empty and added burst protection (max 2 pods per cycle).
+- **Pod Tracking**: Established `sim:pods` registry in Redis for deterministic and orderly termination of excess workers.
+
+### Fixed
+- **Runaway Scaling**: Enforced hard caps and cooldown windows to prevent GPU cost spikes during traffic surges.
+- **Duplicate Job Execution**: Resolved potential race conditions where a job could be claimed by multiple workers during rapid scaling.
+
 ## [2.7.5] - 2026-04-10
 
 ### Added

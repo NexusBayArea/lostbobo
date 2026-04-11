@@ -146,6 +146,10 @@ def process_job(job):
 
     # === EXECUTION IDEMPOTENCY GUARD ===
     # Prevent duplicate execution if already executed
+    if redis_client.sismember("sim:processed", job_id):
+        logger.warning(f"Job {job_id} already in sim:processed, skipping")
+        return
+
     if redis_client.get(f"job:{job_id}:executed"):
         logger.warning(f"Job {job_id} already executed, skipping")
         return
@@ -210,6 +214,8 @@ def process_job(job):
     finally:
         # Mark job as executed (prevent re-run after crash recovery)
         if job_id:
+            # Multi-layer idempotency: set and key
+            redis_client.sadd("sim:processed", job_id)
             redis_client.setex(f"job:{job_id}:executed", 86400, "1")  # 24h TTL
             redis_client.delete(f"job:{job_id}:executing")
         # Mark worker as idle

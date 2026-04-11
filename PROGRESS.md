@@ -627,3 +627,7 @@ ode_modules and .git while preserving the docker/ configuration tree.
 - **Worker Lifecycle**: Implemented central heartbeat registry in Redis (sim:workers) with automatic stale worker pruning after 60s.
 - **Observability**: Added real-time autoscaler status snapshots to Redis for dashboard integration.
 
+- **Hardened Autoscaling**: Implemented scale-up (20s) and scale-down (30s) cooldowns with burst protection (max 2 pods/cycle) to prevent runaway costs.
+- **Pod Lifecycle Persistence**: Established sim:pods Redis registry for deterministic and orderly pod termination.
+- **Execution Hardening**: Added multi-layer idempotency (sim:processed set + executed keys) to guarantee exactly-once job processing.
+
