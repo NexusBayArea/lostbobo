@@ -1,8 +1,8 @@
-name: "v2.5.0 Beta Hardening: Ruff Lint"
+name: "v2.7.0: Ruff Lint"
 
 on:
   push:
-    branches: [main, v2.5.0-DEV]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -23,7 +23,7 @@ jobs:
         run: pip install ruff
 
       - name: Run Ruff Check
-        run: ruff check services/worker/worker.py
+        run: ruff check .
 
       - name: Run Ruff Format Check
-        run: ruff format --check services/worker/worker.py
+        run: ruff format --check .
