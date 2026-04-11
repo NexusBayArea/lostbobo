@@ -598,6 +598,20 @@ ode_modules and .git while preserving the docker/ configuration tree.
 
 ---
 
+---
+
+## v2.7.15: Frontend Skills Review & GitHub Push Applied (April 11, 2026)
+
+- Reviewed `skills/frontend/SKILL.md` and ensured compliance with OpenCode standards.
+- Replaced `Dockerfile.unified` with clean python:3.11-slim based version.
+- Simplified `.github/workflows/deploy.yml` to avoid YAML parsing errors.
+- Updated `app/main.py` imports (removed unused JSONResponse and threading imports).
+- Ran `ruff check . --fix` locally and committed changes.
+- Updated `PROGRESS.md` with this entry.
+- Pushed changes to GitHub; workflow now passes and Docker image builds successfully.
+
+---
+
 ## v2.7.2: Process Management & Port Alignment (April 2026)
 
 ### Actions Taken
