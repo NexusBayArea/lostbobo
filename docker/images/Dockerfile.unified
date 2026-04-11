@@ -30,8 +30,10 @@ COPY app/ ./app/
 # Create cache directories
 RUN mkdir -p /workspace/huggingface /workspace/vllm_cache
 
-# Copy supervisord configuration
-COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf        
+# Copy supervisord and wait scripts
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/scripts/ ./docker/scripts/
+RUN chmod +x docker/scripts/*.sh
 
 # RunPod expects API on 8888 for routing
 EXPOSE 8888

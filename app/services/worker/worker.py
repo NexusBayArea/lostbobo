@@ -215,8 +215,36 @@ def process_job(job):
             decrement_active_runs(user_id)
 
 
+import httpx
+
+API_URL = os.getenv("API_URL", "http://localhost:8888")
+
+
+def wait_for_api():
+    """Wait for the API to be healthy before starting."""
+    health_url = f"{API_URL}/health"
+    logger.info(f"⏳ Waiting for API health at {health_url}...")
+    for i in range(60):
+        try:
+            with httpx.Client() as client:
+                response = client.get(health_url, timeout=2.0)
+                if response.status_code == 200 and response.json().get("status") == "ok":
+                    logger.info("✅ API is healthy")
+                    return True
+        except Exception:
+            pass
+        logger.info(f"API not ready yet... {i}/60")
+        time.sleep(2)
+    return False
+
+
 def main():
-    logger.info(f"SimHPC Worker v2.6.23 - Worker ID: {WORKER_ID}")
+    logger.info(f"SimHPC Worker v2.7.2 - Worker ID: {WORKER_ID}")
+
+    # 0. Wait for API to be ready
+    if not wait_for_api():
+        logger.error("❌ API failed to become healthy. Exiting.")
+        return
 
     # 1. Registration
     register_worker()

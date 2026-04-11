@@ -102,9 +102,17 @@ def event_listener():
             handle_event(message)
 
 
+def system_ready():
+    """Check if the system (Redis) is reachable."""
+    try:
+        return redis_client.ping()
+    except Exception:
+        return False
+
+
 def main():
     logger.info("=" * 60)
-    logger.info("SimHPC Autoscaler v2.6.25 — Single-Pod Event-Driven")
+    logger.info("SimHPC Autoscaler v2.7.2 — Single-Pod Event-Driven")
     logger.info("Mode: Event-driven (no polling)")
     logger.info("Function: React to job_queued/completed/failed events")
     logger.info("=" * 60)
@@ -116,6 +124,11 @@ def main():
     # Main loop for periodic status logging
     while True:
         try:
+            if not system_ready():
+                logger.warning("⛔ system (Redis) not ready, skipping scaling/logging")
+                time.sleep(5)
+                continue
+
             log_status()
             time.sleep(CHECK_INTERVAL)
         except KeyboardInterrupt:

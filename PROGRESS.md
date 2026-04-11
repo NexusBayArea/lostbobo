@@ -609,3 +609,7 @@ ode_modules and .git while preserving the docker/ configuration tree.
 
 ### Status: ? DEPLOYED & STABILIZED
 
+- **Stability**: Implemented health-aware boot sequence (Redis → API → Worker/Autoscaler) with dependency wait scripts.
+- **Health Gating**: Added wait_for_api to worker and system_ready to autoscaler to prevent premature startup.
+- **API Hardening**: Enhanced /health endpoint with active Redis connectivity verification.
+
