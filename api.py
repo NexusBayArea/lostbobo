@@ -36,7 +36,7 @@ from fastapi import (  # noqa: E402
     WebSocket,
 )
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
-from fastapi.responses import JSONResponse  # noqa: E402
+
 from pydantic import BaseModel, Field, validator  # noqa: E402
 
 # --- ONBOARDING IMPORTS ---
