@@ -597,6 +597,13 @@ ode ode_modules and .git while preserving the docker/ configuration tree.
 ## v2.7.15: Self-Contained Unified Build & Auto-Correction (April 11, 2026)
 
 - Replaced complex Dockerfile with minimal python:3.11-slim image.
+- Removed supervisor and multi‑process setup.
+- Simplified GitHub Actions workflow with lint step.
+- Updated CMD to run FastAPI directly on port 8888.
+- All changes committed and pushed; CI now builds and pushes image successfully.
+
+
+- Replaced complex Dockerfile with minimal python:3.11-slim image.
 - Removed supervisor config and multi‑process setup.
 - Simplified GitHub Actions deploy workflow.
 - Added scripts/saas_fix.sh for lint auto‑fix (optional).
