@@ -25,11 +25,11 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile.worker
+          file: ./docker/images/Dockerfile.unified
           push: true
           tags: |
-            simhpcworker/simhpc-worker:latest
-            simhpcworker/simhpc-worker:${{ github.run_id }}
+            simhpcworker/simhpc-unified:latest
+            simhpcworker/simhpc-unified:${{ github.run_id }}
 
       - name: Reset RunPod Pod (resilient)
         env:
@@ -44,7 +44,7 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $RUNPOD_API_KEY" \
             -H "x-apollo-operation-name: podReset" \
-            -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id } }\"}")
+            -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id desiredStatus } }\"}")
           
           echo "API Response: $RESPONSE"
 

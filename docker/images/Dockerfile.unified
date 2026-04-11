@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════════════════
-# SimHPC Unified Dockerfile (v2.7.0)
+# SimHPC Unified Dockerfile (v2.7.1)
 # Optimized for: deterministic builds, minimal runtime, security
 # Build: docker build -f docker/images/Dockerfile.unified -t simhpcworker/simhpc-unified:latest .
 # ═══════════════════════════════════════════════════════════
@@ -46,13 +46,15 @@ RUN useradd -m -u 10001 simuser && \
 
 FROM base AS builder
 
-# Copy requirements files first (maximum layer cache efficiency)
+# Copy requirements files from app/services/worker
 COPY --chown=simuser:simuser app/services/worker/requirements.txt ./req-worker.txt
 COPY --chown=simuser:simuser app/services/worker/requirements-autoscaler.txt ./req-auto.txt
+COPY --chown=simuser:simuser app/api/requirements.txt ./req-api.txt
 
 # Install Python dependencies
 RUN pip3 install --no-cache-dir -r req-worker.txt && \
-    pip3 install --no-cache-dir -r req-auto.txt
+    pip3 install --no-cache-dir -r req-auto.txt && \
+    pip3 install --no-cache-dir -r req-api.txt
 
 # Verify critical packages installed
 RUN python3 -c "import fastapi, redis, pydantic, httpx, supabase; print('✓ Core dependencies OK')"
@@ -66,7 +68,7 @@ FROM base AS runtime
 # Copy Python dependencies from builder
 COPY --from=builder /usr/local /usr/local
 
-# Copy App files
+# Copy App files (api.py in app/api/, worker.py in app/services/worker/)
 COPY --chown=simuser:simuser app/ ./app/
 
 # Copy supervisor config + start script

@@ -1,16 +1,16 @@
 ---
 name: deployment
 description: Complete deployment pipeline for SimHPC - Vercel, GitHub, Docker Hub, Supabase, and RunPod.
-version: 2.7.1
+version: 2.7.2
 license: MIT
 compatibility: opencode
 ---
 
-# Deployment Skill Set (v2.7.1)
+# Deployment Skill Set (v2.7.2)
 
 Complete deployment pipeline for SimHPC with production hardening.
 
-## Version: 2.7.1
+## Version: 2.7.2
 
 ## Docker Images
 
@@ -18,14 +18,14 @@ All images pushed to Docker Hub with SHA tagging (NOT latest):
 
 | Image | Tag | Purpose |
 | :--- | :--- | :--- |
-| simhpcworker/simhpc-unified | `${{ github.sha }}` | Combined API + Worker + Autoscaler (Port 8080/8000) |
+| simhpcworker/simhpc-unified | `${{ github.sha }}` | Combined API + Worker + Autoscaler (Port 8080) |
 | simhpcworker/simhpc-worker | `${{ github.sha }}` | GPU physics worker |
 | simhpcworker/simhpc-api | `${{ github.sha }}` | FastAPI orchestrator |
 | simhpcworker/simhpc-autoscaler | `${{ github.sha }}` | RunPod autoscaler |
 
 **CRITICAL: Always use SHA tags, never deploy `latest` in production.**
 
-## Pipeline Verification Gates (v2.7.1)
+## Pipeline Verification Gates (v2.7.2)
 
 ### Failure Modes & Fixes
 
@@ -35,6 +35,7 @@ All images pushed to Docker Hub with SHA tagging (NOT latest):
 | podReset | Fire-and-forget | Parse GraphQL response, check for errors |
 | Tagging | `latest` cache | Use SHA tags (`${{ github.sha }}`) |
 | No digest enforcement | RunPod uses cached image | Deploy exact SHA, not tag |
+| File path mismatch | worker.py not found | Use correct paths: `app/api/api:app`, `app/services/worker/worker.py` |
 
 ### Verified Docker Push (MANDATORY)
 
@@ -43,7 +44,7 @@ set -e
 
 IMAGE=simhpcworker/simhpc-unified:${{ github.sha }}
 
-docker build -f Dockerfile.unified -t $IMAGE .
+docker build -f docker/images/Dockerfile.unified -t $IMAGE .
 docker push $IMAGE
 
 echo "IMAGE=$IMAGE" >> $GITHUB_ENV
@@ -55,11 +56,12 @@ echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 RESPONSE=$(curl -s -X POST "https://api.runpod.io/graphql" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $RUNPOD_API_KEY" \
+  -H "x-apollo-operation-name: podReset" \
   -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id status } }\"}")
 
 echo "RunPod response: $RESPONSE"
 
-if [[ "$RESPONSE" == *"errors"* ]]; then
+if [[ "$RESPONSE" == *"errors"* ]] || [[ "$RESPONSE" == *"error"* ]]; then
   echo "Deployment failed"
   exit 1
 fi
