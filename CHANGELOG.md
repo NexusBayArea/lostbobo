@@ -5,6 +5,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.4] - 2026-04-10
+
+### Changed
+- **Unified Base Image**: Established a single canonical CUDA-enabled base image (`Dockerfile.base`) for all services to eliminate ABI drift and library mismatches.
+- **Port Standardization**: Finalized migration of all services, scripts, and documentation to port **8080** for consistent internal and external routing.
+- **Dependency Isolation**: All service Dockerfiles now extend from the unified base, using `uv` to install only required extras (e.g., `[worker,gpu]`).
+
+### Fixed
+- **Runtime Drift**: Resolved potential `glibc` and `OpenMP` mismatches between API and Worker environments by sharing a common CUDA runtime baseline.
+
 ## [2.7.3] - 2026-04-10
 
 ### Changed

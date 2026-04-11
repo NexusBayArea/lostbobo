@@ -1,27 +1,9 @@
-# SimHPC Worker Dockerfile - v2.7.2 (uv + NVIDIA CUDA)
-FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04
+# SimHPC Worker - v2.7.4 (Unified Base)
+FROM simhpcworker/simhpc-base:latest
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    APP_HOME=/app \
-    PYTHONPATH=/app
+WORKDIR /app
 
-WORKDIR $APP_HOME
-
-# Install system dependencies and uv
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    python3-pip \
-    python3-dev \
-    tini \
-    && curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && rm -rf /var/lib/apt/lists/*
-
-ENV PATH="/root/.local/bin/:$PATH"
-
-# Install Python dependencies using uv (core + worker + gpu extras)
-COPY pyproject.toml uv.lock ./
+# Install worker and gpu extras
 RUN uv pip install --system --no-cache .[worker,gpu]
 
 # Copy application code

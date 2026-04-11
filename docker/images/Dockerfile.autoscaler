@@ -1,29 +1,12 @@
-# SimHPC Autoscaler Dockerfile - v2.7.2 (uv + Infisical)
-FROM python:3.11-slim
+# SimHPC Autoscaler - v2.7.4 (Unified Base)
+FROM simhpcworker/simhpc-base:latest
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    APP_HOME=/app \
-    PYTHONPATH=/app
+WORKDIR /app
 
-WORKDIR $APP_HOME
-
-# Install system dependencies, Infisical, and uv
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    bash \
-    ca-certificates \
-    && curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash \
-    && apt-get install -y infisical \
-    && curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && rm -rf /var/lib/apt/lists/*
-
-ENV PATH="/root/.local/bin/:$PATH"
-
-# Install Python dependencies using uv
-COPY pyproject.toml uv.lock ./
-RUN uv pip install --system --no-cache .
+# Install Infisical
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | bash && \
+    apt-get install -y infisical && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy application code
 COPY app/ ./app/

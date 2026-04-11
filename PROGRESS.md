@@ -619,3 +619,7 @@ ode_modules and .git while preserving the docker/ configuration tree.
 
 - **Port Unification**: Standardized all services, Dockerfiles, and scripts on port **8080** for consistent internal and external routing.
 
+- **Base Image Unification**: Created Dockerfile.base (CUDA 12.1 + uv) as the single source of truth for all service runtimes.
+- **Port Finalization**: Completed project-wide port migration to **8080** for all API and Worker services.
+- **Runtime Reliability**: Eliminated ABI and dependency drift by deriving all service images from the common CUDA baseline.
+

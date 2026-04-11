@@ -1,37 +1,16 @@
-# SimHPC Unified Dockerfile - v2.7.2 (uv + Supervisor)
-FROM python:3.11-slim
+# SimHPC Unified (All-in-One) - v2.7.4 (Unified Base)
+FROM simhpcworker/simhpc-base:latest
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    APP_HOME=/app \
-    PYTHONPATH=/app \
-    HF_HOME=/workspace/huggingface \
-    VLLM_CACHE=/workspace/vllm_cache
+WORKDIR /app
 
-WORKDIR $APP_HOME
-
-# Install system dependencies and uv
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    tini \
-    supervisor \
-    psmisc \
-    && curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && rm -rf /var/lib/apt/lists/*
-
-ENV PATH="/root/.local/bin/:$PATH"
-
-# Install Python dependencies using uv
-COPY pyproject.toml uv.lock ./
-RUN uv pip install --system --no-cache .[worker,gpu]
+# Install supervisor and extra deps
+RUN apt-get update && apt-get install -y --no-install-recommends supervisor && \
+    uv pip install --system --no-cache .[worker,gpu] && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy application code
 COPY run_api.py ./
 COPY app/ ./app/
-
-# Create cache directories
-RUN mkdir -p /workspace/huggingface /workspace/vllm_cache
 
 # Copy supervisord and wait scripts
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
