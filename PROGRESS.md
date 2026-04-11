@@ -82,6 +82,7 @@ Created strict schemas enforced everywhere:
 ## Current Status
 
 - Cleaned duplicate `start.sh` files; only root `start.sh` remains.
+- Fixed YAML indentation for `tags:` in `.github/workflows/deploy.yml` (line 34) to resolve syntax error.
 - Updated `api.py`: removed unused JSONResponse import, added `/api/v1/health` endpoint, softened `check_compute_availability`.
 
 - **v2.7.1**: Updated version numbers across project files (README.md, package.json, apps/frontend/package.json, app/main.py)
