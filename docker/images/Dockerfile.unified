@@ -1,4 +1,26 @@
-# Stage 1: Base Runtime Environment (replaces external base image)
+# docker/images/Dockerfile.unified
+
+FROM python:3.11-slim
+
+# System deps (only what you actually need)
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working dir
+WORKDIR /app
+
+# Copy everything (simple + reliable)
+COPY . .
+
+# Install deps
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose single port
+EXPOSE 8080
+
+# Single process only (API)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
 FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04 AS runtime-base
 
 ENV DEBIAN_FRONTEND=noninteractive

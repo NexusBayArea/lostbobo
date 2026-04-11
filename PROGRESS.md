@@ -596,6 +596,13 @@ ode ode_modules and .git while preserving the docker/ configuration tree.
 
 ## v2.7.15: Self-Contained Unified Build & Auto-Correction (April 11, 2026)
 
+- Replaced complex Dockerfile with minimal python:3.11-slim image.
+- Removed supervisor config and multi‑process setup.
+- Simplified GitHub Actions deploy workflow.
+- Added scripts/saas_fix.sh for lint auto‑fix (optional).
+- All changes committed and pushed; CI now builds and pushes image successfully.
+
+
 - Added `scripts/saas_fix.sh` to auto-fix lint errors before CI builds.
 - Updated `.github/workflows/deploy.yml` with Self-Correction step.
 - Replaced multi-stage Dockerfile with unified build that creates its own base environment (no external `simhpc-base`).
