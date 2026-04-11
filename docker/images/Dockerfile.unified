@@ -71,12 +71,9 @@ COPY --from=builder /usr/local /usr/local
 # Copy App files (api.py in app/api/, worker.py in app/services/worker/)
 COPY --chown=simuser:simuser app/ ./app/
 
-# Copy supervisor config + start script
-COPY --chown=simuser:simuser docker/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
-COPY --chown=simuser:simuser docker/scripts/start.sh /start.sh
-
-# Set permissions
-RUN chmod +x /start.sh
+# Copy start script from app/services/worker/start.sh
+COPY --chown=simuser:simuser app/services/worker/start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Switch to non-root user
 USER simuser
@@ -99,5 +96,4 @@ EXPOSE 8080
 # Startup Command - Unified (API + Worker + Autoscaler)
 # ───────────────────────────────────────────────────────────
 
-ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["/start.sh"]
+ENTRYPOINT ["/app/start.sh"]
