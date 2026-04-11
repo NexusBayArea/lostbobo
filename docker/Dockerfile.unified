@@ -1,0 +1,40 @@
+# SimHPC Unified Dockerfile - Beta Foundation (GHCR Optimized)
+FROM python:3.11-slim
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    APP_HOME=/app \
+    PYTHONPATH=/app \
+    HF_HOME=/workspace/huggingface \
+    VLLM_CACHE=/workspace/vllm_cache
+
+WORKDIR $APP_HOME
+
+# Minimal system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \\    curl \
+    tini \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY api.py worker.py ./
+COPY app/ ./app/
+
+# Create cache directories
+RUN mkdir -p /workspace/huggingface /workspace/vllm_cache
+
+# Copy supervisord configuration
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

@@ -1,86 +1,10 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-.venv/
-venv/
-env/
-ENV/
-*.egg-info/
-dist/
-build/
-.ruff_cache/
-
-# Node
-node_modules/
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Testing
-.pytest_cache/
-.mypy_cache/
-.coverage
-htmlcov/
-*.cover
-
-# Git
-.git/
+.git
 .gitignore
-.gitattributes
-
-# Documentation (large, not needed in containers)
-*.md
-!**/README.md
-docs/
-everything-claude-code/
-
-# AI Agent Memory (not needed in container)
-skills/
-instructions/
-
-# Development files
-.env
-.env.local
-.env.example
+node_modules
+__pycache__
+*.pyc
 *.log
-*.sqlite
-*.db
-
-# Frontend build artifacts
-dist/
-build/
-
-# Fonts (downloaded at build time)
-**/fonts/*.ttf
-
-# Cache
-.cache/
-
-# Temporary
-tmp/
-temp/
-*.tmp
-
-# Large data (never copy into images)
-data/
-datasets/
-checkpoints/
-
-# GitHub workflows
-.github/
-
-# Supabase (DB migrations, not needed in app containers)
-supabase/
-
-# Docker files (build from root context, exclude dev files)
-# Note: docker/images/ and docker/scripts/ must be accessible for COPY
-docker/ci/
-docker/docs/
-docker/compose/
+.env*
+legacy_archive/
+tests/
+docs/
