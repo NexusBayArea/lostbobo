@@ -636,3 +636,19 @@ ode_modules and .git while preserving the docker/ configuration tree.
 - **Scope Security**: Implemented scripts/guard_frontend.sh to enforce AI restricted scope.
 - **CI/CD Hardening**: Added deploy-frontend.yml with Port 8080 health validation and uv-based linting.
 
+
+---
+
+## v2.7.14: Build Layer Sanity & Context Guardrails (April 11, 2026)
+
+### Key Changes
+1. **Context Validation Script**: Created scripts/check_docker_context.py to verify the presence of essential files and flag .dockerignore overrides before building.
+2. **CI/CD Guardrail**:
+   - Integrated Validate Docker Context step into deploy.yml.
+   - The pipeline now fails early if essential files (requirements, api shims, supervisor configs) are missing.
+3. **Hygiene Reinforcement**: Confirmed .dockerignore correctly excludes 
+ode_modules and .git while preserving the docker/ configuration tree.
+
+### Status: ✅ PROTECTED (April 11, 2026)
+- The "Missing File" class of bugs is now detectable before image construction.
+- Automated context checks enforced in the deployment runner.
