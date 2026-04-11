@@ -1,7 +1,7 @@
 ---
 name: vercel-deploy
 description: Deploy SimHPC frontend to Vercel with Infisical secret management.
-version: 2.5.4
+version: 2.6.0
 license: MIT
 compatibility: opencode
 ---
@@ -10,7 +10,31 @@ compatibility: opencode
 
 Deploy SimHPC frontend to Vercel with automatic secret injection from Infisical.
 
-## Version: 2.5.4
+## Version: 2.6.0
+
+## 🔐 SECURITY RULES (MANDATORY - NO EXCEPTIONS)
+
+### 🚨 NEVER commit to git:
+- `.env` files (ANY variant: `.env.local`, `.env.vercel`, etc.)
+- Vercel API tokens
+- OAuth client secrets
+- Database connection strings
+
+### ✅ ALWAYS use Infisical:
+```bash
+# Export secrets to temp file (add to .gitignore!)
+infisical secrets export --env=production --outputFormat=dotenv > .env.vercel
+
+# Run deployment with secrets injected (NO temp file needed!)
+infisical run --env=production -- vercel --prod --yes
+```
+
+### Pre-push checklist:
+```bash
+# Verify no secrets in git
+grep -r "VITE_\|NEXT_PUBLIC_" --include="*.env*" .
+# Should return NO matches
+```
 
 ## Deployment Steps
 

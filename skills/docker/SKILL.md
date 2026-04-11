@@ -1,14 +1,41 @@
 ---
 name: docker-lean
 description: Minimal, reproducible Docker builds for SimHPC GPU workloads (A40 optimized).
-version: 2.7.0
+version: 2.7.1
 license: MIT
 compatibility: opencode
 ---
 
-# Docker Lean Skill Set (v2.7.0)
+# Docker Lean Skill Set (v2.7.1)
 
 Essential skills for keeping images small and your system clean.
+
+## Version: 2.7.1
+
+## 🔐 SECURITY RULES (MANDATORY - NO EXCEPTIONS)
+
+### 🚨 NEVER include in Docker image:
+- `.env` files (ANY variant)
+- API keys, tokens, secrets
+- SSH keys or credentials
+- Database connection strings with passwords
+
+### ✅ ALWAYS use Infisical for secrets in Docker:
+```dockerfile
+# In Dockerfile.unified - use runtime secrets only
+RUN infisical secrets export --env=production --outputFormat=dotenv > /app/.env
+# OR inject via docker run -e
+```
+
+### .dockerignore (CRITICAL):
+```bash
+.env
+.env.local
+.env.*
+*.key
+*.pem
+*.secret
+```
 
 ## SimHPC Image Topology (v2.7 Structure)
 

@@ -1,7 +1,7 @@
 ---
 name: runpod-push
 description: Build, push, and deploy SimHPC worker to RunPod GPU instances with Infisical secret management.
-version: 2.6.4
+version: 2.7.0
 license: MIT
 compatibility: opencode
 ---
@@ -10,7 +10,29 @@ compatibility: opencode
 
 Build, push, and deploy SimHPC unified stack to RunPod GPU instances.
 
-## Version: 2.6.6 (Port 8888 + podReset + API-Only)
+## Version: 2.7.0
+
+## 🔐 SECURITY RULES (MANDATORY - NO EXCEPTIONS)
+
+### 🚨 NEVER commit to git:
+- `.env` files (ANY variant)
+- API keys, tokens, secrets
+- RunPod API keys
+- SSH keys or credentials
+
+### ✅ ALWAYS use Infisical:
+```bash
+# Get secrets at runtime
+infisical secrets get RUNPOD_API_KEY --env=production --plain
+
+# For pod lifecycle operations
+infisical run --env=production -- curl -H "Authorization: Bearer $RUNPOD_API_KEY" ...
+```
+
+### RunPod Secrets in GitHub Actions:
+- Store `RUNPOD_API_KEY` and `RUNPOD_ID` in GitHub Secrets
+- Reference via `${{ secrets.RUNPOD_API_KEY }}`
+- NEVER log actual values in workflow output
 
 ## Vault-First Protocol
 

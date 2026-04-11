@@ -1,16 +1,51 @@
 ---
 name: deployment
 description: Complete deployment pipeline for SimHPC - Vercel, GitHub, Docker Hub, Supabase, and RunPod.
-version: 2.7.2
+version: 2.7.3
 license: MIT
 compatibility: opencode
 ---
 
-# Deployment Skill Set (v2.7.2)
+# Deployment Skill Set (v2.7.3)
 
 Complete deployment pipeline for SimHPC with production hardening.
 
-## Version: 2.7.2
+## Version: 2.7.3
+
+## 🔐 SECURITY RULES (MANDATORY - NO EXCEPTIONS)
+
+### 🚨 NEVER commit to git:
+- `.env` files (ANY variant: `.env.local`, `.env.production`, `.env.vercel`, etc.)
+- API keys, tokens, secrets
+- Database connection strings
+- SSH keys or credentials
+- OAuth client secrets
+- Supabase service role keys
+- RunPod API keys
+
+### ✅ ALWAYS use Infisical:
+```bash
+# Pull secrets at runtime
+infisical secrets export --env=production --outputFormat=dotenv > .env
+
+# Run commands with secrets injected
+infisical run --env=production -- your-command
+
+# For Vercel deployment
+infisical run --env=production -- vercel --prod --yes
+```
+
+### GitHub Actions secrets:
+- Store secrets in GitHub Secrets ONLY
+- Reference via `${{ secrets.SECRET_NAME }}`
+- NEVER log secrets in workflow output
+
+### Pre-push checklist:
+```bash
+# Before ANY commit, run:
+grep -r "API_KEY\|SECRET\|TOKEN\|PASSWORD" --include="*.env*" .
+# Should return NO matches in tracked files
+```
 
 ## Docker Images
 

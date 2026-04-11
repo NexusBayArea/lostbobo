@@ -1,14 +1,36 @@
 ---
 name: supabase
 description: Supabase DevOps with SB_ prefix naming convention for Infisical compatibility.
-version: 1.1.0
+version: 1.2.0
 license: MIT
 compatibility: opencode
 ---
 
 # Supabase DevOps Skill Set
 
-## Version: 1.1.0
+## Version: 1.2.0
+
+## 🔐 SECURITY RULES (MANDATORY - NO EXCEPTIONS)
+
+### 🚨 NEVER commit to git:
+- `.env` files (ANY variant)
+- Supabase service role keys
+- Database passwords
+- API keys or tokens
+
+### ✅ ALWAYS use Infisical:
+```bash
+# Get secrets at runtime
+infisical secrets get SB_SERVICE_ROLE_KEY --env=production --plain
+
+# Run with secrets injected
+infisical run --env=production -- supabase db push
+```
+
+### GitHub Actions:
+- Store `INFISICAL_TOKEN` in GitHub Secrets
+- Reference via `${{ secrets.INFISICAL_TOKEN }}`
+- NEVER log Supabase keys in workflow output
 
 ## Required Infisical Keys (SB Prefix)
 

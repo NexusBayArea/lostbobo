@@ -1,7 +1,7 @@
 ---
 name: github-safe-push
 description: Secure push to GitHub with secret scanning and linting.
-version: 2.5.4
+version: 2.6.0
 license: MIT
 compatibility: opencode
 ---
@@ -10,7 +10,46 @@ compatibility: opencode
 
 Prevent secret leakage by scanning code for keys before pushing to GitHub.
 
-## Version: 2.5.4
+## Version: 2.6.0
+
+## 🔐 SECURITY RULES (MANDATORY - NO EXCEPTIONS)
+
+### 🚨 NEVER commit to git:
+- `.env` files (ANY variant: `.env`, `.env.local`, `.env.vercel`, `.env.*.local`)
+- API keys, tokens, secrets
+- SSH keys or credentials
+- Database passwords
+- OAuth client secrets
+
+### ✅ ALWAYS use Infisical:
+```bash
+# Before ANY commit, scan for secrets
+infisical scan
+
+# Or use grep as backup
+grep -r "API_KEY\|SECRET\|TOKEN\|PASSWORD\|KEY=" --include="*.env*" .
+```
+
+### If you accidentally commit secrets:
+```bash
+# Immediately undo the commit
+git reset --soft HEAD~1
+
+# Remove the file from staging
+git reset HEAD path/to/file-with-secrets
+
+# Commit without the secret file
+git commit -m "fix: ..."
+```
+
+### .gitignore must include:
+```
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+```
 
 ## Pre-Push Checklist
 
