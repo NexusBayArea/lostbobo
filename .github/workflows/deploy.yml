@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  IMAGE_NAME: ghcr.io/nexusbayarea/simhpc-unified
+  IMAGE_NAME: ghcr.io/nexusbayarea/lostbobo/simhpc-unified
 
 jobs:
   deploy:
@@ -65,8 +65,8 @@ jobs:
         docker buildx build \
           --platform linux/amd64 \
           -f docker/images/Dockerfile.unified \
-          -t ghcr.io/nexusbayarea/simhpc-unified:latest \
-          -t ghcr.io/nexusbayarea/simhpc-unified:${{ github.run_id }} \
+          -t ghcr.io/nexusbayarea/lostbobo/simhpc-unified:latest \
+          -t ghcr.io/nexusbayarea/lostbobo/simhpc-unified:${{ github.run_id }} \
           --push \
           .
 

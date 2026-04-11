@@ -29,8 +29,8 @@ jobs:
           file: ./docker/images/Dockerfile.unified
           push: true
           tags: |
-            ghcr.io/nexusbayarea/simhpc-unified:latest
-            ghcr.io/nexusbayarea/simhpc-unified:${{ github.run_id }}
+            ghcr.io/nexusbayarea/lostbobo/simhpc-unified:latest
+            ghcr.io/nexusbayarea/lostbobo/simhpc-unified:${{ github.run_id }}
 
       - name: Reset RunPod Pod (resilient)
         env:
