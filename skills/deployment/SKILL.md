@@ -243,57 +243,111 @@ if status in ["COMPLETED", "FAILED"]:
     password: ${{ secrets.DOCKER_PW_TOKEN }}
 ```
 
-### Safe Workflow (v2.7.1)
+### Safe Workflow (v2.7.3)
 
 ```yaml
-name: deploy
+name: Deploy SimHPC (v2.7)
 
 on:
   push:
     branches: [main]
+
+env:
+  IMAGE_NAME: simhpcworker/simhpc-unified
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+    # 1. Checkout
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_LOGIN }}
-          password: ${{ secrets.DOCKER_PW_TOKEN }}
+    # 2. Setup Python (for Ruff)
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
 
-      - name: Build & Push Image (SHA tag)
-        run: |
-          set -e
+    - name: Install Ruff
+      run: pip install ruff
 
-          IMAGE=simhpcworker/simhpc-unified:${{ github.sha }}
+    # 3. Lint (NO PATH DRIFT)
+    - name: Ruff Lint
+      run: ruff check .
 
-          docker build -f Dockerfile.unified -t $IMAGE .
-          docker push $IMAGE
+    # 4. Docker Buildx
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-          echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+    # 5. Docker Login
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_LOGIN }}
+        password: ${{ secrets.DOCKER_PW_TOKEN }}
 
-      - name: Deploy to RunPod (podReset)
-        run: |
-          set -e
+    # 6. Build + Push (CORRECT PATH: docker/images/Dockerfile.unified)
+    - name: Build & Push Unified Image
+      run: |
+        set -e
 
-          RESPONSE=$(curl -s -X POST "https://api.runpod.io/graphql" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $RUNPOD_API_KEY" \
-            -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id status } }\"}")
+        docker buildx build \
+          --platform linux/amd64 \
+          -f docker/images/Dockerfile.unified \
+          -t $IMAGE_NAME:latest \
+          -t $IMAGE_NAME:${{ github.sha }} \
+          --push \
+          .
 
-          echo "$RESPONSE"
+    # 7. Deploy to RunPod (podReset with desiredStatus)
+    - name: Deploy to RunPod
+      run: |
+        set -e
 
-          if [[ "$RESPONSE" == *"errors"* ]]; then
-            echo "Deployment failed"
-            exit 1
+        RESPONSE=$(curl -s -X POST "https://api.runpod.io/graphql" \
+          -H "Content-Type: application/json" \
+          -H "Authorization: Bearer $RUNPOD_API_KEY" \
+          -H "x-apollo-operation-name: podReset" \
+          -d "{\"query\": \"mutation { podReset(input: { podId: \\\"$RUNPOD_ID\\\" }) { id desiredStatus } }\"}")
+
+        echo "$RESPONSE"
+
+        if echo "$RESPONSE" | grep -q "errors"; then
+          echo "RunPod deployment failed"
+          exit 1
+        fi
+
+      env:
+        RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
+        RUNPOD_ID: ${{ secrets.RUNPOD_ID }}
+
+    # 8. Wait for Pod Boot
+    - name: Wait for Pod Startup
+      run: sleep 60
+
+    # 9. Health Check (CRITICAL)
+    - name: Health Check API
+      run: |
+        set -e
+
+        URL="https://${{ secrets.RUNPOD_ID }}-8080.proxy.runpod.net/api/v1/health"
+
+        for i in {1..10}; do
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" $URL || true)
+
+          if [ "$STATUS" = "200" ]; then
+            echo "API healthy"
+            exit 0
           fi
 
-      - name: Post-deploy wait
-        run: sleep 20
+          echo "Attempt $i failed (status: $STATUS), retrying..."
+          sleep 10
+        done
+
+        echo "API failed health check"
+        exit 1
 ```
 
 ## Deployment Flow
