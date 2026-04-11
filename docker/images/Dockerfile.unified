@@ -1,4 +1,35 @@
-# SimHPC Unified Dockerfile - Beta (Clean & Reliable)
+FROM python:3.11-slim
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    APP_HOME=/app \
+    PYTHONPATH=/app
+
+WORKDIR $APP_HOME
+
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    supervisor \
+    tini \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy code
+COPY api.py worker.py autoscaler.py ./
+COPY app/ ./app/
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 FROM python:3.11-slim
 
 ENV DEBIAN_FRONTEND=noninteractive \
