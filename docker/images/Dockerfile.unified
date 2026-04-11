@@ -1,90 +1,29 @@
-FROM python:3.11-slim
+# Stage 1: Base Runtime Environment (replaces external base image)
+FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04 AS runtime-base
 
-ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONUNBUFFERED=1 \
-    APP_HOME=/app \
-    PYTHONPATH=/app
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y python3 python3-pip curl && \
+    curl -LsSf https://astral.sh/uv/install.sh | sh
 
-WORKDIR $APP_HOME
-
-# System dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    supervisor \
-    tini \
-    && rm -rf /var/lib/apt/lists/*
-
-# Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy code
-COPY api.py worker.py autoscaler.py ./
-COPY app/ ./app/
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-EXPOSE 8080
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
-
-ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
-FROM python:3.11-slim
-
-ENV DEBIAN_FRONTEND=noninteractive \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    APP_HOME=/app \
-    PYTHONPATH=/app
-
-WORKDIR $APP_HOME
-
-# System dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    tini \
-    && rm -rf /var/lib/apt/lists/*
-
-# Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy code
-COPY api.py worker.py start.sh ./
-COPY app/ ./app/
-
-RUN mkdir -p /workspace/huggingface /workspace/vllm_cache && \
-    chmod +x start.sh
-
-EXPOSE 8080
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
-
-ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["./start.sh"]
-FROM simhpcworker/simhpc-base:latest
-
+# Stage 2: Unified App Layer
+FROM runtime-base
 WORKDIR /app
 
-# Install supervisor and extra deps
-RUN apt-get update && apt-get install -y --no-install-recommends supervisor && \
-    uv pip install --system --no-cache .[worker,gpu] && \
-    rm -rf /var/lib/apt/lists/*
+# Install dependencies via uv (deterministic)
+COPY pyproject.toml uv.lock ./
+RUN /root/.cargo/bin/uv pip install --system -r pyproject.toml
 
 # Copy application code
-COPY run_api.py ./
-COPY app/ ./app/
+COPY . .
 
-# Copy supervisord and wait scripts
-COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY docker/scripts/ ./docker/scripts/
-RUN chmod +x docker/scripts/*.sh
-
-# RunPod expects API on 8080 for routing
+# Expose port
 EXPOSE 8080
 
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Use supervisord for process management
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 ENTRYPOINT ["/usr/bin/tini", "--"]
-# Kill any existing Jupyter/RunPod services holding the port 8080, then start supervisor
-CMD ["sh", "-c", "fuser -k 8080/tcp || true && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf"]
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

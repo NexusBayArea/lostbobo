@@ -590,7 +590,20 @@ ame entries causing structural failures in GitHub Actions.
    - Integrated Validate Docker Context step into deploy.yml.
    - The pipeline now fails early if essential files (requirements, api shims, supervisor configs) are missing.
 3. **Hygiene Reinforcement**: Confirmed .dockerignore correctly excludes 
-ode_modules and .git while preserving the docker/ configuration tree.
+ode ode_modules and .git while preserving the docker/ configuration tree.
+
+---
+
+## v2.7.15: Self-Contained Unified Build & Auto-Correction (April 11, 2026)
+
+- Added `scripts/saas_fix.sh` to auto-fix lint errors before CI builds.
+- Updated `.github/workflows/deploy.yml` with Self-Correction step.
+- Replaced multi-stage Dockerfile with unified build that creates its own base environment (no external `simhpc-base`).
+- Deleted duplicate `docker/simhpc.conf`.
+- Simplified `supervisord.conf` to use correct entry points (`api:app`, `worker.py`, `autoscaler.py`).
+- All changes committed and pushed; workflow now passes and health endpoint returns 200.
+
+---
 
 ### Status: ✅ PROTECTED (April 11, 2026)
 - The "Missing File" class of bugs is now detectable before image construction.
