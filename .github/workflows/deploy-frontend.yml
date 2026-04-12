@@ -15,9 +15,14 @@ jobs:
         run: bash scripts/guard_frontend.sh
 
       # 2. FAST LINT (Using uv)
-      - name: Install uv & Ruff
+      - name: Setup uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Create venv and install ruff
+        run: |
+          uv venv
           uv pip install ruff
       
       - name: Lint API Routes

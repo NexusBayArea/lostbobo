@@ -685,6 +685,47 @@ This stops setuptools from scanning the repo root as a Python package, which is 
 
 ---
 
+## v2.7.23: Unified CI Bootstrap Pattern (April 11, 2026)
+
+### Issue Fixed
+
+- **Problem**: Mixed pip/uv installations across workflows causing runtime errors
+- **Root Cause**: Workflows using `pip install ruff` instead of uv pattern
+
+### Key Changes
+
+Standardized all workflows to use canonical uv bootstrap:
+
+```yaml
+- name: Setup uv
+  run: |
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+- name: Create venv and install ruff
+  run: |
+    uv venv
+    uv pip install ruff
+
+- name: Lint
+  run: uv run ruff check .
+```
+
+### Files Updated
+
+| File | Change |
+|------|--------|
+| `lint.yml` | Replaced pip with uv venv pattern |
+| `deploy.yml` | Replaced pip with uv venv pattern |
+| `deploy-frontend.yml` | Replaced pip with uv venv pattern |
+
+### Status: ✅ STANDARDIZED (April 11, 2026)
+- All lint steps now use uv consistently
+- No mixed pip/uv installations
+- Ready for CI run
+
+---
+
 ## v2.7.20: Idempotent Job System Implementation (April 11, 2026)
 
 ### Problem

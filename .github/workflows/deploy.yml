@@ -13,9 +13,19 @@ jobs:
       - name: Login to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Lint
+      - name: Setup uv
         run: |
-          pip install ruff && ruff check .
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Create venv and install ruff
+        run: |
+          uv venv
+          uv pip install ruff
+
+      - name: Lint
+        run: uv run ruff check .
+
       - name: Build Image
         run: |
           docker build -f docker/images/Dockerfile.unified \
