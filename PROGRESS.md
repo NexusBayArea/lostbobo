@@ -788,6 +788,39 @@ Standardized all workflows to use canonical uv bootstrap:
 
 ---
 
+## v2.8.1: Supervisor Process Management (April 11, 2026)
+
+### Changes Made
+
+1. **Created supervisord config** (`docker/supervisor/simhpc.conf`):
+   - Runs API, Worker, Autoscaler as independent processes
+   - Auto-restart on crash
+   - Log streaming to stdout/stderr (no rotation)
+
+2. **Updated Dockerfile.unified**:
+   - Added supervisor + psmisc installation
+   - WORKDIR changed from /app to /workspace
+   - Port changed from 8080 to 8888
+   - Added `fuser -k 8888/tcp` before supervisor start
+   - CMD now runs supervisord
+
+3. **Key fixes**:
+   - Removed @ symbols (invalid INI syntax)
+   - directory=/workspace (resolves module paths)
+   - stdout_logfile_maxbytes=0 (prevents log rotation crash)
+   - Port 8888 for RunPod compatibility
+
+### Files Changed
+- `docker/images/Dockerfile.unified`
+- `docker/supervisor/simhpc.conf` (new)
+
+### Status: ✅ READY (April 11, 2026)
+- Multi-process management enabled
+- Port conflict handling in place
+- Ready for deployment
+
+---
+
 ## v2.7.20: Idempotent Job System Implementation (April 11, 2026)
 
 ### Problem
