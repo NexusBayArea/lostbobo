@@ -47,9 +47,8 @@ gpu = [
     "torch>=2.0.0",
 ]
 dev = [
-    "ruff>=0.1.0",
-    "pytest>=7.0.0",
-    "pytest-asyncio>=0.23.0",
+    "pytest",
+    "pytest-asyncio"
 ]
 
 [tool.ruff]

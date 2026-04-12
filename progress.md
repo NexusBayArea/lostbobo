@@ -2,6 +2,7 @@
 
 > **Note**: This file tracks high-level development milestones.
 > Added pytest dev dependencies and config.
+> Updated CI to install dev extras and run tests via `uv run`.
 > For detailed changelog, see [CHANGELOG.md](./CHANGELOG.md).
 
 ## 🧠 SimHPC Stable Backbone (v3.1.0) — Implemented
