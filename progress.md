@@ -239,6 +239,12 @@ We have finalized the repository's structural stability and ensured consistent c
 
 We have resolved a critical CI false-failure pattern by correctly transitioning from isolated tool execution to project-context execution for the test suite.
 
+### 📦 3. Pydantic v2 Migration
+- Added `pydantic-settings` dependency.
+- Updated imports to `from pydantic_settings import BaseSettings, SettingsConfigDict`.
+- Refactored `Settings` class to use `model_config = SettingsConfigDict(env_file=".env")`.
+- Ensured CI installs dev extras and runs tests via `uv run`.
+
 ### 🧪 1. Project Context vs. Isolation
 
 * **Issue**: Identified that `uvx pytest` was running in an isolated sandbox, ignoring the project's [dev] dependencies and failing to load the `pytest-asyncio` plugin.
