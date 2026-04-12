@@ -33,8 +33,8 @@ jobs:
           file: docker/worker.Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/simhpc-worker:latest
-            ghcr.io/${{ github.repository_owner }}/simhpc-worker:${{ env.TAG }}
+            ghcr.io/nexusbayarea/simhpc-worker:latest
+            ghcr.io/nexusbayarea/simhpc-worker:${{ env.TAG }}
 
       # Optional: Notify Supabase of new version
       # - name: Register version in Supabase
@@ -44,7 +44,7 @@ jobs:
       #       -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
       #       -H "Content-Type: application/json" \
       #       -d "{
-      #         \"image\": \"ghcr.io/${{ github.repository_owner }}/simhpc-worker:${{ env.TAG }}\",
+      #         \"image\": \"ghcr.io/nexusbayarea/simhpc-worker:${{ env.TAG }}\",
       #         \"status\": \"pending\"
       #       }"
 
@@ -55,5 +55,5 @@ jobs:
       #       -H "Authorization: Bearer ${{ secrets.RUNPOD_TOKEN }}" \
       #       -H "Content-Type: application/json" \
       #       -d "{
-      #         \"image\": \"ghcr.io/${{ github.repository_owner }}/simhpc-worker:${{ env.TAG }}\"
+      #         \"image\": \"ghcr.io/nexusbayarea/simhpc-worker:${{ env.TAG }}\"
       #       }"
