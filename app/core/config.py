@@ -1,8 +1,7 @@
-from app.core.env import normalize_env
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from app.core.bootstrap import bootstrap
 
-# Normalize infrastructure variables into internal schema before Settings initialization
-normalize_env()
+bootstrap()
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):

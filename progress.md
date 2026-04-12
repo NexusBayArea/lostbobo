@@ -240,10 +240,17 @@ We have finalized the repository's structural stability and ensured consistent c
 We have resolved a critical CI false-failure pattern by correctly transitioning from isolated tool execution to project-context execution for the test suite.
 
 ### 📦 3. Pydantic v2 Migration
-- Added `pydantic-settings` dependency.
-- Updated imports to `from pydantic_settings import BaseSettings, SettingsConfigDict`.
-- Refactored `Settings` class to use `model_config = SettingsConfigDict(env_file=".env")`.
-- Ensured CI installs dev extras and runs tests via `uv run`.
+
+* Added `pydantic-settings` dependency.
+* Updated imports to `from pydantic_settings import BaseSettings, SettingsConfigDict`.
+* Refactored `Settings` class to use `model_config = SettingsConfigDict(env_file=".env")`.
+* Ensured CI installs dev extras and runs tests via `uv run`.
+
+### 📦 4. Config Validation Gate (hard pre‑flight)
+- Added `app/core/config_gate.py` with required env vars check.
+- Added `app/core/bootstrap.py` to run validation then env normalization.
+- Updated `app/core/config.py` to call `bootstrap()` before Settings.
+- Documented changes in progress.md.
 
 ### 🧪 1. Project Context vs. Isolation
 
