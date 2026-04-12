@@ -922,6 +922,25 @@ Standardized all workflows to use canonical uv bootstrap:
 - Buildx now enabled
 - Cache will save to GHA
 
+---
+
+## v2.8.7: Hardcoded GHCR Repo Name (April 11, 2026)
+
+### Issue
+- Invalid tag error due to case sensitivity in GHCR repo name
+
+### Fix
+- Hardcoded `nexusbayarea` (lowercase) in image tags:
+  - `ghcr.io/nexusbayarea/simhpc-unified:latest`
+  - `ghcr.io/nexusbayarea/simhpc-unified:${{ github.sha }}`
+
+### Files Changed
+- `.github/workflows/orchestrator.yml`
+
+### Status: ✅ READY (April 11, 2026)
+- GHCR tags fixed
+- Build should succeed
+
 ### Changes Made
 
 1. **Synced local with remote**:
