@@ -1,5 +1,5 @@
 from typing import Optional, Dict, Any
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 from app.models.version import CURRENT_JOB_SCHEMA_VERSION
@@ -30,15 +30,19 @@ class JobResult(BaseModel):
 class Job(SharedJob):
     schema_version: int = CURRENT_JOB_SCHEMA_VERSION
     
-    # Overriding fields to match existing app logic if needed
-    input_params: Dict[str, Any] = {}
+    # Overriding fields to match existing app logic
+    input_params: Dict[str, Any] = Field(default_factory=dict)
     scenario_name: Optional[str] = None
     idempotency_key: Optional[str] = None
     
-    progress: JobProgress = JobProgress()
+    progress: JobProgress = Field(default_factory=JobProgress)
     
     # Redefine results to use JobResult model
-    results: Optional[JobResult] = None # Using results instead of result for compatibility with some routes
+    results: Optional[JobResult] = None 
+
+    # Ensure these are non-optional for app logic
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
     def generate_key(self) -> str:
         """Generate idempotency key from input params if not set."""

@@ -619,8 +619,8 @@ async def create_simulation(
         "scenario_name": scenario_name,
         "status": "queued",
         "progress": 0,
-        "created_at": int(time.time()),
-        "updated_at": int(time.time()),
+        "created_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.utcnow().isoformat(),
         "tier": "pro" if plan != UserPlan.FREE else "free",
         "priority": 10 if plan != UserPlan.FREE else 0
     }

@@ -145,7 +145,6 @@ def enqueue_job(
 
     # Add creation timestamp for autoscaler age tracking
     if "created_at" not in job_obj:
-        import time
         job_obj["created_at"] = time.time()
 
     # === IDEMPOTENCY CHECK ===
@@ -226,8 +225,6 @@ def enqueue_job(
     # === ASYNC SIGNAL (optimization) ===
     # Fire-and-forget Realtime trigger to workers (removes polling delay)
     def _async_signal():
-        import threading
-
         try:
             # Supabase Realtime channel notification
             # Workers subscribe to this channel for instant job pickup
