@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
-from typing import Optional
 import logging
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Header, HTTPException
 
 from app.models.onboarding import (
+    EventRequest,
     OnboardingResponse,
     OnboardingUpdate,
-    EventRequest,
 )
 from app.services.onboarding_service import OnboardingService
 

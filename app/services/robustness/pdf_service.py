@@ -7,10 +7,11 @@ Uses in-memory BytesIO buffer to avoid disk I/O in containerized environments.
 
 import io
 import logging
-from fpdf import FPDF
 from datetime import datetime
-from typing import Any, Dict, Optional
 from pathlib import Path
+from typing import Any, Dict, Optional
+
+from fpdf import FPDF
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

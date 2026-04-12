@@ -13,18 +13,19 @@ Improvements (March 2026):
 - Report versioning for cache compatibility
 """
 
+import hashlib
+import html
 import json
 import logging
-import re
 import os
-from typing import Dict, List, Optional, Any
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
-import hashlib
+from typing import Any, Dict, List, Optional
+
 import redis
-import html
-from tenacity import retry, stop_after_attempt, wait_exponential
 from pydantic import BaseModel, validator
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

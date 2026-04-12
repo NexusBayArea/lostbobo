@@ -1,7 +1,9 @@
-from fastapi import APIRouter, HTTPException, Depends
-from pydantic import BaseModel
-from typing import Optional, Dict, Any
 import uuid
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+
 from app.core.deps import get_supabase_client
 from app.core.queue import enqueue_job
 

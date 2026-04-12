@@ -1,8 +1,9 @@
 import logging
-from typing import Tuple, Dict, Any
 from datetime import datetime
-from supabase import Client
+from typing import Any, Dict, Tuple
+
 from app.models.onboarding import OnboardingUpdate
+from supabase import Client
 
 logger = logging.getLogger(__name__)
 

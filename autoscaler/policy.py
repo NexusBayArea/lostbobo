@@ -2,8 +2,9 @@
 Scaling rules and policies for autoscaler
 """
 
+from typing import Any, Dict
+
 from app.core.config import settings
-from typing import Dict, Any
 
 
 def get_scaling_policy() -> Dict[str, Any]:

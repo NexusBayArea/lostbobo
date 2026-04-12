@@ -1,4 +1,5 @@
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from app.core.job_store_interface import JobStoreInterface
 
 

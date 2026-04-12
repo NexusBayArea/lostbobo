@@ -2,18 +2,19 @@
 SimHPC API - Unified Platform (Beta Foundation v2.8.0)
 """
 
-from fastapi import FastAPI, HTTPException, Header
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers
 from app.api.routes import admin as admin_router
-from app.api.routes import simulations as simulations_router
-from app.api.routes import onboarding as onboarding_router
 from app.api.routes import certificates as certificates_router
 from app.api.routes import control as control_router
+from app.api.routes import onboarding as onboarding_router
+from app.api.routes import simulations as simulations_router
 
 # 1. Initialize Environment & App immediately to prevent E402/F821
 # Note: For Infisical compatibility, we don't load .env here in production

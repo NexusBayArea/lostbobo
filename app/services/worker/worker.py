@@ -9,20 +9,22 @@ Implemented:
 - Canonical Job schema (v2.6.11)
 """
 
-import os
 import json
-import time
 import logging
+import os
 import threading
+import time
 import uuid
 from datetime import datetime
+
 from redis import Redis
+
+from app.core.job_store import now, serialize_event
+from app.core.validated_job_store import init_job_store
+from app.models.event import JobEvent
 
 # Import canonical schemas
 from app.models.job import Job, JobProgress, JobResult
-from app.models.event import JobEvent
-from app.core.job_store import serialize_event, now
-from app.core.validated_job_store import init_job_store
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"

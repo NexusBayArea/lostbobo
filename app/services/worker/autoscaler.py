@@ -3,12 +3,13 @@ SimHPC Hardened Autoscaler (v2.7.6)
 Production-grade elastic scaling for RunPod GPU workers with cost control.
 """
 
-import os
-import time
 import json
 import logging
-import requests
+import os
+import time
 from datetime import datetime
+
+import requests
 from redis import Redis
 
 # --- CONFIG ---

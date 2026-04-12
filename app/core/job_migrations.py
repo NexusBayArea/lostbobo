@@ -1,5 +1,6 @@
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
+
 from app.models.version import CURRENT_JOB_SCHEMA_VERSION
 
 logger = logging.getLogger(__name__)

@@ -1,12 +1,13 @@
-import logging
 import json
+import logging
 from typing import Optional
-from redis import Redis
-from pydantic import ValidationError
 
+from pydantic import ValidationError
+from redis import Redis
+
+from app.core.job_migrations import migrate_job
 from app.models.job import Job
 from app.models.version import CURRENT_JOB_SCHEMA_VERSION
-from app.core.job_migrations import migrate_job
 
 logger = logging.getLogger(__name__)
 

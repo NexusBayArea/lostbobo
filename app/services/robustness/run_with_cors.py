@@ -1,6 +1,7 @@
-from fastapi.middleware.cors import CORSMiddleware
 import importlib
+
 import uvicorn
+from fastapi.middleware.cors import CORSMiddleware
 
 # Import existing app from api.py
 api_mod = importlib.import_module("api")

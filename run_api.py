@@ -1,6 +1,7 @@
-import uvicorn
 import os
 import sys
+
+import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
 # Setup for SimHPC

@@ -1,5 +1,5 @@
-from app.core.job_store_interface import JobStoreInterface
 from app.core.fake_job_store import FakeJobStore
+from app.core.job_store_interface import JobStoreInterface
 
 _store = None
 

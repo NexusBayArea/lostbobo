@@ -1,5 +1,7 @@
-import redis
 from typing import Optional
+
+import redis
+
 from app.core.config import settings
 
 # Initialize Redis connection

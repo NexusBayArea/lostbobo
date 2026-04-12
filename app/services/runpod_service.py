@@ -3,10 +3,11 @@ RunPod Service — API Layer integration for fleet management.
 Mirrors core GraphQL logic from worker/runpod_api.py for direct responsiveness.
 """
 
-import os
 import logging
+import os
+from typing import Dict, List
+
 import httpx
-from typing import List, Dict
 
 logger = logging.getLogger(__name__)
 

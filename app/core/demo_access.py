@@ -6,10 +6,10 @@ Provides secure, single-use demo tokens with configurable run limits
 and expiration dates for alpha pilot onboarding.
 """
 
-import os
 import hashlib
 import logging
-from datetime import datetime, timezone, timedelta
+import os
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # --- Supabase Client ---
 try:
-    from supabase import create_client, Client
+    from supabase import Client, create_client
 
     SB_URL = os.getenv("SB_URL")
     SB_SERVICE_KEY = os.getenv("SB_SERVICE_KEY")
@@ -36,8 +36,9 @@ except ImportError:
     logger.warning("supabase-py not installed — demo system uses Redis fallback")
 
 # --- Redis Fallback ---
-import redis  # noqa: E402
 import json  # noqa: E402
+
+import redis  # noqa: E402
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 r_client = redis.from_url(REDIS_URL, decode_responses=True)

@@ -1,6 +1,7 @@
 from datetime import datetime
-from app.models.job import Job
+
 from app.models.event import JobEvent
+from app.models.job import Job
 
 
 def serialize_job(job: Job) -> str:

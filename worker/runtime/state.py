@@ -3,7 +3,8 @@ Supabase job operations for worker service
 """
 
 import time
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
+
 from app.core.db import get_supabase_client
 
 

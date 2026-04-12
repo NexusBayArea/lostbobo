@@ -1,7 +1,8 @@
-import os
-import json
 import hashlib
-from supabase import create_client, Client
+import json
+import os
+
+from supabase import Client, create_client
 
 SUPABASE_URL = os.getenv("SB_URL") or os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SB_SERVICE_ROLE_KEY") or os.getenv(

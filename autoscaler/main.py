@@ -2,8 +2,9 @@
 Main autoscaler loop for scaling worker pods based on queue depth
 """
 
-import time
 import logging
+import time
+
 from app.core.config import settings
 from app.core.queue import redis_client
 

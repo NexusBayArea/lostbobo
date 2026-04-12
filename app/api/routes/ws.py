@@ -3,10 +3,11 @@ WebSocket Routes for Real-time Job Updates
 Subscribes to Redis pub/sub and broadcasts to WebSocket clients
 """
 
-from fastapi import APIRouter, WebSocket, status
-from typing import Dict, List
 import asyncio
 import json
+from typing import Dict, List
+
+from fastapi import APIRouter, WebSocket, status
 
 router = APIRouter()
 
@@ -15,7 +16,7 @@ redis_client = None
 verify_auth = None
 
 # Import unified guards
-from app.core.guards import get_guards, GuardContext
+from app.core.guards import GuardContext, get_guards
 
 
 def init_ws(redis_conn, auth_dep):

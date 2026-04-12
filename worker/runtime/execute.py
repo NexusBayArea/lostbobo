@@ -4,7 +4,8 @@ Compute logic wrapper for worker execution
 
 import time
 import traceback
-from typing import Dict, Any
+from typing import Any, Dict
+
 from app.services.worker.runtime.state import update_job_status
 
 

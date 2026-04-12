@@ -2,12 +2,13 @@
 Main execution loop for worker service
 """
 
+import signal
 import time
 import uuid
-import signal
+
 from app.services.worker.runtime.bootstrap import preload_engine, preload_runtime
-from app.services.worker.runtime.state import claim_job
 from app.services.worker.runtime.execute import execute_job
+from app.services.worker.runtime.state import claim_job
 
 # Global flag for graceful shutdown
 shutdown_requested = False

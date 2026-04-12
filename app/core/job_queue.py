@@ -9,13 +9,14 @@ Features:
 - Processing queue for crash recovery
 """
 
-import redis
-import json
-import uuid
-import os
 import hashlib
+import json
+import os
 import threading
 import time
+import uuid
+
+import redis
 
 QUEUE_NAME = os.getenv("QUEUE_NAME", "simhpc_jobs")
 PROCESSING_QUEUE = os.getenv("PROCESSING_QUEUE", "simhpc_processing")

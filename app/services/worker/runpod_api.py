@@ -11,16 +11,16 @@ Uses RunPod GraphQL API (not REST, not serverless).
 All state is persisted in Redis for crash recovery.
 """
 
-import os
 import json
-import time
 import logging
-from typing import Optional
+import os
+import time
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
-import requests
 import redis
+import requests
 
 # ---------------------------------------------------------------------------
 # CONFIG

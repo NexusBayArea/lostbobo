@@ -9,16 +9,16 @@ Improvements (March 2026):
 """
 
 import asyncio
+import json
 import logging
 import os
-import uuid
-import json
 import time
+import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
 
@@ -28,28 +28,28 @@ load_dotenv(env_path)
 
 import httpx  # noqa: E402
 import redis  # noqa: E402
-from fastapi import (  # noqa: E402
-    FastAPI,
-    HTTPException,
-    Header,
-    Depends,
-    WebSocket,
-)
-from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
-
-from pydantic import BaseModel, Field, validator  # noqa: E402
-
-# --- ONBOARDING IMPORTS ---
-from app.services.onboarding_service import OnboardingService  # noqa: E402
-from app.api.routes import onboarding as onboarding_router  # noqa: E402
-from app.api.routes import simulations as simulations_router  # noqa: E402
-from app.api.routes import certificates as certificates_router  # noqa: E402
-from app.api.routes import control as control_router  # noqa: E402
-from app.api.routes import admin as admin_router  # noqa: E402
 
 # Import local services (API-only — no numpy/scipy/matplotlib)
 from auth_utils import verify_user  # noqa: E402
+from fastapi import (  # noqa: E402
+    Depends,
+    FastAPI,
+    Header,
+    HTTPException,
+    WebSocket,
+)
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from job_queue import enqueue_job  # noqa: E402
+from pydantic import BaseModel, Field, validator  # noqa: E402
+
+from app.api.routes import admin as admin_router  # noqa: E402
+from app.api.routes import certificates as certificates_router  # noqa: E402
+from app.api.routes import control as control_router  # noqa: E402
+from app.api.routes import onboarding as onboarding_router  # noqa: E402
+from app.api.routes import simulations as simulations_router  # noqa: E402
+
+# --- ONBOARDING IMPORTS ---
+from app.services.onboarding_service import OnboardingService  # noqa: E402
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ CORS_ORIGINS = [origin.strip() for origin in ALLOWED_ORIGINS if origin.strip()]
 
 # --- Supabase Client ---
 try:
-    from supabase import create_client, Client
+    from supabase import Client, create_client
 
     SB_URL = os.getenv("SB_URL")
     SB_SERVICE_KEY = os.getenv("SB_SERVICE_KEY")

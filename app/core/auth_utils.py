@@ -1,7 +1,8 @@
-from fastapi import Header, HTTPException
-from jose import jwt, JWTError
-import os
 import logging
+import os
+
+from fastapi import Header, HTTPException
+from jose import JWTError, jwt
 
 logger = logging.getLogger(__name__)
 

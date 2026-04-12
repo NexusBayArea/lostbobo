@@ -1,5 +1,7 @@
-import pytest
 import asyncio
+
+import pytest
+
 from tests.fake_job_store import FakeJobStore
 
 

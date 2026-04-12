@@ -1,9 +1,11 @@
-from typing import Optional, Dict, Any
-from pydantic import BaseModel, Field
 from datetime import datetime
+from typing import Any, Dict, Optional
+
+from pydantic import BaseModel, Field
 
 from app.models.version import CURRENT_JOB_SCHEMA_VERSION
 from packages.types.job import Job as SharedJob
+
 
 def generate_idempotency_key(payload: dict) -> str:
     """Generate deterministic idempotency key from job input params."""
