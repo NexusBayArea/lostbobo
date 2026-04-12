@@ -17,6 +17,8 @@ import threading
 import uuid
 from datetime import datetime
 from redis import Redis
+from fastapi import FastAPI, BackgroundTasks
+import uvicorn
 
 # Import canonical schemas
 from app.models.job import Job, JobProgress, JobResult
@@ -215,21 +217,19 @@ def process_job(job):
             decrement_active_runs(user_id)
 
 
-from fastapi import FastAPI, BackgroundTasks
-import uvicorn
-
 app = FastAPI()
+
 
 @app.post("/execute")
 async def execute_job_push(job_data: dict, background_tasks: BackgroundTasks):
     """Push-based execution endpoint for sub-second latency."""
     job_id = job_data.get("id")
     logger.info(f"🚀 Received push-based job: {job_id}")
-    
+
     # Validate and process in background to return quickly
     job = Job.model_validate(job_data)
     background_tasks.add_task(process_job, job)
-    
+
     return {"status": "accepted", "job_id": job_id}
 
 
@@ -246,20 +246,20 @@ def main():
     # 3. Start FastAPI in a separate thread for push-based execution
     def run_api():
         uvicorn.run(app, host="0.0.0.0", port=int(POD_PORT))
-    
+
     api_thread = threading.Thread(target=run_api, daemon=True)
     api_thread.start()
     logger.info(f"Push-based API listening on port {POD_PORT}")
 
     while True:
         poll_attempt = 0
-        
+
         # Priority-aware polling: check high, then med, then default
         queues = [f"{QUEUE_NAME}:high", f"{QUEUE_NAME}:med", QUEUE_NAME]
         raw_item = None
-        
+
         for q in queues:
-            # BRPOPLPUSH is atomic but only for one source. 
+            # BRPOPLPUSH is atomic but only for one source.
             # We try each queue with a short timeout.
             raw_item = redis_client.brpoplpush(q, PROCESSING_QUEUE, timeout=1)
             if raw_item:
@@ -278,7 +278,7 @@ def main():
             if not job_id:
                 logger.error(f"Job missing ID: {job_data}")
                 continue
-            
+
             # Update status in Redis for coalescing logic
             redis_client.setex(f"job:{job_id}:status", 3600, "running")
 

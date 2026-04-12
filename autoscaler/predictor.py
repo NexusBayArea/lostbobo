@@ -3,9 +3,6 @@ Optional forecasting for autoscaler
 """
 
 import numpy as np
-from typing import List
-from app.core.queue import redis_client
-from app.core.config import settings
 
 
 class SimplePredictor:

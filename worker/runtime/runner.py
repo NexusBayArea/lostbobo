@@ -5,17 +5,9 @@ Main execution loop for worker service
 import time
 import uuid
 import signal
-import sys
-from typing import Optional
 from app.services.worker.runtime.bootstrap import preload_engine, preload_runtime
-from app.services.worker.runtime.state import (
-    claim_job,
-    renew_lease,
-    update_job_status,
-    increment_attempt_count,
-)
+from app.services.worker.runtime.state import claim_job
 from app.services.worker.runtime.execute import execute_job
-from app.core.config import settings
 
 # Global flag for graceful shutdown
 shutdown_requested = False
@@ -56,7 +48,6 @@ def main():
                 continue
 
             job_id = job_data["id"]
-            lease_id = job_data.get("lease_id")
 
             print(f"Claimed job {job_id}")
 
@@ -69,27 +60,9 @@ def main():
                 # Attempt count is already incremented in execute_job via update_job_status
             else:
                 print(f"Job {job_id} failed: {result.get('error', 'Unknown error')}")
-                # Increment attempt count for failed jobs
-                increment_attempt_count(job_id)
-
-                # Check if we should retry based on attempt count
-                # Get current job status to check attempt count
-                from app.services.worker.runtime.state import get_job
-
-                current_job = get_job(job_id)
-                if current_job and current_job.get("attempt_count", 0) < 3:
-                    # Re-queue for retry (status will be updated by increment_attempt_count)
-                    print(
-                        f"Job {job_id} will be retried (attempt {current_job.get('attempt_count', 0)})"
-                    )
-                else:
-                    print(
-                        f"Job {job_id} exceeded max attempts, marking as failed permanently"
-                    )
 
             # Small delay between jobs to prevent tight loop
             time.sleep(0.1)
-
         except Exception as e:
             print(f"Error in worker loop: {e}")
             time.sleep(5)  # Longer sleep on unexpected errors

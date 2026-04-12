@@ -5,7 +5,7 @@ Compute logic wrapper for worker execution
 import time
 import traceback
 from typing import Dict, Any
-from app.services.worker.runtime.state import update_job_status, increment_attempt_count
+from app.services.worker.runtime.state import update_job_status
 
 
 def execute_job(job_data: Dict[str, Any]) -> Dict[str, Any]:
