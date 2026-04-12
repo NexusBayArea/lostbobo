@@ -21,6 +21,9 @@ RUN /root/.cargo/bin/uv pip install --system -r pyproject.toml || \
 # Copy application code
 COPY . .
 
+# Copy supervisor config
+COPY docker/supervisor/simhpc.conf /etc/supervisor/conf.d/simhpc.conf
+
 # Expose port (API)
 EXPOSE 8080
 

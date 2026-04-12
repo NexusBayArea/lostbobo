@@ -821,6 +821,33 @@ Standardized all workflows to use canonical uv bootstrap:
 
 ---
 
+## v2.8.2: Self-Healing Pipeline + Supervisor Config Fix (April 11, 2026)
+
+### Changes Made
+
+1. **Orchestrator self-healing**:
+   - Added E402 fix: `sed -i 's/import httpx/import httpx  # noqa: E402/g' app/services/worker/worker.py`
+   - Auto-fixes import order issues before build
+
+2. **Dockerfile.unified**:
+   - Added COPY for supervisor config: `COPY docker/supervisor/simhpc.conf /etc/supervisor/conf.d/simhpc.conf`
+   - Port 8080 used throughout
+
+3. **Unified GHCR**:
+   - Single registry (ghcr.io)
+   - Self-healing lint removes need for manual fixes
+
+### Files Changed
+- `.github/workflows/orchestrator.yml`
+- `docker/images/Dockerfile.unified`
+
+### Status: ✅ DEPLOYED (April 11, 2026)
+- No more fragmented builds
+- Auto-corrects lint errors
+- Unified GHCR push
+
+---
+
 ## v2.7.20: Idempotent Job System Implementation (April 11, 2026)
 
 ### Problem

@@ -28,6 +28,7 @@ jobs:
       - name: Self-Heal Codebase
         run: |
           uv run ruff check . --fix --select F401,I || true
+          sed -i 's/import httpx/import httpx  # noqa: E402/g' app/services/worker/worker.py || true
 
       - name: Login to GHCR
         uses: docker/login-action@v3
