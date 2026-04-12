@@ -1335,6 +1335,19 @@ Added validation steps to every workflow:
 
 ---
 
+## v2.8.14: Remove uv pip install from uv-setup (April 11, 2026)
+
+### Fix
+- Removed `uv pip install --system ruff` from _uv-setup.yml
+- uv-setup now just does venv + sanity check
+
+### Files Changed
+- `.github/workflows/_uv-setup.yml`
+
+### Status: ✅ READY (April 11, 2026)
+
+---
+
 ## v2.7.15: Frontend Skills Review & GitHub Push Applied (April 11, 2026)
 
 - Reviewed `skills/frontend/SKILL.md` and ensured compliance with OpenCode standards.

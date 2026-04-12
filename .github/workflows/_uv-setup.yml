@@ -18,9 +18,6 @@ jobs:
       - name: Create venv
         run: uv venv
 
-      - name: Install base tooling
-        run: uv pip install --system ruff
-
       - name: CI sanity check
         run: |
           uv --version
