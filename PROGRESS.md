@@ -1311,6 +1311,18 @@ Added validation steps to every workflow:
 
 ---
 
+## v2.8.12: uv sync in lint job (April 11, 2026)
+
+### Fix
+- Added `uv sync` step before ruff check in lint job
+
+### Files Changed
+- `.github/workflows/orchestrator.yml`
+
+### Status: ✅ READY (April 11, 2026)
+
+---
+
 ## v2.7.15: Frontend Skills Review & GitHub Push Applied (April 11, 2026)
 
 - Reviewed `skills/frontend/SKILL.md` and ensured compliance with OpenCode standards.
