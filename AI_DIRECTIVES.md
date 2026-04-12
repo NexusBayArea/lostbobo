@@ -29,7 +29,6 @@ SimHPC operates as two decoupled environments to protect intellectual property a
 - **Entrypoint**: `/usr/bin/tini -- /start.sh`
 - **Port**: Standardized on **8080** for all external traffic.
 
-
 ---
 
 ## 🛠️ 2. Local Build Authority (LBA)
@@ -180,7 +179,7 @@ To ensure platform portability and prevent CI/CD breakage due to variable naming
 | `APP_URL` | `SB_URL` | Core Service URL (e.g. Supabase REST) |
 | `DATA_URL` | `SB_DATA_URL` | Data persistence endpoints |
 | `API_TOKEN` | `SB_TOKEN` | High-privilege service access token |
-| `JWT_SECRET` | `SB_JWT_SECRET`| Token signing and verification |
+| `JWT_SECRET` | `SB_JWT_SECRET` | Token signing and verification |
 | `SECRET_KEY` | `SB_SECRET_KEY` | Internal application encryption key |
 
 > [!CAUTION]

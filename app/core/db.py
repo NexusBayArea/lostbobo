@@ -1,4 +1,6 @@
-from app.core.config import settings
+from app.core.config import get_settings
+
+settings = get_settings()
 from supabase import Client, create_client
 
 

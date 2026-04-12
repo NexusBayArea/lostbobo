@@ -1,13 +1,17 @@
 import hashlib
 import json
-import os
+
 
 from supabase import Client, create_client
 
-from app.core.config import settings
+from app.core.config import get_settings
+
+settings = get_settings()
 
 if not settings.APP_URL or not settings.API_TOKEN:
-    raise ValueError("Normalized Infrastructure secrets (APP_URL/API_TOKEN) are required")
+    raise ValueError(
+        "Normalized Infrastructure secrets (APP_URL/API_TOKEN) are required"
+    )
 
 supabase: Client = create_client(settings.APP_URL, settings.API_TOKEN)
 

@@ -25,7 +25,9 @@ from app.models.event import JobEvent
 
 # Import canonical schemas
 from app.models.job import Job, JobProgress, JobResult
-from app.core.config import settings
+from app.core.config import get_settings
+
+settings = get_settings()
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"

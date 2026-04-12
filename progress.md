@@ -249,7 +249,7 @@ We have resolved a critical CI false-failure pattern by correctly transitioning 
 ### 📦 4. Config Validation Gate (hard pre‑flight)
 - Added `app/core/config_gate.py` with required env vars check.
 - Added `app/core/bootstrap.py` to run validation then env normalization.
-- Updated `app/core/config.py` to be pure Pydantic without side‑effects.
+- Updated `app/core/config.py` to be pure Pydantic, removed global Settings instance, added lazy `get_settings()` accessor.
 - Added `app/core/startup.py` with `init_app()` to run bootstrap before any imports.
 - Documented changes in progress.md.
 

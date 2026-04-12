@@ -30,7 +30,9 @@ import httpx  # noqa: E402
 import redis  # noqa: E402
 
 # Import local services (API-only — no numpy/scipy/matplotlib)
-from app.core.config import settings  # noqa: E402
+from app.core.config import get_settings
+
+settings = get_settings()  # noqa: E402
 from auth_utils import verify_user  # noqa: E402
 from fastapi import (  # noqa: E402
     Depends,

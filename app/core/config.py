@@ -27,4 +27,14 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-settings = Settings()
+_settings_instance = None
+
+
+def get_settings() -> Settings:
+    global _settings_instance
+    if _settings_instance is None:
+        from app.core.bootstrap import bootstrap
+
+        bootstrap()
+        _settings_instance = Settings()
+    return _settings_instance

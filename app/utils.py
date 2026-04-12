@@ -1,9 +1,11 @@
 import asyncio
 import logging
-import os
+
 
 import httpx
-from app.core.config import settings
+from app.core.config import get_settings
+
+settings = get_settings()
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +13,7 @@ logger = logging.getLogger(__name__)
 # Buffers usage events for batch flush to Supabase (prevents write pressure)
 USAGE_BUFFER: list = []
 USAGE_BUFFER_LOCK = asyncio.Lock()
+
 
 def add_usage_event(
     user_id: str, amount: int, feature_type: str, metadata: dict = None
@@ -29,17 +32,18 @@ def add_usage_event(
     USAGE_BUFFER.append(event)
     logger.debug(f"Added usage event for user {user_id}: {feature_type}")
 
+
 async def flush_usage_to_supabase(http_client: httpx.AsyncClient = None):
     """
     Background task: Flushes the usage buffer every 10 seconds to avoid clogging.
     Uses normalized application settings for connectivity.
     """
     global USAGE_BUFFER
-    
+
     # We use a trick to allow the lifespan to set the client if not provided
     # Or we can just use a local one if needed, but sharing is better.
     client = http_client
-    
+
     while True:
         await asyncio.sleep(10)  # 10-second heartbeat
 
@@ -81,9 +85,12 @@ async def flush_usage_to_supabase(http_client: httpx.AsyncClient = None):
                         },
                     )
                     response.raise_for_status()
-                    logger.info(f"Flushed {len(batch_to_send)} usage events to Supabase (temp client)")
+                    logger.info(
+                        f"Flushed {len(batch_to_send)} usage events to Supabase (temp client)"
+                    )
         except Exception as e:
             logger.error(f"Batch flush failed: {e}")
+
 
 async def manual_flush_execution(http_client: httpx.AsyncClient):
     """Manual flush for Vercel Cron or on-demand clearing."""
