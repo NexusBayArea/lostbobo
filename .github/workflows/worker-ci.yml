@@ -1,40 +1,59 @@
-name: Worker CI
+name: Worker CI + Deploy
 
 on:
   push:
+    branches: [main]
     paths:
-      - "app/services/worker/**"
-      - "pyproject.toml"
-      - "uv.lock"
-  pull_request:
+      - "worker.py"
+      - "app/**"
+      - "packages/**"
+      - "docker/worker.Dockerfile"
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Set image tag
+        run: echo "TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          python-version: "3.11"
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Cache uv environment (worker)
-        uses: actions/cache@v4
+      - name: Build and push worker image
+        uses: docker/build-push-action@v5
         with:
-          path: |
-            ~/.cache/uv
-            .venv
-          key: ${{ runner.os }}-uv-worker-${{ hashFiles('uv.lock', 'pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-uv-worker-
+          context: .
+          file: docker/worker.Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/simhpc-worker:latest
+            ghcr.io/${{ github.repository_owner }}/simhpc-worker:${{ env.TAG }}
 
-      - name: Install uv
-        run: pip install uv
+      # Optional: Notify Supabase of new version
+      # - name: Register version in Supabase
+      #   run: |
+      #     curl -X POST "${{ secrets.SUPABASE_URL }}/rest/v1/worker_versions" \
+      #       -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+      #       -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+      #       -H "Content-Type: application/json" \
+      #       -d "{
+      #         \"image\": \"ghcr.io/${{ github.repository_owner }}/simhpc-worker:${{ env.TAG }}\",
+      #         \"status\": \"pending\"
+      #       }"
 
-      - name: Install worker deps
-        run: uv pip install -e .[worker]
-
-      - name: Test
-        run: uv run pytest -q
+      # Trigger RunPod deploy via webhook (if configured)
+      # - name: Trigger RunPod deploy
+      #   run: |
+      #     curl -X POST "${{ secrets.RUNPOD_DEPLOY_HOOK }}" \
+      #       -H "Authorization: Bearer ${{ secrets.RUNPOD_TOKEN }}" \
+      #       -H "Content-Type: application/json" \
+      #       -d "{
+      #         \"image\": \"ghcr.io/${{ github.repository_owner }}/simhpc-worker:${{ env.TAG }}\"
+      #       }"

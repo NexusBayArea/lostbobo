@@ -3,7 +3,8 @@ from pydantic import BaseModel
 from datetime import datetime
 
 from app.models.version import CURRENT_JOB_SCHEMA_VERSION
-
+from packages.types.job import Job as SharedJob
+from packages.types.enums import JobStatus
 
 def generate_idempotency_key(payload: dict) -> str:
     """Generate deterministic idempotency key from job input params."""
@@ -26,34 +27,18 @@ class JobResult(BaseModel):
     output: Optional[Dict[str, Any]] = None
 
 
-class Job(BaseModel):
+class Job(SharedJob):
     schema_version: int = CURRENT_JOB_SCHEMA_VERSION
-
-    id: str
-    user_id: str
-
-    status: str = (
-        "queued"  # queued | running | completed | failed | retrying | cancelled
-    )
-    progress: JobProgress = JobProgress()
-
+    
+    # Overriding fields to match existing app logic if needed
     input_params: Dict[str, Any] = {}
     scenario_name: Optional[str] = None
-
     idempotency_key: Optional[str] = None
-    fingerprint: Optional[str] = None
-    priority: int = 0
-    tier: str = "free"
-    workflow_id: Optional[str] = None
-
-    result: Optional[JobResult] = None
-    error: Optional[str] = None
-
-    retries: int = 0
-
-    created_at: datetime
-    updated_at: datetime
-    completed_at: Optional[datetime] = None
+    
+    progress: JobProgress = JobProgress()
+    
+    # Redefine results to use JobResult model
+    results: Optional[JobResult] = None # Using results instead of result for compatibility with some routes
 
     def generate_key(self) -> str:
         """Generate idempotency key from input params if not set."""
