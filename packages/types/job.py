@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Literal, Optional, Any
+from typing import Optional, Any
 from datetime import datetime
 from packages.types.enums import JobStatus
 

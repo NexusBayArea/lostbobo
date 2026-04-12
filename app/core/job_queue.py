@@ -15,6 +15,7 @@ import uuid
 import os
 import hashlib
 import threading
+import time
 
 QUEUE_NAME = os.getenv("QUEUE_NAME", "simhpc_jobs")
 PROCESSING_QUEUE = os.getenv("PROCESSING_QUEUE", "simhpc_processing")

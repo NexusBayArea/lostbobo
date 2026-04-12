@@ -4,7 +4,6 @@ from datetime import datetime
 
 from app.models.version import CURRENT_JOB_SCHEMA_VERSION
 from packages.types.job import Job as SharedJob
-from packages.types.enums import JobStatus
 
 def generate_idempotency_key(payload: dict) -> str:
     """Generate deterministic idempotency key from job input params."""

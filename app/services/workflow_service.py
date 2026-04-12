@@ -1,6 +1,5 @@
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List
 import uuid
-import json
 import logging
 from datetime import datetime
 
