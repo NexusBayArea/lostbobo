@@ -208,7 +208,7 @@ We have pivoted to a **Stateless Reasoning** architecture to ensure platform sta
 
 ---
 
-## 🏎️ v4.1.0: Git Hygiene & Platform Stability (April 2026) — CURRENT
+## 🏎️ v4.1.0: Git Hygiene & Platform Stability (April 2026)
 
 We have finalized the repository's structural stability and ensured consistent cross-platform behavior through rigorous Git hygiene.
 
@@ -232,3 +232,26 @@ We have finalized the repository's structural stability and ensured consistent c
 * **Git Status**: Clean; working tree synchronized with origin.
 * **Line Endings**: Verified `LF` enforcement across the `.github/` and `scripts/` directories.
 * **Documentation**: Zero linting warnings in the IDE for core project documents.
+
+---
+
+## 🏎️ v4.2.0: CI Environment Hardening (April 2026) — CURRENT
+
+We have resolved a critical CI false-failure pattern by correctly transitioning from isolated tool execution to project-context execution for the test suite.
+
+### 🧪 1. Project Context vs. Isolation
+
+* **Issue**: Identified that `uvx pytest` was running in an isolated sandbox, ignoring the project's [dev] dependencies and failing to load the `pytest-asyncio` plugin.
+* **Fix**: Standardized on a shared project environment using `uv venv` and `uv pip install -e .[dev]`.
+* **Result**: All tests now execute within the full project context, ensuring `anyio` and `asyncio` plugins are properly registered and configured.
+
+### 🛡️ 2. Architectural Determinism
+
+* **Validation**: Reinforced the `ci-validation.yml` DAG to ensure that linting, dependency installation, and testing follow a strict, deterministic sequence.
+* **Self-Healing**: Retained the automated `sed` fix for worker import patterns to preemptively resolve common E402 violations.
+
+### ✅ Verification (v4.2.0)
+
+* **Workflow Logic**: `uv run pytest` confirmed to be the only command allowed for test execution.
+* **Plugin Check**: Explicitly confirmed that `asyncio` is active during CI runs to support asynchronous API and Worker tests.
+* **Status**: Continuous Integration state is now synchronized with the actual project health.

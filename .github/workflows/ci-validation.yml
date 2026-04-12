@@ -26,14 +26,20 @@ jobs:
           # Final check
           /home/runner/.local/bin/uvx ruff check .
 
+      - name: Install Project Dependencies
+        run: |
+          # Standardize on project environment to ensure all plugins like pytest-asyncio are present
+          /home/runner/.local/bin/uv venv
+          /home/runner/.local/bin/uv pip install -e .[dev]
+
       - name: Testing (Pytest)
         run: |
-          # Run tests using uvx with dependencies
-          /home/runner/.local/bin/uvx --with pytest --with httpx --with redis --with pydantic --with supabase pytest
+          # Run tests within the project environment (NOT isolated uvx)
+          /home/runner/.local/bin/uv run pytest
 
       - name: API Structural Check
         run: |
-          # Ensure API can be imported without error
+          # Ensure API can be imported without error using project environment
           export PYTHONPATH=$PYTHONPATH:$(pwd)/app
           /home/runner/.local/bin/uv run python -c "from app.api.main import app; print('✅ API imports successfully')"
 
