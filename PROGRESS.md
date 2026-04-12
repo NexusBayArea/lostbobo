@@ -1387,6 +1387,21 @@ Added validation steps to every workflow:
 
 ---
 
+## v2.8.18: Failure path tests (April 11, 2026)
+
+### Fix
+- Created tests/ directory with failure path test cases:
+  - test_failure_paths.py: queue failure, slow queue, flaky queue, duplicate guard
+  - Tests: FlakyQueue retry, FakeQueue DLQ tracking, idempotency
+
+### Files Created
+- `tests/__init__.py`
+- `tests/test_failure_paths.py`
+
+### Status: ✅ READY (April 11, 2026)
+
+---
+
 ## v2.7.15: Frontend Skills Review & GitHub Push Applied (April 11, 2026)
 
 - Reviewed `skills/frontend/SKILL.md` and ensured compliance with OpenCode standards.
