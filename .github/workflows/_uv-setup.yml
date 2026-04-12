@@ -18,5 +18,8 @@ jobs:
       - name: Create venv
         run: uv venv
 
-      - name: Install base tooling
-        run: uv pip install --system ruff
+      - name: Sync dependencies
+        run: uv sync
+
+      - name: Verify lockfile
+        run: uv lock --check
