@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile.worker
+          file: ./docker/images/Dockerfile.worker
           push: true
           tags: |
             simhpcworker/simhpc-worker:latest

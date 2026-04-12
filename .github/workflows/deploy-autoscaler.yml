@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile.autoscaler
+          file: ./docker/images/Dockerfile.autoscaler
           push: true
           tags: |
             simhpcworker/simhpc-autoscaler:latest

@@ -625,6 +625,95 @@ ode ode_modules and .git while preserving the docker/ configuration tree.
 
 ---
 
+## v2.7.21: CI/CD Build Path Fixes & Supervisord Removal (April 11, 2026)
+
+### Issues Fixed
+
+| Issue | Fix |
+|-------|-----|
+| Missing Dockerfile.worker | Updated deploy-worker.yml to `./docker/images/Dockerfile.worker` |
+| Missing Dockerfile.autoscaler | Updated deploy-autoscaler.yml to `./docker/images/Dockerfile.autoscaler` |
+| Supervisord references (file missing) | Removed all supervisord COPY/CMD from Dockerfile.unified |
+| Mixed build stages | Rewrote Dockerfile.unified to clean multi-stage with uv |
+
+### Key Changes
+
+1. **Workflow Path Fixes**:
+   - `deploy-worker.yml`: Changed `file: ./Dockerfile.worker` → `file: ./docker/images/Dockerfile.worker`
+   - `deploy-autoscaler.yml`: Changed `file: ./Dockerfile.autoscaler` → `file: ./docker/images/Dockerfile.autoscaler`
+
+2. **Supervisord Removal**:
+   - Removed `COPY supervisord.conf` (file doesn't exist)
+   - Removed `CMD ["supervisord", ...]`
+   - Replaced with direct uvicorn start: `CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8080"]`
+
+3. **Dockerfile Cleanup**:
+   - Rewrote Dockerfile.unified as clean multi-stage build
+   - Uses nvidia/cuda base → uv install → direct uvicorn CMD
+   - Fixed port from 8088 → 8080
+
+### Status: ✅ READY FOR CI (April 11, 2026)
+- All build paths aligned
+- Supervisord dead code removed
+- Ready for deployment test
+
+---
+
+## v2.7.20: Idempotent Job System Implementation (April 11, 2026)
+
+### Problem
+- Duplicate job executions across CI retries, autoscaler duplication, worker restarts
+- Artifact explosions (33 images issue)
+- No deterministic key for same simulation inputs
+
+### Solution
+Implemented idempotency key system in Job model and worker:
+
+1. **Job Model Changes** (`app/models/job.py`):
+   - Added `idempotency_key` field to Job schema
+   - Added `generate_idempotency_key()` function using SHA256 hash of input_params
+   - Added `generate_key()` method for auto-generation
+
+2. **Worker Changes** (`app/services/worker/worker.py`):
+   - Primary check by idempotency key: `idempotency:{key}:executed`
+   - Secondary check: `idempotency:{key}:executing` (in-progress)
+   - Legacy support: job ID-based checks (sim:processed, job:{id}:executed)
+   - Execution marker set in finally block with 24h TTL
+
+### Key Functions
+```python
+def generate_idempotency_key(payload: dict) -> str:
+    """Generate deterministic idempotency key from job input params."""
+    import hashlib
+    import json
+    normalized = json.dumps(payload, sort_keys=True)
+    return hashlib.sha256(normalized.encode()).hexdigest()[:32]
+```
+
+### Redis Keys
+| Key Pattern | Purpose |
+|-------------|---------|
+| `idempotency:{key}:executed` | Permanent record of completed jobs |
+| `idempotency:{key}:executing` | In-progress execution guard |
+| `sim:processed` | Legacy set for job IDs |
+| `job:{id}:executed` | Legacy individual job record |
+
+### Guarantees
+| Scenario | Outcome |
+|----------|---------|
+| CI triggers twice | Only 1 job runs |
+| Autoscaler duplicates worker | No duplicate compute |
+| Retry after crash | Resumes safely |
+| Same request repeated | Returns cached result |
+
+### Status: ✅ IMPLEMENTED (April 11, 2026)
+- Idempotency keys now generated from input_params
+- Worker checks idempotency before execution
+- Multi-layer guard prevents duplicate runs
+- Legacy compatibility maintained
+
+---
+
 ## v2.7.19: UV Lockfile & PEP 668 Compliance (April 11, 2026)
 
 ### Problem
