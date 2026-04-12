@@ -247,6 +247,9 @@ We have resolved a critical CI false-failure pattern by correctly transitioning 
 * Ensured CI installs dev extras and runs tests via `uv run`.
 
 ### 📦 4. Config Validation Gate (hard pre‑flight)
+- Added async integration test harness with fake queue and worker to validate retry, DLQ, and idempotency logic.
+- Implemented `tests/fakes/fake_queue.py` and `tests/fakes/fake_worker.py`.
+- Added `tests/test_async_queue_integration.py` covering success, retry, DLQ, and idempotency scenarios.
 - Added `app/core/config_gate.py` with required env vars check.
 - Added `app/core/bootstrap.py` to run validation then env normalization.
 - Updated `app/core/config.py` to be pure Pydantic, removed global Settings instance, added lazy `get_settings()` accessor.
