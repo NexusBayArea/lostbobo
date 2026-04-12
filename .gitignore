@@ -128,6 +128,14 @@ instructions/
 *.md
 !README.md
 !CHANGELOG.md
+!progress.md
+!AI_DIRECTIVES.md
+!ARCHITECTURE.md
+!SYSTEM.md
+!GUIDE.md
+!INFISICAL_SECRETS_TEMPLATE.md
+!scripts/build.sh
+!scripts/deploy_to_runpod.py
 apps/**/node_modules/
 apps/**/dist/
 apps/**/build/
