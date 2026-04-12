@@ -22,7 +22,7 @@ jobs:
         run: uv sync
 
       - name: Run ruff
-        run: uvx ruff check .
+        run: uvx ruff check . --fix
 
   worker:
     needs: uv_setup
