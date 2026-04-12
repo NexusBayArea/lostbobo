@@ -13,8 +13,8 @@ dependencies = [
     "uvicorn[standard]>=0.29.0",
     "python-dotenv>=1.0.1",
     "redis>=4.5.0",
-    "pydantic>=2.6.4",
-    "pydantic-settings>=2.0.0",
+    "pydantic>=2.0,<3.0",
+    "pydantic-settings>=2.0,<3.0",
     "httpx>=0.27.0",
     "supabase>=2.4.0",
     "postgrest>=0.16.0",
@@ -49,7 +49,14 @@ gpu = [
 ]
 dev = [
     "pytest",
-    "pytest-asyncio"
+    "pytest-asyncio",
+    "ruff>=0.6",
+    "mypy>=1.8"
+]
+
+ci = [
+    "ruff>=0.6",
+    "mypy>=1.8"
 ]
 
 [tool.ruff]
