@@ -1,4 +1,4 @@
-name: SimHPC SaaS Orchestrator (v2.8.8)
+name: SimHPC SaaS Orchestrator (v2.8.9)
 
 on:
   push:
@@ -51,7 +51,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"query\": \"mutation { podStop(input: { podId: \\\"$RUNPOD_ID\\\" }) { id } }\"}"
           
-          sleep 15
+          sleep 20
 
           curl -s -X POST "https://api.runpod.io/graphql" \
             -H "Authorization: Bearer $RUNPOD_API_KEY" \
