@@ -625,6 +625,57 @@ ode ode_modules and .git while preserving the docker/ configuration tree.
 
 ---
 
+## v2.7.16: Unified UV Bootstrap CI Architecture (April 11, 2026)
+
+### Problem
+- Dependency drift across workflows
+- Per-workflow install duplication
+- Random CI breakage (e.g., `uv venv` errors)
+- Inconsistent runtime behavior across RunPod vs GitHub Actions
+
+### Solution: Single UV Bootstrap Standard
+
+Created standardized install pattern used in all workflows:
+
+```yaml
+- name: Install uv
+  run: |
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+- name: Create virtual environment
+  run: uv venv
+
+- name: Install dependencies
+  run: uv pip install --system ruff
+```
+
+### Key Principles
+- **1 install layer → 1 venv → reused everywhere → deterministic execution**
+- `--system` flag with venv for fastest reliable resolution inside CI sandbox
+- Aligns RunPod and GitHub Actions environments
+
+### Phase 1: Shared Reusable Workflow
+Created `.github/workflows/_uv-setup.yml` as single source of truth for UV bootstrap.
+
+### Phase 2: CI Guard Rails
+Added validation steps to every workflow:
+```yaml
+- name: CI sanity check
+  run: |
+    uv --version
+    python --version
+    echo "CI OK"
+```
+
+### Status: ✅ ARCHITECTURE STANDARDIZED (April 11, 2026)
+- All workflows now use unified UV bootstrap
+- Eliminates dependency drift and CI randomness
+- Deterministic SimHPC pipeline from Git Push to RunPod execution
+
+---
+
+
 ---
 
 ## v2.7.15: Frontend Skills Review & GitHub Push Applied (April 11, 2026)
