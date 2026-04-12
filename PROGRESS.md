@@ -1487,6 +1487,24 @@ Added validation steps to every workflow:
 
 ---
 
+## v3.0.3: Master Deployment Skills (April 11, 2026)
+
+### Fix
+- Merged fragmented deployment skills into DEPLOY_SKILLS.md
+- Created in skills/deployment/DEPLOY_SKILLS.md
+- Copied to skills/supabase/DEPLOY_SKILLS.md
+- LBA mandate: Docker builds ONLY locally
+- Port 8080 enforced as production standard
+
+### Files Created
+- `skills/deployment/DEPLOY_SKILLS.md`
+- `skills/supabase/DEPLOY_SKILLS.md`
+
+### Status: ✅ READY (April 11, 2026)
+
+---
+
+
 ## v2.7.15: Frontend Skills Review & GitHub Push Applied (April 11, 2026)
 
 - Reviewed `skills/frontend/SKILL.md` and ensured compliance with OpenCode standards.
