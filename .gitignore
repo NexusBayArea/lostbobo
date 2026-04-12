@@ -25,13 +25,13 @@ node_modules
 # Ignore any GCP service account keys provided locally
 secrets/
 *.json
-!apps/frontend/package.json
-!apps/frontend/package-lock.json
-!apps/frontend/tsconfig.json
-!apps/frontend/tsconfig.app.json
-!apps/frontend/tsconfig.node.json
-!apps/frontend/vercel.json
-!apps/frontend/components.json
+!frontend/package.json
+!frontend/package-lock.json
+!frontend/tsconfig.json
+!frontend/tsconfig.app.json
+!frontend/tsconfig.node.json
+!frontend/vercel.json
+!frontend/components.json
 !antigravity.config.json
 !vercel.json
 !package.json
@@ -59,17 +59,17 @@ out/
 .eslintcache
 .stylelintcache
 # Frontend build artifacts
-apps/frontend/node_modules/
-apps/frontend/dist/
-apps/frontend/.vercel/
-apps/frontend/*.tsbuildinfo
+frontend/node_modules/
+frontend/dist/
+frontend/.vercel/
+frontend/*.tsbuildinfo
 # Python dependencies
 .venv/
 venv/
 ENV/
 env/
 !src/env/
-!apps/frontend/src/env/
+!frontend/src/env/
 # Python cache
 __pycache__/
 *.py[cod]
