@@ -21,8 +21,8 @@ jobs:
       - name: Sync dependencies
         run: uv sync
 
-      - name: Lint
-        run: uv run ruff check .
+      - name: Run ruff
+        run: uvx ruff check .
 
   worker:
     needs: uv_setup
