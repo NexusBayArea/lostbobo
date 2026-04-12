@@ -1,0 +1,64 @@
+name: simhpc-orchestrator
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: simhpc-main
+  cancel-in-progress: false
+
+jobs:
+  uv_setup:
+    uses: ./.github/workflows/_uv-setup.yml
+
+  lint:
+    needs: uv_setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint
+        run: uv run ruff check .
+
+  worker:
+    needs: uv_setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy guard
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "Not main branch - skipping worker deploy"
+            exit 0
+          fi
+          echo "Deploying worker"
+
+  frontend:
+    needs: uv_setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy guard
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "Not main branch - skipping frontend deploy"
+            exit 0
+          fi
+          echo "Deploying frontend"
+
+  autoscaler:
+    needs: uv_setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy guard
+        run: |
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "Not main branch - skipping autoscaler sync"
+            exit 0
+          fi
+          echo "Sync autoscaler"

@@ -1286,6 +1286,31 @@ Added validation steps to every workflow:
 
 ---
 
+## v2.8.11: Single Orchestrator CI (April 11, 2026)
+
+### Issue
+- Multiple independent CI pipelines
+- Path-filtered execution causing silent skipping
+- Inconsistent deploy ordering
+
+### Fix
+1. Created orchestrator.yml with:
+   - Global concurrency lock (`cancel-in-progress: false`)
+   - Shared uv_setup reusable workflow
+   - Parallel jobs: lint, worker, frontend, autoscaler
+   - Deploy safety gates per job
+
+### Files Changed
+- `.github/workflows/orchestrator.yml` (new)
+
+### Status: ✅ READY (April 11, 2026)
+- Single orchestration plane
+- Deterministic job execution
+- uv-controlled environment
+- No CI drift
+
+---
+
 ## v2.7.15: Frontend Skills Review & GitHub Push Applied (April 11, 2026)
 
 - Reviewed `skills/frontend/SKILL.md` and ensured compliance with OpenCode standards.
