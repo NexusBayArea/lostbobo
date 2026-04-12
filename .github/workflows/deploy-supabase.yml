@@ -18,13 +18,28 @@ jobs:
         with:
           version: latest
 
-      - name: Deploy to Production
+      - name: Validate Supabase env
         env:
           SB_ACCESS_TOKEN: ${{ secrets.SB_ACCESS_TOKEN }}
           SB_PROJECT_ID: ${{ secrets.SB_PROJECT_ID }}
           SB_DB_PASSWORD: ${{ secrets.SB_DB_PASSWORD }}
         run: |
-          supabase login --token "$SB_ACCESS_TOKEN"
+          if [ -z "$SB_ACCESS_TOKEN" ]; then
+            echo "Missing SB_ACCESS_TOKEN"
+            exit 1
+          fi
+          if [ -z "$SB_PROJECT_ID" ]; then
+            echo "Missing SB_PROJECT_ID"
+            exit 1
+          fi
+          echo "Supabase env validated"
+
+      - name: Deploy to Production
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SB_ACCESS_TOKEN }}
+          SB_PROJECT_ID: ${{ secrets.SB_PROJECT_ID }}
+          SB_DB_PASSWORD: ${{ secrets.SB_DB_PASSWORD }}
+        run: |
           supabase link --project-ref "$SB_PROJECT_ID" --password "$SB_DB_PASSWORD"
           supabase db push --password "$SB_DB_PASSWORD"
           supabase functions deploy --project-ref "$SB_PROJECT_ID"
