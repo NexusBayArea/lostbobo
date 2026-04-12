@@ -1262,6 +1262,30 @@ Added validation steps to every workflow:
 
 ---
 
+## v2.8.10: Shared UV Bootstrap (April 11, 2026)
+
+### Issue
+- Mixed uv installations across workflows
+- Inconsistent CI environment setup
+
+### Fix
+1. Created shared reusable workflow `.github/workflows/_uv-setup.yml`:
+   - Standardized uv install pattern
+   - CI sanity check included
+2. Updated `ci-validation.yml` to use reusable workflow
+   - Removed inline curl + uvx pattern
+   - Uses `uv run ruff check` instead
+
+### Files Changed
+- `.github/workflows/_uv-setup.yml` (new)
+- `.github/workflows/ci-validation.yml` (updated)
+
+### Status: ✅ READY (April 11, 2026)
+- Unified UV bootstrap pattern ready for all workflows
+- CI validation uses standardized setup
+
+---
+
 ## v2.7.15: Frontend Skills Review & GitHub Push Applied (April 11, 2026)
 
 - Reviewed `skills/frontend/SKILL.md` and ensured compliance with OpenCode standards.

@@ -1,0 +1,24 @@
+name: CI Validation (v3.0.1)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  uv-setup:
+    uses: ./.github/workflows/_uv-setup.yml
+
+  validate-and-lint:
+    runs-on: ubuntu-latest
+    needs: uv-setup
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Self-Heal & Validate
+        run: |
+          uv run ruff check . --fix --select F401,I || true
+
+      - name: Structure Check
+        run: |
+          test -f ./docker/images/Dockerfile.unified

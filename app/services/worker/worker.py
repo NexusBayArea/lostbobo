@@ -238,7 +238,7 @@ def process_job(job):
             decrement_active_runs(user_id)
 
 
-import httpx
+import httpx  # noqa: E402
 
 API_URL = os.getenv("API_URL", "http://localhost:8080")
 

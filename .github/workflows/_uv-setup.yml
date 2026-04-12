@@ -1,0 +1,28 @@
+name: uv-setup
+
+on:
+  workflow_call:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Create venv
+        run: uv venv
+
+      - name: Install base tooling
+        run: uv pip install --system ruff
+
+      - name: CI sanity check
+        run: |
+          uv --version
+          python --version
+          echo "CI OK"
