@@ -1,9 +1,12 @@
-name: CI Validation (v3.2.0)
+name: CI Validation (v3.3.0)
 
 on:
   push:
     branches: [main]
   pull_request:
+
+env:
+  SERVICE_ROLE: api
 
 jobs:
   validate:
@@ -12,25 +15,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Setup Python + uv (cached)
+        uses: ./.github/actions/setup-python-env
 
       - name: Linting (Ruff)
         run: |
-          # Isolated linting using uvx (Prevents Layer Stacking)
           /home/runner/.local/bin/uvx ruff check . --fix --select F401,I || true
-          
-          # Fix known worker import pattern (Self-Healing)
-          sed -i 's/import httpx/import httpx  # noqa: E402/g' app/services/worker/worker.py || true
-          
-          # Final check
           /home/runner/.local/bin/uvx ruff check .
-
-      - name: Install Project Dependencies
-        run: |
-          # Standardize on project environment to ensure all plugins like pytest-asyncio are present
-          /home/runner/.local/bin/uv venv
-          /home/runner/.local/bin/uv pip install -e .[dev]
 
       - name: Testing (Pytest)
         env:
@@ -41,7 +32,6 @@ jobs:
           SB_SECRET_KEY: test-key
           SB_TOKEN: test-token
         run: |
-          # Run tests within the project environment (NOT isolated uvx)
           /home/runner/.local/bin/uv run pytest
 
       - name: API Structural Check
@@ -53,12 +43,13 @@ jobs:
           SB_SECRET_KEY: test-key
           SB_TOKEN: test-token
         run: |
-          # Ensure API can be imported without error using project environment
-          export PYTHONPATH=$PYTHONPATH:$(pwd)/app
-          /home/runner/.local/bin/uv run python -c "from app.api.main import app; print('✅ API imports successfully')"
+          /home/runner/.local/bin/uv run python -c "from app.api.main import app; print('API imports OK')"
 
       - name: Structure Check
         run: |
-          # Ensure Dockerfiles exist but DON'T build them
           test -f ./docker/images/Dockerfile.unified
-          echo "✅ Repository structure is valid for Local Build Authority (LBA)"
+          echo "Repository structure valid"
+
+      - name: Report git SHA
+        run: |
+          echo "GIT_SHA=${{ github.sha }}" >> $GITHUB_OUTPUT

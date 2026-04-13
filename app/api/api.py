@@ -1138,8 +1138,16 @@ async def get_system_status():
 
 @app.get("/health", tags=["System — Health"])
 async def health():
-    """Simple health check for proxy resolution."""
-    return {"status": "ok", "timestamp": datetime.now().isoformat()}
+    """Health check with runtime metadata for drift detection."""
+    import os
+
+    return {
+        "status": "ok",
+        "timestamp": datetime.now().isoformat(),
+        "git_sha": os.getenv("GIT_SHA", "unknown"),
+        "image_digest": os.getenv("IMAGE_DIGEST", "unknown"),
+        "service_role": os.getenv("SERVICE_ROLE", "unknown"),
+    }
 
 
 @app.get("/api/v1/user/profile", tags=["User"])
