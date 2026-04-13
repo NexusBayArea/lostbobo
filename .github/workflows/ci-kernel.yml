@@ -48,8 +48,14 @@ jobs:
       - name: Capture digest
         run: |
           DIGEST="${{ steps.build.outputs.digest }}"
-          echo "IMAGE_REF=ghcr.io/nexusbayarea/lostbobo-simhpc-base@${DIGEST}" >> $GITHUB_ENV
+          if [ -z "$DIGEST" ]; then
+            echo "::error::Build digest is empty! Check docker/build-push-action output."
+            exit 1
+          fi
+          IMAGE_REF="ghcr.io/nexusbayarea/lostbobo-simhpc-base@${DIGEST}"
+          echo "IMAGE_REF=${IMAGE_REF}" >> $GITHUB_ENV
           echo "Digest captured: ${DIGEST}"
+          echo "Image Reference: ${IMAGE_REF}"
 
 
 
@@ -59,7 +65,7 @@ jobs:
           {
             "git": {"sha": "${{ github.sha }}"},
             "image": {
-              "ref": "${{ env.IMAGE_REF }}",
+              "ref": "$IMAGE_REF",
               "digest": "${{ steps.build.outputs.digest }}"
             },
             "dag": $(cat dag.json),

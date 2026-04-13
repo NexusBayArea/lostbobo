@@ -2,23 +2,20 @@ DO NOT PUSH!!!!
 
 ---
 
-## v10.4.0: Adaptive Build System & Application Boot DAG (April 2026)
+## v10.5.0: Boot DAG System & Pipeline Hardening (April 2026)
 
-### CI/CD Evolution (Adaptive Build System v10.0.0)
-- **Failure Memory Store**: Persisted CI failures to a local JSON memory store for tracking fixes.
-- **Pattern Predictor & Extractor**: Normalized failures, employing custom fix templates to propose semantic patches based on prior knowledge.
-- **Self-Healing DAG Loop**: Added confidence-gated auto-application of fixes that loops CI patches until testing converges successfully.
-- **Selective Pruning**: `ci/prune.py` prevents redundant unchanged test branches, drastically decreasing recovery and feedback times.
-
-### Type Safety & Structural Alignments (v10.1.0 - v10.3.0)
-- **app/api/api.py Core Refactoring**: Resolved 48+ type-checking and name-resolution errors dynamically with our adaptive infrastructure.
-- Fixed unmapped service implementations (e.g., `auth_utils` and `job_queue`) by migrating to full absolute imports (`app.core.*`).
-- Hardened Redis InMemoryCache typing and added missing Redis operations (`smembers`, `pipeline`, etc).
-- Ensured deterministic execution across fallback cache connections and properly insulated `supabase` variables via conditional load blocks.
-- Fixed floating data types (missing `str()` casting during runtime datetimes, causing crashes during Supabase date manipulations).
-
-### Architectural Initialization (v10.4.0)
-- **App Boot DAG System**: Shifted module loading into a rigid runtime application DAG structure starting in `app/main.py`.
+### Architectural Initialization (v10.4.0 - v10.5.0)
+- **App Boot DAG System (v10.5.0)**: Fully implemented a deterministic boot pipeline in `app/core/boot/`.
+  - Stages: `env`, `validate`, `normalize`, `config`.
+  - Unified DAG entrypoint in `app/core/runtime/dag.py` for API, Worker, and CI modes.
+  - Eliminated import-time side effects by shifting initialization to an explicit `run_boot_dag()` call.
+  - Updated `app/main.py` and `app/core/config.py` to use the new boot context.
+- **Unified Entrypoint Consolidation (v10.5.0)**: Merged `./api.py` with `./app/api/api.py` to create a single, feature-rich FastAPI entrypoint using the Boot DAG.
+- **CI/CD Pipeline Hardening (v10.5.0)**: Fixed `IMAGE_REF` resolution in `ci-kernel.yml`.
+  - Resolved "Context access might be invalid: IMAGE_REF" warnings by shifting to shell-variable access in `run` blocks.
+  - Added digest validation to ensure `IMAGE_REF` is never empty.
+  - Standardized digest-only pull and run strategy for GHCR artifacts.
+- **App Boot DAG (v10.4.0)**: Shifted module loading into a rigid runtime application DAG structure starting in `app/main.py`.
 - Evaluated side-effect boundaries and built `app/core/runtime/ci.py` and `app/core/runtime/boot.py` to enable declarative boot testing with `RUNTIME_MODE=ci`.
 - **Docker Alignments**: Generated `docker-compose.yml` to mirror exact deployment requirements in `Dockerfile.api` vs `Dockerfile.worker` passing required specific secrets via strict environment variables structure in CI/CD pipeline.
 
