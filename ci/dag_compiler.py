@@ -104,17 +104,43 @@ def compute_dag(base="origin/main", head="HEAD"):
             }
         )
 
-    return {"jobs": jobs}
+    policy_nodes = [
+        {
+            "name": "no_mutable_tags",
+            "rule": "immutable_image_tags",
+            "inputs": [".github/workflows"]
+        },
+        {
+            "name": "dag_validity",
+            "rule": "dag_integrity",
+            "inputs": ["ci/dag.json"]
+        }
+    ]
+
+    return {
+        "policy_nodes": policy_nodes,
+        "compute_nodes": jobs
+    }
 
 
 def main():
     import sys
+    import argparse
 
-    base = sys.argv[1] if len(sys.argv) > 1 else "origin/main"
-    head = sys.argv[2] if len(sys.argv) > 2 else "HEAD"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--base", default="origin/main")
+    parser.add_argument("--head", default="HEAD")
+    parser.add_argument("--output", help="Output file path")
+    args = parser.parse_args()
 
-    dag = compute_dag(base, head)
-    print(json.dumps(dag))
+    dag = compute_dag(args.base, args.head)
+    output = json.dumps(dag, indent=2)
+
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as f:
+            f.write(output)
+    else:
+        print(output)
 
 
 if __name__ == "__main__":

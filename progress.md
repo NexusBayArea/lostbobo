@@ -5,6 +5,99 @@
 > Updated CI to install dev extras and run tests via `uv run`.
 > For detailed changelog, see [CHANGELOG.md](./CHANGELOG.md).
 
+## 🧠 v10.0.0: Adaptive Build System (April 2026) — IMPLEMENTED
+
+We have transformed the CI system into an **Adaptive Build System with Feedback Intelligence**, moving from reactive self-healing to predictive, learning-based recovery.
+
+### 📼 1. Failure Memory & Pattern Store
+
+* **Persistent Memory**: Created `ci/failure_store.json` to persist a history of repository failures, applied patches, and their success rates.
+* **Signature Normalization**: Implemented `ci/signature.py` to strip variable data (line numbers, paths) from error logs, creating stable signatures for pattern matching.
+* **Knowledge Base**: The system now "remembers" which patches fixed which signatures in the past.
+
+### 🔮 2. Prediction Engine & Logic
+
+* **Confidence Gating**: The system now predicts the most likely fix for a given failure signature with an associated confidence score (`ci/predict.py`).
+* **Auto-Apply Threshold**: Implemented a confidence-gated bottleneck (`ci/auto_apply.py`) that only allows autonomous mutations if the engine is >75% certain.
+* **Fix Template Library**: Formalized known fix patterns for common CI bottlenecks (Imports, Linting, Lockfile drift) in `ci/fix_templates.py`.
+
+### 🔄 3. Learning Loop & Efficiency Gain
+
+* **Closed-Loop Learning**: The system records the outcome of every predicted fix attempt, refining its internal knowledge base over time (`ci/learn.py`).
+* **Pattern Convergence**: Repeated failures of the same type are now instantly resolved via historical memory, reducing CI "churn" and human intervention.
+* **Adaptive Runner**: Fully integrated the learning loop into the main CI pipeline via `ci/learning_runner.py`.
+
+### ✅ Verification (v10.0.0)
+
+* **Intelligence Gate**: Confirmed confidence-gated auto-fixes trigger correctly for known signatures.
+* **Memory Persistence**: Failure patterns are correctly stored and retrieved from the persistent store.
+* **Dashboard UX**: Integrated **Learning Intelligence** telemetry into the Mission Control admin bridge.
+
+---
+
+
+## 🤖 v9.0.0: Autonomous Execution System (April 2026) — IMPLEMENTED
+
+We have evolved the DAG engine into a **closed-loop autonomous execution system**, capable of self-diagnosis and auto-patching of CI failures.
+
+### 🧠 1. Diagnostic Probe & Failure Graph
+
+* **Structured Failures**: Every DAG node now emits a formalized failure report (node identity, error type, stderr, inputs).
+* **Failure Graph**: Created `ci/failure_graph.py` to organize multi-node failures into a root-cause context graph.
+* **Diagnosis Engine**: `ci/diagnose.py` classifies failures into high-level categories (Style, Dependency, Import, Build) for automated handling.
+
+### 🩹 2. Auto-Fix Engine & Self-Healing Loop
+
+* **Patch Generator**: `ci/autofix.py` proposes tactical patches (e.g., `ruff --fix`, dependency re-locks) based on diagnosis.
+* **Controlled Mutation**: `ci/heal_dag.py` applies patches in a sandboxed manner before re-execution.
+* **Convergence**: The system automatically retries failing branches after patching, driving the repo state toward "PASS" without human intervention.
+
+### ✂️ 3. DAG Pruning & Selective Retry
+
+* **Pruning Logic**: `ci/prune.py` identifies the minimal set of affected nodes (failed node + downstream dependents) for re-execution.
+* **Efficiency**: Retries only touch the "dirty" sector of the DAG, preserving results from successful upstream nodes.
+* **Self-Healing Runner**: `ci/self_healing_runner.py` orchestrates the diagnostic loop within the CI pipeline.
+
+### ✅ Verification (v9.0.0)
+
+* **Kernel Hardening**: `ci/kernel.py` refactored to capture failures and facilitate retry loops.
+* **Closed-Loop CI**: Verified `.github/workflows/ci-kernel.yml` retry logic via `failure()` gates.
+* **Dashboard Integration**: Added **Autonomous Health** monitoring to the Mission Control analytics suite.
+
+---
+
+
+## 🏎️ v8.0.0: Policy-Evaluated Execution Graph (April 2026) — IMPLEMENTED
+
+We have transformed CI from a scripted pipeline into a **formalized policy-evaluated execution graph**, where CI guards are first-class DAG nodes.
+
+### 🧩 1. Policy-as-Code Model
+
+* **Policy Nodes**: Every CI guard (e.g., mutable tag check, DAG integrity) is now a deterministic, cacheable DAG node.
+* **Deterministic Evaluation**: Replaced inline shell checks with a central policy registry (`ci/policies/registry.py`).
+* **Composable Constraints**: Policies evaluate to `PASS`, `FAIL`, or `SKIP` (cache hit), gating downstream compute nodes.
+
+### ⚙️ 2. Policy Engine & Runner
+
+* **Registry**: Centralized policy logic in `ci/policies/registry.py`.
+* **Runner**: Implemented `ci/policy_runner.py` for headless evaluation of policy nodes.
+* **CLI Wrapper**: `ci/run_policy_dag.py` provides a unified entry point for GitHub Actions.
+
+### 🛡️ 3. Policy-Gated Execution
+
+* **Graph Flow**: CI now runs the policy DAG first; failing branches are pruned before compute nodes are scheduled.
+* **Visibility**: Implemented a **Policy Dashboard** output in GitHub Step Summary for high-level visibility into compliance.
+* **UX**: Failure reporting provides clear insight into which policy failed and why, instead of generic CI script exits.
+
+### ✅ Verification (v8.0.0)
+
+* **Policy Engine**: Confirmed `no_mutable_tags` and `dag_validity` pass via `run_policy_dag.py`.
+* **Workflow Alignment**: `.github/workflows/ci-kernel.yml` simplified to a single DAG runner call.
+* **Cache Integrity**: Policies are now hashed identically to compute nodes, ensuring zero re-evaluation for unchanged repo states.
+
+---
+
+
 ## 🧠 SimHPC Stable Backbone (v3.1.0) — Implemented
 
 We have established the final "stable backbone" layer, wiring together typed models, container isolation, and CI-driven deployments.

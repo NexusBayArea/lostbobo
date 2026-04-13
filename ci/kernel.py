@@ -29,7 +29,11 @@ def save_cache(cache):
 def run_node(image, node):
     """Execute a single DAG node."""
     entry = node.get("entry", f"ci/jobs/{node['name']}.py")
-    print(f"Executing: {node['name']}")
+    
+    # Check if entry exists, fallback to module.py if needed (common in some repos)
+    if not os.path.exists(entry) and not os.path.exists(entry.replace(".py", "")):
+         # If it's a compute node but no specific script, maybe it's a generic run
+         pass
 
     result = subprocess.run(
         [
@@ -46,15 +50,17 @@ def run_node(image, node):
         ],
         capture_output=True,
         text=True,
+        check=False,
     )
 
-    if result.returncode != 0:
-        print(f"ERROR in {node['name']}:")
-        print(result.stderr)
-        sys.exit(1)
-
-    print(f"OK: {node['name']}")
-    return True
+    return {
+        "node": node["name"],
+        "ok": result.returncode == 0,
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+        "exit_code": result.returncode,
+        "inputs": node.get("inputs", [])
+    }
 
 
 def main(manifest_path):
@@ -70,24 +76,51 @@ def main(manifest_path):
 
     cache = load_cache()
     new_cache = {}
+    failures = []
+    blocked_nodes = set()
 
-    for job in dag_jobs:
-        job_name = job["name"]
+    # Get compute nodes (renamed from jobs in previous step)
+    dag_nodes = manifest.get("dag", {}).get("compute_nodes", [])
+    if not dag_nodes:
+        # Fallback to 'jobs' if compiler hasn't updated yet in production
+        dag_nodes = manifest.get("dag", {}).get("jobs", [])
 
-        key = compute_node_key(job, cache, image_digest)
-
-        if cache.get(job_name) == key:
-            print(f"SKIP {job_name} (cache hit)")
-            new_cache[job_name] = key
+    for node in dag_nodes:
+        node_name = node["name"]
+        
+        # Check if any dependency failed
+        if any(dep in blocked_nodes for dep in node.get("deps", [])):
+            print(f"BLOCKED {node_name} (upstream failure)")
+            blocked_nodes.add(node_name)
             continue
 
-        print(f"RUN {job_name}")
-        run_node(image, job)
+        key = compute_node_key(node, cache, image_digest)
 
-        new_cache[job_name] = key
+        if cache.get(node_name) == key:
+            print(f"SKIP {node_name} (cache hit)")
+            new_cache[node_name] = key
+            continue
+
+        print(f"RUN {node_name}...")
+        res = run_node(image, node)
+        
+        if res["ok"]:
+            print(f"PASS {node_name}")
+            new_cache[node_name] = key
+        else:
+            print(f"FAIL {node_name}")
+            failures.append(res)
+            blocked_nodes.add(node_name)
 
     save_cache(new_cache)
-    print(f"Cache saved: {len(new_cache)} entries")
+    
+    if failures:
+        with open("failures.json", "w") as f:
+            json.dump(failures, f, indent=2)
+        print(f"Failure capture complete. {len(failures)} nodes failed.")
+        sys.exit(1) # Final exit 1 to trigger CI failure step
+    
+    print(f"DAG Execution Successful. {len(new_cache)} nodes converged.")
 
 
 if __name__ == "__main__":

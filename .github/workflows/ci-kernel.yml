@@ -23,16 +23,11 @@ jobs:
           key: dag-${{ github.sha }}
           restore-keys: dag-
 
-      - name: Enforce immutable image tags
-        run: |
-          set -e
-          VIOLATIONS=$(grep -Rh --include="*.yml" -E 'ghcr\.io/.+:(latest|stable)\b' .github/workflows/ || true)
-          if [ -n "$VIOLATIONS" ]; then
-            echo "ERROR: mutable image tags (:latest, :stable) forbidden"
-            echo "$VIOLATIONS"
-            exit 1
-          fi
-          echo "OK: immutable tagging enforced"
+      - name: Compute DAG
+        run: python ci/dag_compiler.py --output dag.json
+
+      - name: Run DAG Policy Engine
+        run: python ci/run_policy_dag.py dag.json
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -56,8 +51,7 @@ jobs:
           echo "IMAGE_REF=ghcr.io/nexusbayarea/lostbobo-simhpc-base@${DIGEST}" >> $GITHUB_ENV
           echo "Digest captured: ${DIGEST}"
 
-      - name: Compute DAG
-        run: python ci/dag_compiler.py > dag.json
+
 
       - name: Build manifest (digest-only)
         run: |
@@ -87,6 +81,7 @@ jobs:
           key: dag-${{ github.sha }}
 
       - name: Run CI Kernel (digest-only)
+        id: kernel
         run: |
           docker pull $IMAGE_REF
           docker run --rm \
@@ -99,5 +94,31 @@ jobs:
             -e SB_SECRET_KEY=test \
             -e SB_TOKEN=test \
             $IMAGE_REF \
-            python ci/kernel.py
+            python ci/kernel.py build-manifest.json
+
+      - name: 🧠 Predictive Learning Recovery
+        if: failure() && steps.kernel.outcome == 'failure'
+        run: |
+          python ci/learning_runner.py build-manifest.json failures.json > healing_result.json
+          
+          # Check status from learning engine
+          STATUS=$(jq -r '.status' healing_result.json)
+          if [ "$STATUS" == "RETRY" ]; then
+            echo "Predictive fix applied. Re-executing affected DAG nodes..."
+            
+            docker run --rm \
+              -v $PWD:/app \
+              -w /app \
+              -e SB_URL=http://test \
+              -e SB_DATA_URL=http://test \
+              -e SB_JWT_SECRET=test \
+              -e SB_PUB_KEY=test \
+              -e SB_SECRET_KEY=test \
+              -e SB_TOKEN=test \
+              $IMAGE_REF \
+              python ci/kernel.py healing_result.json
+          else
+            echo "Learning engine could not resolve failures."
+            exit 1
+          fi
 
