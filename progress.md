@@ -467,6 +467,19 @@ Fixed uv execution model - now creates and caches project-local venv.
 
 ---
 
+## Single Contract CI (v6.0.1) — Implemented
+
+Fixed workflow syntax, buildx driver, GHCR auth, non-latest tags.
+
+### Fixes Applied
+
+* Add docker/setup-buildx-action for proper buildx driver
+* GHCR login before any pull
+* Use `:stable` tag instead of `:latest`
+* Remove duplicate permissions block
+
+---
+
 ## Single Contract CI (v6.0.0) — Implemented
 
 Single manifest = CI truth + DAG + runtime spec.

@@ -16,6 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -23,41 +26,31 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build image (immutable)
+      - name: Build image
         id: build
         uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/images/Dockerfile.base
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/simhpc-base:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ghcr.io/${{ github.repository }}/simhpc-base:stable
 
       - name: Compute DAG
-        id: dag
-        run: |
-          python ci/dag_compiler.py > dag.json
+        run: python ci/dag_compiler.py > dag.json
 
-      - name: Build manifest (SINGLE TRUTH)
+      - name: Build manifest
         run: |
           cat <<EOF > build-manifest.json
           {
-            "git": {
-              "sha": "${{ github.sha }}"
-            },
+            "git": {"sha": "${{ github.sha }}"},
             "image": {
               "registry": "ghcr.io",
-              "name": "${{ github.repository_owner }}/simhpc-base",
+              "name": "${{ github.repository }}/simhpc-base",
               "digest": "${{ steps.build.outputs.digest }}"
             },
             "dag": $(cat dag.json),
-            "runtime": {
-              "service_role": "unified"
-            },
-            "cache": {
-              "enabled": true
-            }
+            "runtime": {"service_role": "unified"},
+            "cache": {"enabled": true}
           }
           EOF
 
