@@ -43,8 +43,10 @@ from app.api.routes import onboarding as onboarding_router
 from app.api.routes import simulations as simulations_router
 from app.core.config import get_settings
 from app.services.onboarding_service import OnboardingService
-from auth_utils import verify_user
-from job_queue import enqueue_job
+from app.core.auth_utils import verify_user
+from app.core.job_queue import enqueue_job
+import supabase
+from supabase.client import Client, create_client
 
 # Load environment variables from the root .env file before other imports
 env_path = Path(__file__).parent.parent.parent / ".env"
@@ -79,21 +81,111 @@ ALLOWED_ORIGINS = os.getenv(
 ).split(",")
 CORS_ORIGINS = [origin.strip() for origin in ALLOWED_ORIGINS if origin.strip()]
 
-# --- Supabase Client ---
-try:
-    from supabase import Client, create_client
+# --- Onboarding Service ---
+onboarding_service = OnboardingService()
 
-    supabase_client: Optional[Client] = None
-    if settings.APP_URL and settings.API_TOKEN:
+# --- Supabase Client ---
+# --- Supabase Client ---
+supabase_client: Optional[Client] = None
+if settings.APP_URL and settings.API_TOKEN:
+    try:
         supabase_client = create_client(settings.APP_URL, settings.API_TOKEN)
         logger.info("Supabase client initialized for control commands")
-    else:
-        logger.warning(
-            "Infrastructure secrets (SB_*) not correctly normalized — control commands restricted"
-        )
-except ImportError:
-    supabase_client = None
-    logger.warning("supabase-py not installed — control commands restricted")
+    except Exception as e:
+         logger.error(f"Failed to initialize Supabase client: {e}")
+else:
+    logger.warning("Infrastructure secrets (SB_*) not correctly normalized — control commands restricted")
+
+# --- REDIS CLIENT WITH FALLBACK ---
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
+class InMemoryPipeline:
+    """Fake pipeline for in-memory fallback."""
+    def __init__(self, cache):
+        self.cache = cache
+        self.commands = []
+    def delete(self, key):
+        self.commands.append(("delete", key))
+        return self
+    def hset(self, name, key=None, value=None, mapping=None):
+        self.commands.append(("hset", name, key, value, mapping))
+        return self
+    def expire(self, key, time):
+        self.commands.append(("expire", key, time))
+        return self
+    def execute(self):
+        for cmd in self.commands:
+            if cmd[0] == "delete":
+                self.cache.delete(cmd[1])
+            elif cmd[0] == "hset":
+                self.cache.hset(cmd[1], cmd[2], cmd[3], cmd[4])
+            elif cmd[0] == "expire":
+                self.cache.expire(cmd[1], cmd[2])
+        self.commands = []
+
+class InMemoryCache:
+    """Fallback cache when Redis is unavailable."""
+    def __init__(self):
+        self._cache = {}
+    def get(self, key):
+        return self._cache.get(key)
+    def set(self, key, value, ex=None):
+        self._cache[key] = value
+    def setex(self, key, time, value):
+        self._cache[key] = value
+    def delete(self, key):
+        self._cache.pop(key, None)
+    def smembers(self, name):
+        return self._cache.get(name, set())
+    def srem(self, name, value):
+        if name in self._cache:
+            self._cache[name].discard(value)
+    def exists(self, key):
+        return key in self._cache
+    def hset(self, name, key=None, value=None, mapping=None):
+        if name not in self._cache:
+            self._cache[name] = {}
+        if mapping:
+            self._cache[name].update(mapping)
+        elif key is not None:
+            self._cache[name][key] = value
+    def hget(self, name, key):
+        return self._cache.get(name, {}).get(key)
+    def hgetall(self, name):
+        return self._cache.get(name, {})
+    def keys(self, pattern="*"):
+        return list(self._cache.keys())
+    def incr(self, key):
+        val = int(self._cache.get(key, 0)) + 1
+        self._cache[key] = str(val)
+        return val
+    def decr(self, key):
+        val = int(self._cache.get(key, 0)) - 1
+        self._cache[key] = str(val)
+        return val
+    def lpush(self, key, value):
+        if key not in self._cache:
+            self._cache[key] = []
+        self._cache[key].insert(0, value)
+    def expire(self, key, time):
+        pass
+    def ping(self):
+        return True
+    def pipeline(self):
+        return InMemoryPipeline(self)
+
+r_client: Any = None
+redis_available = False
+try:
+    r_client = redis.from_url(REDIS_URL, decode_responses=True)
+    r_client.ping()
+    redis_available = True
+    logger.info(f"Redis connected: {REDIS_URL}")
+except Exception as e:
+    logger.warning(f"Redis unavailable: {e}. Using in-memory fallback.")
+    r_client = InMemoryCache()
+    redis_available = False
+
 
 
 # --- WORKER REGISTRY ---
@@ -184,68 +276,6 @@ async def get_weekly_usage(user_id: str) -> int:
         logger.error(f"Failed to get weekly usage: {e}")
         return 0
 
-
-# --- REDIS CLIENT WITH FALLBACK ---
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-
-
-class InMemoryCache:
-    """Fallback cache when Redis is unavailable."""
-
-    def __init__(self):
-        self._cache = {}
-
-    def get(self, key):
-        return self._cache.get(key)
-
-    def set(self, key, value, ex=None):
-        self._cache[key] = value
-
-    def setex(self, key, time, value):
-        self._cache[key] = value
-
-    def delete(self, key):
-        self._cache.pop(key, None)
-
-    def hset(self, name, key=None, value=None, mapping=None):
-        if name not in self._cache:
-            self._cache[name] = {}
-        if mapping:
-            self._cache[name].update(mapping)
-        elif key is not None:
-            self._cache[name][key] = value
-
-    def hget(self, name, key):
-        return self._cache.get(name, {}).get(key)
-
-    def hgetall(self, name):
-        return self._cache.get(name, {})
-
-    def keys(self, pattern="*"):
-        if pattern == "*":
-            return list(self._cache.keys())
-        return [k for k in self._cache.keys() if pattern.replace("*", "") in k]
-
-    def incr(self, key):
-        val = int(self._cache.get(key, 0)) + 1
-        self._cache[key] = str(val)
-        return val
-
-    def expire(self, key, time):
-        pass
-
-    def ping(self):
-        return True
-
-    def pipeline(self):
-        return InMemoryPipeline(self)
-
-
-class InMemoryPipeline:
-    """Fake pipeline for in-memory fallback."""
-
-    def __init__(self, cache):
-        self.cache = cache
         self.commands = []
 
     def delete(self, key):
@@ -576,7 +606,8 @@ async def increment_user_usage(user_id: str, runs: int = 1) -> bool:
             return True
 
         data = json.loads(usage_data)
-        reset_timestamp = datetime.fromisoformat(data.get("reset_timestamp", ""))
+        reset_timestamp_str = str(data.get("reset_timestamp", ""))
+        reset_timestamp = datetime.fromisoformat(reset_timestamp_str) if reset_timestamp_str else datetime.now()
 
         # Check if window has expired
         if datetime.now() > reset_timestamp:
@@ -586,7 +617,8 @@ async def increment_user_usage(user_id: str, runs: int = 1) -> bool:
             data["reset_timestamp"] = reset_timestamp.isoformat()
         else:
             # Increment within current window
-            data["runs_used"] = data.get("runs_used", 0) + runs
+            current_runs = int(data.get("runs_used", 0))
+            data["runs_used"] = current_runs + runs
 
         data["last_updated"] = datetime.now().isoformat()
         r_client.setex(usage_key, USAGE_WINDOW_DAYS * 86400, json.dumps(data))
@@ -978,10 +1010,9 @@ async def lifespan(app: FastAPI):
     recovery_task = asyncio.create_task(simulations_router.recovery_worker())
 
     # Initialize Onboarding Service
-    global onboarding_service
     if supabase_client:
-        onboarding_service = OnboardingService(supabase_client)
-        onboarding_router._onboarding_service = onboarding_service
+        service = OnboardingService(supabase_client)
+        onboarding_router.onboarding_service = service
         logger.info("Onboarding service initialized")
 
     yield
@@ -1033,10 +1064,10 @@ simulations_router.init_routes(
     WEEKLY_LIMIT,
     telemetry_queue,
     check_compute_availability,
-    reserve_idempotency_fn=reserve_idempotency,
-    get_idempotency_value_fn=get_idempotency_value,
-    increment_active_runs_fn=increment_active_runs,
-    decrement_active_runs_fn=decrement_active_runs,
+    reserve_idempotency_fn_ref=reserve_idempotency,
+    get_idempotency_value_fn_ref=get_idempotency_value,
+    increment_active_runs_fn_ref=increment_active_runs,
+    decrement_active_runs_fn_ref=decrement_active_runs,
 )
 
 certificates_router.init_routes(
