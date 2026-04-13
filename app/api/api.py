@@ -276,43 +276,6 @@ async def get_weekly_usage(user_id: str) -> int:
         logger.error(f"Failed to get weekly usage: {e}")
         return 0
 
-        self.commands = []
-
-    def delete(self, key):
-        self.commands.append(("delete", key))
-        return self
-
-    def hset(self, name, mapping=None):
-        self.commands.append(("hset", name, mapping))
-        return self
-
-    def expire(self, key, time):
-        self.commands.append(("expire", key, time))
-        return self
-
-    def execute(self):
-        for cmd in self.commands:
-            if cmd[0] == "delete":
-                self.cache.delete(cmd[1])
-            elif cmd[0] == "hset" and cmd[2]:
-                self.cache.hset(cmd[1], mapping=cmd[2])
-            elif cmd[0] == "expire":
-                self.cache.expire(cmd[1], cmd[2])
-        self.commands = []
-
-
-r_client = None
-redis_available = False
-try:
-    r_client = redis.from_url(REDIS_URL, decode_responses=True)
-    r_client.ping()
-    redis_available = True
-    logger.info(f"Redis connected: {REDIS_URL}")
-except Exception as e:
-    logger.warning(f"Redis unavailable: {e}. Using in-memory fallback.")
-    r_client = InMemoryCache()
-    redis_available = False
-
 
 def get_cache():
     """Returns the cache client (Redis or fallback)."""
@@ -547,7 +510,8 @@ async def get_user_usage(user_id: str) -> dict:
 
         if usage_data:
             data = json.loads(usage_data)
-            reset_timestamp = datetime.fromisoformat(data.get("reset_timestamp", ""))
+            reset_timestamp_str = str(data.get("reset_timestamp", ""))
+            reset_timestamp = datetime.fromisoformat(reset_timestamp_str) if reset_timestamp_str else datetime.now()
 
             # Check if window has expired
             if datetime.now() > reset_timestamp:
