@@ -17,7 +17,7 @@ def run_boot_dag(mode="api"):
     # Node 2: Configuration loading
     logger.info("Node 2: Loading Settings (no import side-effects)")
     from app.core.config import get_settings
-    settings = get_settings()
+    get_settings()  # validate config — side-effect is intentional here
     
     # Node 3: Infrastructure checks
     if mode == "ci":

@@ -45,11 +45,8 @@ def test_boot_is_idempotent(monkeypatch):
     from app.core.boot.context import boot_context
 
     call_count = 0
-    original_stages = []
 
     import app.core.boot.engine as engine_module
-
-    original_stages = list(engine_module.BOOT_STAGES)
 
     def counting_stage():
         nonlocal call_count

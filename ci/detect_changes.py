@@ -1,3 +1,5 @@
+name: detect_changes.py
+
 #!/usr/bin/env python3
 """
 CI Change Detection Engine.

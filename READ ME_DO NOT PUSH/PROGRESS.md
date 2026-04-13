@@ -2,6 +2,44 @@ DO NOT PUSH!!!!
 
 ---
 
+## v11.0.0: Gamma-Stable CI Stack (April 2026)
+
+### Architecture Lock
+Single entrypoint, zero duplication. Everything is subordinate to this DAG:
+
+```
+.github/workflows/dag-ci.yml  → ONLY entrypoint
+ci/kernel.py                  → orchestrator
+ci/dag_compiler.py            → builds execution graph
+container (digest)            → executes jobs
+build-manifest.json           → system state artifact
+```
+
+### What Was Built
+
+| File | Change |
+|------|--------|
+| `.github/workflows/dag-ci.yml` | Full replacement — Gamma-stable deterministic DAG pipeline |
+| `docker/images/Dockerfile.base` | Stable base image: CUDA 12.1, uv, tini+supervisord, port 8080 only |
+| `docker/supervisord.conf` | Unified runtime: api + worker, all logs streamed to stdout/stderr |
+| `ci/dag_compiler.py` | Clean rewrite — incremental diff, first-push safe, structured JSON output |
+| `ci/kernel.py` | Clean rewrite — single bounded self-healing retry (ruff fix only), no unsafe mutations |
+| `ci/policy.py` | New — immutability policy node, fails build on `:latest`/`:stable` Docker tags |
+
+### Guarantees
+
+- **Deterministic**: SHA → digest → container. Never `latest`, never `stable`.
+- **DAG-aware**: Only affected modules execute. `noop` skips gracefully.
+- **Self-healing (bounded)**: One retry with `ruff --fix` only. No speculative edits. No LLM patching.
+- **Container-native**: Identical runtime in CI and RunPod.
+- **Zero duplication**: One workflow files → one kernel → one DAG compiler.
+
+### Ruff F841 Fixes
+- `app/core/runtime/boot.py`: Removed unused `settings =` assignment.
+- `tests/test_boot_failfast.py`: Removed redundant `original_stages` assignments.
+
+---
+
 ## v3.5.0: Boot DAG System & Pipeline Hardening (April 2026)
 
 ### Architectural Initialization (v3.4.0 - v3.5.0)

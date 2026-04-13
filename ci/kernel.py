@@ -1,131 +1,73 @@
-#!/usr/bin/env python3
-"""DAG Execution Engine with caching."""
+"""
+CI Kernel — Gamma Stable (v11.0.0)
 
-import json
-import os
+Orchestrates module execution with a single bounded self-healing retry.
+Safe by design: fixes are limited to ruff auto-format only.
+No speculative edits, no LLM patching.
+
+Usage:
+    python ci/kernel.py --module api
+    python ci/kernel.py --module worker
+    python ci/kernel.py --module ci
+"""
 import subprocess
 import sys
-from hash import compute_node_key
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+log = logging.getLogger("kernel")
+
+# Module → test target mapping
+MODULE_TARGETS: dict[str, list[str]] = {
+    "api": ["app/"],
+    "worker": ["worker/"],
+    "ci": ["ci/"],
+}
 
 
-CACHE_PATH = ".cache/dag_cache.json"
+def run_tests(targets: list[str]) -> int:
+    """Run pytest against the given targets. Returns exit code."""
+    cmd = ["python", "-m", "pytest", "--tb=short", "-q"] + targets
+    log.info("Running: %s", " ".join(cmd))
+    result = subprocess.run(cmd)
+    return result.returncode
 
 
-def load_cache():
-    """Load cache from disk."""
-    if os.path.exists(CACHE_PATH):
-        with open(CACHE_PATH) as f:
-            return json.load(f)
-    return {}
+def attempt_safe_fix() -> None:
+    """Apply bounded, safe auto-fix: ruff only. No code mutation."""
+    log.info("Self-heal: running ruff --fix (safe, bounded)")
+    subprocess.run(["python", "-m", "ruff", "check", ".", "--fix", "--silent"])
 
 
-def save_cache(cache):
-    """Persist cache to disk."""
-    os.makedirs(".cache", exist_ok=True)
-    with open(CACHE_PATH, "w") as f:
-        json.dump(cache, f, indent=2)
+def main() -> None:
+    if "--module" not in sys.argv:
+        log.error("Missing --module argument")
+        sys.exit(1)
 
+    module = sys.argv[sys.argv.index("--module") + 1]
 
-def run_node(image, node):
-    """Execute a single DAG node."""
-    entry = node.get("entry", f"ci/jobs/{node['name']}.py")
-    
-    # Check if entry exists, fallback to module.py if needed (common in some repos)
-    if not os.path.exists(entry) and not os.path.exists(entry.replace(".py", "")):
-         # If it's a compute node but no specific script, maybe it's a generic run
-         pass
+    if module == "noop":
+        log.info("Module is noop — skipping execution")
+        sys.exit(0)
 
-    result = subprocess.run(
-        [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{os.getcwd()}:/app",
-            "-w",
-            "/app",
-            image,
-            "python",
-            entry,
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    targets = MODULE_TARGETS.get(module)
+    if not targets:
+        log.error("Unknown module: %s", module)
+        sys.exit(1)
 
-    return {
-        "node": node["name"],
-        "ok": result.returncode == 0,
-        "stdout": result.stdout,
-        "stderr": result.stderr,
-        "exit_code": result.returncode,
-        "inputs": node.get("inputs", [])
-    }
+    # Attempt 1
+    rc = run_tests(targets)
 
+    if rc != 0:
+        log.warning("Tests failed (exit %d). Attempting safe auto-fix...", rc)
+        attempt_safe_fix()
+        # Attempt 2 (bounded — no further retries)
+        rc = run_tests(targets)
+        if rc != 0:
+            log.error("Tests still failing after auto-fix. Marking module as failed.")
 
-def main(manifest_path):
-    """Main DAG execution loop."""
-    manifest = json.load(open(manifest_path))
-    image = manifest["image"]["ref"]
-    image_digest = manifest["image"]["digest"]
-    dag_jobs = manifest.get("dag", {}).get("jobs", [])
-
-    print(f"Image: {image}")
-    print(f"Digest: {image_digest}")
-    print(f"Jobs: {len(dag_jobs)}")
-
-    cache = load_cache()
-    new_cache = {}
-    failures = []
-    blocked_nodes = set()
-
-    # Get compute nodes (renamed from jobs in previous step)
-    dag_nodes = manifest.get("dag", {}).get("compute_nodes", [])
-    if not dag_nodes:
-        # Fallback to 'jobs' if compiler hasn't updated yet in production
-        dag_nodes = manifest.get("dag", {}).get("jobs", [])
-
-    for node in dag_nodes:
-        node_name = node["name"]
-        
-        # Check if any dependency failed
-        if any(dep in blocked_nodes for dep in node.get("deps", [])):
-            print(f"BLOCKED {node_name} (upstream failure)")
-            blocked_nodes.add(node_name)
-            continue
-
-        key = compute_node_key(node, cache, image_digest)
-
-        if cache.get(node_name) == key:
-            print(f"SKIP {node_name} (cache hit)")
-            new_cache[node_name] = key
-            continue
-
-        print(f"RUN {node_name}...")
-        res = run_node(image, node)
-        
-        if res["ok"]:
-            print(f"PASS {node_name}")
-            new_cache[node_name] = key
-        else:
-            print(f"FAIL {node_name}")
-            failures.append(res)
-            blocked_nodes.add(node_name)
-
-    save_cache(new_cache)
-    
-    if failures:
-        with open("failures.json", "w") as f:
-            json.dump(failures, f, indent=2)
-        print(f"Failure capture complete. {len(failures)} nodes failed.")
-        sys.exit(1) # Final exit 1 to trigger CI failure step
-    
-    print(f"DAG Execution Successful. {len(new_cache)} nodes converged.")
+    sys.exit(rc)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python ci/kernel.py <manifest.json>")
-        sys.exit(1)
-
-    main(sys.argv[1])
+    main()

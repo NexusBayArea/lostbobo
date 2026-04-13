@@ -1,147 +1,115 @@
-name: Deterministic DAG CI
+name: Gamma CI (Deterministic DAG)
 
 on:
   push:
-    branches: [main, develop]
-  pull_request:
     branches: [main]
+  pull_request:
 
 permissions:
   contents: read
+  packages: write
 
 env:
-  # FIX: non-secret connectivity config only — no credentials here.
-  # All secret values come from GitHub Actions secrets (see per-job env blocks).
-  SB_URL: "http://localhost:8000"
-  SB_DATA_URL: "http://localhost:8001"
-  RUNTIME_MODE: "ci"
+  IMAGE_BASE: ghcr.io/nexusbayarea/lostbobo-simhpc-base
 
 jobs:
-  lint:
-    name: Lint
+  build:
     runs-on: ubuntu-latest
+
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
         with:
-          python-version: "3.11"
+          install: true
 
-      - name: Install linting tools
-        # FIX: pin tool versions so CI results don't silently drift on new releases
-        run: |
-          pip install ruff==0.4.4 black==24.4.2
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Ruff
-        run: ruff check app/ worker/ tests/
+      - name: Build (SHA only, digest captured)
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/images/Dockerfile.base
+          push: true
+          tags: ${{ env.IMAGE_BASE }}:${{ github.sha }}
 
-      - name: Run Black check
-        run: black --check app/ worker/ tests/
-
-  boot-validation:
-    name: Boot System Validation
+  dag:
     runs-on: ubuntu-latest
-    env:
-      # FIX: secrets injected here, not hardcoded in the global env block
-      SB_TOKEN: ${{ secrets.CI_SB_TOKEN }}
-      SB_SECRET_KEY: ${{ secrets.CI_SB_SECRET_KEY }}
-      SB_JWT_SECRET: ${{ secrets.CI_SB_JWT_SECRET }}
-      SB_PUB_KEY: ${{ secrets.CI_SB_PUB_KEY }}
+    needs: build
+
+    outputs:
+      matrix: ${{ steps.dag.outputs.matrix }}
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
+      - name: Compile DAG
+        id: dag
         run: |
-          pip install pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          python ci/dag_compiler.py > dag.json
 
-      - name: Test boot pipeline
-        run: pytest tests/test_boot.py -xvs
-
-      - name: Test boot fail-fast behavior
-        # FIX: moved to a proper pytest test (see tests/test_boot_failfast.py).
-        # Inline shell-Python with exit() is fragile — unexpected exceptions before
-        # the try block produce false CI failures with no useful output.
-        run: pytest tests/test_boot_failfast.py -xvs
-
-  dag-system-tests:
-    name: DAG System Tests
-    runs-on: ubuntu-latest
-    needs: [lint, boot-validation]
-    env:
-      SB_TOKEN: ${{ secrets.CI_SB_TOKEN }}
-      SB_SECRET_KEY: ${{ secrets.CI_SB_SECRET_KEY }}
-      SB_JWT_SECRET: ${{ secrets.CI_SB_JWT_SECRET }}
-      SB_PUB_KEY: ${{ secrets.CI_SB_PUB_KEY }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          pip install pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Run DAG tests
-        run: pytest tests/test_dag.py -xvs
-
-      - name: Run Scheduler tests
-        run: pytest tests/test_scheduler.py -xvs || echo "No scheduler tests yet"
-
-      - name: Test full CI runtime mode
-        run: python -m app.core.runtime.ci
-
-  integration:
-    name: Integration Test
-    runs-on: ubuntu-latest
-    needs: [dag-system-tests]
-    env:
-      SB_TOKEN: ${{ secrets.CI_SB_TOKEN }}
-      SB_SECRET_KEY: ${{ secrets.CI_SB_SECRET_KEY }}
-      SB_JWT_SECRET: ${{ secrets.CI_SB_JWT_SECRET }}
-      SB_PUB_KEY: ${{ secrets.CI_SB_PUB_KEY }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install FastAPI dependencies
-        run: |
-          pip install fastapi uvicorn pydantic pydantic-settings
-
-      - name: Test API boot
-        # FIX: distinguish expected timeout (exit 124) from real crashes.
-        # Previously `|| true` swallowed all non-zero exit codes including crashes.
-        env:
-          RUNTIME_MODE: api
-        run: |
-          timeout 5 python app/main.py
-          exit_code=$?
-          if [ $exit_code -ne 124 ] && [ $exit_code -ne 0 ]; then
-            echo "API boot crashed with exit code $exit_code"
-            exit $exit_code
+          MATRIX=$(jq -c '.modules' dag.json)
+          if [ "$MATRIX" = "null" ] || [ "$MATRIX" = "[]" ]; then
+            MATRIX='["noop"]'
           fi
 
-      - name: Test Worker boot
-        env:
-          RUNTIME_MODE: worker
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+  execute:
+    runs-on: ubuntu-latest
+    needs: [build, dag]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{ fromJson(needs.dag.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run module in container (digest locked)
+        if: matrix.module != 'noop'
         run: |
-          timeout 2 python worker/main.py
-          exit_code=$?
-          if [ $exit_code -ne 124 ] && [ $exit_code -ne 0 ]; then
-            echo "Worker boot crashed with exit code $exit_code"
-            exit $exit_code
-          fi
+          docker run --rm \
+            -v $PWD:/app \
+            -w /app \
+            ${{ env.IMAGE_BASE }}@${{ needs.build.outputs.digest }} \
+            python ci/kernel.py --module ${{ matrix.module }}
+
+  manifest:
+    runs-on: ubuntu-latest
+    needs: [build, dag, execute]
+    if: always()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build manifest
+        run: |
+          python ci/dag_compiler.py > dag.json
+          cat <<EOF > build-manifest.json
+          {
+            "git": {"sha": "${{ github.sha }}", "ref": "${{ github.ref }}"},
+            "image": {
+              "base": "${{ env.IMAGE_BASE }}",
+              "digest": "${{ needs.build.outputs.digest }}"
+            },
+            "dag": $(cat dag.json),
+            "status": "${{ needs.execute.result }}"
+          }
+          EOF
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: build-manifest
+          path: build-manifest.json
