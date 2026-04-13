@@ -33,7 +33,7 @@ jobs:
           context: .
           file: docker/images/Dockerfile.base
           push: true
-          tags: ghcr.io/${{ github.repository }}/simhpc-base:stable
+          tags: ghcr.io/nexusbayarea/lostbobo-simhpc-base:stable
 
       - name: Compute DAG
         run: python ci/dag_compiler.py > dag.json
@@ -45,7 +45,7 @@ jobs:
             "git": {"sha": "${{ github.sha }}"},
             "image": {
               "registry": "ghcr.io",
-              "name": "${{ github.repository }}/simhpc-base",
+              "name": "nexusbayarea/lostbobo-simhpc-base",
               "digest": "${{ steps.build.outputs.digest }}"
             },
             "dag": $(cat dag.json),
