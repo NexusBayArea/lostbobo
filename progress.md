@@ -467,6 +467,34 @@ Fixed uv execution model - now creates and caches project-local venv.
 
 ---
 
+## Docker Dependency Layer (v4.7.0) — Implemented
+
+Prebuilt immutable dependency layer for zero install time in CI.
+
+### Created
+
+`Dockerfile.base` - dependency layer (from nvidia/cuda)
+`Dockerfile.app` - app layer (pulls from base)
+`.github/workflows/dependency-layer.yml` - builds on lock change
+
+### Architecture
+
+```text
+base image (deps) → app image (code) → runtime (SERVICE_ROLE)
+```
+
+### Workflow
+
+```yaml
+on:
+  push:
+    paths: [pyproject.toml, uv.lock]
+```
+
+Builds base image only when dependencies change.
+
+---
+
 ## Critical Production Rules
 
 1. **NEVER rely on default SERVICE_ROLE** - always set explicitly
