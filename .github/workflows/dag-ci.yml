@@ -1,0 +1,140 @@
+name: DAG Container CI with Cache
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/simhpc-base
+
+jobs:
+
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+
+    steps:
+      - id: image
+        run: |
+          IMAGE=$(echo "${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.detect.outputs.modules }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: detect
+        run: |
+          MODULES=$(python ci/detect_changes.py)
+          if [ -z "$MODULES" ]; then
+            echo "modules=core,api,worker,autoscaler,tests" >> $GITHUB_OUTPUT
+          else
+            echo "modules=$MODULES" >> $GITHUB_OUTPUT
+          fi
+
+  plan:
+    runs-on: ubuntu-latest
+    needs: detect
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: plan
+        run: |
+          MATRIX=$(python ci/plan_jobs.py "${{ needs.detect.outputs.modules }}")
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+  execute:
+    runs-on: ubuntu-latest
+    needs: [prepare, plan]
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{ fromJson(needs.plan.outputs.matrix) }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Pull dependency image
+        run: docker pull ${{ needs.prepare.outputs.image }}:latest
+
+      - name: Compute module hash
+        id: hash
+        run: |
+          HASH=$(docker run --rm \
+            -v $PWD:/app \
+            -w /app \
+            ${{ needs.prepare.outputs.image }}:latest \
+            python ci/hash_module.py ${{ matrix.module }})
+
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+
+      - name: Check cache
+        id: cache
+        run: |
+          SKIP=$(docker run --rm \
+            -v $PWD:/app \
+            -w /app \
+            ${{ needs.prepare.outputs.image }}:latest \
+            python ci/cache_check.py ${{ matrix.module }} ${{ steps.hash.outputs.hash }})
+
+          if [ "$SKIP" = "skip" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Execute module (if needed)
+        if: steps.cache.outputs.skip != 'true'
+        run: |
+          MODULE=${{ matrix.module }}
+
+          if [ ! -f "ci/jobs/$MODULE.sh" ]; then
+            echo "Missing job script for module: $MODULE"
+            exit 1
+          fi
+
+          echo "Executing module: $MODULE"
+
+          docker run --rm \
+            -v $PWD:/app \
+            -w /app \
+            -e SB_URL=http://test \
+            -e SB_DATA_URL=http://test \
+            -e SB_JWT_SECRET=test \
+            -e SB_PUB_KEY=test \
+            -e SB_SECRET_KEY=test \
+            -e SB_TOKEN=test \
+            ${{ needs.prepare.outputs.image }}:latest \
+            bash ci/jobs/$MODULE.sh
+
+      - name: Skip (cache hit)
+        if: steps.cache.outputs.skip == 'true'
+        run: |
+          echo "Skipping module ${{ matrix.module }} (cache hit)"
+
+  structure:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Structure check
+        run: |
+          test -f ./docker/images/Dockerfile.unified
+          echo "Repository structure valid"
