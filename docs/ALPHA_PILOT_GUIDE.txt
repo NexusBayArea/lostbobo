@@ -108,7 +108,7 @@ Upgrade makes sense if:
 ## 4. Troubleshooting & Feedback
 
 - **404 on Refresh**: If you refresh the page and see a 404, just navigate back to the root URL (<https://simhpc.com>). We are optimizing our Nginx routing for the pilot.
-- **"Supabase Credentials Missing" on GitHub Pages**: The backup site (<https://NexusBayArea.github.io/lostbobo>) may show this error because GitHub Pages does not inject environment variables at build time. **Use <https://simhpc.com> (Vercel) instead** — it works out of the box.
+- **"Supabase Credentials Missing" on GitHub Pages**: The backup site (<https://nexusbayarea.github.io/lostbobo>) may show this error because GitHub Pages does not inject environment variables at build time. **Use <https://simhpc.com> (Vercel) instead** — it works out of the box.
 - **Stripe/CSP Errors on GitHub Pages**: `github.io` domains block inline styles and third-party cookies. Stripe checkout and Supabase Auth may fail. **Use <https://simhpc.com> (Vercel) instead.**
 - **Link Expired**: Alpha links are valid for **7 days**. If yours expired, contact us at <deploy@simhpc.com>.
 - **System Health Indicators**: Check the left sidebar on the Dashboard. You'll see three status LEDs:

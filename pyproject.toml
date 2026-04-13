@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
-    { name = "NexusBayArea", email = "nexusbayarea@gmail.com" }
+    { name = "nexusbayarea", email = "nexusbayarea@gmail.com" }
 ]
 dependencies = [
     "fastapi>=0.110.0",
