@@ -32,7 +32,7 @@ runs:
     - name: Create virtual environment
       shell: bash
       run: |
-        uv venv
+        uv venv --clear
 
     - name: Install dependencies
       shell: bash

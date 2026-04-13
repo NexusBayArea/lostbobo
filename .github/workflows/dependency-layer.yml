@@ -22,12 +22,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Normalize image name
+        id: image
+        run: |
+          IMAGE=$(echo "ghcr.io/${{ github.repository_owner }}/simhpc-base" | tr '[:upper:]' '[:lower:]')
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
       - name: Build dependency layer
         uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/images/Dockerfile.base
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/simhpc-base:latest
+          tags: ${{ steps.image.outputs.image }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
