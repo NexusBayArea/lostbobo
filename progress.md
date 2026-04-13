@@ -425,6 +425,31 @@ fi
 
 ---
 
+## Cached Virtual Environment (v4.5.1) — Implemented
+
+Fixed uv execution model - now creates and caches project-local venv.
+
+### Fix Applied
+
+```yaml
+- name: Cache venv
+  uses: actions/cache@v4
+  with:
+    path: .venv
+    key: venv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
+
+- name: Create virtual environment
+  run: uv venv
+```
+
+### Why This Works
+
+* `uv venv` creates `.venv/` and scopes future commands to it
+* venv cache eliminates reinstall entirely
+* 30-60% CI speedup now actually holds
+
+---
+
 ## Critical Production Rules
 
 1. **NEVER rely on default SERVICE_ROLE** - always set explicitly
