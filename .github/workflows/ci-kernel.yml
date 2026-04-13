@@ -16,16 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug tag (verify static)
+      - name: Enforce no-tag policy
         run: |
-          echo "=== DEBUG: verifying tag is lowercase ==="
-          TAG="ghcr.io/nexusbayarea/lostbobo-simhpc-base:stable"
-          echo "Tag to use: $TAG"
-          if echo "$TAG" | grep -qE '^[A-Z]'; then
-            echo "ERROR: uppercase in tag!"
+          if grep -rq ":latest\|:stable" .github/workflows/; then
+            echo "ERROR: mutable tags forbidden in workflows"
             exit 1
           fi
-          echo "Tag verified OK"
+          echo "No mutable tags detected"
 
       - name: Login to GHCR
         uses: docker/login-action@v3
@@ -34,16 +31,48 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image (static lowercase)
+      - name: Build and push image (temp tag)
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/images/Dockerfile.base
           push: true
-          tags: ghcr.io/nexusbayarea/lostbobo-simhpc-base:stable
+          tags: ghcr.io/nexusbayarea/lostbobo-simhpc-base:build-temp
 
-      - name: Run CI Kernel
+      - name: Capture digest
         run: |
+          DIGEST="${{ steps.build.outputs.digest }}"
+          echo "IMAGE_REF=ghcr.io/nexusbayarea/lostbobo-simhpc-base@${DIGEST}" >> $GITHUB_ENV
+          echo "Digest captured: ${DIGEST}"
+
+      - name: Compute DAG
+        run: python ci/dag_compiler.py > dag.json
+
+      - name: Build manifest (digest-only)
+        run: |
+          cat <<EOF > build-manifest.json
+          {
+            "git": {"sha": "${{ github.sha }}"},
+            "image": {
+              "ref": "${{ env.IMAGE_REF }}",
+              "digest": "${{ steps.build.outputs.digest }}"
+            },
+            "dag": $(cat dag.json),
+            "runtime": {"service_role": "unified"},
+            "cache": {"enabled": true}
+          }
+          EOF
+
+      - name: Upload manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-manifest
+          path: build-manifest.json
+
+      - name: Run CI Kernel (digest-only)
+        run: |
+          docker pull $IMAGE_REF
           docker run --rm \
             -v $PWD:/app \
             -w /app \
@@ -53,5 +82,5 @@ jobs:
             -e SB_PUB_KEY=test \
             -e SB_SECRET_KEY=test \
             -e SB_TOKEN=test \
-            ghcr.io/nexusbayarea/lostbobo-simhpc-base:stable \
+            $IMAGE_REF \
             python ci/kernel.py
