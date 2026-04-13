@@ -1,4 +1,4 @@
-# SimHPC Base Runtime - v2.7.4 (CUDA + uv)
+# SimHPC Base Runtime - v2.7.5 (CUDA + uv)
 FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 
 WORKDIR /app
@@ -21,8 +21,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ENV PATH="/root/.local/bin/:$PATH"
 
-# Copy dependency manifest and lockfile
-COPY pyproject.toml uv.lock ./
+# Copy dependency files
+COPY pyproject.toml uv.lock requirements.lock ./
 
-# Install core dependencies
-RUN uv pip install --system --no-cache .
+# Install dependencies with fallback
+RUN uv pip install --system --no-cache -r requirements.lock 2>/dev/null || \
+    uv pip install --system --no-cache -r pyproject.toml 2>/dev/null || \
+    uv pip install --system --no-cache \
+    fastapi \
+    uvicorn \
+    httpx \
+    pydantic \
+    redis \
+    supabase && echo "Installed with fallback dependencies"

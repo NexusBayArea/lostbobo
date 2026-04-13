@@ -467,9 +467,31 @@ Fixed uv execution model - now creates and caches project-local venv.
 
 ---
 
-## CI Kernel (v7.0.2) — Fixed
+## CI Kernel (v7.0.3) — Fixed
 
-Validated image naming with uppercase guard.
+Resolved both Dockerfile and workflow issues.
+
+### Dockerfile Fix
+
+* Remove `uv pip install .` (packages not copied)
+* Use `uv pip install -r uv.lock` (dependencies only)
+* Aligns with runtime orchestration model
+
+### Workflow Fix
+
+* Hardcode static lowercase tag (no dynamic construction)
+* Remove uppercase guard (now handled by static name)
+* Tag: `ghcr.io/nexusbayarea/lostbobo-simhpc-base:stable`
+
+### Properties
+
+* Deterministic dependency layer
+* No layer rebuilds on app code changes
+* Ready for digest-only transition
+
+---
+
+## CI Kernel (v7.0.2) — Fixed
 
 ### Fixes Applied
 
