@@ -67,3 +67,7 @@ simhpc.egg-info/
 
 .gemini/
 gha-creds-*.json
+
+.gemini/
+gha-creds-*.json
+

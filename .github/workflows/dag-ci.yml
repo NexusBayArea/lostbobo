@@ -92,22 +92,8 @@ jobs:
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
-      - name: Verify full import graph
-        run: python -c "import importlib; importlib.import_module('app'); importlib.import_module('worker'); print('OK')"
-
-      - name: Boot validation
-        run: pytest tests/test_boot.py -xvs
-
-      - name: Boot fail-fast validation
-        run: pytest tests/test_boot_failfast.py -xvs
-
-      - name: Run dependency drift check
-        run: python tools/check_dependency_drift.py
-        env:
-          DRIFT_TEST_IMPORT: "app.core.config"
-
-      - name: DAG system tests
-        run: pytest tests/test_dag.py -xvs
+      - name: System Contract
+        run: python tools/bootstrap.py ci
 
   worker-build:
     name: Worker Build
