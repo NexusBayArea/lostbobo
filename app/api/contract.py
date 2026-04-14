@@ -59,6 +59,9 @@ class RunResponse(BaseModel):
     status: str = Field(..., description="Execution status: ok, error")
     version: str = Field(default=API_VERSION, description="API version")
     error: Optional[str] = Field(default=None, description="Error message if failed")
+    trace: List[Dict[str, Any]] = Field(
+        default_factory=list, description="Execution trace"
+    )
 
 
 class HealthResponse(BaseModel):

@@ -68,7 +68,10 @@ def run(req: RunRequest):
         results = executor.run(dispatch, context=req.context)
 
         return RunResponse(
-            results=results, execution_time_ms=(time.time() - start) * 1000, status="ok"
+            results=results,
+            execution_time_ms=(time.time() - start) * 1000,
+            status="ok",
+            trace=executor.trace.dump(),
         )
 
     except Exception as e:
