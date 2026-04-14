@@ -1,11 +1,11 @@
-name: Declarative CI
+name: Golden CI Bootstrap
 
 on:
   push:
   pull_request:
 
 jobs:
-  run:
+  validate:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,12 +15,12 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install deps
+      - name: Install dependencies
         run: |
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
           pip install pyyaml
 
-      - name: Run CI DAG
+      - name: Run Bootstrap Gate
         run: |
-          python ci/runner.py
+          python tools/bootstrap.py ci

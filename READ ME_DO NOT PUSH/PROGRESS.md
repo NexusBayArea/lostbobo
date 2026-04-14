@@ -96,6 +96,134 @@ if __name__ == "__main__":
 
 ---
 
+## v12.1.0: Golden CI Bootstrap (Single Source of Truth) (April 2026)
+
+### Problem
+CI logic spread across multiple files, multi-entrypoint drift, hidden execution paths.
+
+### Solution
+Collapsed all enforcement into single bootstrap gate: `tools/bootstrap.py`
+
+### New Components
+
+**`tools/bootstrap.py`** — Single deterministic gate:
+```python
+def main(mode: str = "ci"):
+    # 1. Structural integrity
+    run("python tools/ci_gates/import_guard.py")
+    run("python tools/ci_gates/dag_compiler.py")
+    # 2. Runtime contract validation
+    run(f"python -m app.api.kernel --mode={mode} --dry-run")
+    # 3. Worker isolation safety
+    run("python tools/ci_gates/worker_isolation.py")
+    # 4. Tests only after structure validated
+    if mode == "ci":
+        run("python -m pytest tests/ --tb=short -q")
+```
+
+**`.github/workflows/ci.yml`** — Simplified to single entrypoint:
+```yaml
+- name: Run Bootstrap Gate
+  run: python tools/bootstrap.py ci
+```
+
+### Execution Flow
+```
+GitHub CI
+   ↓
+bootstrap.py
+   ↓
+import guard → dag compiler → runtime contract → worker isolation → pytest
+```
+
+### What This Fixes Permanently
+- CI vs runtime divergence
+- Import graph explosions
+- Accidental architecture rewrites
+- Partial enforcement failures
+- Inconsistent local vs CI behavior
+
+### Rule
+**"No file may reintroduce CI-side business logic or learning systems"**
+
+---
+
+## v12.0.0: Production Baseline Contract (April 2026)
+
+### System Contract (Immutable Baseline)
+
+Repository layout:
+```
+app/
+  api/
+    kernel.py          # single entrypoint only
+
+  runtime/
+    dag.py             # execution graph
+    executor.py        # node execution
+    scheduler.py       # ordering
+
+  core/
+    telemetry.py       # events
+    config.py
+    health.py          # stability scoring (NEW)
+
+worker/
+  tasks/               # isolated execution units
+
+tests/
+
+tools/
+  ci_gates/            # enforcement only (no domain logic)
+
+ci/
+  runner.py           # DAG executor ONLY (no business logic)
+  workflow.yml        # declarative CI definition
+```
+
+### Hard Rules (Non-Negotiable)
+
+**Rule A — Dependency Direction**
+```
+ci → app/api → app/runtime → app/core → worker
+```
+Forbidden: worker → app/core, runtime → ci, any → ci internals
+
+**Rule B — CI is NOT Python Architecture**
+CI = YAML DAG + shell execution only. No domain logic, learning systems, or policy engines.
+
+**Rule C — Single Runtime Entrypoint**
+```bash
+python -m app.api.kernel
+```
+
+**Rule D — No File-Path Execution**
+```bash
+python app/api/kernel.py ❌
+python ci/kernel.py ❌
+```
+
+### CI System (Declarative)
+
+`ci/workflow.yml`:
+- entry: validate
+- parallel gates: import_guard, dag_compile, runtime_contract, worker_isolation
+- test: pytest tests/
+- edges: validate → test
+
+`ci/runner.py`: Minimal deterministic executor (rewritten per spec)
+
+### New Components
+- `app/core/health.py`: Module stability scoring for future Gemma routing
+
+### What Stops Now
+- No more folder reshuffling
+- No more architectural redesign cycles
+- No more subsystem reclassification
+- Focus: stabilization, observability, performance, scaling
+
+---
+
 ## v11.5.0: Remove Legacy Module Enforcement Guards (April 2026)
 
 ### Problem
