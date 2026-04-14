@@ -23,6 +23,11 @@ jobs:
           cd frontend
           npm run resolve
 
+      - name: Build import manifest (source of truth)
+        run: |
+          cd frontend
+          npm run manifest
+
       - name: Build frontend
         run: |
           cd frontend

@@ -10,9 +10,12 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "resolve": "ts-node scripts/resolve-imports.ts",
+    "manifest": "ts-node scripts/build-import-manifest.ts",
     "dag:build": "ts-node scripts/build-import-dag.ts",
     "dag:incremental": "ts-node scripts/incremental-dag.ts",
     "dag:prewarm": "ts-node scripts/prewarm-queue.ts",
+    "rl:route": "ts-node scripts/rl-ci.ts route",
+    "rl:update": "ts-node scripts/rl-ci.ts update",
     "install:legacy": "npm install --legacy-peer-deps"
   },
   "dependencies": {
