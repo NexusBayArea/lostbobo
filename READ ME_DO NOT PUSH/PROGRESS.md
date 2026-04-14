@@ -96,6 +96,37 @@ if __name__ == "__main__":
 
 ---
 
+## v11.5.0: Remove Legacy Module Enforcement Guards (April 2026)
+
+### Problem
+`RuntimeError: Must run as module: python -m ci.dag_compiler` — leftover guards in tools/ci_gates and app/api.
+
+### Root Cause
+Old architecture enforced `python -m` execution, but current system uses script-based execution:
+- `ci/runner.py` → `tools/ci_gates/*.py` (scripts, not packages)
+- `ci/workflow.yml` defines execution flow
+
+### Fix Applied
+Removed `__package__` enforcement blocks from:
+| File | Change |
+|------|--------|
+| `tools/ci_gates/dag_compiler.py` | Removed guard block |
+| `app/api/kernel.py` | Removed guard block |
+
+### CI Rule Enforced
+**"No file may enforce its own execution mode"** — only CI runner enforces execution flow, not individual scripts.
+
+### Final Execution Model
+```bash
+# CI path
+python ci/runner.py
+
+# direct validation
+python tools/ci_gates/dag_compiler.py
+```
+
+---
+
 ## v11.4.0: Dev Dependencies Baked Into Docker Image (April 2026)
 
 ### Problem

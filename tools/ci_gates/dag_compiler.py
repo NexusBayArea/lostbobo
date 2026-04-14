@@ -45,11 +45,6 @@ def map_modules(files: list[str]) -> list[str]:
 
 
 if __name__ == "__main__":
-    if __package__ is None:
-        raise RuntimeError(
-            "Must run as module: python -m ci.dag_compiler\n"
-            "Do not run as: python ci/dag_compiler.py"
-        )
     files = changed_files()
     modules = map_modules(files) or ["noop"]
     print(json.dumps({"modules": modules, "changed_files": files}))
