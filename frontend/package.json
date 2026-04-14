@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "dag:build": "ts-node scripts/build-import-dag.ts",
     "dag:incremental": "ts-node scripts/incremental-dag.ts",
+    "dag:prewarm": "ts-node scripts/prewarm-queue.ts",
     "install:legacy": "npm install --legacy-peer-deps"
   },
   "dependencies": {
