@@ -1,15 +1,12 @@
-## v24.3.2: System Contract Implementation (April 2026)
+## v24.3.3: Unified CI Validation Path (April 2026)
 
 ### Problem
-CI workflow lacked a unified, formalized system contract for existing checks, leading to scattered steps and unclear failure categorization.
+The CI pipeline had split responsibilities for testing, with both the `tests` job running pytest directly and the `api-ci` job running the system contract. This created non-deterministic CI meaning and violated the principle of a single authoritative validation path.
 
 ### Solution
-Implemented `system_contract.py` as a thin orchestration layer, integrating existing checks into a single, ordered execution flow. `bootstrap.py` was updated to call this new contract, and `dag-ci.yml` was refactored to use `bootstrap.py` for all system-level checks.
+Refactored the CI workflow to establish `system_contract` as the sole authoritative validation path. The `tests` job was streamlined to focus only on structural validation (layout and imports), while `api-ci`'s dependencies were adjusted to ensure `system_contract` runs after linting.
 
 ### Changes Applied
-- **Created `tools/ci_gates/system_contract.py`**:
-  - Implemented a Python script to orchestrate dependency integrity, dependency scan, DAG validity, and runtime contract checks.
-- **Modified `tools/bootstrap.py`**:
-  - Overwritten to act as a wrapper, calling `system_contract.py` for all CI system checks.
 - **Modified `.github/workflows/dag-ci.yml`**:
-  - Replaced individual system validation steps in the `api-ci` job with a single call to `python tools/bootstrap.py ci`.
+  - Replaced the 'Run pytest' step in the `tests` job with a placeholder, indicating that pytest runs are now exclusively handled within the system contract.
+  - Updated the `api-ci` job's `needs` from `[lint, tests]` to `[lint]`, ensuring that the `system_contract` execution depends solely on the `lint` job.
