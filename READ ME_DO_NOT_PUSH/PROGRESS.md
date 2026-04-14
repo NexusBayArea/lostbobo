@@ -4,6 +4,22 @@ DO NOT PUSH!!!!
 
 ---
 
+## v24.1.0: Deterministic CI Hardening & Import Validation (April 2026)
+
+### Problem
+Potential for silent packaging regressions if the src layout is partially missing or if dependencies are only partially installed. Linting signals were also slightly out of order.
+
+### Solution
+Added hard assertion for src layout integrity and full import graph validation (app + worker). Reordered ruff tasks for better signal quality.
+
+### Changes Applied
+- **Hardened API CI**: Updated .github/workflows/dag-ci.yml with:
+  - 'Assert src layout integrity' step using explicit 'test -d src/app' checks.
+  - 'Verify full import graph (app + worker)' to ensure both packages are correctly installed and importable.
+  - Swapped ruff order to run 'ruff format --check' before 'ruff check'.
+
+---
+
 ## v24.0.0: Final Deterministic CI & src Layout Alignment (April 2026)
 
 ### Problem
@@ -6462,6 +6478,7 @@ Console logs revealed that the GitHub Pages deployment fails while Vercel works 
 \- \*\*Mercury AI Integration\*\*: Fully transitioned to Mercury AI for simulation assistance and notebook generation.
 
 \- \*\*System Health LEDs\*\*: Real-time status indicators for Mercury AI, Supabase, and RunPod.
+
 
 
 

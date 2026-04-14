@@ -34,12 +34,12 @@ jobs:
       - name: Install linting tools
         run: pip install ruff==0.4.4
 
-      # ✅ FIX: src layout safe
-      - name: Run ruff
-        run: ruff check .
-
+      # ✅ FIX: format check first for clean signal
       - name: Run ruff format check
         run: ruff format --check .
+
+      - name: Run ruff
+        run: ruff check .
 
   tests:
     name: Tests
@@ -52,13 +52,18 @@ jobs:
         with:
           python-version: "3.11"
 
-      # ✅ REQUIRED: installs src packages properly
+      # ✅ HARD VALIDATION: ensure src layout is actually present
+      - name: Assert src layout integrity
+        run: |
+          test -d src/app || (echo "❌ Missing src/app" && exit 1)
+          test -d src/worker || (echo "❌ Missing src/worker" && exit 1)
+          echo "✅ src layout verified"
+
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
-      # ✅ HARD VALIDATION: fails fast if packaging is wrong
       - name: Verify package import
-        run: python -c "import app; print(app.__file__)"
+        run: python -c "import app; print(f'✅ app imported from: {app.__file__}')"
 
       - name: Run pytest
         run: python -m pytest tests/ -q --tb=short
@@ -76,12 +81,19 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Assert src layout integrity
+        run: |
+          test -d src/app || (echo "❌ Missing src/app" && exit 1)
+          test -d src/worker || (echo "❌ Missing src/worker" && exit 1)
+          echo "✅ src layout verified"
+
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
-      # ✅ ensures this job also validates install correctness
-      - name: Verify package import
-        run: python -c "import app; print(app.__file__)"
+      # ✅ ensures this job validates the full import graph (app + worker)
+      - name: Verify full import graph (app + worker)
+        run: |
+          python -c "import app; import worker; print('✅ Full import graph (app + worker) OK')"
 
       - name: Boot validation
         run: pytest tests/test_boot.py -xvs
