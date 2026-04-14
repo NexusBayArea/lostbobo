@@ -96,6 +96,68 @@ if __name__ == "__main__":
 
 ---
 
+## v18.0.0: Repository Security Hardening — Leak Prevention (April 2026)
+
+### Problem
+Full backend execution system (DAG, workers, Redis, CI) exposed in public GitHub repo — IP + attack surface risk.
+
+### Solution
+Hardened `.gitignore` + `.gitattributes` to prevent backend leakage.
+
+### Changes
+
+**1. `.gitignore` — Core system blocked:**
+```
+app/
+worker/
+autoscaler/
+ci/
+tools/
+infra/
+docker/
+scripts/
+runtime/
+packages/
+requirements*.txt
+pyproject.toml
+```
+
+**2. `.gitattributes` — Export-ignore rules:**
+```
+app/** export-ignore
+worker/** export-ignore
+ci/** export-ignore
+tools/** export-ignore
+runtime/** export-ignore
+```
+
+### Architecture After Hardening
+
+**PUBLIC (safe surface):**
+```
+frontend/
+docs/
+README.md
+vercel.json
+```
+
+**PROTECTED (in git but blocked from export):**
+```
+app/          — execution core
+worker/       — distributed workers
+ci/           — bootstrapping
+tools/        — dependency system
+runtime/      — DAG + scheduler
+infra/        — deployment contracts
+```
+
+### Recommended Next Step
+Split into dual-repo:
+- **PUBLIC**: frontend only
+- **PRIVATE**: full backend system
+
+---
+
 ## v17.0.0: Redis Queue + Multi-Process Workers (April 2026)
 
 ### New Components

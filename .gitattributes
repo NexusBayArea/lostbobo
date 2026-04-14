@@ -1,3 +1,35 @@
-*.yml text eol=lf
-*.sh text eol=lf
+# ==============================================================================
+# Git Attributes — Leak Prevention
+# ==============================================================================
+
+# Export-ignore backend system directories
+app/** export-ignore
+worker/** export-ignore
+autoscaler/** export-ignore
+ci/** export-ignore
+tools/** export-ignore
+infra/** export-ignore
+docker/** export-ignore
+scripts/** export-ignore
+runtime/** export-ignore
+packages/** export-ignore
+
+# Export-ignore dependency files
+requirements*.txt export-ignore
+uv.lock export-ignore
+poetry.lock export-ignore
+pyproject.toml export-ignore
+
+# Export-ignore secrets and environment
+.env export-ignore
+.env.* export-ignore
+*.pem export-ignore
+*.key export-ignore
+secrets/ export-ignore
+
+# Normalize line endings
+* text=auto
 *.py text eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
