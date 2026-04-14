@@ -54,6 +54,8 @@ logs/
 legacy_archive/
 skills/
 *.md
+# Exclude internal docs
+READ ME_DO NOT PUSH/
 !README.md
 
 # Build artifacts
