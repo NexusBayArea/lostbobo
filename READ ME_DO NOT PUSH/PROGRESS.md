@@ -47,22 +47,39 @@ python -m ci.dag_compiler > dag.json
 ```python
 if __name__ == "__main__":
     if __package__ is None:
-        raise RuntimeError(
-            "Must run as module: python -m ci.kernel\n"
-            "Do not run as: python ci/kernel.py"
-        )
+        raise RuntimeError("Must run as module: python -m ci.kernel")
 ```
-
-Files updated:
-| File | Change |
-|------|--------|
-| `.github/workflows/dag-ci.yml` | `python` → `python -m` for kernel + dag_compiler |
-| `ci/kernel.py` | Added package guard |
-| `ci/dag_compiler.py` | Added package guard |
-| `ci/policy.py` | Added package guard |
 
 ### Rule Enforced
 "No file-path execution of internal modules" — all internal modules must run via `-m`.
+
+---
+
+## v11.4.0: Dev Dependencies Baked Into Docker Image (April 2026)
+
+### Problem
+`ModuleNotFoundError: No module named pytest` — test dependencies not in container.
+
+### Root Cause
+Docker image only installed runtime dependencies, not dev/CI dependencies (pytest, ruff, mypy).
+
+### Fix Applied
+Added `[dev]` extras to Dockerfile.base install:
+```dockerfile
+RUN uv pip install --system --no-cache -e ".[dev]"
+```
+
+This installs:
+- pytest, pytest-asyncio (testing)
+- ruff, mypy (linting/type checking)
+
+### Dependency Layers (from pyproject.toml)
+| Layer | Contents |
+|-------|----------|
+| runtime | fastapi, uvicorn, redis, pydantic, etc. |
+| dev | pytest, pytest-asyncio, ruff, mypy |
+| worker | numpy, scipy, openai, etc. |
+| gpu | torch |
 
 ---
 
