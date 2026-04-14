@@ -2,6 +2,33 @@ DO NOT PUSH!!!!
 
 ---
 
+## v11.2.0: Python Symlink Fix for Container Runtime (April 2026)
+
+### Problem
+`tini exec` failure due to `python` vs `python3` inconsistency across containers.
+
+### Fix Applied
+Added `ln -sf /usr/bin/python3 /usr/bin/python` to base Docker images:
+
+| File | Change |
+|------|--------|
+| `docker/images/Dockerfile.base` | Added symlink after python3 install |
+| `docker/images/Dockerfile.unified` | Added symlink after python3 install |
+
+### Why This Works
+- Fixes `tini exec` failure immediately
+- Preserves all existing CI + supervisor configs
+- Keeps runtime deterministic across all workers/nodes
+- No downstream script edits required
+
+### Validation
+```bash
+docker run --rm <image> python --version
+# Expected: Python 3.x.x
+```
+
+---
+
 ## v11.1.0: Layered Architecture Reorganization (April 2026)
 
 ### The Problem
