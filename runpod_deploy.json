@@ -1,0 +1,19 @@
+{
+  "name": "simhpc-worker",
+  "image": "ghcr.io/nexusbayarea/simhpc-worker:latest",
+  "gpu": "A100",
+  "min_workers": 2,
+  "max_workers": 20,
+  "container_disk_in_gb": 30,
+  "volume_in_gb": 50,
+  "env": {
+    "SUPABASE_URL": "",
+    "SUPABASE_SERVICE_ROLE_KEY": "",
+    "REDIS_URL": "",
+    "RUNPOD_API_KEY": "",
+    "MIN_WARM_WORKERS": "2"
+  },
+  "ports": [],
+  "start_command": "supervisord -c /etc/supervisord.conf"
+}
+

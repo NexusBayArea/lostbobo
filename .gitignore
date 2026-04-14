@@ -1,14 +1,12 @@
 # ==============================================================================
-# SimHPC .gitignore — SECURITY HARDENED
+# SimHPC .gitignore — PUBLIC REPO (FRONTEND ONLY)
 # ==============================================================================
 
-# ==============================================================================
-# CORE SYSTEM (NEVER PUBLIC) — Execution Brain
-# ==============================================================================
+# Backend system - BLOCKED
 app/
 worker/
-autoscaler/
 ci/
+autoscaler/
 tools/
 infra/
 docker/
@@ -16,63 +14,16 @@ scripts/
 runtime/
 packages/
 
-# ==============================================================================
-# DEPLOYMENT & ORCHESTRATION
-# ==============================================================================
-.github/workflows/
-docker-compose*.yml
-supervisord.conf
-
-# ==============================================================================
-# DEPENDENCY & BUILD SYSTEM (REPRODUCIBILITY)
-# ==============================================================================
-requirements*.txt
-uv.lock
-poetry.lock
-pyproject.toml
-pytest.ini
-.ruff.toml
-.mypy_cache/
-
-# ==============================================================================
-# ENVIRONMENT & SECRETS (CRITICAL)
-# ==============================================================================
-.env
-.env.*
-.env.local
-.env.production.local
-*.pem
-*.key
-*.pub
-secrets/
-credentials/
-INFISICAL_SECRETS_TEMPLATE.md
-
-# ==============================================================================
-# LOCAL / IDE
-# ==============================================================================
-.vscode/
-.idea/
-.DS_Store
-*.sqlite
-*.db
-
-# ==============================================================================
-# PYTHON
-# ==============================================================================
+# Python - no backend present
+*.py
 __pycache__/
-*.py[cod]
-*$py.class
 .venv/
 venv/
 ENV/
-env/
 .pytest_cache/
 .ruff_cache/
 
-# ==============================================================================
-# NODE / FRONTEND ONLY
-# ==============================================================================
+# Node / Frontend
 node_modules/
 dist/
 build/
@@ -80,19 +31,21 @@ build/
 .next/
 *.tsbuildinfo
 
-# ==============================================================================
-# DATA & LOGS
-# ==============================================================================
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Data
 data/
 logs/
 *.log
-outputs/
-results/
-legacy_archive/
 
-# ==============================================================================
-# DOCUMENTATION (Sanitized versions only)
-# ==============================================================================
-*.md
-!README.md
-!CHANGELOG.md
+# Legacy
+legacy_archive/

@@ -1,0 +1,96 @@
+{
+  "policy_nodes": [
+    {
+      "name": "no_mutable_tags",
+      "rule": "immutable_image_tags",
+      "inputs": [
+        ".github/workflows"
+      ]
+    },
+    {
+      "name": "dag_validity",
+      "rule": "dag_integrity",
+      "inputs": [
+        "ci/dag.json"
+      ]
+    }
+  ],
+  "compute_nodes": [
+    {
+      "name": "core",
+      "inputs": [
+        "app/core"
+      ],
+      "deps": [],
+      "entry": "ci/jobs/core.py"
+    },
+    {
+      "name": "api",
+      "inputs": [
+        "app/api"
+      ],
+      "deps": [
+        "core"
+      ],
+      "entry": "ci/jobs/api.py"
+    },
+    {
+      "name": "worker",
+      "inputs": [
+        "worker",
+        "app/services/worker"
+      ],
+      "deps": [
+        "core"
+      ],
+      "entry": "ci/jobs/worker.py"
+    },
+    {
+      "name": "autoscaler",
+      "inputs": [
+        "autoscaler",
+        "app/services/worker"
+      ],
+      "deps": [
+        "core"
+      ],
+      "entry": "ci/jobs/autoscaler.py"
+    },
+    {
+      "name": "tests",
+      "inputs": [
+        "tests"
+      ],
+      "deps": [
+        "core",
+        "api",
+        "worker"
+      ],
+      "entry": "ci/jobs/tests.py"
+    },
+    {
+      "name": "scripts",
+      "inputs": [
+        "scripts"
+      ],
+      "deps": [],
+      "entry": "ci/jobs/scripts.py"
+    },
+    {
+      "name": "docker",
+      "inputs": [
+        "docker"
+      ],
+      "deps": [],
+      "entry": "ci/jobs/docker.py"
+    },
+    {
+      "name": "ci",
+      "inputs": [
+        ".github"
+      ],
+      "deps": [],
+      "entry": "ci/jobs/ci.py"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+Metadata-Version: 2.4
+Name: simhpc
+Version: 2.7.2
+Summary: SimHPC Unified Platform - Simulation backend for API + GPU workers + autoscaler
+Author-email: NexusBayArea <nexusbayarea@gmail.com>
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.110.0
+Requires-Dist: uvicorn[standard]>=0.29.0
+Requires-Dist: python-dotenv>=1.0.1
+Requires-Dist: redis>=4.5.0
+Requires-Dist: pydantic<3.0,>=2.0
+Requires-Dist: pydantic-settings<3.0,>=2.0
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: supabase>=2.4.0
+Requires-Dist: postgrest>=0.16.0
+Requires-Dist: python-jose[cryptography]>=3.3.0
+Requires-Dist: psycopg2-binary>=2.9.0
+Requires-Dist: asyncpg>=0.29.0
+Requires-Dist: websockets>=12.0
+Requires-Dist: tenacity>=8.2.3
+Requires-Dist: orjson>=3.10.1
+Requires-Dist: loguru>=0.7.2
+Requires-Dist: structlog>=23.0.0
+Requires-Dist: prometheus-client>=0.17.0
+Requires-Dist: python-multipart>=0.0.6
+Requires-Dist: passlib[bcrypt]>=1.7.4
+Requires-Dist: requests>=2.31.0
+Provides-Extra: worker
+Requires-Dist: numpy>=1.24.0; extra == "worker"
+Requires-Dist: scipy>=1.10.0; extra == "worker"
+Requires-Dist: fpdf2>=2.7.0; extra == "worker"
+Requires-Dist: openai>=1.0.0; extra == "worker"
+Requires-Dist: stripe>=5.0.0; extra == "worker"
+Requires-Dist: tiktoken>=0.5.0; extra == "worker"
+Requires-Dist: matplotlib>=3.7.0; extra == "worker"
+Requires-Dist: gunicorn>=21.0.0; extra == "worker"
+Requires-Dist: celery>=5.3.0; extra == "worker"
+Provides-Extra: gpu
+Requires-Dist: torch>=2.0.0; extra == "gpu"
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-asyncio; extra == "dev"
+Requires-Dist: ruff>=0.6; extra == "dev"
+Requires-Dist: mypy>=1.8; extra == "dev"
+Provides-Extra: ci
+Requires-Dist: ruff>=0.6; extra == "ci"
+Requires-Dist: mypy>=1.8; extra == "ci"
