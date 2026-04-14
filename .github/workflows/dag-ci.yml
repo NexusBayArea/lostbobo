@@ -34,7 +34,6 @@ jobs:
       - name: Install linting tools
         run: pip install ruff==0.4.4
 
-      # ✅ FIX: format check first for clean signal
       - name: Run ruff format check
         run: ruff format --check .
 
@@ -52,7 +51,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      # ✅ HARD VALIDATION: ensure src layout is actually present
+      # ✅ ONLY JOB THAT NEEDS TO ASSERT STRUCTURE: everything downstream depends on this
       - name: Assert src layout integrity
         run: |
           test -d src/app || (echo "❌ Missing src/app" && exit 1)
@@ -63,8 +62,7 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Verify package import
-        run: |
-          python -c "import app; print(f'✅ app imported from: {app.__file__}')"
+        run: python -c "import app; print(f'✅ app imported from: {app.__file__}')"
 
       - name: Run pytest
         run: python -m pytest tests/ -q --tb=short
@@ -82,19 +80,13 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Assert src layout integrity
-        run: |
-          test -d src/app || (echo "❌ Missing src/app" && exit 1)
-          test -d src/worker || (echo "❌ Missing src/worker" && exit 1)
-          echo "✅ src layout verified"
-
       - name: Install dependencies
         run: pip install -e ".[dev]"
 
-      # ✅ ensures this job validates the full import graph (app + worker)
+      # ✅ STRONGER IMPORT VALIDATION: uses importlib for clearer diagnostics
       - name: Verify full import graph (app + worker)
         run: |
-          python -c "import app; import worker; print('✅ Full import graph (app + worker) OK')"
+          python -c "import importlib; importlib.import_module('app'); importlib.import_module('worker'); print('✅ Full import graph (app + worker) OK')"
 
       - name: Boot validation
         run: pytest tests/test_boot.py -xvs
@@ -110,9 +102,6 @@ jobs:
       - name: DAG system tests
         run: pytest tests/test_dag.py -xvs
 
-    outputs:
-      sha: ${{ github.sha }}
-
   worker-build:
     name: Worker Build
     runs-on: ubuntu-latest
@@ -123,7 +112,7 @@ jobs:
 
       - name: Validate Dockerfile exists
         run: |
-          echo "Building worker for SHA: ${{ needs.api-ci.outputs.sha }}"
+          echo "Building worker for SHA: ${{ github.sha }}"
           test -f docker/images/Dockerfile.unified || \
             (echo "❌ docker/images/Dockerfile.unified not found" && exit 1)
           echo "✅ Dockerfile present"

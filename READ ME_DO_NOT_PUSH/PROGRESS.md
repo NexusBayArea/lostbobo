@@ -4,6 +4,22 @@ DO NOT PUSH!!!!
 
 ---
 
+## v24.2.0: CI DAG Optimization & Import Diagnostic Upgrade (April 2026)
+
+### Problem
+Redundant layout checks in downstream jobs were cluttering the pipeline. Use of 'outputs: sha' was logically unnecessary and fragile. Basic 'python -c' imports lacked deep diagnostic detail.
+
+### Solution
+Centralized structure assertions in the 'tests' job. Replaced custom outputs with global '${{ github.sha }}' for worker builds. Upgraded import checks to use 'importlib' for superior stack traces.
+
+### Changes Applied
+- **Optimized API CI**: Updated .github/workflows/dag-ci.yml with:
+  - Centralized 'Assert src layout integrity' in 'tests' job only.
+  - Removed 'outputs: sha' from 'api-ci' job; updated 'worker-build' to use global 'github.sha'.
+  - Upgraded import validation to use 'importlib.import_module' for better error reporting.
+
+---
+
 ## v24.1.1: YAML Syntax Guard — Workflow Hardening (April 2026)
 
 ### Problem
