@@ -1,38 +1,40 @@
-from app.core.telemetry import emit
+"""
+DAG Definition — Deterministic execution graph
+
+Nodes are added with dependencies. DAG validates and provides topological order.
+"""
+
+from typing import Callable, Dict, List, Optional
 
 
-DAG = {
-    "boot": [],
-    "init": ["boot"],
-    "load": ["init"],
-    "execute": ["load"],
-}
+class Node:
+    def __init__(self, name: str, fn: Callable, deps: List[str] = None):
+        self.name = name
+        self.fn = fn
+        self.deps = deps or []
+
+    def __repr__(self):
+        return f"Node({self.name}, deps={self.deps})"
 
 
-def run_ci_dag():
-    run_dag(mode="ci")
+class DAG:
+    def __init__(self):
+        self.nodes: Dict[str, Node] = {}
 
+    def add(self, name: str, fn: Callable, deps: List[str] = None) -> "DAG":
+        if name in self.nodes:
+            raise ValueError(f"Duplicate node: {name}")
+        self.nodes[name] = Node(name, fn, deps)
+        return self
 
-def run_worker_dag():
-    run_dag(mode="worker")
+    def get(self, name: str) -> Optional[Node]:
+        return self.nodes.get(name)
 
+    def validate(self) -> None:
+        for node in self.nodes.values():
+            for dep in node.deps:
+                if dep not in self.nodes:
+                    raise ValueError(f"Node '{node.name}' depends on missing '{dep}'")
 
-def run_dev_dag():
-    run_dag(mode="dev")
-
-
-def run_dag(mode: str):
-    completed = set()
-
-    def can_run(node):
-        return all(dep in completed for dep in DAG[node])
-
-    while len(completed) < len(DAG):
-        for node in DAG:
-            if node not in completed and can_run(node):
-                emit("NODE_START", node=node, mode=mode)
-
-                # placeholder execution
-                emit("NODE_DONE", node=node, mode=mode)
-
-                completed.add(node)
+    def __repr__(self):
+        return f"DAG(nodes={list(self.nodes.keys())})"

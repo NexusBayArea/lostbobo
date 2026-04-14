@@ -96,6 +96,73 @@ if __name__ == "__main__":
 
 ---
 
+## v14.0.0: DAG Execution Foundation (April 2026)
+
+### Target Architecture
+```
+app/
+  runtime/
+    dag.py       # Node + DAG definition
+    scheduler.py # topological sort
+    executor.py  # core runtime engine
+
+worker/
+  tasks.py      # pure function tasks
+```
+
+### New Components
+
+**1. `app/runtime/dag.py`** — DAG definition:
+```python
+class Node:
+    def __init__(self, name: str, fn: Callable, deps: List[str] = None)
+
+class DAG:
+    def add(name, fn, deps) -> DAG
+    def validate() -> None
+```
+
+**2. `app/runtime/scheduler.py`** — Topological execution order:
+```python
+def topological_sort(nodes) -> List[str]
+```
+
+**3. `app/runtime/executor.py`** — Core runtime engine:
+```python
+class Executor:
+    def run(context) -> Dict[str, Any]
+```
+
+**4. `worker/tasks.py`** — Pure function tasks:
+```python
+def task_a(inputs, context) -> Dict[str, Any]
+def task_b(inputs, context) -> Dict[str, Any]
+```
+
+**5. Updated `app/api/kernel.py`** — Added `--mode=test`:
+```bash
+python -m app.api.kernel --mode=test
+```
+
+### System Guarantees
+- **Determinism**: execution order fixed by DAG, no hidden dependencies
+- **Isolation**: workers are pure functions, no cross-layer leakage
+- **Composability**: nodes can be rearranged safely
+
+### Gemma-Ready
+Execution abstraction point ready for dispatch layer:
+```python
+self.results[name] = dispatch(node, inputs, context)  # local/remote/GPU
+```
+
+### Validation
+```bash
+python -m app.api.kernel --mode=test
+# Expected: task_a: {value: 1}, task_b: {value: 2}
+```
+
+---
+
 ## v13.1.0: Final Stabilization Pass (April 2026)
 
 ### Consolidation
