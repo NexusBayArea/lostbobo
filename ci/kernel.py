@@ -18,9 +18,9 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger("kernel")
 
 MODULE_TARGETS: dict[str, list[str]] = {
-    "api": ["app/"],
-    "worker": ["worker/"],
-    "ci": ["ci/"],
+    "api": ["tests/"],
+    "worker": ["tests/"],
+    "ci": ["tests/"],
 }
 
 

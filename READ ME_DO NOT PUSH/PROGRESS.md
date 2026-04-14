@@ -69,21 +69,20 @@ Added `[dev]` extras to Dockerfile.base install:
 RUN uv pip install --system --no-cache -e ".[dev]"
 ```
 
-This installs:
-- pytest, pytest-asyncio (testing)
-- ruff, mypy (linting/type checking)
-
-### Dependency Layers (from pyproject.toml)
-| Layer | Contents |
-|-------|----------|
-| runtime | fastapi, uvicorn, redis, pydantic, etc. |
-| dev | pytest, pytest-asyncio, ruff, mypy |
-| worker | numpy, scipy, openai, etc. |
-| gpu | torch |
+### Additional Fix: Test Directory Path
+Updated MODULE_TARGETS in ci/kernel.py to point to `tests/` instead of `ci/`:
+```python
+MODULE_TARGETS = {
+    "api": ["tests/"],
+    "worker": ["tests/"],
+    "ci": ["tests/"],
+}
+```
+Tests are in `tests/`, not `ci/`.
 
 ---
 
-## v11.2.0: Python Symlink Fix for Container Runtime (April 2026)
+## v11.3.0: PYTHONPATH Module Context Fix (April 2026)
 
 ### Problem
 `tini exec` failure due to `python` vs `python3` inconsistency across containers.
