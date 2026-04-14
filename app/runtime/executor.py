@@ -1,31 +1,33 @@
 """
-Executor — Core runtime engine for DAG execution
+Executor — Plan-based deterministic execution engine
 
-Runs nodes in topological order, passing outputs as inputs to dependent nodes.
+Executes precompiled ExecutionPlan with fixed order and dependencies.
 """
 
 from typing import Any, Dict
 
-from app.runtime.dag import DAG
-from app.runtime.scheduler import topological_sort
+from app.runtime.plan import ExecutionPlan
 
 
 class Executor:
-    def __init__(self, dag: DAG):
-        self.dag = dag
+    def __init__(self, plan: ExecutionPlan):
+        self.plan = plan
+        self.plan.validate()
         self.results: Dict[str, Any] = {}
 
-    def run(self, context: Dict[str, Any] = None) -> Dict[str, Any]:
+    def run(self, dispatch: Any, context: Dict[str, Any] = None) -> Dict[str, Any]:
         context = context or {}
-        self.dag.validate()
 
-        order = topological_sort(self.dag.nodes)
+        for name in self.plan.order:
+            deps = self.plan.dependencies[name]
 
-        for name in order:
-            node = self.dag.nodes[name]
+            inputs = {dep: self.results[dep] for dep in deps}
 
-            inputs = {dep: self.results[dep] for dep in node.deps}
+            payload = self.plan.payloads[name]
+            node = type(
+                "Node", (), {"fn": payload.get("fn"), "name": payload.get("name")}
+            )()
 
-            self.results[name] = node.fn(inputs, context)
+            self.results[name] = dispatch(node, inputs, context)
 
         return self.results

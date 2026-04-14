@@ -17,7 +17,8 @@ from app.api.contract import (
     API_VERSION,
 )
 from app.runtime.dag import DAG, Node
-from app.runtime.scheduler import Scheduler
+from app.runtime.compiler import compile_dag
+from app.runtime.executor import Executor
 from app.runtime.dispatch import dispatch
 from worker import tasks as task_registry
 
@@ -39,6 +40,16 @@ TASK_REGISTRY = {
 }
 
 
+def build_dag_from_request(dag_def: dict) -> DAG:
+    dag = DAG()
+    for name, node_def in dag_def.items():
+        fn = TASK_REGISTRY.get(node_def.fn)
+        if not fn:
+            raise ValueError(f"Unknown task: {node_def.fn}")
+        dag.add(name, fn, node_def.deps or [])
+    return dag
+
+
 @app.get("/health", response_model=HealthResponse)
 def health():
     return HealthResponse(status="ok", version=API_VERSION)
@@ -49,18 +60,12 @@ def run(req: RunRequest):
     start = time.time()
 
     try:
-        dag = DAG()
+        dag = build_dag_from_request(req.dag)
 
-        for name, node_def in req.dag.items():
-            fn = TASK_REGISTRY.get(node_def.fn)
-            if not fn:
-                return error_response(f"Unknown task function: {node_def.fn}")
-            dag.add(name, fn, node_def.deps)
+        plan = compile_dag(dag)
 
-        dag.validate()
-
-        scheduler = Scheduler(dag)
-        results = scheduler.run(dispatch, context=req.context, workers=1)
+        executor = Executor(plan)
+        results = executor.run(dispatch, context=req.context)
 
         return RunResponse(
             results=results, execution_time_ms=(time.time() - start) * 1000, status="ok"

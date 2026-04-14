@@ -96,6 +96,59 @@ if __name__ == "__main__":
 
 ---
 
+## v20.0.0: Compiled DAG Execution Model (April 2026)
+
+### Problem
+Runtime DAG construction creates ambiguity and non-determinism at execution time.
+
+### Solution
+Separated DAG definition from execution plan — compile at request time, execute from immutable plan.
+
+### New Components
+
+**1. `app/runtime/plan.py`** — Execution plan model:
+```python
+@dataclass
+class ExecutionPlan:
+    order: List[str]           # fixed execution order
+    dependencies: Dict[...]    # fixed dependency map
+    payloads: Dict[...]       # node definitions
+```
+
+**2. `app/runtime/compiler.py`** — DAG compiler:
+```python
+def compile_dag(dag) -> ExecutionPlan:
+    # validate → topological sort → serialize → return plan
+```
+
+**3. `app/runtime/executor.py`** — Plan-based executor:
+```python
+class Executor:
+    def run(dispatch, context):
+        # execute in fixed plan.order, no runtime decisions
+```
+
+**4. Updated `app/api/kernel.py`** — Compile then execute:
+```python
+dag = build_dag_from_request(req.dag)
+plan = compile_dag(dag)
+executor = Executor(plan)
+results = executor.run(dispatch, context=req.context)
+```
+
+### Benefits
+- **Determinism:** same input → same execution plan → same output
+- **CI simplification:** validates plan, not runtime behavior
+- **Security:** no runtime DAG mutation risk
+- **Scalability:** workers execute plan segments independently (future)
+
+### Execution Flow
+```
+Frontend → API → DAG Compiler → Execution Plan → Executor → Workers
+```
+
+---
+
 ## v19.0.0: Frontend ↔ Backend Contract Layer (April 2026)
 
 ### Problem
