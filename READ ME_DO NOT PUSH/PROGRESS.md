@@ -1,5 +1,7 @@
 DO NOT PUSH!!!!
 
+- Deleted root-level old files (main.py, api.py, utils.py, worker.py, entry.py, pytest.ini) after migration.
+
 ---
 
 ## v21.0.0: Execution Trace System (April 2026)
