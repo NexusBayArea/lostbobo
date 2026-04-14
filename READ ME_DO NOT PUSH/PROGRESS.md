@@ -96,6 +96,34 @@ if __name__ == "__main__":
 
 ---
 
+## v15.1.0: Dependency Scanner False Positive Fix (April 2026)
+
+### Problem
+Dependency scanner treating stdlib + local modules as external dependencies, causing false positive failures.
+
+### Root Cause
+Scanner not filtering:
+- stdlib modules
+- local project modules (app, worker, tests, etc.)
+
+### Fix
+Updated `tools/ci_gates/dependency_scan.py` to:
+1. Extended STDLIB set (argparse, logging, threading, etc.)
+2. Dynamically detect local modules from project root
+3. Filter: stdlib → local modules → only enforce external
+
+### Before (broken)
+```
+app, logging, threading, tests ❌
+```
+
+### After (correct)
+```
+numpy, openai, runpod ✓
+```
+
+---
+
 ## v15.0.0: Dispatch Layer + Queue-Aware Scheduler (April 2026)
 
 ### New Components
