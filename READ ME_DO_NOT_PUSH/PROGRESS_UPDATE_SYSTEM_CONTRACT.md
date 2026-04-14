@@ -1,12 +1,14 @@
-## v24.3.3: Unified CI Validation Path (April 2026)
+## v24.3.4: Trace Validation Implementation (April 2026)
 
 ### Problem
-The CI pipeline had split responsibilities for testing, with both the `tests` job running pytest directly and the `api-ci` job running the system contract. This created non-deterministic CI meaning and violated the principle of a single authoritative validation path.
+The CI pipeline needed a stronger guarantee of execution behavior determinism beyond just output, ensuring that the same DAG and inputs always produce identical execution traces.
 
 ### Solution
-Refactored the CI workflow to establish `system_contract` as the sole authoritative validation path. The `tests` job was streamlined to focus only on structural validation (layout and imports), while `api-ci`'s dependencies were adjusted to ensure `system_contract` runs after linting.
+Implemented a new pytest for trace determinism and integrated it into the system contract, proving deterministic compilation, execution, and tracing.
 
 ### Changes Applied
-- **Modified `.github/workflows/dag-ci.yml`**:
-  - Replaced the 'Run pytest' step in the `tests` job with a placeholder, indicating that pytest runs are now exclusively handled within the system contract.
-  - Updated the `api-ci` job's `needs` from `[lint, tests]` to `[lint]`, ensuring that the `system_contract` execution depends solely on the `lint` job.
+- **Created `tests/trace/test_trace_determinism.py`**:
+  - Implemented a test to run a simple DAG, capture its execution trace, and compare it against a second run to ensure determinism.
+  - Included a `normalize` function to filter out non-deterministic elements like timestamps and random IDs from the trace comparison.
+- **Modified `tools/ci_gates/system_contract.py`**:
+  - Added a "Trace Validation" step, calling `pytest -m trace`, to the ordered execution of the system contract.

@@ -58,11 +58,10 @@ def main() -> None:
     )
 
     # 5. Trace Validation (optional but HIGH SIGNAL)
-    # Add when ready
-    # run_step(
-    #     "Trace Validation",
-    #     ["pytest", "-m", "trace"],
-    # )
+    run_step(
+        "Trace Validation",
+        ["pytest", "-m", "trace"],
+    )
 
     print("
 [SYSTEM CONTRACT PASSED]")
