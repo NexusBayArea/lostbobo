@@ -96,6 +96,61 @@ if __name__ == "__main__":
 
 ---
 
+## v15.0.0: Dispatch Layer + Queue-Aware Scheduler (April 2026)
+
+### New Components
+
+**1. `app/runtime/dispatch.py`** — Single control point for execution:
+```python
+def dispatch(node, inputs, context):
+    mode = context.get("mode", "local")
+    if mode == "local":
+        return node.fn(inputs, context)
+    elif mode == "subprocess":
+        return run_subprocess(node.name, inputs, context)
+```
+
+**2. `app/runtime/queue.py`** — Simple in-memory queue:
+```python
+class TaskQueue:
+    def push(task), def pop() -> Optional[Any], def empty()
+```
+
+**3. `app/runtime/scheduler.py`** — Extended with queue-driven execution:
+```python
+class Scheduler:
+    def seed()   # enqueue root nodes
+    def ready()  # check dependencies satisfied
+    def run()    # queue-driven execution loop
+```
+
+**4. `worker/entry.py`** — Worker subprocess entry point
+
+### System Flow
+```
+DAG → Queue → Dispatch → Execution Backend
+```
+
+### Guarantees
+- **Backpressure**: natural queue-based flow control
+- **Decoupled execution**: worker can run separately
+- **Pull model**: foundation for autoscaling/distributed systems
+- **Isolation**: subprocess mode = crash-safe boundary
+
+### Validation
+```bash
+python -m app.api.kernel --mode=test
+# Expected: task_a: {value: 1}, task_b: {value: 2}
+```
+
+### Gemma-Ready
+Execution abstraction now supports:
+- local execution
+- subprocess isolation
+- Ready for: remote worker, container, GPU node, Gemma inference routing
+
+---
+
 ## v14.0.0: DAG Execution Foundation (April 2026)
 
 ### Target Architecture

@@ -32,17 +32,18 @@ def main():
 
     elif args.mode == "test":
         from app.runtime.dag import DAG
-        from app.runtime.executor import Executor
+        from app.runtime.scheduler import Scheduler
+        from app.runtime.dispatch import dispatch
         from worker.tasks import task_a, task_b
 
         dag = DAG()
         dag.add("task_a", task_a)
         dag.add("task_b", task_b, deps=["task_a"])
 
-        executor = Executor(dag)
-        result = executor.run()
+        scheduler = Scheduler(dag)
+        result = scheduler.run(dispatch, context={"mode": "local"})
 
-        print("\n=== DAG TEST RESULT ===")
+        print("\n=== DAG TEST RESULT (local) ===")
         for k, v in result.items():
             print(f"{k}: {v}")
 
