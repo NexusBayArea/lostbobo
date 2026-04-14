@@ -64,3 +64,6 @@ READ ME_DO NOT PUSH/
 # Build artifacts
 simhpc.egg-info/
 .vercel
+
+.gemini/
+gha-creds-*.json

@@ -1,4 +1,4 @@
-The Financials (Slide 10): Lean \& Focused
+# The Financials (Slide 10): Lean & Focused
 
 The 40/30/20/10 split is standard and realistic. By tying the $500K to two SKUs, you make the investment feel twice as valuable.
 

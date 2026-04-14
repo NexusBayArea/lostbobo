@@ -1,0 +1,162 @@
+name: Deterministic API CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: read
+
+# Stub env vars so the boot DAG import chain doesn't crash during test collection.
+# Real secrets are injected per-job via GitHub Secrets for jobs that need them.
+env:
+  SB_URL: "http://localhost:8000"
+  SB_TOKEN: "ci-stub-token"
+  SB_SECRET_KEY: "ci-stub-secret"
+  SB_JWT_SECRET: "ci-stub-jwt"
+  SB_PUB_KEY: "ci-stub-pubkey"
+  SB_DATA_URL: "http://localhost:8001"
+  RUNTIME_MODE: "ci"
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install linting tools
+        # FIX: pinned to match pyproject.toml [dev] extras
+        run: pip install ruff==0.4.4
+
+      - name: Run ruff
+        run: ruff check app/ worker/ tests/
+
+      - name: Run ruff format check
+        run: ruff format --check app/ worker/ tests/
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Run pytest
+        run: python -m pytest tests/ -q --tb=short
+        # Stub secrets already in workflow-level env above.
+        # Override with real secrets here if integration tests need them:
+        # env:
+        #   SB_URL: ${{ secrets.CI_SB_URL }}
+
+  api-ci:
+    name: API CI
+    runs-on: ubuntu-latest
+    # FIX: use needs-based dependency instead of broken job.status output pattern.
+    # GitHub automatically skips this job if lint or tests fail — no custom
+    # output gating needed. The old pattern (`outputs: status: ${{ job.status }}`)
+    # is not valid: job.status is a context value, not a settable output, so
+    # downstream `if: needs.lint.outputs.status == 'success'` always evaluates
+    # to an empty string (false) and the job never runs.
+    needs: [lint, tests]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Boot validation
+        run: pytest tests/test_boot.py -xvs
+
+      - name: Boot fail-fast validation
+        run: pytest tests/test_boot_failfast.py -xvs
+
+      - name: Run dependency drift check
+        run: python tools/check_dependency_drift.py
+        env:
+          DRIFT_TEST_IMPORT: "app.core.config"
+          # FIX: use app.core.config not app.main — config is a lighter import
+          # that doesn't pull the full FastAPI app chain. app.main is safe to
+          # import now (boot runs in lifespan, not at module scope) but the
+          # import still validates the entire dependency graph which is slower.
+
+      - name: DAG system tests
+        run: pytest tests/test_dag.py -xvs
+
+    outputs:
+      # FIX: removed hardcoded `ci_status: "success"` output.
+      # That pattern is a false green — the literal string is emitted even if
+      # the job fails partway through. Downstream jobs should depend on this
+      # job via `needs:` and let GitHub's default skip/fail propagation handle
+      # gating. The sha output is genuinely useful and kept.
+      sha: ${{ github.sha }}
+
+  worker-build:
+    name: Worker Build
+    runs-on: ubuntu-latest
+    needs: api-ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Dockerfile exists
+        run: |
+          echo "Building worker for SHA: ${{ needs.api-ci.outputs.sha }}"
+          test -f docker/images/Dockerfile.unified || \
+            (echo "❌ docker/images/Dockerfile.unified not found" && exit 1)
+          echo "✅ Dockerfile present"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (no push — CI validation only)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/images/Dockerfile.unified
+          push: false
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [api-ci, worker-build]
+    # Both needs jobs must succeed; only deploy from main
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Trigger hardened build & push
+        run: |
+          echo "All upstream checks passed for SHA: ${{ github.sha }}"
+          echo "Triggering hardened-build-push workflow via dispatch or cd pipeline."
+          # In practice, hardened-build-push.yml triggers on push to main,
+          # so it will already be queued. This step is a documentation marker.
+          # To gate it explicitly, use workflow_run in hardened-build-push.yml
+          # (see that file's trigger configuration).
