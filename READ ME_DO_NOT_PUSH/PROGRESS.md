@@ -4,6 +4,22 @@ DO NOT PUSH!!!!
 
 ---
 
+## v24.3.1: CI dag-ci.yml Layout Fix (April 2026)
+
+### Problem
+The `dag-ci.yml` CI workflow was not correctly asserting the flat layout and package imports for `app/`, `worker/`, and `tests/` directories. This could lead to issues not being caught in CI related to project structure.
+
+### Solution
+Updated `dag-ci.yml` to correctly check for the flat layout of `app/`, `worker/`, and `tests/` directories, and to verify package imports for both `app` and `worker`.
+
+### Changes Applied
+- **Fixed `dag-ci.yml`**:
+  - Modified the `lint` job to run `ruff check` and `ruff format --check` on `app/ worker/ tests/`.
+  - Modified the `tests` job's `Assert src layout integrity` step to `Assert flat layout integrity` and updated the `run` command to check for `app/`, `worker/`, and `tests/`.
+  - Modified the `tests` job's `Verify package import` step to `Verify package imports` and updated the `run` command to import both `app` and `worker`.
+
+---
+
 ## v24.3.0: CI Final Stabilization & Layout Verification (April 2026)
 
 ### Problem
