@@ -4,6 +4,19 @@ DO NOT PUSH!!!!
 
 ---
 
+## v24.1.1: YAML Syntax Guard — Workflow Hardening (April 2026)
+
+### Problem
+`Invalid workflow file: .github/workflows/dag-ci.yml#L66` — Plain scalar parsing error in YAML due to a colon followed by a space `: ` inside a single-line `run` command.
+
+### Solution
+Converted the single-line `run` command to a multi-line pipe `|` block. This informs the YAML parser to treat the content as a literal block, preventing it from misinterpreting colons or special characters as key-value separators.
+
+### Changes Applied
+- **Fixed `dag-ci.yml`**: Wrapped line 66 in a `|` block for safe execution of Python one-liners containing colons and emojis.
+
+---
+
 ## v24.1.0: Deterministic CI Hardening & Import Validation (April 2026)
 
 ### Problem
