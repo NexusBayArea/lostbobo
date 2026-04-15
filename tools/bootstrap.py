@@ -16,19 +16,10 @@ def run_step(name: str, cmd: list[str]) -> None:
 
 
 def main(mode: str = "ci") -> None:
-    """
-    Ordered execution matters.
-    Fail fast on first violation.
-    """
     run_step(
         "System Contract",
         ["python", "tools/ci_gates/system_contract.py"],
     )
-
-    # The existing steps will now be handled by system_contract.py
-    # This bootstrap.py will become a wrapper for the system_contract.py
-    # if mode == "ci":
-    #    run("python -m pytest tests/ --tb=short -q")
 
 
 if __name__ == "__main__":
