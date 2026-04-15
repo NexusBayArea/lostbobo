@@ -32,17 +32,13 @@ jobs:
       - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/bin" >> $GITHUB_ENV
 
-      - name: Check lockfile drift
-        run: |
-          uv pip compile pyproject.toml -o /tmp/requirements.lock
-          if ! diff -u requirements.lock /tmp/requirements.lock; then
-            echo "Dependency drift detected."
-            echo "Fix: uv pip compile pyproject.toml -o requirements.lock"
-            exit 1
-          fi
-          echo "No drift detected"
+      - name: Install Python deps
+        run: pip install pyyaml
+
+      - name: Hermetic Dependency Kernel Check
+        run: python tools/deps/hermetic_lock.py
 
       - name: Validate install consistency
         run: |
@@ -60,5 +56,5 @@ jobs:
       - name: Hint on failure
         if: failure() && github.event_name == 'pull_request'
         run: |
-          echo "Fix: uv pip compile pyproject.toml -o requirements.lock"
+          echo "Fix: python tools/deps/hermetic_lock.py --write"
           echo "Then: git add requirements.lock && git commit -m 'chore: update lockfile'"

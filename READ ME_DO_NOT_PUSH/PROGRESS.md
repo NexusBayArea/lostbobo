@@ -126,6 +126,11 @@ DO NOT PUSH!!!!
   - `--write` updates lock and seals with hash
   - Eliminates environment-based formatting drift
 
+- **CI Toolchain Fix**: Added uv install to dag-ci.yml and dependency-drift.yml
+  - Added uv install step before bootstrap in both workflows
+  - Added `$HOME/.local/bin` to GITHUB_ENV (not GITHUB_PATH)
+  - Added pyyaml to Python deps for hermetic_lock.py
+
 All tests pass locally:
 ```
 [System Contract] -> DAG Validation
