@@ -1,11 +1,10 @@
 from fastapi import APIRouter
 from pathlib import Path
 import json
-from tools.runtime.contract import CONTRACT
 
 router = APIRouter()
 
-TRACE_FILE = CONTRACT.root / "runtime_trace.json"
+TRACE_FILE = Path(__file__).resolve().parents[5] / "runtime_trace.json"
 
 
 @router.get("/admin/observability")

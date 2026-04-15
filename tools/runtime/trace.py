@@ -20,14 +20,21 @@ class Trace:
             "end": None,
             "duration": None,
             "error": None,
+            "stdout": None,
+            "stderr": None,
+            "command": None,
         }
 
-    def end_node(self, name: str, success: bool, error: str | None = None):
+    def end_node(self, name: str, success: bool, result=None):
         node = self.data["nodes"][name]
         node["end"] = time.time()
         node["duration"] = node["end"] - node["start"]
         node["status"] = "success" if success else "failed"
-        node["error"] = error
+
+        if result:
+            node["stdout"] = result.stdout
+            node["stderr"] = result.stderr
+            node["command"] = result.args
 
     def save(self):
         self.data["end_time"] = time.time()

@@ -81,21 +81,20 @@ def run_node(name: str, node: dict, trace: Trace) -> int:
 
     if not validate_import(path):
         trace.start_node(name)
-        trace.end_node(name, False, "missing file")
+        trace.end_node(name, False)
         return 1
 
     trace.start_node(name)
 
+    cmd = [sys.executable, path]
+
     result = subprocess.run(
-        [sys.executable, path],
+        cmd,
         capture_output=True,
         text=True,
     )
 
-    if result.returncode != 0:
-        trace.end_node(name, False, result.stderr)
-    else:
-        trace.end_node(name, True)
+    trace.end_node(name, result.returncode == 0, result)
 
     return result.returncode
 
