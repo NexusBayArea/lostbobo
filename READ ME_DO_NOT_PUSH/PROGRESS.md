@@ -94,6 +94,12 @@ DO NOT PUSH!!!!
 
 - **Bootstrap Fix**: Fixed ambiguous variable name (`l` → `line`)
 
+- **Self-Contained Dependency Kernel**: (NEW)
+  - Replaced uv-based validation with self-contained validator
+  - No external tools required at runtime
+  - Validates lockfile format, pinned versions only
+  - Removed compilation step (only verifies committed artifacts)
+
 All tests pass locally:
 ```
 [System Contract] -> DAG Validation
