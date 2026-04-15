@@ -2,7 +2,12 @@
 
 ## April 14, 2026
 
-### Fixed: pytest markers and system contract validation
+### Fixed: CI dependency chain
+
+- **dag-ci.yml**: Changed `api-ci` needs from `[lint]` to `[lint, tests]`
+- Ensures system contract runs AFTER structural validation
+
+### Previously Fixed: pytest markers and system contract validation
 
 - **pytest.ini**: Created with required markers (dag, runtime, trace)
 - **test_dag.py**: Added `@pytest.mark.dag` tests
