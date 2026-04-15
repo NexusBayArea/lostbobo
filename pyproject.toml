@@ -76,6 +76,9 @@ pythonpath = ["src"]
 asyncio_mode = "auto"
 markers = [
     "asyncio: mark test as async",
+    "dag: DAG validation tests",
+    "runtime: runtime execution tests",
+    "trace: trace determinism tests",
 ]
 
 [build-system]
