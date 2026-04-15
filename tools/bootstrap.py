@@ -52,10 +52,14 @@ def validate_dependency_lock():
             generated = f.read()
 
         existing_lines = [
-            l for l in existing.strip().split("\n") if l and not l.startswith("#")
+            line
+            for line in existing.strip().split("\n")
+            if line and not line.startswith("#")
         ]
         generated_lines = [
-            l for l in generated.strip().split("\n") if l and not l.startswith("#")
+            line
+            for line in generated.strip().split("\n")
+            if line and not line.startswith("#")
         ]
 
         if set(existing_lines) != set(generated_lines):
