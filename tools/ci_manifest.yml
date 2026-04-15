@@ -1,0 +1,18 @@
+version: 1
+
+nodes:
+  bootstrap:
+    path: tools/bootstrap.py
+    critical: true
+
+  fingerprint:
+    path: tools/deps/verify_fingerprint.py
+    critical: true
+
+  dependency_scan:
+    path: tools/deps/dependency_scan.py
+    critical: true
+
+  system_contract:
+    path: tools/ci_gates/system_contract.py
+    critical: true

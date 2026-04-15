@@ -15,6 +15,11 @@ def run_step(name: str, cmd: list[str]) -> None:
 
 def main(mode: str = "ci") -> None:
     run_step(
+        "DAG Validation",
+        ["python", "tools/ci_gates/dag_validator.py"],
+    )
+
+    run_step(
         "System Contract",
         ["python", "tools/ci_gates/system_contract.py"],
     )
