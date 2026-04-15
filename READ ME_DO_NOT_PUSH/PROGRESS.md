@@ -119,6 +119,13 @@ DO NOT PUSH!!!!
   - `--write` flag to update lockfile when needed
   - Normalizes and sorts dependencies for stable comparison
 
+- **Hermetic Dependency Kernel**: (NEW)
+  - Created `tools/deps/hermetic_lock.py` with cryptographic validation
+  - Uses SHA256 hash instead of diff-based comparison
+  - Generates `.requirements.lock.hash` for sealed verification
+  - `--write` updates lock and seals with hash
+  - Eliminates environment-based formatting drift
+
 All tests pass locally:
 ```
 [System Contract] -> DAG Validation

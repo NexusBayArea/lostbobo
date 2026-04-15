@@ -16,10 +16,10 @@ def run_step(name: str, cmd: list[str]) -> None:
 
 
 def validate_dependency_kernel():
-    print("[KERNEL] Zero-drift dependency validation")
+    print("[KERNEL] Hermetic dependency validation")
 
     result = subprocess.run(
-        ["python", "tools/deps/lock.py"],
+        ["python", "tools/deps/hermetic_lock.py"],
         capture_output=True,
         text=True,
     )
