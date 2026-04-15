@@ -22,6 +22,11 @@ packages/
 # Allow Docker build files
 !docker/
 
+# Allow Docker and CI tools
+!docker/
+!tools/
+!ci/
+
 # Python - no backend present
 *.py
 __pycache__/

@@ -1,0 +1,10 @@
+{
+  "core": { "paths": ["app/core"], "deps": [] },
+  "api": { "paths": ["app/api"], "deps": ["core"] },
+  "worker": { "paths": ["worker", "app/services/worker"], "deps": ["core"] },
+  "autoscaler": { "paths": ["autoscaler", "app/services/worker"], "deps": ["core"] },
+  "tests": { "paths": ["tests"], "deps": ["core", "api", "worker"] },
+  "scripts": { "paths": ["scripts"], "deps": [] },
+  "docker": { "paths": ["docker"], "deps": [] },
+  "ci": { "paths": [".github"], "deps": [] }
+}
