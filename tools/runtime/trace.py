@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 from tools.runtime.contract import CONTRACT
 
-TRACE_FILE = CONTRACT.root / "runtime_trace.json"
+TRACE_FILE = CONTRACT.paths["trace"]
 
 
 class Trace:

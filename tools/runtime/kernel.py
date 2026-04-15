@@ -154,6 +154,15 @@ def execute_dag(manifest: dict, trace: Trace):
 
 
 def self_heal():
+
+def validate_contract():
+    print("[KERNEL] contract validation")
+    required_attrs = ["root", "paths"]
+    for attr in required_attrs:
+        if not hasattr(CONTRACT, attr):
+            print(f"[FAIL] contract missing attribute: {attr}")
+            sys.exit(1)
+    print("[PASS] contract valid")
     print("[KERNEL] self-heal phase")
 
     required = [
@@ -179,7 +188,8 @@ def main():
     trace = Trace()
     verify_capabilities()
     validate_dependencies()
-    self_heal()
+self_heal()
+    validate_contract()
 
     manifest = load_manifest()
     rc = execute_dag(manifest, trace)

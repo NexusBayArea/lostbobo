@@ -1,4 +1,15 @@
+from pathlib import Path
+
+
 class Contract:
+    def __init__(self):
+        self.root = Path(".").resolve()
+        self.paths = {
+            "trace": self.root / "runtime_trace.json",
+            "state": self.root / "runtime_state.json",
+        }
+
+CONTRACT = Contract()
     """
     SINGLE SOURCE OF TRUTH for system architecture.
     """
