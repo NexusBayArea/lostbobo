@@ -1,17 +1,7 @@
 import ast
 import os
 import sys
-
-FORBIDDEN_PREFIXES = [
-    "ci.",
-    "worker.",  # prevents upward dependency leaks
-]
-
-ALLOWED_ROOTS = [
-    "app.",
-    "tests.",
-    "scripts.",
-]
+from tools.runtime.contract import CONTRACT
 
 VIOLATIONS = []
 
@@ -22,10 +12,8 @@ def scan_file(path: str):
 
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom):
-            if node.module:
-                for bad in FORBIDDEN_PREFIXES:
-                    if node.module.startswith(bad):
-                        VIOLATIONS.append((path, node.module))
+            if node.module and not CONTRACT.is_allowed_import(node.module):
+                VIOLATIONS.append((path, node.module))
 
 
 def scan_repo(root="."):

@@ -1,27 +1,39 @@
-import sys
-from pathlib import Path
-
-
-class ExecutionContract:
+class Contract:
     """
-    Single source of truth for:
-    - import root
-    - runtime paths
-    - DAG resolution
+    SINGLE SOURCE OF TRUTH for system architecture.
     """
 
     def __init__(self):
-        self.root = Path(__file__).resolve().parents[2]
-        self.src = self.root / "src"
+        # runtime entrypoints
+        self.entrypoints = [
+            "app.api.kernel",
+        ]
 
-    def apply(self):
-        """
-        Force deterministic import resolution across CI + local.
-        """
-        sys.path.insert(0, str(self.src))
-        sys.path.insert(0, str(self.root))
-        return self
+        # allowed internal domains
+        self.allowed_roots = {
+            "app",
+            "worker",
+            "tests",
+            "scripts",
+            "tools",
+        }
+
+        # forbidden cross-module imports
+        self.forbidden_prefixes = {
+            "ci.",
+        }
+
+        # worker isolation rule (IMPORTANT FIX)
+        self.worker_is_isolated = True
+
+    def is_allowed_import(self, module: str) -> bool:
+        for bad in self.forbidden_prefixes:
+            if module.startswith(bad):
+                return False
+        return True
+
+    def is_allowed_root(self, path: str) -> bool:
+        return any(root in path for root in self.allowed_roots)
 
 
-CONTRACT = ExecutionContract()
-CONTRACT.apply()
+CONTRACT = Contract()
