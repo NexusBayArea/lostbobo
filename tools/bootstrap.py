@@ -1,5 +1,7 @@
 import subprocess
 import sys
+import tempfile
+from pathlib import Path
 
 
 def run_step(name: str, cmd: list[str]) -> None:
@@ -11,6 +13,61 @@ def run_step(name: str, cmd: list[str]) -> None:
         sys.exit(result.returncode)
 
     print(f"[PASS] {name}")
+
+
+def validate_dependency_lock():
+    print("[BOOTSTRAP] Dependency lock validation")
+
+    if not Path("pyproject.toml").exists():
+        print("[FAIL] pyproject.toml not found")
+        sys.exit(1)
+
+    if not Path("requirements.lock").exists():
+        print("[FAIL] requirements.lock not found")
+        print("Generate with: uv pip compile pyproject.toml -o requirements.lock")
+        sys.exit(1)
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".lock", delete=False) as tmp:
+        tmp_path = tmp.name
+
+    try:
+        result = subprocess.run(
+            ["uv", "pip", "compile", "pyproject.toml", "-o", tmp_path],
+            capture_output=True,
+            text=True,
+        )
+
+        if result.returncode != 0:
+            print(f"[FAIL] Dependency compilation failed: {result.stderr}")
+            sys.exit(1)
+
+        with open("requirements.lock") as f:
+            existing = f.read()
+        with open(tmp_path) as f:
+            generated = f.read()
+
+        with open("requirements.lock") as f:
+            existing = f.read()
+        with open(tmp_path) as f:
+            generated = f.read()
+
+        existing_lines = [
+            l for l in existing.strip().split("\n") if l and not l.startswith("#")
+        ]
+        generated_lines = [
+            l for l in generated.strip().split("\n") if l and not l.startswith("#")
+        ]
+
+        if set(existing_lines) != set(generated_lines):
+            print("[FAIL] Dependency drift detected!")
+            print("Run: uv pip compile pyproject.toml -o requirements.lock")
+            sys.exit(1)
+
+        print("[PASS] Dependency lock validated")
+
+    finally:
+        if Path(tmp_path).exists():
+            Path(tmp_path).unlink()
 
 
 def dependency_healing_phase():
@@ -36,6 +93,8 @@ def dependency_healing_phase():
 
 
 def main(mode: str = "ci") -> None:
+    validate_dependency_lock()
+
     dependency_healing_phase()
 
     run_step(
