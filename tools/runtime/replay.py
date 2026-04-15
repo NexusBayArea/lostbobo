@@ -1,49 +1,67 @@
-import json
-import sys
-import subprocess
-from pathlib import Path
-from tools.runtime.contract import CONTRACT
+from typing import Dict, Any, List
+# Since Executor isn't fully defined in a single file in this structure,
+# we rely on the kernel's execution model.
+# Replay assumes access to the system dispatcher.
 
-CONTRACT.apply()
-TRACE_FILE = CONTRACT.root / "runtime_trace.json"
+class ReplayEngine:
+    def __init__(self, plan):
+        self.plan = plan
 
+    def replay_full(self, trace_data: Dict[str, Any], dispatch, context=None):
+        """
+        Re-run entire DAG deterministically using trace inputs.
+        """
+        context = context or {}
 
-def load_trace():
-    if not TRACE_FILE.exists():
-        print("[REPLAY] No trace file found")
-        sys.exit(1)
+        # seed state from trace
+        seed = self._build_seed(trace_data)
 
-    return json.loads(TRACE_FILE.read_text())
+        # Re-run nodes using seed as context/inputs
+        results = {}
+        for node_name in self.plan.get("nodes", {}):
+            results[node_name] = dispatch(self.plan["nodes"][node_name], seed.get(node_name, {}).get("inputs", {}), context)
+        return results
 
+    def replay_node(self, node_name: str, trace_data: Dict[str, Any], dispatch, context=None):
+        """
+        Replay a single node using historical inputs.
+        """
+        context = context or {}
 
-def replay(full: bool = False):
-    trace = load_trace()
-    nodes = trace["nodes"]
+        node_trace = trace_data.get("nodes", {}).get(node_name)
+        if not node_trace:
+            raise ValueError(f"No trace found for node {node_name}")
 
-    for name, node in nodes.items():
-        if not full and node["status"] == "success":
-            continue
+        node = self.plan.get("nodes", {}).get(node_name)
+        if not node:
+             raise ValueError(f"Node {node_name} not found in plan")
 
-        cmd = node.get("command")
+        return dispatch(node, node_trace.get("inputs", {}), context)
 
-        if not cmd:
-            print(f"[SKIP] {name} (no command recorded)")
-            continue
+    def replay_failed(self, trace_data: Dict[str, Any], dispatch, context=None):
+        """
+        Replay only failed nodes.
+        """
+        context = context or {}
 
-        print(f"[REPLAY] {name}")
-        result = subprocess.run(cmd)
+        failed = [name for name, data in trace_data.get("nodes", {}).items() if data.get("status") == "failed"]
 
-        if result.returncode != 0:
-            print(f"[FAIL] {name}")
-            sys.exit(result.returncode)
+        results = {}
+        for node_name in failed:
+            node = self.plan.get("nodes", {}).get(node_name)
+            results[node_name] = dispatch(node, trace_data.get("nodes", {}).get(node_name, {}).get("inputs", {}), context)
 
-    print("[REPLAY] complete")
+        return results
 
-
-if __name__ == "__main__":
-    mode = sys.argv[1] if len(sys.argv) > 1 else "failed"
-
-    if mode == "full":
-        replay(full=True)
-    else:
-        replay(full=False)
+    def _build_seed(self, trace_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Convert trace into reproducible state snapshot.
+        """
+        seed = {}
+        for name, data in trace_data.get("nodes", {}).items():
+            seed[name] = {
+                "inputs": data.get("inputs", {}),
+                "outputs": data.get("outputs", {}),
+                "status": data.get("status"),
+            }
+        return seed
