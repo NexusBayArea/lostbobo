@@ -3,8 +3,7 @@ import sys
 
 
 def run_step(name: str, cmd: list[str]) -> None:
-    print(f"
-[Bootstrap] → {name}")
+    print(f"[Bootstrap] -> {name}")
     result = subprocess.run(cmd)
 
     if result.returncode != 0:
