@@ -1,5 +1,3 @@
-name: bootstrap.py
-
 import subprocess
 import sys
 
