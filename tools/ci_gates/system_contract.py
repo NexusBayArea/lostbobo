@@ -14,8 +14,7 @@ import sys
 
 
 def run_step(name: str, cmd: list[str]) -> None:
-    print(f"
-[System Contract] → {name}")
+    print(f"[System Contract] -> {name}")
     result = subprocess.run(cmd)
 
     if result.returncode != 0:
@@ -48,23 +47,22 @@ def main() -> None:
     # 3. DAG Validity
     run_step(
         "DAG Validation",
-        ["pytest", "-m", "dag"],
+        ["python", "-m", "pytest", "-m", "dag"],
     )
 
     # 4. Runtime Contract
     run_step(
         "Runtime Contract",
-        ["pytest", "-m", "runtime"],
+        ["python", "-m", "pytest", "-m", "runtime"],
     )
 
     # 5. Trace Validation (optional but HIGH SIGNAL)
     run_step(
         "Trace Validation",
-        ["pytest", "-m", "trace"],
+        ["python", "-m", "pytest", "-m", "trace"],
     )
 
-    print("
-[SYSTEM CONTRACT PASSED]")
+    print("[SYSTEM CONTRACT PASSED]")
 
 
 if __name__ == "__main__":
