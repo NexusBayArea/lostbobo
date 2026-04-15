@@ -1,8 +1,13 @@
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from tools.runtime.contract import CONTRACT
 import subprocess
 
 
-def run_step(name: str, cmd: list) -> None:
+def run_step(name: str, cmd: list[str]) -> None:
     print(f"[Bootstrap] -> {name}")
     result = subprocess.run(cmd)
 
@@ -14,9 +19,10 @@ def run_step(name: str, cmd: list) -> None:
 
 
 def main(mode: str = "ci") -> None:
+    CONTRACT.apply()
     run_step(
         "Kernel Boot",
-        [sys.executable, "tools/runtime/kernel.py"],
+        [sys.executable, "-m", "tools.runtime.kernel"],
     )
 
 
