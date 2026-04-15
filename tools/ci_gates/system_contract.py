@@ -47,19 +47,19 @@ def main() -> None:
     # 3. DAG Validity
     run_step(
         "DAG Validation",
-        ["python", "-m", "pytest", "-m", "dag"],
+        ["python", "-m", "pytest", "-m", "dag", "tests"],
     )
 
     # 4. Runtime Contract
     run_step(
         "Runtime Contract",
-        ["python", "-m", "pytest", "-m", "runtime"],
+        ["python", "-m", "pytest", "-m", "runtime", "tests"],
     )
 
     # 5. Trace Validation (optional but HIGH SIGNAL)
     run_step(
         "Trace Validation",
-        ["python", "-m", "pytest", "-m", "trace"],
+        ["python", "-m", "pytest", "-m", "trace", "tests"],
     )
 
     print("[SYSTEM CONTRACT PASSED]")
