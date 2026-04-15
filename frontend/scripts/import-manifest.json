@@ -1,0 +1,1460 @@
+{
+  "App.tsx": {
+    "imports": [
+      "react",
+      "react-router-dom",
+      "@/hooks/useTheme",
+      "@/sections/Hero",
+      "@/sections/Stack",
+      "@/sections/ValueDifferentiator",
+      "@/sections/WhoItsFor",
+      "@/components/CookieConsent",
+      "@/components/PageLayout",
+      "@/components/auth/ProtectedRoute"
+    ],
+    "exports": [
+      "default"
+    ]
+  },
+  "main.tsx": {
+    "imports": [
+      "react",
+      "react-dom/client",
+      "C:\\Users\\arche\\SimHPC\\frontend\\src\\index.css",
+      "C:\\Users\\arche\\SimHPC\\frontend\\src\\App.tsx"
+    ],
+    "exports": []
+  },
+  "vite-env.d.ts": {
+    "imports": [],
+    "exports": []
+  },
+  "hooks/use-mobile.ts": {
+    "imports": [
+      "react"
+    ],
+    "exports": [
+      "useIsMobile"
+    ]
+  },
+  "hooks/useAuth.tsx": {
+    "imports": [
+      "react",
+      "@/lib/supabase",
+      "@supabase/supabase-js",
+      "@/lib/api"
+    ],
+    "exports": [
+      "useAuth",
+      "UserTier"
+    ]
+  },
+  "hooks/useSimulation.ts": {
+    "imports": [
+      "react",
+      "@/lib/api",
+      "@/hooks/useAuth",
+      "sonner"
+    ],
+    "exports": [
+      "useSimulation"
+    ]
+  },
+  "hooks/useSimulations.ts": {
+    "imports": [
+      "react",
+      "@/lib/api",
+      "@/hooks/useAuth"
+    ],
+    "exports": [
+      "useSimulations"
+    ]
+  },
+  "hooks/useTheme.tsx": {
+    "imports": [
+      "react"
+    ],
+    "exports": [
+      "ThemeProvider",
+      "useTheme"
+    ]
+  },
+  "components/ActiveSimulations.tsx": {
+    "imports": [
+      "@/components/ui/card",
+      "@/components/ui/badge",
+      "lucide-react",
+      "@/hooks/useSimulations",
+      "@/hooks/useAuth"
+    ],
+    "exports": [
+      "ActiveSimulations"
+    ]
+  },
+  "components/AnimatedMesh.tsx": {
+    "imports": [
+      "react",
+      "@/hooks/useTheme"
+    ],
+    "exports": [
+      "AnimatedMesh"
+    ]
+  },
+  "components/ConfidenceGraph.tsx": {
+    "imports": [
+      "react",
+      "@/hooks/useTheme"
+    ],
+    "exports": [
+      "ConfidenceGraph"
+    ]
+  },
+  "components/CookieConsent.tsx": {
+    "imports": [
+      "react",
+      "framer-motion",
+      "lucide-react",
+      "react-router-dom"
+    ],
+    "exports": [
+      "CookieConsent"
+    ]
+  },
+  "components/GuidanceEngine.tsx": {
+    "imports": [
+      "@/components/ui/card",
+      "@/components/ui/badge",
+      "lucide-react"
+    ],
+    "exports": [
+      "GuidanceEngine"
+    ]
+  },
+  "components/JobProgress.tsx": {
+    "imports": [
+      "framer-motion",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "JobProgress"
+    ]
+  },
+  "components/Navigation.tsx": {
+    "imports": [
+      "react",
+      "react-router-dom",
+      "lucide-react",
+      "framer-motion",
+      "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\SimHPCLogo.tsx",
+      "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ThemeToggle.tsx",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Navigation"
+    ]
+  },
+  "components/NotebookNavButton.tsx": {
+    "imports": [
+      "react-router-dom",
+      "framer-motion"
+    ],
+    "exports": [
+      "NotebookNavButton"
+    ]
+  },
+  "components/OperatorConsole.tsx": {
+    "imports": [
+      "@/components/ui/card",
+      "@/components/ui/button",
+      "lucide-react"
+    ],
+    "exports": [
+      "OperatorConsole"
+    ]
+  },
+  "components/PageLayout.tsx": {
+    "imports": [
+      "react",
+      "react-router-dom",
+      "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\Navigation.tsx",
+      "@/sections/Footer"
+    ],
+    "exports": [
+      "PageLayout"
+    ]
+  },
+  "components/SensitivityChart.tsx": {
+    "imports": [
+      "recharts",
+      "@/types/simulation"
+    ],
+    "exports": [
+      "SensitivityChart"
+    ]
+  },
+  "components/SimHPCLogo.tsx": {
+    "imports": [
+      "@/lib/utils"
+    ],
+    "exports": [
+      "SimHPCLogo",
+      "SimHPCLogoIcon"
+    ]
+  },
+  "components/SimProgress.tsx": {
+    "imports": [
+      "@/components/ui/progress",
+      "@/components/ui/badge",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "SimProgress"
+    ]
+  },
+  "components/SimulationLineage.tsx": {
+    "imports": [
+      "@/components/ui/card",
+      "@/components/ui/badge",
+      "lucide-react"
+    ],
+    "exports": [
+      "SimulationLineage"
+    ]
+  },
+  "components/TelemetryPanel.tsx": {
+    "imports": [
+      "@/components/ui/card",
+      "@/components/ui/badge",
+      "lucide-react"
+    ],
+    "exports": [
+      "TelemetryPanel"
+    ]
+  },
+  "components/ThemeToggle.tsx": {
+    "imports": [
+      "lucide-react",
+      "@/hooks/useTheme",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "ThemeToggle"
+    ]
+  },
+  "components/WakeGPU.tsx": {
+    "imports": [
+      "react"
+    ],
+    "exports": [
+      "default"
+    ]
+  },
+  "types/index.ts": {
+    "imports": [],
+    "exports": [
+      "User",
+      "SimulationConfig",
+      "SimulationParameter",
+      "SimulationResult",
+      "RobustnessSummary",
+      "SensitivityMetric",
+      "AIReport",
+      "AIReportSection",
+      "PricingPlan"
+    ]
+  },
+  "types/simulation.ts": {
+    "imports": [],
+    "exports": [
+      "SensitivityEntry",
+      "SimulationStats",
+      "AIReport",
+      "SimulationResults"
+    ]
+  },
+  "pages/About.tsx": {
+    "imports": [
+      "framer-motion",
+      "@/components/PageLayout",
+      "lucide-react"
+    ],
+    "exports": [
+      "About"
+    ]
+  },
+  "pages/AlphaControlRoom.tsx": {
+    "imports": [
+      "react",
+      "framer-motion",
+      "lucide-react",
+      "@/components/Navigation",
+      "@/components/ui/card",
+      "@/components/ui/button",
+      "@/components/ui/badge",
+      "@/components/ui/table",
+      "@/lib/api",
+      "@/hooks/useAuth",
+      "@/hooks/useSimulations",
+      "sonner",
+      "@/components/TelemetryPanel",
+      "@/components/ActiveSimulations",
+      "@/components/SimulationLineage",
+      "@/components/OperatorConsole",
+      "@/components/GuidanceEngine"
+    ],
+    "exports": [
+      "AlphaControlRoom"
+    ]
+  },
+  "pages/ApiReference.tsx": {
+    "imports": [
+      "@/components/PageLayout"
+    ],
+    "exports": [
+      "APIReference"
+    ]
+  },
+  "pages/Benchmarks.tsx": {
+    "imports": [
+      "framer-motion",
+      "lucide-react",
+      "@/components/PageLayout"
+    ],
+    "exports": [
+      "Benchmarks"
+    ]
+  },
+  "pages/CCPA.tsx": {
+    "imports": [
+      "@/components/PageLayout",
+      "lucide-react"
+    ],
+    "exports": [
+      "CCPA"
+    ]
+  },
+  "pages/Contact.tsx": {
+    "imports": [
+      "@/components/PageLayout",
+      "lucide-react"
+    ],
+    "exports": [
+      "Contact"
+    ]
+  },
+  "pages/CookiePolicy.tsx": {
+    "imports": [
+      "@/components/PageLayout",
+      "lucide-react"
+    ],
+    "exports": [
+      "CookiePolicy"
+    ]
+  },
+  "pages/Dashboard.tsx": {
+    "imports": [
+      "react",
+      "react-router-dom",
+      "framer-motion",
+      "lucide-react",
+      "@/components/ThemeToggle",
+      "@/components/JobProgress",
+      "@/components/NotebookNavButton",
+      "@/lib/utils",
+      "@/sections/dashboard/ConfigurationPanel",
+      "@/sections/dashboard/RunControlPanel",
+      "@/sections/dashboard/ResultsPanel",
+      "@/lib/api",
+      "@/hooks/useAuth",
+      "sonner"
+    ],
+    "exports": [
+      "Dashboard"
+    ]
+  },
+  "pages/Docs.tsx": {
+    "imports": [
+      "react",
+      "@/components/ui/scroll-area",
+      "@/components/ui/separator",
+      "@/components/PageLayout"
+    ],
+    "exports": [
+      "Docs"
+    ]
+  },
+  "pages/DPA.tsx": {
+    "imports": [
+      "@/components/PageLayout"
+    ],
+    "exports": [
+      "DPA"
+    ]
+  },
+  "pages/ExperimentNotebook.tsx": {
+    "imports": [
+      "react"
+    ],
+    "exports": [
+      "default"
+    ]
+  },
+  "pages/index.ts": {
+    "imports": [],
+    "exports": [
+      "Benchmarks",
+      "Dashboard",
+      "About",
+      "Docs",
+      "APIReference",
+      "CCPA",
+      "DPA",
+      "CookiePolicy",
+      "Contact"
+    ]
+  },
+  "pages/Pricing.tsx": {
+    "imports": [
+      "react",
+      "@/components/PageLayout"
+    ],
+    "exports": [
+      "Pricing"
+    ]
+  },
+  "pages/Privacy.tsx": {
+    "imports": [
+      "framer-motion",
+      "@/components/PageLayout"
+    ],
+    "exports": [
+      "Privacy"
+    ]
+  },
+  "pages/SignIn.tsx": {
+    "imports": [
+      "react",
+      "react-router-dom",
+      "framer-motion",
+      "lucide-react",
+      "@/components/SimHPCLogo",
+      "@/components/ThemeToggle",
+      "@/components/AnimatedMesh",
+      "@/lib/supabase",
+      "sonner"
+    ],
+    "exports": [
+      "SignIn"
+    ]
+  },
+  "pages/SignUp.tsx": {
+    "imports": [
+      "react",
+      "react-router-dom",
+      "framer-motion",
+      "lucide-react",
+      "@/components/SimHPCLogo",
+      "@/components/ThemeToggle",
+      "@/components/AnimatedMesh",
+      "@/lib/supabase",
+      "sonner"
+    ],
+    "exports": [
+      "SignUp"
+    ]
+  },
+  "pages/Terms.tsx": {
+    "imports": [
+      "framer-motion",
+      "@/components/PageLayout"
+    ],
+    "exports": [
+      "Terms"
+    ]
+  },
+  "lib/api.ts": {
+    "imports": [
+      "sonner"
+    ],
+    "exports": [
+      "api"
+    ]
+  },
+  "lib/apiClient.ts": {
+    "imports": [],
+    "exports": [
+      "ApiError",
+      "JobResponse",
+      "SystemStatus",
+      "RobustnessRunRequest",
+      "FleetStatus",
+      "api",
+      "default"
+    ]
+  },
+  "lib/supabase.ts": {
+    "imports": [
+      "@supabase/supabase-js"
+    ],
+    "exports": [
+      "signInWithGoogle",
+      "supabase"
+    ]
+  },
+  "lib/utils.ts": {
+    "imports": [
+      "clsx",
+      "tailwind-merge"
+    ],
+    "exports": [
+      "cn"
+    ]
+  },
+  "sections/Footer.tsx": {
+    "imports": [
+      "react-router-dom",
+      "@/components/SimHPCLogo",
+      "lucide-react"
+    ],
+    "exports": [
+      "Footer"
+    ]
+  },
+  "sections/Hero.tsx": {
+    "imports": [
+      "react-router-dom",
+      "framer-motion",
+      "lucide-react",
+      "@/components/AnimatedMesh",
+      "@/components/ConfidenceGraph",
+      "react",
+      "sonner"
+    ],
+    "exports": [
+      "Hero"
+    ]
+  },
+  "sections/Pricing.tsx": {
+    "imports": [
+      "react",
+      "framer-motion",
+      "lucide-react",
+      "react-router-dom"
+    ],
+    "exports": [
+      "Pricing"
+    ]
+  },
+  "sections/Stack.tsx": {
+    "imports": [
+      "react",
+      "framer-motion",
+      "lucide-react"
+    ],
+    "exports": [
+      "Stack"
+    ]
+  },
+  "sections/ValueDifferentiator.tsx": {
+    "imports": [
+      "react",
+      "framer-motion",
+      "lucide-react"
+    ],
+    "exports": [
+      "ValueDifferentiator"
+    ]
+  },
+  "sections/WhoItsFor.tsx": {
+    "imports": [
+      "react",
+      "framer-motion",
+      "lucide-react"
+    ],
+    "exports": [
+      "WhoItsFor"
+    ]
+  },
+  "components/admin/WakeGPU.tsx": {
+    "imports": [
+      "react",
+      "lucide-react",
+      "@/components/ui/button",
+      "@/components/ui/card",
+      "@/lib/api",
+      "@/hooks/useAuth",
+      "sonner"
+    ],
+    "exports": [
+      "WakeGPU"
+    ]
+  },
+  "components/auth/ProtectedRoute.tsx": {
+    "imports": [
+      "react-router-dom",
+      "@/hooks/useAuth"
+    ],
+    "exports": [
+      "ProtectedRoute"
+    ]
+  },
+  "components/ui/accordion.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-accordion",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Accordion",
+      "AccordionItem",
+      "AccordionTrigger",
+      "AccordionContent"
+    ]
+  },
+  "components/ui/alert-dialog.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-alert-dialog",
+      "@/lib/utils",
+      "@/components/ui/button"
+    ],
+    "exports": [
+      "AlertDialog",
+      "AlertDialogPortal",
+      "AlertDialogOverlay",
+      "AlertDialogTrigger",
+      "AlertDialogContent",
+      "AlertDialogHeader",
+      "AlertDialogFooter",
+      "AlertDialogTitle",
+      "AlertDialogDescription",
+      "AlertDialogAction",
+      "AlertDialogCancel"
+    ]
+  },
+  "components/ui/alert.tsx": {
+    "imports": [
+      "react",
+      "class-variance-authority",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Alert",
+      "AlertTitle",
+      "AlertDescription"
+    ]
+  },
+  "components/ui/aspect-ratio.tsx": {
+    "imports": [
+      "@radix-ui/react-aspect-ratio"
+    ],
+    "exports": [
+      "AspectRatio"
+    ]
+  },
+  "components/ui/avatar.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-avatar",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Avatar",
+      "AvatarImage",
+      "AvatarFallback"
+    ]
+  },
+  "components/ui/badge.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-slot",
+      "class-variance-authority",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Badge",
+      "badgeVariants"
+    ]
+  },
+  "components/ui/breadcrumb.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-slot",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Breadcrumb",
+      "BreadcrumbList",
+      "BreadcrumbItem",
+      "BreadcrumbLink",
+      "BreadcrumbPage",
+      "BreadcrumbSeparator",
+      "BreadcrumbEllipsis"
+    ]
+  },
+  "components/ui/button-group.tsx": {
+    "imports": [
+      "@radix-ui/react-slot",
+      "class-variance-authority",
+      "@/lib/utils",
+      "@/components/ui/separator"
+    ],
+    "exports": [
+      "ButtonGroup",
+      "ButtonGroupSeparator",
+      "ButtonGroupText",
+      "buttonGroupVariants"
+    ]
+  },
+  "components/ui/button.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-slot",
+      "class-variance-authority",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Button",
+      "buttonVariants"
+    ]
+  },
+  "components/ui/calendar.tsx": {
+    "imports": [
+      "react",
+      "lucide-react",
+      "react-day-picker",
+      "@/lib/utils",
+      "@/components/ui/button"
+    ],
+    "exports": [
+      "Calendar",
+      "CalendarDayButton"
+    ]
+  },
+  "components/ui/card.tsx": {
+    "imports": [
+      "react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Card",
+      "CardHeader",
+      "CardFooter",
+      "CardTitle",
+      "CardAction",
+      "CardDescription",
+      "CardContent"
+    ]
+  },
+  "components/ui/carousel.tsx": {
+    "imports": [
+      "react",
+      "embla-carousel-react",
+      "lucide-react",
+      "@/lib/utils",
+      "@/components/ui/button"
+    ],
+    "exports": [
+      "CarouselApi",
+      "Carousel",
+      "CarouselContent",
+      "CarouselItem",
+      "CarouselPrevious",
+      "CarouselNext"
+    ]
+  },
+  "components/ui/chart.tsx": {
+    "imports": [
+      "react",
+      "recharts",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "ChartConfig",
+      "ChartContainer",
+      "ChartTooltip",
+      "ChartTooltipContent",
+      "ChartLegend",
+      "ChartLegendContent",
+      "ChartStyle"
+    ]
+  },
+  "components/ui/checkbox.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-checkbox",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Checkbox"
+    ]
+  },
+  "components/ui/collapsible.tsx": {
+    "imports": [
+      "@radix-ui/react-collapsible"
+    ],
+    "exports": [
+      "Collapsible",
+      "CollapsibleTrigger",
+      "CollapsibleContent"
+    ]
+  },
+  "components/ui/command.tsx": {
+    "imports": [
+      "react",
+      "cmdk",
+      "lucide-react",
+      "@/lib/utils",
+      "@/components/ui/dialog"
+    ],
+    "exports": [
+      "Command",
+      "CommandDialog",
+      "CommandInput",
+      "CommandList",
+      "CommandEmpty",
+      "CommandGroup",
+      "CommandItem",
+      "CommandShortcut",
+      "CommandSeparator"
+    ]
+  },
+  "components/ui/context-menu.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-context-menu",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "ContextMenu",
+      "ContextMenuTrigger",
+      "ContextMenuContent",
+      "ContextMenuItem",
+      "ContextMenuCheckboxItem",
+      "ContextMenuRadioItem",
+      "ContextMenuLabel",
+      "ContextMenuSeparator",
+      "ContextMenuShortcut",
+      "ContextMenuGroup",
+      "ContextMenuPortal",
+      "ContextMenuSub",
+      "ContextMenuSubContent",
+      "ContextMenuSubTrigger",
+      "ContextMenuRadioGroup"
+    ]
+  },
+  "components/ui/dialog.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-dialog",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Dialog",
+      "DialogClose",
+      "DialogContent",
+      "DialogDescription",
+      "DialogFooter",
+      "DialogHeader",
+      "DialogOverlay",
+      "DialogPortal",
+      "DialogTitle",
+      "DialogTrigger"
+    ]
+  },
+  "components/ui/drawer.tsx": {
+    "imports": [
+      "react",
+      "vaul",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Drawer",
+      "DrawerPortal",
+      "DrawerOverlay",
+      "DrawerTrigger",
+      "DrawerClose",
+      "DrawerContent",
+      "DrawerHeader",
+      "DrawerFooter",
+      "DrawerTitle",
+      "DrawerDescription"
+    ]
+  },
+  "components/ui/dropdown-menu.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-dropdown-menu",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "DropdownMenu",
+      "DropdownMenuPortal",
+      "DropdownMenuTrigger",
+      "DropdownMenuContent",
+      "DropdownMenuGroup",
+      "DropdownMenuLabel",
+      "DropdownMenuItem",
+      "DropdownMenuCheckboxItem",
+      "DropdownMenuRadioGroup",
+      "DropdownMenuRadioItem",
+      "DropdownMenuSeparator",
+      "DropdownMenuShortcut",
+      "DropdownMenuSub",
+      "DropdownMenuSubTrigger",
+      "DropdownMenuSubContent"
+    ]
+  },
+  "components/ui/empty.tsx": {
+    "imports": [
+      "class-variance-authority",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Empty",
+      "EmptyHeader",
+      "EmptyTitle",
+      "EmptyDescription",
+      "EmptyContent",
+      "EmptyMedia"
+    ]
+  },
+  "components/ui/field.tsx": {
+    "imports": [
+      "react",
+      "class-variance-authority",
+      "@/lib/utils",
+      "@/components/ui/label",
+      "@/components/ui/separator"
+    ],
+    "exports": [
+      "Field",
+      "FieldLabel",
+      "FieldDescription",
+      "FieldError",
+      "FieldGroup",
+      "FieldLegend",
+      "FieldSeparator",
+      "FieldSet",
+      "FieldContent",
+      "FieldTitle"
+    ]
+  },
+  "components/ui/form.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-label",
+      "@radix-ui/react-slot",
+      "react-hook-form",
+      "@/lib/utils",
+      "@/components/ui/label"
+    ],
+    "exports": [
+      "useFormField",
+      "Form",
+      "FormItem",
+      "FormLabel",
+      "FormControl",
+      "FormDescription",
+      "FormMessage",
+      "FormField"
+    ]
+  },
+  "components/ui/hover-card.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-hover-card",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "HoverCard",
+      "HoverCardTrigger",
+      "HoverCardContent"
+    ]
+  },
+  "components/ui/input-group.tsx": {
+    "imports": [
+      "react",
+      "class-variance-authority",
+      "@/lib/utils",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/textarea"
+    ],
+    "exports": [
+      "InputGroup",
+      "InputGroupAddon",
+      "InputGroupButton",
+      "InputGroupText",
+      "InputGroupInput",
+      "InputGroupTextarea"
+    ]
+  },
+  "components/ui/input-otp.tsx": {
+    "imports": [
+      "react",
+      "input-otp",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "InputOTP",
+      "InputOTPGroup",
+      "InputOTPSlot",
+      "InputOTPSeparator"
+    ]
+  },
+  "components/ui/input.tsx": {
+    "imports": [
+      "react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Input"
+    ]
+  },
+  "components/ui/item.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-slot",
+      "class-variance-authority",
+      "@/lib/utils",
+      "@/components/ui/separator"
+    ],
+    "exports": [
+      "Item",
+      "ItemMedia",
+      "ItemContent",
+      "ItemActions",
+      "ItemGroup",
+      "ItemSeparator",
+      "ItemTitle",
+      "ItemDescription",
+      "ItemHeader",
+      "ItemFooter"
+    ]
+  },
+  "components/ui/kbd.tsx": {
+    "imports": [
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Kbd",
+      "KbdGroup"
+    ]
+  },
+  "components/ui/label.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-label",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Label"
+    ]
+  },
+  "components/ui/menubar.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-menubar",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Menubar",
+      "MenubarPortal",
+      "MenubarMenu",
+      "MenubarTrigger",
+      "MenubarContent",
+      "MenubarGroup",
+      "MenubarSeparator",
+      "MenubarLabel",
+      "MenubarItem",
+      "MenubarShortcut",
+      "MenubarCheckboxItem",
+      "MenubarRadioGroup",
+      "MenubarRadioItem",
+      "MenubarSub",
+      "MenubarSubTrigger",
+      "MenubarSubContent"
+    ]
+  },
+  "components/ui/navigation-menu.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-navigation-menu",
+      "class-variance-authority",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "NavigationMenu",
+      "NavigationMenuList",
+      "NavigationMenuItem",
+      "NavigationMenuContent",
+      "NavigationMenuTrigger",
+      "NavigationMenuLink",
+      "NavigationMenuIndicator",
+      "NavigationMenuViewport",
+      "navigationMenuTriggerStyle"
+    ]
+  },
+  "components/ui/pagination.tsx": {
+    "imports": [
+      "react",
+      "lucide-react",
+      "@/lib/utils",
+      "@/components/ui/button"
+    ],
+    "exports": [
+      "Pagination",
+      "PaginationContent",
+      "PaginationLink",
+      "PaginationItem",
+      "PaginationPrevious",
+      "PaginationNext",
+      "PaginationEllipsis"
+    ]
+  },
+  "components/ui/popover.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-popover",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Popover",
+      "PopoverTrigger",
+      "PopoverContent",
+      "PopoverAnchor"
+    ]
+  },
+  "components/ui/progress.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-progress",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Progress"
+    ]
+  },
+  "components/ui/radio-group.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-radio-group",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "RadioGroup",
+      "RadioGroupItem"
+    ]
+  },
+  "components/ui/resizable.tsx": {
+    "imports": [
+      "react",
+      "lucide-react",
+      "react-resizable-panels",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "ResizablePanelGroup",
+      "ResizablePanel",
+      "ResizableHandle"
+    ]
+  },
+  "components/ui/scroll-area.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-scroll-area",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "ScrollArea",
+      "ScrollBar"
+    ]
+  },
+  "components/ui/select.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-select",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Select",
+      "SelectContent",
+      "SelectGroup",
+      "SelectItem",
+      "SelectLabel",
+      "SelectScrollDownButton",
+      "SelectScrollUpButton",
+      "SelectSeparator",
+      "SelectTrigger",
+      "SelectValue"
+    ]
+  },
+  "components/ui/separator.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-separator",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Separator"
+    ]
+  },
+  "components/ui/sheet.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-dialog",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Sheet",
+      "SheetTrigger",
+      "SheetClose",
+      "SheetContent",
+      "SheetHeader",
+      "SheetFooter",
+      "SheetTitle",
+      "SheetDescription"
+    ]
+  },
+  "components/ui/sidebar.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-slot",
+      "class-variance-authority",
+      "lucide-react",
+      "@/hooks/use-mobile",
+      "@/lib/utils",
+      "@/components/ui/button",
+      "@/components/ui/input",
+      "@/components/ui/separator",
+      "@/components/ui/sheet",
+      "@/components/ui/skeleton",
+      "@/components/ui/tooltip"
+    ],
+    "exports": [
+      "Sidebar",
+      "SidebarContent",
+      "SidebarFooter",
+      "SidebarGroup",
+      "SidebarGroupAction",
+      "SidebarGroupContent",
+      "SidebarGroupLabel",
+      "SidebarHeader",
+      "SidebarInput",
+      "SidebarInset",
+      "SidebarMenu",
+      "SidebarMenuAction",
+      "SidebarMenuBadge",
+      "SidebarMenuButton",
+      "SidebarMenuItem",
+      "SidebarMenuSkeleton",
+      "SidebarMenuSub",
+      "SidebarMenuSubButton",
+      "SidebarMenuSubItem",
+      "SidebarProvider",
+      "SidebarRail",
+      "SidebarSeparator",
+      "SidebarTrigger",
+      "useSidebar"
+    ]
+  },
+  "components/ui/skeleton.tsx": {
+    "imports": [
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Skeleton"
+    ]
+  },
+  "components/ui/slider.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-slider",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Slider"
+    ]
+  },
+  "components/ui/sonner.tsx": {
+    "imports": [
+      "lucide-react",
+      "next-themes",
+      "sonner"
+    ],
+    "exports": [
+      "Toaster"
+    ]
+  },
+  "components/ui/spinner.tsx": {
+    "imports": [
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Spinner"
+    ]
+  },
+  "components/ui/switch.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-switch",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Switch"
+    ]
+  },
+  "components/ui/table.tsx": {
+    "imports": [
+      "react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Table",
+      "TableHeader",
+      "TableBody",
+      "TableFooter",
+      "TableHead",
+      "TableRow",
+      "TableCell",
+      "TableCaption"
+    ]
+  },
+  "components/ui/tabs.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-tabs",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Tabs",
+      "TabsList",
+      "TabsTrigger",
+      "TabsContent"
+    ]
+  },
+  "components/ui/textarea.tsx": {
+    "imports": [
+      "react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Textarea"
+    ]
+  },
+  "components/ui/toggle-group.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-toggle-group",
+      "class-variance-authority",
+      "@/lib/utils",
+      "@/components/ui/toggle"
+    ],
+    "exports": [
+      "ToggleGroup",
+      "ToggleGroupItem"
+    ]
+  },
+  "components/ui/toggle.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-toggle",
+      "class-variance-authority",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Toggle",
+      "toggleVariants"
+    ]
+  },
+  "components/ui/tooltip.tsx": {
+    "imports": [
+      "react",
+      "@radix-ui/react-tooltip",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "Tooltip",
+      "TooltipTrigger",
+      "TooltipContent",
+      "TooltipProvider"
+    ]
+  },
+  "pages/admin/AdminAnalyticsPage.tsx": {
+    "imports": [
+      "react",
+      "framer-motion",
+      "lucide-react",
+      "@/components/Navigation",
+      "@/components/ui/card",
+      "@/components/ui/button",
+      "@/components/ui/badge",
+      "@/components/ui/table",
+      "@/components/ui/tabs",
+      "@/components/ui/separator",
+      "@/components/admin/WakeGPU",
+      "@/lib/api",
+      "@/hooks/useAuth",
+      "sonner",
+      "date-fns",
+      "@/lib/supabase"
+    ],
+    "exports": [
+      "AdminAnalyticsPage"
+    ]
+  },
+  "sections/dashboard/ConfigurationPanel.tsx": {
+    "imports": [
+      "react",
+      "framer-motion",
+      "lucide-react",
+      "@/components/ui/switch",
+      "@/components/ui/slider",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "ConfigurationPanel",
+      "Parameter"
+    ]
+  },
+  "sections/dashboard/ResultsPanel.tsx": {
+    "imports": [
+      "react",
+      "framer-motion",
+      "recharts",
+      "lucide-react",
+      "@/lib/utils",
+      "@/lib/api"
+    ],
+    "exports": [
+      "ResultsPanel"
+    ]
+  },
+  "sections/dashboard/RunControlPanel.tsx": {
+    "imports": [
+      "react",
+      "framer-motion",
+      "lucide-react",
+      "@/lib/utils"
+    ],
+    "exports": [
+      "RunControlPanel"
+    ]
+  }
+}
