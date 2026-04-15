@@ -33,6 +33,7 @@ STANDARD_LIBRARY = {
     "operator",
     "functools",
     "itertools",
+    "tools",
 }
 
 ALLOWED_AUTO_INSTALL = {
