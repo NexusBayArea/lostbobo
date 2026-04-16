@@ -1,47 +1,29 @@
 from pathlib import Path
+from dataclasses import dataclass, field
 
 
+@dataclass
 class Contract:
-    def __init__(self):
-        self.root = Path(".").resolve()
-        self.paths = {
-            "trace": self.root / "runtime_trace.json",
-            "state": self.root / "runtime_state.json",
-        }
+    root: Path = field(default_factory=lambda: Path(".").resolve())
 
-CONTRACT = Contract()
-    """
-    SINGLE SOURCE OF TRUTH for system architecture.
-    """
+    entrypoints: list[str] = field(default_factory=lambda: [
+        "app.api.kernel",
+    ])
 
-    def __init__(self):
-        # runtime entrypoints
-        self.entrypoints = [
-            "app.api.kernel",
-        ]
+    allowed_roots: set[str] = field(default_factory=lambda: {
+        "app",
+        "worker",
+        "tests",
+        "scripts",
+        "tools",
+    })
 
-        # allowed internal domains
-        self.allowed_roots = {
-            "app",
-            "worker",
-            "tests",
-            "scripts",
-            "tools",
-        }
-
-        # forbidden cross-module imports
-        self.forbidden_prefixes = {
-            "ci.",
-        }
-
-        # worker isolation rule (IMPORTANT FIX)
-        self.worker_is_isolated = True
+    forbidden_prefixes: set[str] = field(default_factory=lambda: {
+        "ci.",
+    })
 
     def is_allowed_import(self, module: str) -> bool:
-        for bad in self.forbidden_prefixes:
-            if module.startswith(bad):
-                return False
-        return True
+        return not any(module.startswith(bad) for bad in self.forbidden_prefixes)
 
     def is_allowed_root(self, path: str) -> bool:
         return any(root in path for root in self.allowed_roots)

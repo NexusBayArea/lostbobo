@@ -1,13 +1,13 @@
 import sys
 from pathlib import Path
+import subprocess
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-import subprocess
 
 
 def run_step(name: str, cmd: list[str]) -> None:
     print(f"[Bootstrap] -> {name}")
+
     result = subprocess.run(cmd)
 
     if result.returncode != 0:
@@ -17,9 +17,11 @@ def run_step(name: str, cmd: list[str]) -> None:
     print(f"[PASS] {name}")
 
 
-def main(mode: str = "ci") -> None:
-    # validate contract first
-    print("[Bootstrap] Contract validation OK")
+def main():
+    print("[Bootstrap] Contract stage (import test)")
+
+    # real import validation
+    import tools.runtime.contract  # noqa: F401
 
     run_step(
         "Kernel Boot",
@@ -28,7 +30,4 @@ def main(mode: str = "ci") -> None:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        main(sys.argv[1])
-    else:
-        main()
+    main()
