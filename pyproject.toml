@@ -3,9 +3,8 @@ name = "simhpc"
 version = "0.1.0"
 requires-python = ">=3.10"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["tools", "tools.*"]
+[tool.setuptools]
+packages = ["tools", "tools.runtime", "tools.runtime.v2", "tools.runtime.v3"]
 
 [build-system]
 requires = ["setuptools"]
