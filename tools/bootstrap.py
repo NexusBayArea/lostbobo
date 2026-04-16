@@ -8,15 +8,16 @@ if str(ROOT) not in sys.path:
 
 def bootstrap():
     from tools import registry
-    from tools.runtime.tools.system_tools import register_system_tools
+    from tools.runtime.tools import system_tools
 
     print("[BOOTSTRAP] validating module map")
     registry.validate()
 
+    print("[BOOTSTRAP] registering system tools")
+    # Fix: Pass the registry to satisfy the positional argument requirement
+    system_tools.register_system_tools(registry)
+
     print("[BOOTSTRAP] executing deterministic graph")
-
-    register_system_tools()
-
     from tools.runtime.nodes import register_default_nodes
     from tools.runtime.graph import GRAPH
 
@@ -35,9 +36,5 @@ def bootstrap():
     return 0
 
 
-def main():
-    raise SystemExit(bootstrap())
-
-
 if __name__ == "__main__":
-    main()
+    raise SystemExit(bootstrap())

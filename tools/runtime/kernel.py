@@ -17,7 +17,7 @@ class Kernel:
     def boot(self, manifest: Dict[str, Any]):
         print("🌀 [KERNEL] Initializing boot sequence...")
 
-        # Validate manifest against the system CONTRACT to satisfy linting
+        # Use CONTRACT to satisfy strict linting and ensure architectural integrity
         if not CONTRACT.validate_manifest(manifest):
             raise RuntimeError(
                 "Kernel boot aborted: Manifest violates system contract."
