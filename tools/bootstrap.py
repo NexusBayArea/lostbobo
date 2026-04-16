@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import subprocess
+from tools.runtime.deps import validate_lock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -19,6 +20,8 @@ def run_step(name: str, cmd: list[str]) -> None:
 
 def main():
     print("[Bootstrap] Contract stage (import test)")
+    if not validate_lock():
+        sys.exit(1)
 
     # real import validation
     import tools.runtime.contract  # noqa: F401
