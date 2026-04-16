@@ -4,31 +4,48 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tools.runtime.manifest import BOOT_MANIFEST
-
 
 def load_import(path: str):
-    module = __import__(path, fromlist=["*"])
-    return module
+    if path.startswith("side_effect:"):
+        module = __import__(path.replace("side_effect:", ""), fromlist=["*"])
+        return module
+
+    if path.startswith("lazy:"):
+        module = __import__(path.replace("lazy:", ""), fromlist=["*"])
+        return module
+
+    return __import__(path, fromlist=["*"])
 
 
 def run():
-    print("[V3 BOOT] starting deterministic manifest execution")
+    from tools.runtime.manifest import BOOT_MANIFEST
+    from tools.runtime.lint_contract import LINT_CONTRACT
 
-    context = {}
+    print("[V3.1 BOOT] starting")
+
+    raw_imports = []
 
     for step in BOOT_MANIFEST:
-        print(f"[V3 BOOT] step: {step.name}")
+        raw_imports.extend(step.imports)
+
+    violations = LINT_CONTRACT.validate_import_policy(raw_imports)
+
+    if violations:
+        raise RuntimeError(
+            f"[LINT CONTRACT FAIL] invalid imports: {violations}"
+        )
+
+    for step in BOOT_MANIFEST:
+        print(f"[BOOT] {step.name}")
 
         for imp in step.imports:
-            context[imp] = load_import(imp)
+            load_import(imp)
 
-        # execute run target
         module_path, func_name = step.run.rsplit(".", 1)
-        module = load_import(module_path)
+        module = __import__(module_path, fromlist=["*"])
         getattr(module, func_name)()
 
-    print("[V3 BOOT] complete")
+    print("[V3.1 BOOT] complete")
 
 
 if __name__ == "__main__":
