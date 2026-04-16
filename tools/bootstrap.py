@@ -5,48 +5,35 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 
-def load_import(path: str):
-    if path.startswith("side_effect:"):
-        module = __import__(path.replace("side_effect:", ""), fromlist=["*"])
-        return module
+def bootstrap():
+    from tools.runtime.tools.system_tools import register_system_tools
+    from tools.runtime.tool_registry import TOOL_REGISTRY
+    from tools.runtime.ci_compiler import compile_ci
 
-    if path.startswith("lazy:"):
-        module = __import__(path.replace("lazy:", ""), fromlist=["*"])
-        return module
+    register_system_tools()
+    graph = compile_ci()
+    order = graph.topo()
 
-    return __import__(path, fromlist=["*"])
+    results = {}
+
+    for node_id in order:
+        node = graph.nodes[node_id]
+        print(f"[CI] {node_id}")
+
+        rc = node.fn({})
+        results[node_id] = rc
+
+        if rc != 0:
+            print(f"[CI FAIL] {node_id}")
+            return rc
+
+    print("[CI PASS]")
+    return 0
 
 
-def run():
-    from tools.runtime.manifest import BOOT_MANIFEST
-    from tools.runtime.lint_contract import LINT_CONTRACT
-
-    print("[V3.1 BOOT] starting")
-
-    raw_imports = []
-
-    for step in BOOT_MANIFEST:
-        raw_imports.extend(step.imports)
-
-    violations = LINT_CONTRACT.validate_import_policy(raw_imports)
-
-    if violations:
-        raise RuntimeError(
-            f"[LINT CONTRACT FAIL] invalid imports: {violations}"
-        )
-
-    for step in BOOT_MANIFEST:
-        print(f"[BOOT] {step.name}")
-
-        for imp in step.imports:
-            load_import(imp)
-
-        module_path, func_name = step.run.rsplit(".", 1)
-        module = __import__(module_path, fromlist=["*"])
-        getattr(module, func_name)()
-
-    print("[V3.1 BOOT] complete")
+def main():
+    bootstrap()
 
 
 if __name__ == "__main__":
-    run()
+    main()
