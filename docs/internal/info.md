@@ -383,7 +383,7 @@ Output: `OK`
 1. **pyproject.toml** (explicit packages)
    ```toml
    [tool.setuptools]
-   packages = ["tools", "tools.runtime", "tools.runtime.v2", "tools.runtime.v3"]
+   packages = ["tools", "tools.runtime"]
    ```
    - Removed auto-discovery, using explicit package list
 
