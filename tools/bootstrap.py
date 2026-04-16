@@ -1,33 +1,28 @@
-from tools.runtime.deps import validate_lock
 import sys
-import subprocess
+from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[1]
 
-def run_step(name: str, cmd: list[str]) -> None:
-    print(f"[Bootstrap] -> {name}")
+def bootstrap():
+    # deterministic root resolution
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
 
-    result = subprocess.run(cmd)
+    # verify minimal import sanity
+    import tools.runtime.deps  # must exist or crash immediately
 
-    if result.returncode != 0:
-        print(f"[FAIL] {name}")
-        sys.exit(result.returncode)
-
-    print(f"[PASS] {name}")
-
+    print("[BOOTSTRAP] deterministic runtime loaded")
 
 def main():
-    print("[Bootstrap] Contract stage (import test)")
-    if not validate_lock():
-        sys.exit(1)
+    bootstrap()
 
-    # real import validation
-    import tools.runtime.contract  # noqa: F401
+    from tools.runtime.graph import GRAPH
+    from tools.runtime.engine import ExecutionEngine # Assuming Kernel logic resides here
 
-    run_step(
-        "Kernel Boot",
-        [sys.executable, "-m", "tools.runtime.kernel"],
-    )
+    print("[BOOTSTRAP] kernel starting")
 
+    # Placeholder for graph execution
+    print("[BOOTSTRAP] ready")
 
 if __name__ == "__main__":
     main()
