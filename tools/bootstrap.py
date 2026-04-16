@@ -20,7 +20,7 @@ def run_step(name: str, cmd: list[str]) -> None:
 def main(mode: str = "ci") -> None:
     # validate contract first
     print("[Bootstrap] Contract validation OK")
-    
+
     run_step(
         "Kernel Boot",
         [sys.executable, "-m", "tools.runtime.kernel"],
