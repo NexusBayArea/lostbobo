@@ -16,12 +16,15 @@ MODULE_MAP = {
 
 def load(name: str):
     if name not in MODULE_MAP:
-        raise ImportError(f"Module not registered in MODULE_MAP: {name}")
-
+        raise ImportError(f"Module '{name}' not found in Beta Foundation Registry.")
     return import_module(MODULE_MAP[name])
 
 
 def validate():
-    # fail fast if anything missing
+    """Fail-fast check for foundation integrity"""
     for name, path in MODULE_MAP.items():
-        import_module(path)
+        try:
+            import_module(path)
+        except ImportError as e:
+            print(f"[FAIL] missing module {name} at {path}")
+            raise e
