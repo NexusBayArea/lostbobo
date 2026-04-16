@@ -1,4 +1,4 @@
-from tools.runtime.tools.system_tools import register_system_tools
+﻿from tools.runtime.tools.system_tools import register_system_tools
 from tools.runtime.ci_compiler import compile_ci
 
 
@@ -22,5 +22,9 @@ def bootstrap():
     return 0
 
 
-if __name__ == "__main__":
+def main():
     raise SystemExit(bootstrap())
+
+
+if __name__ == "__main__":
+    main()
