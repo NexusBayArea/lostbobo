@@ -6,25 +6,24 @@ sys.path.insert(0, str(ROOT))
 
 
 def bootstrap():
-    import tools.runtime.deps  # ensures system integrity
-
-    print("[BOOTSTRAP] loaded")
-
+    import tools.runtime.deps  # hard fail if broken
     from tools.runtime.graph import GRAPH
     from tools.runtime.engine import ExecutionEngine
+    from tools.runtime.nodes import register_default_nodes
 
+    print("[BOOTSTRAP] V2 deterministic runtime starting")
+
+    register_default_nodes()
     engine = ExecutionEngine()
 
-    # TEMP: create minimal test node if graph empty
     if not GRAPH.nodes:
-        print("[BOOTSTRAP] no graph registered yet")
+        print("[BOOTSTRAP] empty graph — nothing to execute")
         return
 
-    # execute first node deterministically
-    first = next(iter(GRAPH.nodes))
-    result = engine.run(first)
+    results = engine.run_all()
 
-    print("[BOOTSTRAP] execution result:", result)
+    print("[BOOTSTRAP] execution complete")
+    print(results)
 
 
 def main():

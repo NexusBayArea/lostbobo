@@ -5,28 +5,15 @@ class ExecutionEngine:
     def __init__(self):
         self.results = {}
 
-    def run(self, node_id: str):
-        node = GRAPH.get(node_id)
+    def run_all(self):
+        order = GRAPH.topologically_sorted()
 
-        for dep in node.deps:
-            if dep not in self.results:
-                self.run(dep)
+        for node_id in order:
+            node = GRAPH.get(node_id)
 
-        self.results[node_id] = node.fn()
+            # ensure deps already computed
+            inputs = {d: self.results[d] for d in node.deps}
 
-        return self.results[node_id]
+            self.results[node_id] = node.fn(inputs)
 
-
-class ReplayEngine:
-    def __init__(self, graph, log):
-        self.graph = graph
-        self.log = log
-
-    def replay(self):
-        results = {}
-
-        for entry in self.log:
-            node = self.graph.get(entry["node"])
-            results[node.id] = node.fn()
-
-        return results
+        return self.results
