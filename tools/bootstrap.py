@@ -8,17 +8,14 @@ if str(ROOT) not in sys.path:
 
 def bootstrap():
     from tools import registry
+    from tools.runtime.tools.system_tools import register_system_tools
 
     print("[BOOTSTRAP] validating module map")
     registry.validate()
 
     print("[BOOTSTRAP] executing deterministic graph")
 
-    try:
-        system_tools = registry.load("system_tools")
-        system_tools.register_system_tools(registry)
-    except (ImportError, TypeError) as e:
-        print(f"[BOOTSTRAP] System tools registration skipped: {e}")
+    register_system_tools()
 
     from tools.runtime.nodes import register_default_nodes
     from tools.runtime.graph import GRAPH
