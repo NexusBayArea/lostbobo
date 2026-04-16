@@ -5,7 +5,7 @@ requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["tools*"]
+include = ["tools", "tools.*"]
 
 [build-system]
 requires = ["setuptools"]
