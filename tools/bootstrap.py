@@ -1,9 +1,6 @@
-import sys
-from pathlib import Path
-import subprocess
 from tools.runtime.deps import validate_lock
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import sys
+import subprocess
 
 
 def run_step(name: str, cmd: list[str]) -> None:
