@@ -3,21 +3,15 @@ from tools.runtime.tool_registry import TOOL_REGISTRY, Tool
 
 
 def run_ruff_check(_):
-    return subprocess.run(
-        ["python", "-m", "ruff", "check", "."]
-    ).returncode
+    return subprocess.run(["python", "-m", "ruff", "check", "."]).returncode
 
 
 def run_ruff_format(_):
-    return subprocess.run(
-        ["python", "-m", "ruff", "format", "."]
-    ).returncode
+    return subprocess.run(["python", "-m", "ruff", "format", "."]).returncode
 
 
 def run_pytest(_):
-    return subprocess.run(
-        ["pytest", "-q"]
-    ).returncode
+    return subprocess.run(["pytest", "-q"]).returncode
 
 
 def register_system_tools():
