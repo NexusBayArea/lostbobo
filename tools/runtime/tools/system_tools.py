@@ -14,7 +14,8 @@ def run_pytest(_):
     return subprocess.run(["pytest", "-q"]).returncode
 
 
-def register_system_tools():
+def register_system_tools(registry=None):
+    # registry is passed to satisfy the bootstrap signature
     TOOL_REGISTRY.register(Tool("lint", run_ruff_check))
     TOOL_REGISTRY.register(Tool("format", run_ruff_format))
     TOOL_REGISTRY.register(Tool("test", run_pytest))
