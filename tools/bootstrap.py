@@ -16,9 +16,9 @@ def assert_imports():
 
 def bootstrap():
     assert_imports()
-    
+
     from tools.registry import load, validate
-    
+
     print("[BOOTSTRAP] validating module map")
     validate()
 
@@ -29,6 +29,7 @@ def bootstrap():
     system_tools.register_system_tools()
 
     from tools.runtime.ci_compiler import compile_ci
+
     graph = compile_ci()
     order = graph.topo()
 
