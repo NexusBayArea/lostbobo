@@ -1,9 +1,17 @@
+from __future__ import annotations
+
 import sys
 import subprocess
+import time
+import uuid
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any, Callable, Dict, Optional, Set
+
 from tools.runtime.contract import CONTRACT
 from tools.runtime.capabilities import CAPABILITIES
 from tools.runtime.trace import Trace
+
 
 def get_state_handlers():
     from tools.runtime.capabilities import CAPABILITIES
@@ -18,12 +26,149 @@ def get_state_handlers():
         print("[WARN] state capability enabled but module missing")
         return None, None
 
+
 CONTRACT.apply()
 
 PYPROJECT = CONTRACT.root / "pyproject.toml"
 LOCKFILE = CONTRACT.root / "requirements.lock"
 MANIFEST = CONTRACT.root / "tools" / "ci_manifest.yml"
 
+
+# ==============================
+# Distributed Kernel (v2 Control Plane)
+# ==============================
+
+@dataclass
+class Task:
+    id: str
+    fn: Callable[..., Any]
+    deps: Set[str] = field(default_factory=set)
+    retries: int = 0
+
+
+@dataclass
+class Lease:
+    task_id: str
+    worker_id: str
+    lease_id: str
+    expires_at: float
+
+
+@dataclass
+class TaskState:
+    task: Task
+    status: str = "pending"
+    attempt: int = 0
+    last_error: Optional[str] = None
+    lease: Optional[Lease] = None
+    result: Any = None
+
+
+class Queue:
+    def push(self, task_id: str) -> None:
+        raise NotImplementedError
+
+    def pop(self) -> Optional[str]:
+        raise NotImplementedError
+
+
+class InMemoryQueue(Queue):
+    def __init__(self):
+        self.q = []
+
+    def push(self, task_id: str) -> None:
+        self.q.append(task_id)
+
+    def pop(self) -> Optional[str]:
+        if not self.q:
+            return None
+        return self.q.pop(0)
+
+
+class Kernel:
+    def __init__(self, queue: Queue | None = None, lease_ttl_s: int = 30):
+        self.queue = queue or InMemoryQueue()
+        self.lease_ttl_s = lease_ttl_s
+        self.tasks: Dict[str, TaskState] = {}
+
+    def add_task(self, task: Task) -> None:
+        self.tasks[task.id] = TaskState(task=task)
+
+    def _deps_ready(self, task: Task) -> bool:
+        return all(
+            dep in self.tasks and self.tasks[dep].status == "success"
+            for dep in task.deps
+        )
+
+    def _enqueue_ready(self) -> None:
+        for t in self.tasks.values():
+            if t.status == "pending" and self._deps_ready(t):
+                t.status = "queued"
+                self.queue.push(t.task.id)
+
+    def lease_task(self, worker_id: str) -> Optional[Task]:
+        self._enqueue_ready()
+        task_id = self.queue.pop()
+        if not task_id:
+            return None
+
+        state = self.tasks[task_id]
+        lease = Lease(
+            task_id=task_id,
+            worker_id=worker_id,
+            lease_id=str(uuid.uuid4()),
+            expires_at=time.time() + self.lease_ttl_s,
+        )
+
+        state.status = "leased"
+        state.lease = lease
+        state.attempt += 1
+
+        return state.task
+
+    def report_success(self, task_id: str, result: Any) -> None:
+        state = self.tasks[task_id]
+        state.status = "success"
+        state.result = result
+
+    def report_failure(self, task_id: str, error: str) -> None:
+        state = self.tasks[task_id]
+        state.last_error = error
+
+        if state.attempt <= state.task.retries:
+            state.status = "pending"
+            self.queue.push(task_id)
+        else:
+            state.status = "failed"
+
+    def snapshot(self) -> Dict[str, str]:
+        return {k: v.status for k, v in self.tasks.items()}
+
+
+class Worker:
+    def __init__(self, worker_id: str, kernel: Kernel):
+        self.worker_id = worker_id
+        self.kernel = kernel
+
+    def run_forever(self):
+        while True:
+            task = self.kernel.lease_task(self.worker_id)
+
+            if not task:
+                time.sleep(0.5)
+                continue
+
+            try:
+                result = task.fn()
+                self.kernel.report_success(task.id, result)
+
+            except Exception as e:
+                self.kernel.report_failure(task.id, str(e))
+
+
+# ==============================
+# Legacy DAG Kernel (v1 - kept for bootstrap)
+# ==============================
 
 def read_lock() -> set[str]:
     if not LOCKFILE.exists():
@@ -51,7 +196,6 @@ def verify_capabilities():
 
 
 def validate_lock_format() -> bool:
-    """Validate lockfile has correct format with pinned versions."""
     if not LOCKFILE.exists():
         print("[FAIL] requirements.lock not found")
         return False
@@ -155,6 +299,7 @@ def execute_dag(manifest: dict, trace: Trace):
 
 def self_heal():
 
+
 def validate_contract():
     print("[KERNEL] contract validation")
     required_attrs = ["root", "paths"]
@@ -188,7 +333,7 @@ def main():
     trace = Trace()
     verify_capabilities()
     validate_dependencies()
-self_heal()
+    self_heal()
     validate_contract()
 
     manifest = load_manifest()
