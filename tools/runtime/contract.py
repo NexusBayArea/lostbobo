@@ -8,7 +8,8 @@ class Contract:
 
     entrypoints: list[str] = field(
         default_factory=lambda: [
-            "app.api.kernel",
+            "app.main",
+            "tools.bootstrap",
         ]
     )
 
