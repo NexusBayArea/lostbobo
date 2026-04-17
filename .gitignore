@@ -1,82 +1,87 @@
 # ==============================================================================
-# SimHPC - Clean Deterministic Ignore (Backend + CI Stable)
+# SimHPC - Zero-Drift Structural Firewall
 # ==============================================================================
 
 # -------------------------
-# Python
+# Progress & Roadmap (KEEP TRACKED)
+# -------------------------
+!progress.md
+!ROADMAP.md
+!SYSTEM.md
+
+# -------------------------
+# Python / Build Artifacts (THE RED-CLEARERS)
 # -------------------------
 __pycache__/
 *.py[cod]
-*.pyo
-*.log
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/      # <--- CRITICAL: Prevents local path shadowing in CI
+.installed.cfg
+*.egg
+MANIFEST
 
+# -------------------------
+# Environment & Dependencies
+# -------------------------
 .venv/
 venv/
 ENV/
+env/
 .env
 .env.*
-
-*.egg-info/
-dist/
-build/
-
-.pytest_cache/
-.ruff_cache/
+pip-log.txt
+pip-delete-this-directory.txt
+.requirements.lock.tmp   # <--- Junk removal
 
 # -------------------------
-# IDE
+# Telemetry & Runtime Data (LOCAL ONLY)
+# -------------------------
+*.sqlite         # Prevents your local DB from being pushed
+runtime_trace.json
+dag.json         # If generated at runtime
+logs/
+*.log
+
+# -------------------------
+# IDE / OS Trash
 # -------------------------
 .vscode/
 .idea/
 .DS_Store
+Thumbs.db
 
 # -------------------------
-# Logs / Data (local only)
+# CI / Testing Artifacts
 # -------------------------
-logs/
-data/
-*.log
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.tox/
+.noseresults/
+nosetests.xml
+coverage.xml
 
 # -------------------------
-# Node / Frontend (if used)
+# System Integrity
 # -------------------------
-node_modules/
-.next/
-.vercel/
-*.tsbuildinfo
-
-# -------------------------
-# Secrets
-# -------------------------
-*.pem
-*.key
-*.p12
-*.pfx
-
-# -------------------------
-# Docker / Local runtime artifacts
-# -------------------------
-.docker/
-
-# -------------------------
-# CI / Auth artifacts
-# -------------------------
-gha-creds-*.json
-
-# -------------------------
-# Keep runtime SYSTEM CODE tracked (IMPORTANT)
-# -------------------------
-# NOTE:
-# tools/ MUST NOT be ignored — it is the runtime system
-# runtime/ MUST NOT be ignored — CI depends on it
-
-# -------------------------
-# Legacy / optional folders
-# -------------------------
-legacy_archive/
-skills/
-
-# -------------------------
-# Documentation noise
-# -------------------------
-progress.md
+# Ensure our core tools are ALWAYS tracked
+!tools/
+!src/
+!app/
