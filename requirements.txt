@@ -22,4 +22,3 @@ requests>=2.31.0
 pytest
 pytest-asyncio
 ruff
-mypypandas
