@@ -2,6 +2,27 @@
 # SimHPC - Zero-Drift Structural Firewall
 # ==============================================================================
 
+# --- IDE/Node Bloat ---
+node_modules/
+.vscode/
+.env
+
+# --- Python Build Bloat (The Root Cause of your CI Red) ---
+simhpc.egg-info/
+build/
+dist/
+__pycache__/
+*.egg
+
+# --- Runtime Junk ---
+*.sqlite
+runtime_trace.json
+.ruff_cache/
+.pytest_cache/
+
+# --- KEEP THESE ---
+!progress.md
+
 # -------------------------
 # Progress & Roadmap (KEEP TRACKED)
 # -------------------------
