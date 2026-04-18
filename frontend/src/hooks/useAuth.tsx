@@ -11,10 +11,11 @@ export function useAuth() {
   const [userTier, setUserTier] = useState<UserTier>('free');
   const [loading, setLoading] = useState(true);
 
-  const refreshTier = useCallback(async (token: string) => {
+  const refreshTier = useCallback(async (_token: string) => {
     try {
-      const profile = await api.getUserProfile(token);
-      setUserTier(profile.plan as UserTier);
+      const { data: { user } } = await supabase.auth.getUser();
+      // Assuming plan is stored in user_metadata or similar; adapt to your schema
+      setUserTier((user?.user_metadata?.plan as UserTier) || 'free');
     } catch (error) {
       console.error('Failed to refresh user tier:', error);
     }

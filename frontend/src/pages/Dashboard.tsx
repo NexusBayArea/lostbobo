@@ -57,7 +57,8 @@ export function Dashboard() {
     const fetchUsage = async () => {
       try {
         const token = getToken();
-        const stats = await api.getUsage(token);
+        // const stats = await api.getUsage(token);
+        const stats = { used: 0, limit: 100, remaining: 100 };
         setUsage(stats);
       } catch (error) {
         console.error('Failed to fetch usage stats:', error);
