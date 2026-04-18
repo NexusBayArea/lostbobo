@@ -21,6 +21,10 @@ jobs:
           format: dotenv
           outputFileName: .env
 
+      - name: Load secrets into environment
+        run: |
+          cat .env >> $GITHUB_ENV
+
       - name: Auth with GHCR
         run: |
           echo "${{ env.GIT_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
