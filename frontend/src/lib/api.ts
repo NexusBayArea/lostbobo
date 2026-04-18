@@ -127,6 +127,36 @@ class ApiClient {
   async getUsage(): Promise<any> {
     return this.request<any>('/admin/usage', { method: 'GET' }, false);
   }
+
+  async wakePod(token: string): Promise<any> {
+    const podId = import.meta.env.VITE_RUNPOD_POD_ID;
+    const apiKey = import.meta.env.VITE_RUNPOD_API_KEY;
+    if (!podId || !apiKey) {
+      throw new Error('RunPod not configured');
+    }
+    const response = await fetch(`https://api.runpod.io/v2/pod/${podId}/resume`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+    return response.json();
+  }
+
+  async checkPodStatus(token: string): Promise<any> {
+    const podId = import.meta.env.VITE_RUNPOD_POD_ID;
+    const apiKey = import.meta.env.VITE_RUNPOD_API_KEY;
+    if (!podId || !apiKey) {
+      throw new Error('RunPod not configured');
+    }
+    const response = await fetch(`https://api.runpod.io/v2/pod/${podId}`, {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+    return response.json();
+  }
 }
 
 export const api = new ApiClient();

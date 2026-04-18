@@ -1,8 +1,20 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.api.main import api_router
+import time
 
 app = FastAPI(title="SimHPC API")
+
+ACTIVITY_FILE = "/tmp/last_active.txt"
+
+
+@app.middleware("http")
+async def update_last_activity(request: Request, call_next):
+    with open(ACTIVITY_FILE, "w") as f:
+        f.write(str(time.time()))
+    response = await call_next(request)
+    return response
+
 
 origins = [
     "https://simhpc-70zmkqotk-nexusbayareas-projects.vercel.app",
