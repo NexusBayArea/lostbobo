@@ -14,11 +14,10 @@ jobs:
 
       - name: Fetch Secrets from Infisical
         uses: Infisical/secrets-action@v1.0.12
-        env:
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_ID: ${{ secrets.GIT_RUNPOD_CLIENT_ID }}
-          INFISICAL_UNIVERSAL_AUTH_CLIENT_SECRET: ${{ secrets.GIT_RUNPOD_CLIENT_SECRET }}
         with:
           method: universal
+          client-id: ${{ secrets.GIT_RUNPOD_CLIENT_ID }}
+          client-secret: ${{ secrets.GIT_RUNPOD_CLIENT_SECRET }}
           project-slug: simhpc
           env-slug: prod
 
