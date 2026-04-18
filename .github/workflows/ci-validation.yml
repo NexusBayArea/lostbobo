@@ -12,18 +12,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch Secrets from Infisical
-        uses: Infisical/secrets-action@v1.0.12
-        with:
-          method: universal
-          client-id: ${{ secrets.GIT_RUNPOD_CLIENT_ID }}
-          client-secret: ${{ secrets.GIT_RUNPOD_CLIENT_SECRET }}
-          project-slug: simhpc
-          env-slug: prod
-
       - name: Auth with GHCR
         run: |
-          echo "$GIT_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo "${{ secrets.GIT_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and Push SimHPC Image
+        run: |
+          docker build -f Dockerfile.unified -t ghcr.io/lostbobo/simhpc_unified:latest .
+          docker push ghcr.io/lostbobo/simhpc_unified:latest
 
       - name: Set up Python
         uses: actions/setup-python@v5
