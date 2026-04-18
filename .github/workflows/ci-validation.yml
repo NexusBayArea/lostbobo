@@ -24,6 +24,7 @@ jobs:
 
       - name: Install Python dependencies (HERMETIC)
         run: |
+          cd backend
           $HOME/.local/bin/uv pip install --system -r requirements.txt
           $HOME/.local/bin/uv pip install --system -e .
 

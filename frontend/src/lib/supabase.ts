@@ -37,3 +37,13 @@ export async function getSession() {
   if (error) throw error;
   return data.session;
 }
+
+export async function getUserProfile() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  return {
+    id: user.id,
+    email: user.email,
+    created_at: user.created_at,
+  };
+}
