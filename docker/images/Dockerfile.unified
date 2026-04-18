@@ -25,8 +25,8 @@ COPY pyproject.toml uv.lock* ./
 RUN /root/.cargo/bin/uv pip install --system -r pyproject.toml || \
     pip install --no-cache-dir -r pyproject.toml || true
 
-# Copy the rest of the application
-COPY . .
+# Copy the backend application
+COPY backend/ ./backend/
 
 # Copy the Supervisor configuration
 COPY docker/supervisor/simhpc.conf /etc/supervisor/conf.d/simhpc.conf
