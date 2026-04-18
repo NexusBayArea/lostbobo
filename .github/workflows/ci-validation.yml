@@ -46,6 +46,11 @@ jobs:
           cd backend
           python tools/ci_gate.py
 
+      - name: Build and Push Docker Image
+        run: |
+          docker build -f Dockerfile.unified -t ghcr.io/lostbobo/simhpc_unified:latest .
+          docker push ghcr.io/lostbobo/simhpc_unified:latest
+
       - name: Update RunPod Template
         run: |
           cd backend

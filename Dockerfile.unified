@@ -1,0 +1,36 @@
+# --- Stage 1: Runtime Base ---
+FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04 AS base
+
+# Optimize Python and pathing for SimHPC
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    UV_SYSTEM_PYTHON=1
+
+# Install essential runtime libraries
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip curl supervisor libgomp1 libgl1-mesa-glx \
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install uv for high-speed, hermetic installs
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# --- Stage 2: Application Layer ---
+WORKDIR /app
+
+# Install SimHPC dependencies first
+COPY backend/pyproject.toml backend/uv.lock* ./
+RUN uv pip install --system -r pyproject.toml || pip install --no-cache-dir -r pyproject.toml
+
+# Copy SimHPC backend application code
+COPY backend/ ./backend/
+
+# Process management
+COPY docker/supervisor/simhpc.conf /etc/supervisor/conf.d/simhpc.conf
+
+EXPOSE 8080 8000
+
+# Start Supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/simhpc.conf"]
