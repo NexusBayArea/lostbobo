@@ -12,6 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Fetch Secrets from Infisical
+        uses: infisical/infisical-action@v0.1.0
+        with:
+          clientId: ${{ secrets.INFISICAL_CLIENT_ID }}
+          clientSecret: ${{ secrets.INFISICAL_CLIENT_SECRET }}
+          environment: prod
+          format: dotenv
+          outputFileName: .env
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
