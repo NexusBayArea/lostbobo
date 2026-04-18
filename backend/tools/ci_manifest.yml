@@ -1,0 +1,19 @@
+version: 1
+
+nodes:
+  fingerprint:
+    path: tools/deps/verify_fingerprint.py
+    depends_on: []
+    critical: true
+
+  dependency_scan:
+    path: tools/deps/dependency_scan.py
+    depends_on:
+      - fingerprint
+    critical: true
+
+  system_contract:
+    path: tools/ci_gates/system_contract.py
+    depends_on:
+      - dependency_scan
+    critical: true
