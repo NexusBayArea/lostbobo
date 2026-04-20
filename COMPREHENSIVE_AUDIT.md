@@ -33,7 +33,7 @@ Your SimHPC codebase is a solid, production-oriented full-stack setup (FastAPI b
 Edit the pod → Environment Variables → Update `ALLOWED_ORIGINS` to **exactly** this (no wildcards for Vercel previews):
 
 ```
-http://localhost:3000,http://localhost:5173,http://localhost:59824,http://127.0.0.1:59824,https://simhpc-nexusbayareas-projects.vercel.app,https://simhpc.nexusbayarea.com,https://simhpc.com
+http://localhost:3000,http://localhost:5173,http://localhost:59824,http://127.0.0.1:59824,https://simhpc-nexusbayarea-projects.vercel.app,https://simhpc.nexusbayarea.com,https://simhpc.com
 ```
 
 Save → pod restarts (~60-90s).  
@@ -48,7 +48,7 @@ Replace the current CORS section with this cleaner version:
 ALLOWED_ORIGINS = os.getenv(
     "ALLOWED_ORIGINS",
     "http://localhost:3000,http://localhost:5173,http://localhost:59824,"
-    "http://127.0.0.1:59824,https://simhpc-nexusbayareas-projects.vercel.app,"
+    "http://127.0.0.1:59824,https://simhpc-nexusbayarea-projects.vercel.app,"
     "https://simhpc.nexusbayarea.com,https://simhpc.com",
 ).split(",")
 
