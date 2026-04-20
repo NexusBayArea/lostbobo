@@ -17,6 +17,18 @@ Status: {status}
 Provide a concise technical summary and recommendation for the next iteration.
 """
 
+@router.get("/")
+async def list_simulations(user_id: str):
+    query = supabase.table("simulation_history").select(
+        "id, job_id, status, progress, certificate_hash, credit_cost, last_ping, created_at"
+    )
+    
+    if user_id != 'ALL_FLEET':
+        query = query.eq("user_id", user_id)
+        
+    res = query.order("created_at", desc=True).execute()
+    return res.data
+
 @router.post("/generate-report/{job_id}", tags=["Mercury AI"])
 async def generate_guidance_report(job_id: str) -> Any:
     try:
