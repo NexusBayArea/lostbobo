@@ -11,5 +11,10 @@ export const PLATFORM_CONTRACT = {
       DASHBOARD: '/dashboard',
       ADMIN: '/admin/analytics',
     }
+  },
+  SIMULATION_CONFIG: {
+    MODEL_TYPES: ['Parametric Sweep', 'Latin Hypercube', 'Sobol GSA'],
+    GEOMETRY_TEMPLATES: ['Turbine Blade', 'Heat Sink', 'Pressure Vessel'],
+    SOLVERS: ['MFEM (Structural)', 'SUNDIALS (Thermal)', 'Mercury-Hybrid'],
   }
 } as const;
