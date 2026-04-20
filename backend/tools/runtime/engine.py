@@ -1,19 +1,26 @@
-from tools.runtime.graph import GRAPH
-
+from backend.tools.runtime.backends.registry import BACKENDS
+from backend.tools.runtime.trace import record
 
 class ExecutionEngine:
-    def __init__(self):
-        self.results = {}
+    def run_node(self, node, context):
+        node_type = node["type"]
 
-    def run_all(self):
-        order = GRAPH.topologically_sorted()
+        if node_type not in BACKENDS:
+            raise RuntimeError(f"No backend for {node_type}")
 
-        for node_id in order:
-            node = GRAPH.get(node_id)
+        backend = BACKENDS[node_type]
 
-            # ensure deps already computed
-            inputs = {d: self.results[d] for d in node.deps}
+        result = backend.execute(node, context)
+        record(node["id"], result, context["workspace"])
 
-            self.results[node_id] = node.fn(inputs)
+        return result
 
-        return self.results
+def run_dag(nodes, context):
+    engine = ExecutionEngine()
+    results = {}
+
+    for node in nodes:
+        result = engine.run_node(node, context)
+        results[node["id"]] = result
+
+    return results

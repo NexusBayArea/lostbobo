@@ -1,13 +1,7 @@
-class ReplayEngine:
-    def __init__(self, log):
-        self.log = log
+import json
+from pathlib import Path
 
-    def replay(self):
-        return [
-            {
-                "node": entry["node"],
-                "result": entry["result"],
-                "deps": entry.get("deps", {}),
-            }
-            for entry in self.log
-        ]
+def replay(node_id, workspace):
+    trace_file = Path(workspace) / f"{node_id}.json"
+    with open(trace_file) as f:
+        return json.load(f)
