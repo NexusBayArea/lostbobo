@@ -36,18 +36,11 @@ const CopyButton = ({ text }: { text: string | undefined | null }) => {
   );
 };
 
-// --- Helpers ---
-const isPingRecent = (ping?: string) => {
-  if (!ping) return false;
-  const lastPing = new Date(ping).getTime();
-  const now = new Date().getTime();
-  return now - lastPing < 1000 * 60 * 5; // 5 min threshold
-};
+import { isPingRecent, formatPing } from '../../lib/utils';
+// ... rest of the imports ...
 
-const formatPing = (ping?: string) => {
-  if (!ping) return 'N/A';
-  return new Date(ping).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-};
+// --- Helpers ---
+// Remove the old local versions as we now use the ones from '../../lib/utils'
 
 
 export const AdminAnalyticsPage = () => {
@@ -178,11 +171,24 @@ export const AdminAnalyticsPage = () => {
                         {sim.credit_cost} CR
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className={`h-2 w-2 rounded-full ${isPingRecent(sim.last_ping) ? 'bg-green-500' : 'bg-red-500'}`} />
-                          <span className="text-[10px] text-gray-500 uppercase">
-                            {formatPing(sim.last_ping)}
-                          </span>
+                        <div className="flex items-center gap-2 group">
+                          {/* Visual Health Indicator */}
+                          <div 
+                            className={`h-2 w-2 rounded-full shadow-sm transition-colors duration-500 ${
+                              isPingRecent(sim.last_ping) 
+                                ? 'bg-emerald-500 shadow-emerald-500/20' 
+                                : 'bg-rose-500 shadow-rose-500/20 animate-pulse'
+                            }`} 
+                          />
+                          
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">
+                              {isPingRecent(sim.last_ping) ? 'Healthy' : 'Stale'}
+                            </span>
+                            <span className="text-[9px] text-muted-foreground font-mono">
+                              {formatPing(sim.last_ping)}
+                            </span>
+                          </div>
                         </div>
                       </td>
                     </tr>
