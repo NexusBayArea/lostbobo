@@ -1,34 +1,38 @@
 from backend.tools.runtime.backends.registry import BACKENDS
 from backend.tools.runtime.backends.registry import BACKENDS
-from backend.tools.runtime.trace import record, load
-from backend.tools.runtime.planner import plan_execution
+from backend.tools.runtime.trace import record
+from backend.tools.runtime.contract import compute_contract
+from backend.tools.runtime.cache import lookup_contract
 
 class ExecutionEngine:
-    def run_node(self, node, context):
-        node_id = node["id"]
-        # Execution is now driven by the planner, but we record execution
-        # to ensure tracing works correctly.
+    def run_node(self, node, context, upstream_contracts):
+        contract = compute_contract(node, upstream_contracts)
+
+        # STEP 1: cross-run cache lookup
+        cached = lookup_contract(contract)
+        if cached:
+            return {"result": cached, "meta": {"cache_hit": True}}
+
+        # STEP 2: execute normally
         backend = BACKENDS[node["type"]]
         result = backend.execute(node, context)
-        result["executed"] = True
-        return result
+        
+        # STEP 3: persist
+        record(node["id"], contract, node.get("deps", []), result, context)
+        
+        return {"result": result, "meta": {"cache_hit": False}}
 
 def run_dag(nodes, context):
-    plan = plan_execution(nodes, context["workspace"])
     engine = ExecutionEngine()
     results = {}
+    contracts = {}
 
-    for nid in plan["ordered"]:
-        node = next(n for n in nodes if n["id"] == nid)
-
-        if nid not in plan["dirty"]:
-            prev = load(nid, context["workspace"])
-            results[nid] = prev["result"]
-            continue
-
-        result = engine.run_node(node, context)
-        record(nid, plan["contracts"][nid], result, context["workspace"])
-        results[nid] = result
+    for node in nodes:
+        # Pass contracts to engine for contract computation
+        execution_response = engine.run_node(node, context, contracts)
+        results[node["id"]] = execution_response["result"]
+        # Store computed contract for downstream nodes
+        contracts[node["id"]] = compute_contract(node, contracts)
 
     return results
 
