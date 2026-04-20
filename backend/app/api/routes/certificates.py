@@ -79,44 +79,26 @@ async def generate_certificate(job_id: str, user: dict = Depends(lambda: _verify
         "verification_url": f"https://simhpc.com/verify/{cert_id}"
     }
 
-@router.get("/verify/{certificate_id}", response_model=CertificateVerifyResponse)
-async def verify_certificate(certificate_id: str):
-    """
-    PUBLIC ENDPOINT: Allows third parties to verify a simulation result.
-    Does NOT require authentication.
-    """
-    if not _supabase:
-        raise HTTPException(503, "Database connection unavailable")
+from fastapi.responses import StreamingResponse
+from backend.app.services.pdf_service import PDFReportService
 
-    # 1. Fetch the certificate
+@router.get("/download/{certificate_id}")
+async def download_certificate_pdf(certificate_id: str):
+    # 1. Fetch certificate and simulation data
     cert_res = _supabase.table("simulation_certificates").select("*").eq("certificate_id", certificate_id).single().execute()
-    cert_data = cert_res.data
+    if not cert_res.data:
+        raise HTTPException(404, "Certificate not found")
+        
+    sim_res = _supabase.table("simulations").select("*").eq("job_id", cert_res.data["job_id"]).single().execute()
+    if not sim_res.data:
+        raise HTTPException(404, "Simulation data not found")
 
-    if not cert_data:
-        raise HTTPException(404, "Invalid Certificate ID")
+    # 2. Generate PDF using our new service
+    pdf_buffer = PDFReportService.generate_certificate_pdf(cert_res.data, sim_res.data)
 
-    # 2. Fetch the underlying simulation data
-    sim_res = _supabase.table("simulations").select("input_params, result_summary, updated_at").eq("job_id", cert_data["job_id"]).single().execute()
-    sim_data = sim_res.data
-
-    if not sim_data:
-        raise HTTPException(500, "Underlying simulation data missing")
-
-    # 3. Recalculate the hash
-    payload_to_hash = {
-        "job_id": cert_data["job_id"],
-        "input_params": sim_data.get("input_params", {}),
-        "result_summary": sim_data.get("result_summary", {}),
-        "completed_at": sim_data.get("updated_at")
-    }
-    recalculated_hash = hashlib.sha256(json.dumps(payload_to_hash, sort_keys=True).encode('utf-8')).hexdigest()
-
-    is_valid = recalculated_hash == cert_data["signature_hash"]
-
-    return {
-        "is_valid": is_valid,
-        "job_id": cert_data["job_id"],
-        "issued_at": cert_data["issued_at"],
-        "signature_hash": cert_data["signature_hash"],
-        "verified_data": sim_data if is_valid else {"error": "Data integrity check failed. Records may have been altered."}
-    }
+    # 3. Stream the file back
+    return StreamingResponse(
+        pdf_buffer, 
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=SimHPC_Report_{certificate_id[:8]}.pdf"}
+    )
