@@ -1,18 +1,32 @@
-import json
-from pathlib import Path
+import os
+from supabase import create_client
+from backend.app.core.config import settings
 
-def record(node_id, contract, result, path):
-    trace_file = Path(path) / f"{node_id}.json"
-    with open(trace_file, "w") as f:
-        json.dump({
-            "contract": contract,
-            "result": result
-        }, f)
+supabase = create_client(settings.SB_URL, settings.SB_SECRET_KEY)
 
-def load(node_id, path):
-    trace_file = Path(path) / f"{node_id}.json"
-    if not trace_file.exists():
-        return None
+CURRENT_RUN_ID = None
 
-    with open(trace_file) as f:
-        return json.load(f)
+def start_run(label="manual"):
+    global CURRENT_RUN_ID
+    res = supabase.table("runs").insert({"label": label}).execute()
+    CURRENT_RUN_ID = res.data[0]["id"]
+    return CURRENT_RUN_ID
+
+def record(node_id, contract, deps, result, context):
+    if not CURRENT_RUN_ID:
+        raise RuntimeError("No active run found. Call start_run() first.")
+        
+    supabase.table("node_traces").insert({
+        "run_id": CURRENT_RUN_ID,
+        "node_id": node_id,
+        "contract": contract,
+        "deps": deps,
+        "result": result
+    }).execute()
+
+def load_run(run_id):
+    res = supabase.table("node_traces") \
+        .select("*") \
+        .eq("run_id", run_id) \
+        .execute()
+    return res.data
