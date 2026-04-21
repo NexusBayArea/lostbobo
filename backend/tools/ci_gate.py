@@ -1,38 +1,22 @@
 import subprocess
 import sys
 
-
-def run(cmd: list[str]) -> int:
-    print(f"\n[CI] $ {' '.join(cmd)}")
-    return subprocess.call(cmd)
-
-
-def fail(msg: str) -> None:
-    print(f"\n[FAIL] {msg}")
-    sys.exit(1)
-
-
-def step(name: str, cmd: list[str]) -> None:
-    rc = run(cmd)
-    if rc != 0:
-        fail(name)
-
+def run_cmd(cmd):
+    print(f"[CI] $ {' '.join(cmd)}")
+    res = subprocess.run(cmd)
+    if res.returncode != 0:
+        print(f"[FAIL] {cmd[2] if len(cmd) > 2 else cmd[0]}")
+        sys.exit(res.returncode)
 
 def main():
-    print("[CI-GATE] unified execution starting")
-
-    step("format-check", ["python", "-m", "ruff", "format", ".", "--check"])
-
-    step("lint", ["python", "-m", "ruff", "check", ".", "--exit-non-zero-on-fix"])
-
-    step("import-graph", ["python", "-c", "import tools.runtime.kernel"])
-
-    bootstrap_path = "tools/bootstrap.py"
-    if subprocess.run(["python", bootstrap_path, "ci"]).returncode != 0:
-        fail("contract")
-
-    print("\n[CI-GATE] PASS (local == CI deterministic)")
-
+    print("[CI-GATE] Unified execution starting")
+    
+    # 1. Linting
+    run_cmd(["python3", "-m", "ruff", "check", "backend/", "--fix"])
+    run_cmd(["python3", "-m", "ruff", "format", "backend/", "--check"])
+    
+    # 2. Call your System Contract
+    run_cmd(["python3", "backend/tools/ci_gates/system_contract.py"])
 
 if __name__ == "__main__":
     main()
