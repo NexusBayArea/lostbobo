@@ -35,7 +35,7 @@ def total_fleet_kill():
         else:
             for pod in target_pods:
                 runpod.terminate_pod(pod["id"])
-                print(f'✔ Terminated Pod: {pod['id']} ({pod['name']})')
+                print(f"\u2714 Terminated Pod: {pod['id']} ({pod['name']})")
 
         # C. Log Event to Persistent Backbone
         supabase.table("platform_alerts").insert(
