@@ -5,7 +5,7 @@ const USAGE_THRESHOLD = 10.00;
 
 serve(async (req) => {
   const supabaseAdmin = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SB_URL') ?? '',
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
   );
 

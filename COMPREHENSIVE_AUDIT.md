@@ -221,7 +221,7 @@ Worker (pure compute + publish events)
 
 | Key | Value |
 |-----|-------|
-| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SB_URL` | Supabase project URL |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anon key |
 | `VITE_API_URL` | `https://{POD_ID}-8000.proxy.runpod.net` |
 | `RUNPOD_API_URL` | `https://{POD_ID}-8000.proxy.runpod.net` |

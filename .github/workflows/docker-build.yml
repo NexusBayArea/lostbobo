@@ -1,22 +1,18 @@
 name: "v3.5.0 Hardened Build & Push"
-
 on:
   push:
     branches:
       - main
     tags:
       - 'v*'
-  workflow_dispatch:
-
+  workflow_dispatch: {}
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: nexusbayarea/simhpc-worker
-
 permissions:
   contents: read
   packages: write
   id-token: write
-
 jobs:
   build-and-push:
     name: Build and Push Worker Image
@@ -50,8 +46,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
-          file: backend/worker/Dockerfile
+          context: .
+          file: backend/worker/worker.Dockerfile
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ steps.meta.outputs.image_name }}:${{ steps.meta.outputs.sha_tag }}

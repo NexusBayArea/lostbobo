@@ -31,7 +31,7 @@ SECRET_MAPPING = {
     "RUNPOD_ID": "RUNPOD_ID",
     "REDIS_URL": "REDIS_URL",
     "MERCURY_API_KEY": "MERCURY_API_KEY",
-    "SUPABASE_URL": "SB_URL",
+    "SB_URL": "SB_URL",
     "SUPABASE_SERVICE_ROLE_KEY": "SB_SECRET_KEY",
     "SUPABASE_JWT_SECRET": "SB_JWT_SECRET",
     "SUPABASE_ANON_KEY": "VITE_SUPABASE_ANON",
@@ -142,7 +142,7 @@ def deploy():
     env_vars = {
         "REDIS_URL": secrets["REDIS_URL"],
         "MERCURY_API_KEY": secrets["MERCURY_API_KEY"],
-        "SUPABASE_URL": secrets["SUPABASE_URL"],
+        "SB_URL": secrets["SB_URL"],
         "SUPABASE_SERVICE_ROLE_KEY": secrets["SUPABASE_SERVICE_ROLE_KEY"],
         "SUPABASE_JWT_SECRET": secrets.get("SUPABASE_JWT_SECRET", ""),
         "SUPABASE_ANON_KEY": secrets.get("SUPABASE_ANON_KEY", ""),

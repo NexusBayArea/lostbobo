@@ -18,7 +18,7 @@ def scan_file(path: str):
 
 
 def scan_repo(root="."):
-    for base, dirs, files in os.walk(root):
+    for base, _dirs, files in os.walk(root):
         # skip virtual envs and hidden dirs
         if any(ignored in base for ignored in [".venv", ".git", "__pycache__", "node_modules"]):
             continue

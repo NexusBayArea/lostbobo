@@ -19,7 +19,7 @@ serve(async (req) => {
   try {
     // 2. Initialize Supabase Client
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SB_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
     )
@@ -39,7 +39,7 @@ serve(async (req) => {
 
     // 5. Query the simulation_history table for active jobs
     const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SB_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 

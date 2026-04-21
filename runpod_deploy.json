@@ -7,7 +7,7 @@
   "container_disk_in_gb": 30,
   "volume_in_gb": 50,
   "env": {
-    "SUPABASE_URL": "",
+    "SB_URL": "",
     "SUPABASE_SERVICE_ROLE_KEY": "",
     "REDIS_URL": "",
     "RUNPOD_API_KEY": "",
