@@ -10,8 +10,19 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["app", "packages"]
+packages = ["app", "packages", "autoscaler", "compiler", "data", "infra", "tools", "worker"]
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+ignore = ["E402", "B008", "E501"]
+select = ["E", "F", "B", "UP"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
