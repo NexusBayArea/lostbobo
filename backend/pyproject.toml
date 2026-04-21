@@ -1,3 +1,21 @@
+[project]
+name = "simhpc-backend"
+version = "3.5.0"
+description = "High-performance urban athletic culture platform"
+dependencies = [
+    "reportlab",
+    "qrcode[pil]",
+    "requests",
+    "supervisor",
+]
+
+[tool.setuptools]
+packages = ["app", "packages", "autoscaler", "compiler", "data", "infra", "tools", "worker"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [tool.ruff]
 line-length = 120
 
@@ -8,10 +26,3 @@ select = ["E", "F", "B", "UP"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
-
-[tool.setuptools]
-packages = ["app", "packages", "autoscaler", "compiler", "data", "infra", "tools", "worker"]
-
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
