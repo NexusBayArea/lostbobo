@@ -1,29 +1,31 @@
-import { useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { toast } from 'sonner';
+import { useState, useCallback } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 
-export const useOnboarding = (userId: string | undefined) => {
-  useEffect(() => {
-    const runOnboarding = async () => {
-      if (!userId) return;
+export const useOnboarding = () => {
+  const { user } = useAuth();
+  const [isProcessing, setIsProcessing] = useState(false);
 
-      // Check if user has already seen the welcome
-      const hasSeen = localStorage.getItem(`onboarded_${userId}`);
-      if (hasSeen) return;
+  const startOnboarding = useCallback(async () => {
+    if (!user) return;
+    setIsProcessing(true);
 
-      const { data, error } = await supabase.rpc('gift_signup_bonus', { 
-        target_user_id: userId 
+    try {
+      const { data, error } = await supabase.rpc('gift_signup_bonus', {
+        target_user_id: user.id
       });
 
-      if (!error) {
-        toast.success("Welcome! 10 Credits have been added to your account.", {
-          description: "Start your first simulation to see the system in action.",
-          duration: 6000,
-        });
-        localStorage.setItem(`onboarded_${userId}`, 'true');
-      }
-    };
+      if (error) throw error;
 
-    runOnboarding();
-  }, [userId]);
+      return { success: true, creditsAdded: 10, demoRunId: data.run_id };
+
+    } catch (err) {
+      console.error('Onboarding failed:', err);
+      return { success: false, error: err };
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [user]);
+
+  return { startOnboarding, isProcessing };
 };
