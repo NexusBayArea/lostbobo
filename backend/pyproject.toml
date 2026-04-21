@@ -1,7 +1,6 @@
 [project]
 name = "simhpc-backend"
 version = "3.5.0"
-description = "High-performance urban athletic culture platform"
 dependencies = [
     "reportlab",
     "qrcode[pil]",
@@ -10,22 +9,13 @@ dependencies = [
     "pandas",
     "fastapi",
     "uvicorn",
+    "pydantic-settings"
 ]
 
 [tool.setuptools]
+# Only include directories that exist and contain __init__.py
 packages = ["app", "packages", "compiler", "infra", "tools", "worker"]
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
-
-[tool.ruff]
-line-length = 120
-
-[tool.ruff.lint]
-ignore = ["E402", "B008", "E501"]
-select = ["E", "F", "B", "UP"]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
