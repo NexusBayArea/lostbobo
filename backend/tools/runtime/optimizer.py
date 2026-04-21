@@ -1,12 +1,13 @@
-from typing import Dict, Any
+from typing import Any
+
 from tools.runtime.contract import CONTRACT
 
 
 class DAGOptimizer:
-    def __init__(self, dag: Dict[str, Any]):
+    def __init__(self, dag: dict[str, Any]):
         self.dag = dag
 
-    def optimize(self, trace=None) -> Dict[str, Any]:
+    def optimize(self, trace=None) -> dict[str, Any]:
         dag = self.dag.copy()
 
         dag = self._prune_invalid(dag)

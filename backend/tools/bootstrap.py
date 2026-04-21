@@ -18,8 +18,8 @@ def bootstrap():
     system_tools.register_system_tools(registry)
 
     print("[BOOTSTRAP] executing deterministic graph")
-    from tools.runtime.nodes import register_default_nodes
     from tools.runtime.graph import GRAPH
+    from tools.runtime.nodes import register_default_nodes
 
     register_default_nodes()
     order = GRAPH.topologically_sorted()

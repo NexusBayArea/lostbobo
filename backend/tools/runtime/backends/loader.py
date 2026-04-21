@@ -4,6 +4,7 @@ from pathlib import Path
 
 ASSET_DIR = Path(".simhpc/runtime")
 
+
 def ensure_asset(name, archive_path):
     target = ASSET_DIR / name
 
@@ -16,6 +17,7 @@ def ensure_asset(name, archive_path):
         tar.extractall(path=target)
 
     return target
+
 
 def set_runtime_env(lib_path: Path):
     """Sets LD_LIBRARY_PATH to ensure dynamic libraries are found."""

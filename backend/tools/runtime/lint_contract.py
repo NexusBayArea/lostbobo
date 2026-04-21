@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Dict
 
 
 @dataclass
@@ -11,7 +10,7 @@ class LintRule:
 
 class LintContract:
     def __init__(self):
-        self.rules: Dict[str, LintRule] = {
+        self.rules: dict[str, LintRule] = {
             "E402": LintRule(
                 code="E402",
                 description="imports must be top-level or explicitly declared as lazy imports",

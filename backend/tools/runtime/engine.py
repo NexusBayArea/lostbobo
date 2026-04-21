@@ -1,8 +1,8 @@
 from backend.tools.runtime.backends.registry import BACKENDS
-from backend.tools.runtime.backends.registry import BACKENDS
-from backend.tools.runtime.trace import record
-from backend.tools.runtime.contract import compute_contract
 from backend.tools.runtime.cache import lookup_contract
+from backend.tools.runtime.contract import compute_contract
+from backend.tools.runtime.trace import record
+
 
 class ExecutionEngine:
     def run_node(self, node, context, upstream_contracts):
@@ -16,11 +16,12 @@ class ExecutionEngine:
         # STEP 2: execute normally
         backend = BACKENDS[node["type"]]
         result = backend.execute(node, context)
-        
+
         # STEP 3: persist
         record(node["id"], contract, node.get("deps", []), result, context)
-        
+
         return {"result": result, "meta": {"cache_hit": False}}
+
 
 def run_dag(nodes, context):
     engine = ExecutionEngine()
@@ -35,4 +36,3 @@ def run_dag(nodes, context):
         contracts[node["id"]] = compute_contract(node, contracts)
 
     return results
-

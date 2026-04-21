@@ -16,14 +16,13 @@ Requires:
     - All required secrets in Infisical
 """
 
-import sys
 import subprocess
+import sys
+
 import runpod
 
 INFISICAL_CLIENT_ID = "5d322bca-5770-4071-b059-98b0f56fcc6d"
-INFISICAL_CLIENT_SECRET = (
-    "be05f79075ebfea520463f6e223bcac61ab547d43310ad6636070b73c023d8f7"
-)
+INFISICAL_CLIENT_SECRET = "be05f79075ebfea520463f6e223bcac61ab547d43310ad6636070b73c023d8f7"
 INFISICAL_PROJECT_ID = "f8464ba0-1b93-45a1-86b5-c8ea5a81a2a4"
 
 # Infisical to script name mapping
@@ -44,9 +43,7 @@ REQUIRED_SECRETS = list(SECRET_MAPPING.keys())
 def run_command(cmd, shell=True, check=True):
     """Run a shell command and return output."""
     print(f"Running: {cmd}")
-    result = subprocess.run(
-        cmd, shell=shell, capture_output=True, text=True, check=check
-    )
+    result = subprocess.run(cmd, shell=shell, capture_output=True, text=True, check=check)
     if result.stdout:
         print(result.stdout)
     if result.stderr and result.returncode != 0:
@@ -78,15 +75,11 @@ def build_and_push_images():
     print("\n=== Building Docker images ===")
 
     print("Building worker image...")
-    run_command(
-        "docker build -f Dockerfile.worker -t simhpcworker/simhpc-worker:latest ."
-    )
+    run_command("docker build -f Dockerfile.worker -t simhpcworker/simhpc-worker:latest .")
     run_command("docker push simhpcworker/simhpc-worker:latest")
 
     print("Building autoscaler image...")
-    run_command(
-        "docker build -f Dockerfile.autoscaler -t simhpcworker/simhpc-autoscaler:latest ."
-    )
+    run_command("docker build -f Dockerfile.autoscaler -t simhpcworker/simhpc-autoscaler:latest .")
     run_command("docker push simhpcworker/simhpc-autoscaler:latest")
 
     print("Building API image...")

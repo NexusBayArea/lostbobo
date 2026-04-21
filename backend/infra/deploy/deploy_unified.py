@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
+
 import runpod
 
 # 1. Capture the API Key from Infisical (via os.getenv)
@@ -13,9 +14,7 @@ if not API_KEY:
     sys.exit(1)
 
 if not INFISICAL_TOKEN:
-    print(
-        "⚠️  WARNING: INFISICAL_TOKEN is missing. The pod will boot but fail to pull secrets."
-    )
+    print("⚠️  WARNING: INFISICAL_TOKEN is missing. The pod will boot but fail to pull secrets.")
 
 runpod.api_key = API_KEY
 

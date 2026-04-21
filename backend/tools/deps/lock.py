@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-
 LOCKFILE = Path("requirements.lock")
 PYPROJECT = Path("pyproject.toml")
 

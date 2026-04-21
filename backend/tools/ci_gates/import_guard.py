@@ -1,13 +1,14 @@
 import ast
 import os
 import sys
+
 from tools.runtime.contract import CONTRACT
 
 VIOLATIONS = []
 
 
 def scan_file(path: str):
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         tree = ast.parse(f.read(), filename=path)
 
     for node in ast.walk(tree):
@@ -19,10 +20,7 @@ def scan_file(path: str):
 def scan_repo(root="."):
     for base, dirs, files in os.walk(root):
         # skip virtual envs and hidden dirs
-        if any(
-            ignored in base
-            for ignored in [".venv", ".git", "__pycache__", "node_modules"]
-        ):
+        if any(ignored in base for ignored in [".venv", ".git", "__pycache__", "node_modules"]):
             continue
 
         for f in files:

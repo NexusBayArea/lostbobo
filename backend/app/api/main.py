@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+
 from backend.app.api.admin.observability import router as observability_router
 from backend.app.api.endpoints.simulations import router as simulations_router
 from backend.app.api.routes.alpha import router as alpha_router

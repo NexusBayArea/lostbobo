@@ -1,7 +1,9 @@
 import ast
 import os
 import sys
+
 import networkx as nx
+
 
 class DependencyCompiler:
     def __init__(self, root_dir):
@@ -20,10 +22,14 @@ class DependencyCompiler:
 
     def _get_module_name(self, path):
         clean_path = path.replace("\\", ".").replace("/", ".")
-        return clean_path.replace(self.root_dir.replace("\\", "."), "backend").removesuffix(".py").strip(".")
+        return (
+            clean_path.replace(self.root_dir.replace("\\", "."), "backend")
+            .removesuffix(".py")
+            .strip(".")
+        )
 
     def _extract_imports(self, path, module):
-        with open(path, "r") as f:
+        with open(path) as f:
             try:
                 tree = ast.parse(f.read())
             except SyntaxError:
@@ -50,8 +56,9 @@ class DependencyCompiler:
             score = out_d / (in_d + out_d) if (in_d + out_d) > 0 else 0
             status = "STABLE" if score < 0.5 else "VOLATILE"
             print(f" - {node}: {score:.2f} ({status})")
-        
+
         return True
+
 
 if __name__ == "__main__":
     compiler = DependencyCompiler("backend")

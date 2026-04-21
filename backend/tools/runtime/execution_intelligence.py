@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Set
 
 from tools.runtime.contract import CONTRACT
 from tools.runtime.execution_log import ExecutionLog
@@ -10,14 +9,14 @@ from tools.runtime.execution_log import ExecutionLog
 @dataclass
 class DAGNode:
     id: str
-    deps: Set[str]
+    deps: set[str]
 
 
 class DAGValidator:
-    def __init__(self, nodes: Dict[str, DAGNode]):
+    def __init__(self, nodes: dict[str, DAGNode]):
         self.nodes = nodes
 
-    def validate_no_missing_deps(self) -> List[tuple[str, str]]:
+    def validate_no_missing_deps(self) -> list[tuple[str, str]]:
         missing = []
 
         for node_id, node in self.nodes.items():
@@ -67,7 +66,7 @@ class ReplayComparator:
     def __init__(self, log: ExecutionLog):
         self.log = log
 
-    def expected_order(self, nodes: Dict[str, DAGNode]) -> List[str]:
+    def expected_order(self, nodes: dict[str, DAGNode]) -> list[str]:
         """
         Topological expectation (simplified DFS order)
         """
@@ -87,14 +86,12 @@ class ReplayComparator:
 
         return order
 
-    def actual_order(self) -> List[str]:
+    def actual_order(self) -> list[str]:
         events = self.log.events
 
-        return [
-            e["task_id"] for e in events if e["type"] in ("queued", "leased", "success")
-        ]
+        return [e["task_id"] for e in events if e["type"] in ("queued", "leased", "success")]
 
-    def detect_divergence(self, nodes: Dict[str, DAGNode]):
+    def detect_divergence(self, nodes: dict[str, DAGNode]):
         expected = self.expected_order(nodes)
         actual = self.actual_order()
 
@@ -110,7 +107,7 @@ class ExecutionIntelligence:
         self.log = log
         self.guard = ContractGuard()
 
-    def validate_dag(self, nodes: Dict[str, DAGNode]):
+    def validate_dag(self, nodes: dict[str, DAGNode]):
         validator = DAGValidator(nodes)
 
         missing = validator.validate_no_missing_deps()
@@ -122,7 +119,7 @@ class ExecutionIntelligence:
             "valid": len(missing) == 0 and cyclic,
         }
 
-    def analyze_execution(self, nodes: Dict[str, DAGNode]):
+    def analyze_execution(self, nodes: dict[str, DAGNode]):
         comparator = ReplayComparator(self.log)
 
         dag_result = self.validate_dag(nodes)

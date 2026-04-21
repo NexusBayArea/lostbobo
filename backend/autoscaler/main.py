@@ -65,18 +65,14 @@ def scale_workers(target_count: int) -> bool:
     if target_count > current_count:
         # Scale up
         to_add = target_count - current_count
-        logger.info(
-            f"Scaling up by {to_add} workers (from {current_count} to {target_count})"
-        )
+        logger.info(f"Scaling up by {to_add} workers (from {current_count} to {target_count})")
         # In production: call RunPod API to create new pods
         # For now, just log the action
         return True
     else:
         # Scale down
         to_remove = current_count - target_count
-        logger.info(
-            f"Scaling down by {to_remove} workers (from {current_count} to {target_count})"
-        )
+        logger.info(f"Scaling down by {to_remove} workers (from {current_count} to {target_count})")
         # In production: call RunPod API to terminate pods
         # For now, just log the action
         return True

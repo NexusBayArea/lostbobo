@@ -1,7 +1,8 @@
+import subprocess
 import sys
 import time
 from pathlib import Path
-import subprocess
+
 from tools.runtime.telemetry import TelemetryManager
 
 tm = TelemetryManager()

@@ -1,7 +1,7 @@
-from pathlib import Path
 import json
-import time
 import threading
+import time
+from pathlib import Path
 
 
 class ExecutionLog:

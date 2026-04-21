@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Dict
 
 
 @dataclass
@@ -10,7 +10,7 @@ class Tool:
 
 class ToolRegistry:
     def __init__(self):
-        self.tools: Dict[str, Tool] = {}
+        self.tools: dict[str, Tool] = {}
 
     def register(self, tool: Tool):
         self.tools[tool.name] = tool

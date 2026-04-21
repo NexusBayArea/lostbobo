@@ -2,14 +2,14 @@
 Scaling rules and policies for autoscaler
 """
 
-from typing import Any, Dict
+from typing import Any
 
 from app.core.config import get_settings
 
 settings = get_settings()
 
 
-def get_scaling_policy() -> Dict[str, Any]:
+def get_scaling_policy() -> dict[str, Any]:
     """
     Get scaling policy configuration
     """
@@ -24,9 +24,7 @@ def get_scaling_policy() -> Dict[str, Any]:
     }
 
 
-def should_scale_up(
-    current_workers: int, queue_depth: int, policy: Dict[str, Any]
-) -> bool:
+def should_scale_up(current_workers: int, queue_depth: int, policy: dict[str, Any]) -> bool:
     """
     Determine if we should scale up based on policy
     """
@@ -41,9 +39,7 @@ def should_scale_up(
     return False
 
 
-def should_scale_down(
-    current_workers: int, queue_depth: int, policy: Dict[str, Any]
-) -> bool:
+def should_scale_down(current_workers: int, queue_depth: int, policy: dict[str, Any]) -> bool:
     """
     Determine if we should scale down based on policy
     """
@@ -59,7 +55,7 @@ def should_scale_down(
 
 
 def calculate_desired_workers(
-    current_workers: int, queue_depth: int, policy: Dict[str, Any]
+    current_workers: int, queue_depth: int, policy: dict[str, Any]
 ) -> int:
     """
     Calculate desired worker count based on queue depth and policy

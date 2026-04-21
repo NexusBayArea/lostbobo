@@ -1,24 +1,29 @@
 import numpy as np
 
+
 def compute_drawdown(equity, peak):
     peak = max(peak, equity)
     dd = (equity - peak) / peak if peak > 0 else 0
     return dd, peak
+
 
 def rolling_vol(returns, window=20):
     if len(returns) < window:
         return 0.0
     return float(np.std(returns[-window:]) * np.sqrt(252))
 
+
 def compute_var(returns, alpha=0.05):
     if len(returns) == 0:
         return 0.0
     return float(np.percentile(returns, alpha * 100))
 
+
 def compute_cvar(returns, alpha=0.05):
     var = compute_var(returns, alpha)
     tail = [r for r in returns if r <= var]
     return float(np.mean(tail)) if tail else var
+
 
 def evaluate_risk(state, returns, config):
     events = []
@@ -58,14 +63,12 @@ def evaluate_risk(state, returns, config):
 
     return state, events
 
+
 def apply_risk_controls(orders, state):
     if state["status"] == "halted":
         return []
 
     if state["status"] == "restricted":
-        return [
-            {**o, "quantity": o["quantity"] * 0.25}
-            for o in orders
-        ]
+        return [{**o, "quantity": o["quantity"] * 0.25} for o in orders]
 
     return orders

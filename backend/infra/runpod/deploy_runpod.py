@@ -3,10 +3,11 @@
 SimHPC Deployment - RunPod Unified
 """
 
-import sys
 import subprocess
-import requests
+import sys
 import time
+
+import requests
 
 IMAGE_NAME = "simhpcworker/simhpc-unified:latest"
 POD_ID = "ikzejthq1q7yt9"
@@ -60,9 +61,7 @@ def deploy():
     print(f"\nStopping pod {POD_ID}...")
     stop_resp = requests.post(
         "https://api.runpod.io/graphql",
-        json={
-            "query": f'mutation {{ podStop(input: {{ podId: "{POD_ID}" }}) {{ id }} }}'
-        },
+        json={"query": f'mutation {{ podStop(input: {{ podId: "{POD_ID}" }}) {{ id }} }}'},
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",

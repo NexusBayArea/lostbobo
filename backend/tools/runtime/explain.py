@@ -13,6 +13,7 @@ def explain(node_id, plan, prev_contracts, contracts, lineage):
 
     return reasons
 
+
 def diff_inputs(old, new):
     changes = {}
     keys = set(old.keys()) | set(new.keys())
@@ -24,12 +25,14 @@ def diff_inputs(old, new):
             }
     return changes
 
+
 def build_reverse_graph(nodes):
     children = {}
     for n in nodes:
         for d in n.get("deps", []):
             children.setdefault(d, []).append(n["id"])
     return children
+
 
 def get_downstream(node_id, children):
     result = set()
@@ -41,6 +44,7 @@ def get_downstream(node_id, children):
                 result.add(c)
                 stack.append(c)
     return result
+
 
 def build_report(nodes, plan, prev_contracts, contracts, lineage):
     report = {}

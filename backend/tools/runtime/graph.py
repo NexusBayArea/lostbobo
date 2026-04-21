@@ -1,17 +1,18 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Any
+from typing import Any
 
 
 @dataclass
 class Node:
     id: str
     fn: Callable[..., Any]
-    deps: List[str]
+    deps: list[str]
 
 
 class ExecutionGraph:
     def __init__(self):
-        self.nodes: Dict[str, Node] = {}
+        self.nodes: dict[str, Node] = {}
 
     def register(self, node: Node):
         if node.id in self.nodes:
@@ -21,7 +22,7 @@ class ExecutionGraph:
     def get(self, node_id: str) -> Node:
         return self.nodes[node_id]
 
-    def topologically_sorted(self) -> List[str]:
+    def topologically_sorted(self) -> list[str]:
         visited = set()
         visiting = set()
         order = []

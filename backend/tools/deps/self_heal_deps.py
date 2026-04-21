@@ -5,11 +5,10 @@ Self-healing dependency resolver - installs missing dependencies before DAG exec
 CRITICAL: This only runs BEFORE DAG execution, never during.
 """
 
+import ast
 import subprocess
 import sys
-import ast
 from pathlib import Path
-from typing import Set
 
 STANDARD_LIBRARY = {
     "sys",
@@ -44,11 +43,11 @@ ALLOWED_AUTO_INSTALL = {
 }
 
 
-def extract_imports(file_path: Path) -> Set[str]:
+def extract_imports(file_path: Path) -> set[str]:
     if not file_path.exists():
         return set()
 
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         try:
             tree = ast.parse(f.read(), filename=str(file_path))
         except SyntaxError:
@@ -77,7 +76,7 @@ def install_package(pkg: str) -> None:
     )
 
 
-def resolve(imports: Set[str]) -> None:
+def resolve(imports: set[str]) -> None:
     missing = []
 
     for mod in sorted(imports):

@@ -65,9 +65,7 @@ def extract_imports() -> set:
 
     for file in ROOT.rglob("*.py"):
         path = str(file)
-        if any(
-            x in path for x in ["venv", ".git", ".venv", "__pycache__", "node_modules"]
-        ):
+        if any(x in path for x in ["venv", ".git", ".venv", "__pycache__", "node_modules"]):
             continue
 
         try:

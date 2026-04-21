@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -8,22 +8,22 @@ from packages.types.enums import JobStatus
 
 class Job(BaseModel):
     id: str
-    user_id: Optional[str] = None
+    user_id: str | None = None
     payload: dict[str, Any] = Field(default_factory=dict)
     status: JobStatus = JobStatus.QUEUED
     priority: int = 0
     tier: str = "free"
-    fingerprint: Optional[str] = None
+    fingerprint: str | None = None
 
-    workflow_id: Optional[str] = None
+    workflow_id: str | None = None
 
-    lease_id: Optional[str] = None
-    lease_expires_at: Optional[datetime] = None
+    lease_id: str | None = None
+    lease_expires_at: datetime | None = None
 
     attempt_count: int = 0
-    result: Optional[dict[str, Any]] = None
-    error: Optional[str] = None
+    result: dict[str, Any] | None = None
+    error: str | None = None
 
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    completed_at: datetime | None = None

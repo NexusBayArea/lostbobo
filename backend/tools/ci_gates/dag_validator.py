@@ -6,9 +6,10 @@ This validates that all required nodes exist and are properly declared
 before any CI execution can run.
 """
 
-import yaml
 import sys
 from pathlib import Path
+
+import yaml
 
 
 def load_manifest():
@@ -17,7 +18,7 @@ def load_manifest():
         print("[DAG VALIDATION FAILED] - manifest not found")
         sys.exit(1)
 
-    with open(manifest_path, "r") as f:
+    with open(manifest_path) as f:
         return yaml.safe_load(f)
 
 

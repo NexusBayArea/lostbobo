@@ -1,6 +1,7 @@
 from tools.runtime.contract import compute_contract
 from tools.runtime.trace import load
 
+
 def build_index(nodes):
     by_id = {n["id"]: n for n in nodes}
     children = {n["id"]: [] for n in nodes}
@@ -12,11 +13,10 @@ def build_index(nodes):
 
     return by_id, children
 
+
 def compute_all_contracts(nodes):
-    return {
-        n["id"]: compute_contract(n)
-        for n in nodes
-    }
+    return {n["id"]: compute_contract(n) for n in nodes}
+
 
 def load_previous_contracts(nodes, workspace):
     prev = {}
@@ -25,12 +25,14 @@ def load_previous_contracts(nodes, workspace):
         prev[n["id"]] = t["contract"] if t else None
     return prev
 
+
 def compute_dirty(nodes, contracts, prev_contracts):
     dirty = set()
     for nid, contract in contracts.items():
         if prev_contracts.get(nid) != contract:
             dirty.add(nid)
     return dirty
+
 
 def propagate_dirty(dirty, children):
     queue = list(dirty)
@@ -41,6 +43,7 @@ def propagate_dirty(dirty, children):
                 dirty.add(child)
                 queue.append(child)
     return dirty
+
 
 def topological_sort(nodes):
     visited = set()
@@ -59,6 +62,7 @@ def topological_sort(nodes):
         visit(n["id"])
     return order
 
+
 def plan_execution(nodes, workspace):
     by_id, children = build_index(nodes)
     contracts = compute_all_contracts(nodes)
@@ -67,8 +71,4 @@ def plan_execution(nodes, workspace):
     dirty = compute_dirty(nodes, contracts, prev_contracts)
     dirty = propagate_dirty(dirty, children)
 
-    return {
-        "contracts": contracts,
-        "dirty": dirty,
-        "ordered": topological_sort(nodes)
-    }
+    return {"contracts": contracts, "dirty": dirty, "ordered": topological_sort(nodes)}

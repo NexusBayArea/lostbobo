@@ -1,5 +1,6 @@
-import time
 import os
+import time
+
 import requests
 from loguru import logger
 
@@ -12,7 +13,7 @@ POD_ID = os.getenv("RUNPOD_POD_ID")
 
 def get_last_activity():
     try:
-        with open(ACTIVITY_FILE, "r") as f:
+        with open(ACTIVITY_FILE) as f:
             return float(f.read().strip())
     except Exception:
         return time.time()

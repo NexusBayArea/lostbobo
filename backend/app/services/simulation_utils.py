@@ -1,8 +1,11 @@
 from datetime import datetime
-from backend.app.core.config import settings
+
 from supabase import create_client
 
+from backend.app.core.config import settings
+
 supabase = create_client(settings.SB_URL, settings.SB_SECRET_KEY)
+
 
 def update_job_status(job_id, status, progress=None, metrics=None):
     """Update the database so the UI reflects real-time physics progress."""

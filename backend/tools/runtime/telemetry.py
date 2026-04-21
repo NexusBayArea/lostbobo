@@ -1,6 +1,6 @@
 import sqlite3
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
 # Adjusting DB_PATH to be in the project root/data
 DB_PATH = Path(__file__).resolve().parents[2] / "data" / "telemetry.sqlite"
@@ -37,13 +37,11 @@ class TelemetryManager:
                 (project, sim_type, duration, gpu_util, cost, status),
             )
 
-    def get_baseline_stats(self) -> Dict[str, Any]:
+    def get_baseline_stats(self) -> dict[str, Any]:
         with sqlite3.connect(DB_PATH) as conn:
             conn.row_factory = sqlite3.Row
             # p95 Calculation
-            cursor = conn.execute(
-                "SELECT wall_clock_sec FROM runs ORDER BY wall_clock_sec ASC"
-            )
+            cursor = conn.execute("SELECT wall_clock_sec FROM runs ORDER BY wall_clock_sec ASC")
             times = [r[0] for r in cursor.fetchall()]
 
             if not times:

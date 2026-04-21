@@ -1,17 +1,18 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Any
+from typing import Any
 
 
 @dataclass
 class CINode:
     id: str
-    deps: List[str]
+    deps: list[str]
     fn: Callable[[], Any]
 
 
 class CIGraph:
     def __init__(self):
-        self.nodes: Dict[str, CINode] = {}
+        self.nodes: dict[str, CINode] = {}
 
     def add(self, node: CINode):
         self.nodes[node.id] = node

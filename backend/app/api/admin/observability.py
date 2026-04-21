@@ -1,11 +1,13 @@
+import json
+import sqlite3
+import subprocess
+from pathlib import Path
+
+import pandas as pd
 from fastapi import APIRouter, Response
 from fastapi.responses import HTMLResponse
-from pathlib import Path
-import json
-import subprocess
-import sqlite3
-import pandas as pd
-from tools.runtime.telemetry import TelemetryManager, DB_PATH
+
+from tools.runtime.telemetry import DB_PATH, TelemetryManager
 
 router = APIRouter()
 tm = TelemetryManager()

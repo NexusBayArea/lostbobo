@@ -4,8 +4,8 @@ Test Isolation Layer - provides per-test execution isolation
 """
 
 import os
-import tempfile
 import shutil
+import tempfile
 from contextlib import contextmanager
 
 

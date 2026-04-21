@@ -1,6 +1,7 @@
-from pydantic import BaseModel
-from typing import Optional, List
 from datetime import date
+
+from pydantic import BaseModel
+
 
 class BacktestCreate(BaseModel):
     strategy_id: str
@@ -11,17 +12,20 @@ class BacktestCreate(BaseModel):
     test_window_days: int
     step_days: int
 
+
 class BacktestRunResponse(BaseModel):
     run_id: str
     status: str
 
+
 class WindowStatus(BaseModel):
     window_id: str
-    simulation_id: Optional[str]
+    simulation_id: str | None
     status: str
-    metrics: Optional[dict]
+    metrics: dict | None
+
 
 class BacktestStatusResponse(BaseModel):
     run_id: str
     status: str
-    windows: List[WindowStatus]
+    windows: list[WindowStatus]

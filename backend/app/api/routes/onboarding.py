@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException
+
 from backend.app.services.onboarding_service import onboarding_service
-from backend.app.core.supabase import supabase
 
 router = APIRouter()
+
 
 @router.post("/initialize")
 async def initialize_user(user_id: str):

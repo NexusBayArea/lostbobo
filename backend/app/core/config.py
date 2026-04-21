@@ -1,6 +1,7 @@
-from pathlib import Path
-from pydantic_settings import BaseSettings
 import os
+from pathlib import Path
+
+from pydantic_settings import BaseSettings
 
 APP_ROOT = Path(__file__).resolve().parents[2]
 
