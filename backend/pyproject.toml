@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["app", "packages", "autoscaler", "compiler", "data", "infra", "tools", "worker"]
+packages = ["app", "packages", "compiler", "infra", "tools", "worker"]
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
