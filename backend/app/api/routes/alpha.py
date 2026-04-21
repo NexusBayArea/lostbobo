@@ -28,7 +28,7 @@ class LaunchRequest(BaseModel):
 
 
 @router.post("/launch")
-async def launch_simulation(request: LaunchRequest, user: dict = Depends(verify_auth)):
+async def launch_simulation(request: LaunchRequest, user: dict = Depends(verify_auth)):  # noqa: B008
     job_id = f"job_{uuid.uuid4().hex[:6]}"
 
     # 2. Persist to Supabase so it shows up in AdminAnalyticsPage
