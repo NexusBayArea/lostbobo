@@ -18,7 +18,7 @@ async def get_plan(nodes: list[dict[str, Any]]):
     try:
         return plan_execution(nodes, WORKSPACE)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/report")
@@ -44,4 +44,4 @@ async def get_report(nodes: list[dict[str, Any]]):
             }
         return report
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

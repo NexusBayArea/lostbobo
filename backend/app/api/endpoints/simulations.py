@@ -67,4 +67,4 @@ async def generate_guidance_report(job_id: str) -> Any:
         return {"job_id": job_id, "report": report_content}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Report generation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Report generation failed: {str(e)}") from e

@@ -47,4 +47,4 @@ async def launch_simulation(request: LaunchRequest, user: dict = Depends(verify_
 
         return {"status": "success", "job_id": job_id}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
