@@ -1,0 +1,59 @@
+name: "v3.5.0 Dependency Drift Detection"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  DRIFT_TEST_IMPORT: "backend.app.main" 
+  BACKEND_PATH: "backend"
+
+jobs:
+  dependency-drift:
+    name: Verify Lockfile Integrity
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        run: |
+          curl -Ls https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Check lockfile drift
+        run: |
+          echo "🔍 Comparing backend/requirements.txt against environment..."
+          uv venv
+          source .venv/bin/activate
+          
+          uv pip install -r ${{ env.BACKEND_PATH }}/requirements.txt
+          uv pip freeze > /tmp/current_freeze.txt
+
+          # Check for 'Silent Drift'
+          if ! diff -u ${{ env.BACKEND_PATH }}/requirements.txt /tmp/current_freeze.txt; then
+            echo "❌ Dependency drift detected in ${{ env.BACKEND_PATH }}/requirements.txt!"
+            exit 1
+          fi
+          echo "✅ No drift detected"
+
+      - name: Runtime Import & JIT Check
+        run: |
+          echo "🔍 Testing backend imports and JIT loader compatibility..."
+          source .venv/bin/activate
+          
+          export PYTHONPATH=$PYTHONPATH:${{ github.workspace }}
+          
+          python3 -c "import ${{ env.DRIFT_TEST_IMPORT }}; print('✅ Backend Imports OK')"
+          
+          # Verify JIT loader can initialize
+          python3 -c "from backend.compiler.runtime.loader import JITLoader; print('✅ JIT Loader OK')"
+
+      - name: Failure Summary
+        if: failure()
+        run: |
+          echo "⚠️ DRIFT ERROR: The backend requirements do not match the environment."
+          echo "Action: Update backend/requirements.txt and verify via 'python3 backend/tools/ci_gates/system_contract.py'"
