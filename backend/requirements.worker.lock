@@ -49,10 +49,14 @@ colorama==0.4.6
     #   click
     #   loguru
     #   uvicorn
+contourpy==1.3.3
+    # via matplotlib
 cryptography==46.0.7
     # via
     #   pyjwt
     #   python-jose
+cycler==0.12.1
+    # via matplotlib
 deprecation==2.1.0
     # via
     #   postgrest
@@ -61,10 +65,10 @@ ecdsa==0.19.2
     # via python-jose
 fastapi==0.136.0
     # via simhpc (backend/pyproject.toml)
+fonttools==4.62.1
+    # via matplotlib
 fsspec==2026.3.0
     # via pyiceberg
-gunicorn==25.3.0
-    # via simhpc (backend/pyproject.toml)
 h11==0.16.0
     # via
     #   httpcore
@@ -93,31 +97,39 @@ idna==3.12
     #   httpx
     #   requests
     #   yarl
+kiwisolver==1.5.0
+    # via matplotlib
 kombu==5.6.2
     # via celery
 loguru==0.7.3
     # via simhpc (backend/pyproject.toml)
 markdown-it-py==4.0.0
     # via rich
+matplotlib==3.10.8
+    # via simhpc (backend/pyproject.toml)
 mdurl==0.1.2
     # via markdown-it-py
 mmh3==5.2.1
     # via pyiceberg
 multidict==6.7.1
     # via yarl
-numpy==2.4.4
+numpy==2.1.3
     # via
     #   simhpc (backend/pyproject.toml)
+    #   contourpy
+    #   matplotlib
     #   scipy
 orjson==3.11.8
     # via simhpc (backend/pyproject.toml)
 packaging==26.1
     # via
     #   deprecation
-    #   gunicorn
     #   kombu
+    #   matplotlib
 passlib==1.7.4
     # via simhpc (backend/pyproject.toml)
+pillow==12.2.0
+    # via matplotlib
 postgrest==2.28.3
     # via
     #   simhpc (backend/pyproject.toml)
@@ -155,12 +167,15 @@ pyiceberg==0.11.1
 pyjwt==2.12.1
     # via supabase-auth
 pyparsing==3.3.2
-    # via pyiceberg
+    # via
+    #   matplotlib
+    #   pyiceberg
 pyroaring==1.0.4
     # via pyiceberg
 python-dateutil==2.9.0.post0
     # via
     #   celery
+    #   matplotlib
     #   strictyaml
 python-dotenv==1.2.2
     # via
