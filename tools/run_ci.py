@@ -16,7 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 BACKEND = REPO_ROOT / "backend"
 
 sys.path.insert(0, str(REPO_ROOT))
-os.chdir(BACKEND)
+sys.path.insert(0, str(BACKEND))
 
 
 def main():
