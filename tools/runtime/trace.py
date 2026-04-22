@@ -1,34 +1,70 @@
-from supabase import create_client
-
-from backend.app.core.config import settings
-
-supabase = create_client(settings.SB_URL, settings.SB_SECRET_KEY)
-
-CURRENT_RUN_ID = None
+import json
+import time
+from dataclasses import dataclass, asdict
+from typing import Any, Dict, List, Optional
 
 
-def start_run(label="manual"):
-    global CURRENT_RUN_ID
-    res = supabase.table("runs").insert({"label": label}).execute()
-    CURRENT_RUN_ID = res.data[0]["id"]
-    return CURRENT_RUN_ID
+@dataclass
+class NodeTrace:
+    name: str
+    input: Dict[str, Any]
+    output: Dict[str, Any]
+    status: str
+    duration_ms: float
 
 
-def record(node_id, contract, deps, result, context):
-    if not CURRENT_RUN_ID:
-        raise RuntimeError("No active run found. Call start_run() first.")
+@dataclass
+class ExecutionTrace:
+    contract_version: str
+    timestamp: float
+    nodes: List[NodeTrace]
+    manifest_hash: Optional[str] = None
 
-    supabase.table("node_traces").insert(
-        {
-            "run_id": CURRENT_RUN_ID,
-            "node_id": node_id,
-            "contract": contract,
-            "deps": deps,
-            "result": result,
-        }
-    ).execute()
+    def save(self, path: str):
+        with open(path, "w") as f:
+            json.dump(asdict(self), f, indent=2)
+
+    @staticmethod
+    def load(path: str):
+        with open(path) as f:
+            data = json.load(f)
+        return ExecutionTrace(
+            contract_version=data["contract_version"],
+            timestamp=data["timestamp"],
+            nodes=[NodeTrace(**n) for n in data["nodes"]],
+            manifest_hash=data.get("manifest_hash"),
+        )
 
 
-def load_run(run_id):
-    res = supabase.table("node_traces").select("*").eq("run_id", run_id).execute()
-    return res.data
+def run_node(name: str, fn, input_data: dict, trace_nodes: List[NodeTrace]) -> dict:
+    start = time.time()
+
+    try:
+        output = fn(**input_data)
+        status = "ok"
+    except Exception as e:
+        output = {"error": str(e)}
+        status = "fail"
+
+    duration = (time.time() - start) * 1000
+
+    trace_nodes.append(
+        NodeTrace(
+            name=name,
+            input=input_data,
+            output=output,
+            status=status,
+            duration_ms=duration,
+        )
+    )
+
+    return output
+
+
+def capture_trace(contract_version: str, nodes: List[NodeTrace], manifest_hash: Optional[str] = None) -> ExecutionTrace:
+    return ExecutionTrace(
+        contract_version=contract_version,
+        timestamp=time.time(),
+        nodes=nodes,
+        manifest_hash=manifest_hash,
+    )

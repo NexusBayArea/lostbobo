@@ -2,10 +2,15 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
+from tools.runtime.contract import CONTRACTS
 from tools.runtime.telemetry import TelemetryManager
+from tools.runtime.trace import NodeTrace, capture_trace, run_node
 
 tm = TelemetryManager()
+
+TRACE_NODES: List[NodeTrace] = []
 
 
 def load_manifest() -> dict:
@@ -18,7 +23,7 @@ def load_manifest() -> dict:
     return yaml.safe_load(path.read_text())
 
 
-def run_node(node: dict) -> int:
+def run_node(node: dict, capture: bool = True) -> int:
     path = node.get("path", "")
     if not path or not Path(path).exists():
         print(f"[DAG] missing node: {path}")
@@ -28,17 +33,29 @@ def run_node(node: dict) -> int:
     print(f"[DAG] Running: {name}")
 
     start_time = time.time()
-    result = subprocess.run([sys.executable, path])
+
+    input_data = node.get("inputs", {})
+
+    if capture and name:
+        from tools.runtime.trace import run_node as trace_run_node
+        output = trace_run_node(
+            name,
+            lambda **kw: subprocess.run([sys.executable, path]).returncode,
+            input_data,
+            TRACE_NODES,
+        )
+        result_code = 0 if output.get("returncode", 1) == 0 else 1
+    else:
+        result = subprocess.run([sys.executable, path])
+        result_code = result.returncode
+
     end_time = time.time()
 
     duration = end_time - start_time
 
-    # Placeholder for GPU util; in a real scenario, this would sample nvidia-smi
     gpu_util = 42.0
-    status = "success" if result.returncode == 0 else "failed"
+    status = "success" if result_code == 0 else "failed"
 
-    # Record telemetry
-    # We assume 'sim_type' is the node name for this baseline
     tm.record_run(
         project="SimHPC",
         sim_type=name,
@@ -47,7 +64,7 @@ def run_node(node: dict) -> int:
         status=status,
     )
 
-    return result.returncode
+    return result_code
 
 
 def topological_run(manifest: dict) -> int:
@@ -75,9 +92,19 @@ def topological_run(manifest: dict) -> int:
     return 0
 
 
+def save_trace(path: str = "trace_latest.json"):
+    contract = CONTRACTS.latest()
+    trace = capture_trace(contract.version, TRACE_NODES)
+    trace.save(path)
+    print(f"[DAG] Trace saved to: {path}")
+
+
 def main():
     manifest = load_manifest()
-    sys.exit(topological_run(manifest))
+    result = topological_run(manifest)
+    if result == 0:
+        save_trace()
+    sys.exit(result)
 
 
 if __name__ == "__main__":
