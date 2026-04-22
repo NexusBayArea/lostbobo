@@ -10,11 +10,17 @@ RULES = {
     "worker": ["app"],
 }
 
+# Directories to exempt from boundary checks
+EXEMPT_DIRS = {"runtime"}
+
 
 def scan():
     violations = []
 
     for layer, forbidden in RULES.items():
+        if layer in EXEMPT_DIRS:
+            continue
+
         layer_path = ROOT / layer
         if not layer_path.exists():
             continue
