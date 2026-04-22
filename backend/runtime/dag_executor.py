@@ -1,10 +1,10 @@
-import subprocess
 import sys
-import time
 from pathlib import Path
 
 from runtime.contract import CONTRACTS
+from runtime.safe_exec import run_subprocess
 from runtime.telemetry import TelemetryManager
+from runtime.time_utils import now
 from runtime.trace import NodeTrace, capture_trace
 from runtime.trace import run_node as trace_run_node
 
@@ -32,23 +32,23 @@ def execute_node(node: dict, capture: bool = True) -> int:
     name = node.get("name", path)
     print(f"[DAG] Running: {name}")
 
-    start_time = time.time()
+    start_time = now()
 
     input_data = node.get("inputs", {})
 
     if capture and name:
         output = trace_run_node(
             name,
-            lambda **kw: subprocess.run([sys.executable, path]).returncode,
+            lambda **kw: run_subprocess([sys.executable, path]).returncode,
             input_data,
             TRACE_NODES,
         )
         result_code = 0 if output.get("returncode", 1) == 0 else 1
     else:
-        result = subprocess.run([sys.executable, path])
+        result = run_subprocess([sys.executable, path])
         result_code = result.returncode
 
-    end_time = time.time()
+    end_time = now()
 
     duration = end_time - start_time
 
@@ -64,6 +64,7 @@ def execute_node(node: dict, capture: bool = True) -> int:
     )
 
     return result_code
+...
 
 
 def topological_run(manifest: dict) -> int:
