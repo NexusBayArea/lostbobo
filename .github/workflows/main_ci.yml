@@ -69,6 +69,7 @@ jobs:
           uv venv
           source .venv/bin/activate
           uv pip install -r requirements.api.lock
+          uv pip install -r requirements.dev.lock
           uv pip install -e .
 
       # ---------- IMPORT + BOUNDARY CHECK ----------
