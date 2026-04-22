@@ -125,6 +125,7 @@ def main():
 
     run("Install runtime deps", "uv venv && uv pip install --system -r requirements.api.lock")
     run("Install dev deps", "uv pip install --system -r requirements.dev.lock")
+    run("Install package", "uv pip install --system -e .")
 
     run("Ruff lint", "ruff check . --config pyproject.toml")
     run("Ruff format check", "ruff format . --check --config pyproject.toml")
