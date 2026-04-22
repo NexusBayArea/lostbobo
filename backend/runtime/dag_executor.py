@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 
 from runtime.contract import CONTRACTS
 from runtime.telemetry import TelemetryManager
-from runtime.trace import NodeTrace, capture_trace, run_node
+from runtime.trace import NodeTrace, capture_trace, run_node as trace_run_node
 
 tm = TelemetryManager()
 
@@ -23,7 +23,7 @@ def load_manifest() -> dict:
     return yaml.safe_load(path.read_text())
 
 
-def run_node(node: dict, capture: bool = True) -> int:
+def execute_node(node: dict, capture: bool = True) -> int:
     path = node.get("path", "")
     if not path or not Path(path).exists():
         print(f"[DAG] missing node: {path}")
@@ -37,7 +37,6 @@ def run_node(node: dict, capture: bool = True) -> int:
     input_data = node.get("inputs", {})
 
     if capture and name:
-        from runtime.trace import run_node as trace_run_node
         output = trace_run_node(
             name,
             lambda **kw: subprocess.run([sys.executable, path]).returncode,
@@ -81,7 +80,7 @@ def topological_run(manifest: dict) -> int:
             if execute(dep) != 0:
                 return 1
 
-        rc = run_node(node)
+        rc = execute_node(node)
         executed.add(name)
         return rc
 
