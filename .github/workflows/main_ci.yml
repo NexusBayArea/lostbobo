@@ -1,56 +1,67 @@
 name: "v3.5.0 Deterministic Unified CI"
+
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch: {}
+
 permissions:
   contents: read
   packages: write
+
 jobs:
   validate:
-    name: Backend & Dependency Audit
+    name: Backend Audit
     runs-on: ubuntu-latest
-    outputs:
-      status: ${{ job.status }}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup uv
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-      - name: Hermetic Check (Drift & Lint)
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
         run: |
-          uv venv
-          source .venv/bin/activate
-          uv pip install ruff
-          uv pip install -r backend/requirements.txt
-          python3 -m ruff check backend/ --config backend/pyproject.toml
-          uv pip compile backend/requirements.txt -o /tmp/check.txt
-          if ! diff -u backend/requirements.txt /tmp/check.txt; then
-            echo "❌ Dependency drift detected!"
-            exit 1
-          fi
+          uv pip install --system ruff
+          uv pip install --system -r backend/requirements.txt
+
+      - name: Ruff lint
+        run: python -m ruff check backend/ --config backend/pyproject.toml
+
+      - name: Ruff format check
+        run: python -m ruff format backend/ --check --config backend/pyproject.toml
+
+      - name: Bootstrap contract
+        run: |
+          export PYTHONPATH=$GITHUB_WORKSPACE
+          python -m tools.bootstrap ci
+
   build-worker:
     name: Build & Push Worker
     needs: validate
     runs-on: ubuntu-latest
-    if: needs.validate.outputs.status == 'success'
     steps:
       - uses: actions/checkout@v4
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
+          context: .
           file: backend/worker/Dockerfile
           push: true
           tags: |

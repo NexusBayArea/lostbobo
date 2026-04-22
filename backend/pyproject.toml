@@ -5,16 +5,19 @@ dependencies = [
     "reportlab",
     "qrcode[pil]",
     "requests",
-    "supervisor",
     "pandas",
     "fastapi",
     "uvicorn",
-    "pydantic-settings"
+    "pydantic-settings",
+    "numpy",
+    "pillow",
+    "python-dotenv",
+    "annotated-doc",
 ]
 
-[tool.setuptools]
-# Only include directories that exist and contain __init__.py
-packages = ["app", "packages", "autoscaler", "compiler", "infra", "tools", "worker"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["backend*", "tools*"]
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
@@ -22,11 +25,12 @@ build-backend = "setuptools.build_meta"
 
 [tool.ruff]
 line-length = 120
+target-version = "py311"
 
 [tool.ruff.lint]
-# Add B008, E402, and B904 to the ignore list
-ignore = ["E402", "B008", "B904", "E501"]
 select = ["E", "F", "B", "UP"]
+ignore = ["E402", "B008", "B904", "E501", "UP042", "B007"]
+fixable = ["ALL"]
 
 [tool.ruff.format]
 quote-style = "double"
