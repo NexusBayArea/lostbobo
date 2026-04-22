@@ -10,7 +10,7 @@ jobs:
       - name: Install Ruff
         run: pip install ruff
       - name: Lint Check
-        run: ruff check backend/worker/worker.py backend/app/api/router.py
+        run: ruff check backend/worker/worker.py backend/app/api/api_router.py
   deploy-worker:
     needs: audit
     runs-on: ubuntu-latest

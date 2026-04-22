@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import httpx
 from mcp.server.fastmcp import FastMCP
 
-from backend.app.core.supabase import supabase
+from app.core.supabase import supabase
 
 # Initialize FastMCP for your AI agent
 mcp = FastMCP("SimHPC-Resource-Reaper")

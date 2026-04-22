@@ -3,7 +3,7 @@ import os
 import redis
 import runpod
 
-from backend.app.core.supabase_client import supabase  # Standardized SB client
+from app.core.supabase_client import supabase  # Standardized SB client
 
 # 1. Initialize Cloud Controls
 runpod.api_key = os.getenv("RP_API_KEY")

@@ -4,7 +4,7 @@ from datetime import datetime
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api.api_router import api_router
+from app.api.api_router import api_router
 
 app = FastAPI(title="SimHPC Gateway", version="3.5.0")
 

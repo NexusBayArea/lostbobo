@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
-from backend.app.api.admin.observability import router as observability_router
-from backend.app.api.endpoints.simulations import router as simulations_router
-from backend.app.api.routes import certificates, onboarding
-from backend.app.api.routes.alpha import router as alpha_router
+from app.api.admin.observability import router as observability_router
+from app.api.endpoints.simulations import router as simulations_router
+from app.api.routes import certificates, onboarding
+from app.api.routes.alpha import router as alpha_router
 
 api_router = APIRouter()
 
