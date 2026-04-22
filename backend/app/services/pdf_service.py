@@ -5,6 +5,8 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
+
+
 class PDFReportService:
     @staticmethod
     def generate_certificate_pdf(cert_data: dict, sim_data: dict):
@@ -56,13 +58,7 @@ class PDFReportService:
 
         c.drawImage(qr_img_buffer, width - 2.5 * inch, 1 * inch, width=1.5 * inch, height=1.5 * inch)
         c.setFont("Helvetica-Oblique", 8)
-        c.save()
-        buffer.seek(0)
-        return buffer
-
-# backward compatibility alias
-PDFService = PDFReportService
-
+        c.drawCentredString(width - 1.75 * inch, 0.8 * inch, "Scan to verify integrity")
 
         # 6. Footer
         c.setFont("Helvetica", 8)
@@ -77,3 +73,7 @@ PDFService = PDFReportService
         c.save()
         buffer.seek(0)
         return buffer
+
+
+# backward compatibility alias
+PDFService = PDFReportService
