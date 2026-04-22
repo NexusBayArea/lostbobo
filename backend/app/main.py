@@ -3,10 +3,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api.admin.observability import router as observability_router
-from backend.app.api.endpoints.simulations import router as simulations_router
-from backend.app.api.routes import certificates, onboarding
-from backend.app.api.routes.alpha import router as alpha_router
+from backend.app.api.router import api_router
 
 app = FastAPI(title="SimHPC Core Orchestrator", version="3.5.0")
 
@@ -22,20 +19,7 @@ app.add_middleware(
 )
 
 # --- ROUTER INTEGRATION ---
-# Observability for your AdminAnalyticsPage.tsx
-app.include_router(observability_router, prefix="/api/v1/admin", tags=["Admin"])
-
-# Simulation Logic (The Core)
-app.include_router(simulations_router, prefix="/api/v1/simulations", tags=["Simulations"])
-
-# Onboarding & Credits (The Economy)
-app.include_router(onboarding.router, prefix="/api/v1/onboarding", tags=["Onboarding"])
-
-# The Moat: Verification & PDFs
-app.include_router(certificates.router, prefix="/api/v1/certificates", tags=["Verification"])
-
-# Legacy Alpha shim (Temporary)
-app.include_router(alpha_router, prefix="/api/v1/alpha", tags=["Alpha"])
+app.include_router(api_router, prefix="/api/v1")
 
 
 @app.get("/health")

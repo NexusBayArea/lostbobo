@@ -1,5 +1,5 @@
 [project]
-name = "simhpc-backend"
+name = "simhpc"
 version = "3.5.0"
 dependencies = [
     "reportlab",
