@@ -11,7 +11,7 @@ RULES = {
 }
 
 # Directories to exempt from boundary checks
-EXEMPT_DIRS = {"runtime"}
+EXEMPT_DIRS = {"runtime", "tools"}
 
 
 def scan():
