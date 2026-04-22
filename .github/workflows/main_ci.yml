@@ -40,80 +40,10 @@ jobs:
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
+        shell: bash
 
-      # ---------- STRUCTURE GUARD ----------
-      - name: Assert src layout
-        run: |
-          test -d app || (echo "Missing app" && exit 1)
-          test -d worker || (echo "Missing worker" && exit 1)
-
-      # ---------- LINT ----------
-      - name: Install lint tools
-        run: pip install ruff==0.4.4
-
-      - name: Ruff format check
-        run: ruff format --check . --config pyproject.toml
-
-      - name: Ruff lint
-        run: ruff check . --config pyproject.toml
-
-      # ---------- LOCKFILE DRIFT ----------
-      - name: Verify lockfile consistency
-        run: |
-          uv pip compile pyproject.toml -o requirements.api.lock.tmp
-          diff -q requirements.api.lock requirements.api.lock.tmp
-
-      # ---------- INSTALL (DETERMINISTIC) ----------
-      - name: Install dependencies from lockfile
-        run: |
-          uv venv
-          source .venv/bin/activate
-          uv pip install -r requirements.api.lock
-          uv pip install -r requirements.dev.lock
-          uv pip install -e .
-
-      # ---------- IMPORT + BOUNDARY CHECK ----------
-      - name: Verify imports
-        run: |
-          source .venv/bin/activate
-          python -c "from app.gateway import app; from worker.worker import worker; print('imports OK')"
-
-      - name: Enforce import boundaries
-        run: |
-          source .venv/bin/activate
-          python tools/ci_gates/check_import_boundaries.py
-
-      - name: Runtime Isolation Gate (HARD)
-        run: |
-          source .venv/bin/activate
-          python tools/ci_gates/runtime_isolation.py
-
-      # ---------- TESTS ----------
-      - name: Run tests
-        run: |
-          source .venv/bin/activate
-          python -m pytest ../tests/ -q --tb=short
-
-      - name: Boot validation
-        run: |
-          source .venv/bin/activate
-          pytest ../tests/test_boot.py -xvs
-
-      - name: Boot fail-fast validation
-        run: |
-          source .venv/bin/activate
-          pytest ../tests/test_boot_failfast.py -xvs
-
-      - name: DAG system tests
-        run: |
-          source .venv/bin/activate
-          pytest ../tests/test_dag.py -xvs
-
-      # ---------- PURITY CHECKS ----------
-      - name: API purity (no worker deps)
-        run: |
-          source .venv/bin/activate
-          python -c "import numpy" && exit 1 || echo "OK"
+      - name: Run CI (single entrypoint)
+        run: cd .. && python tools/run_ci.py
 
   deploy:
     name: Deploy

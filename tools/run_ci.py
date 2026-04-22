@@ -12,9 +12,12 @@ import os
 import subprocess
 import sys
 import argparse
-import json
+from pathlib import Path
 
-os.chdir("backend")
+REPO_ROOT = Path(__file__).resolve().parent.parent
+BACKEND = REPO_ROOT / "backend"
+
+os.chdir(BACKEND)
 
 
 def run(name: str, cmd: str, check: bool = True) -> int:
@@ -25,7 +28,7 @@ def run(name: str, cmd: str, check: bool = True) -> int:
         shell=True,
         capture_output=True,
         text=True,
-        cwd="backend",
+        cwd=str(BACKEND),
     )
 
     if result.stdout:
@@ -60,7 +63,7 @@ def run_with_auto_fix(name: str, cmd: str, auto_fix: bool = False) -> int:
         shell=True,
         capture_output=True,
         text=True,
-        cwd="backend",
+        cwd=str(BACKEND),
     )
 
     if result.stdout:
@@ -83,7 +86,7 @@ def run_with_auto_fix(name: str, cmd: str, auto_fix: bool = False) -> int:
         if auto_fix:
             print("\n[CI] Attempting auto-fix in sandbox...")
 
-            fix_result = sandbox_fix(diagnosis, "..")
+            fix_result = sandbox_fix(diagnosis, str(REPO_ROOT))
 
             if fix_result.get("applied"):
                 print(f"[AUTO-FIX] Applied: {fix_result.get('fix_command')}")
@@ -126,6 +129,8 @@ def main():
     run("Ruff format check", "ruff format . --check --config pyproject.toml")
 
     run("Import check", "python -c 'from app.gateway import app; from worker.worker import worker; print(\"imports OK\")'")
+
+    run("Runtime Isolation Gate", "python ../tools/ci_gates/runtime_isolation.py")
 
     run_func = lambda n, c: run_with_auto_fix(n, c, args.auto_fix) if args.auto_fix else run
     run_func("Tests", "pytest -q --tb=short ../tests/")
