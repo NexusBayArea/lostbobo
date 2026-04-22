@@ -17,11 +17,12 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 WORKDIR /app
 ENV PYTHONPATH=/app
 
-# Copy manifest from backend folder
-COPY backend/pyproject.toml backend/uv.lock* ./
+# Copy manifest and lockfile
+COPY backend/pyproject.toml backend/requirements.lock ./
 
-# Install using uv
-RUN uv pip install --system .
+# Install using lockfile
+RUN pip install --no-cache-dir -r requirements.lock
+RUN pip install --no-cache-dir -e .
 
 # Copy backend source components with consistent paths
 COPY backend/app ./app
