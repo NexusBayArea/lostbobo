@@ -12,65 +12,15 @@ from pathlib import Path
 
 ROOT = Path(".")
 
-STDLIB = {
-    "os",
-    "sys",
-    "math",
-    "json",
-    "time",
-    "datetime",
-    "pathlib",
-    "typing",
-    "collections",
-    "itertools",
-    "asyncio",
-    "re",
-    "subprocess",
-    "contextlib",
-    "enum",
-    "uuid",
-    "hashlib",
-    "secrets",
-    "random",
-    "base64",
-    "functools",
-    "operator",
-    "copy",
-    "io",
-    "abc",
-    "warnings",
-    "tempfile",
-    "shutil",
-    "glob",
-    "fnmatch",
-    "urllib",
-    "email",
-    "html",
-    "xml",
-    "csv",
-    "logging",
-    "traceback",
-    "gc",
-    "inspect",
-    "dis",
-    "pickle",
-    "dbm",
-    "sqlite3",
-    "concurrent",
-    "threading",
-    "argparse",
-    "importlib",
-    "pprint",
-    "struct",
-}
+# Use system provided standard library names
+STDLIB = set(sys.stdlib_module_names)
+
+# Define internal root namespaces
+INTERNAL_NAMESPACES = {"app", "worker", "packages", "tools", "ci", "docker", "docs", "frontend", "supabase", "tests", "compiler", "infra", "scripts"}
 
 
 def get_local_modules() -> set:
-    local = set()
-    for p in ROOT.iterdir():
-        if p.is_dir() and not p.name.startswith("."):
-            local.add(p.name)
-    return local
+    return INTERNAL_NAMESPACES
 
 
 def extract_imports() -> set:
@@ -109,9 +59,10 @@ def filter_external(deps: set, local_modules: set) -> list:
 
 
 def check_requirements() -> None:
-    reqs_path = Path("requirements.txt")
+    # Changed to enforce use of lockfile
+    reqs_path = Path("requirements.api.lock")
     if not reqs_path.exists():
-        print("ERROR: requirements.txt not found")
+        print("ERROR: requirements.api.lock not found. Please run: uv pip compile pyproject.toml -o requirements.api.lock")
         sys.exit(1)
 
     reqs = reqs_path.read_text().lower()
@@ -122,6 +73,7 @@ def check_requirements() -> None:
 
     missing = []
     for dep in external:
+        # Check against lockfile
         if dep not in reqs and dep.replace("_", "-") not in reqs:
             missing.append(dep)
 
@@ -129,10 +81,10 @@ def check_requirements() -> None:
         print("\nMISSING DEPENDENCIES DETECTED:")
         for m in missing:
             print(f" - {m}")
-        print("\nAdd these to requirements.txt before running CI")
+        print("\nAdd these to pyproject.toml and run: uv pip compile backend/pyproject.toml -o requirements.api.lock")
         sys.exit(1)
 
-    print(f"Dependency scan OK: {len(external)} external packages verified")
+    print(f"Dependency scan OK: {len(external)} external packages verified in lockfile")
 
 
 if __name__ == "__main__":
