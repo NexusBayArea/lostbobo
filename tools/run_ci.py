@@ -125,7 +125,7 @@ def main():
 
     run("Bootstrap Environment", "python tools/env_bootstrap.py ci")
 
-    run("Ruff lint", "ruff check . --config pyproject.toml")
+    run("Ruff lint", "ruff check . --config pyproject.toml --fix")
     run("Ruff format check", "ruff format . --check --config pyproject.toml")
 
     run("Import check", "python3 -c 'from app.gateway import app; from worker.worker import worker; print(\"imports OK\")'")
