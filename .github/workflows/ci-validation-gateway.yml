@@ -11,6 +11,9 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
 
@@ -27,13 +30,13 @@ jobs:
       - name: Install dependencies
         run: |
           uv pip install --system ruff
-          uv pip install --system -r backend/requirements.txt
+          uv pip install --system -r requirements.api.lock
 
       - name: Ruff lint
-        run: python -m ruff check backend/ --config backend/pyproject.toml
+        run: python -m ruff check . --config pyproject.toml
 
       - name: Ruff format check
-        run: python -m ruff format backend/ --check --config backend/pyproject.toml
+        run: python -m ruff format . --check --config pyproject.toml
 
       - name: Bootstrap contract
         run: |
@@ -47,11 +50,10 @@ jobs:
       - name: Build and Push SimHPC Image
         run: |
           IMAGE=ghcr.io/${{ github.repository_owner }}/simhpc_unified:latest
-          docker build -f Dockerfile.unified -t $IMAGE .
+          docker build -f ../Dockerfile.unified -t $IMAGE ..
           docker push $IMAGE
 
       - name: Update RunPod Template
         run: |
-          cd backend
           export RUNPOD_API_KEY=${{ secrets.RUNPOD_API_KEY }}
           python tools/update_runpod.py
