@@ -10,7 +10,6 @@ RULES = {
     "worker": ["app"],
 }
 
-# Directories to exempt from boundary checks
 EXEMPT_DIRS = {"runtime", "tools"}
 
 
@@ -29,7 +28,6 @@ def scan():
             text = py.read_text()
 
             for bad in forbidden:
-                # Check for explicit package imports
                 if f"import {bad}" in text or f"from {bad}" in text:
                     violations.append(f"{py}: illegal import of '{bad}'")
 
