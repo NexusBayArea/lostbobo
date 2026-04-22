@@ -4,7 +4,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from backend.app.core.supabase import supabase as supabase_client
+from app.core.supabase import supabase as supabase_client
 
 
 # Dummy auth dependency for now; assumes verify_auth logic is managed globally or imported

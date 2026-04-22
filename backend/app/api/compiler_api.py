@@ -2,11 +2,11 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException
 
-from backend.tools.runtime.contract import compute_contract
-from backend.tools.runtime.explain import explain
-from backend.tools.runtime.lineage import build_lineage
-from backend.tools.runtime.planner import plan_execution
-from backend.tools.runtime.trace import load
+from runtime.contract import compute_contract
+from runtime.explain import explain
+from runtime.lineage import build_lineage
+from runtime.planner import plan_execution
+from runtime.trace import load
 
 app = FastAPI(title="SimHPC Execution Compiler API")
 

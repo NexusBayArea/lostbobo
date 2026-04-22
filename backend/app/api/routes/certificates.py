@@ -6,8 +6,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
 
-from backend.app.core.supabase import supabase
-from backend.app.services.pdf_service import PDFService
+from app.core.supabase import supabase
+from app.services.pdf_service import PDFService
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

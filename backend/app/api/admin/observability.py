@@ -7,7 +7,7 @@ import pandas as pd
 from fastapi import APIRouter, Response
 from fastapi.responses import HTMLResponse
 
-from tools.runtime.telemetry import DB_PATH, TelemetryManager
+from runtime.telemetry import DB_PATH, TelemetryManager
 
 router = APIRouter()
 tm = TelemetryManager()

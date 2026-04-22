@@ -6,9 +6,9 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends
 
-from backend.app.api.schemas.backtest import BacktestCreate
-from backend.app.core.supabase import supabase
-from backend.app.gateway import verify_auth
+from app.api.schemas.backtest import BacktestCreate
+from app.core.supabase import supabase
+from app.gateway import verify_auth
 
 router = APIRouter()
 

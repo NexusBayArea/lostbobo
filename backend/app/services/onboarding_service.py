@@ -1,4 +1,4 @@
-from backend.app.core.supabase import supabase
+from app.core.supabase import supabase
 
 
 class OnboardingService:
