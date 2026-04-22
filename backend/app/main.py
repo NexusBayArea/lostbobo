@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.api.router import api_router
+from backend.app.api.api_router import api_router
 
 app = FastAPI(title="SimHPC Core Orchestrator", version="3.5.0")
 
