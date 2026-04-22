@@ -22,11 +22,17 @@ COPY backend/pyproject.toml backend/uv.lock* ./
 # Install using uv
 RUN uv pip install --system .
 
-# Copy backend source
-COPY backend/ ./backend/
+# Copy backend source components with consistent paths
+COPY backend/app ./app
+COPY backend/packages ./packages
+COPY backend/autoscaler ./autoscaler
+COPY backend/compiler ./compiler
+COPY backend/infra ./infra
+COPY backend/tools ./tools
+COPY backend/worker ./worker
 
-# Copy the Supervisor config from the docker/supervisor folder
-COPY docker/supervisor/simhpc.conf /etc/supervisor/conf.d/simhpc.conf
+# Copy the Supervisor config
+COPY backend/worker/supervisor/simhpc.conf /etc/supervisor/conf.d/simhpc.conf
 
 EXPOSE 8080 8000
 

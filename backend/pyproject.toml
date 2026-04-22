@@ -19,3 +19,15 @@ packages = ["app", "packages", "autoscaler", "compiler", "infra", "tools", "work
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+# Add B008, E402, and B904 to the ignore list
+ignore = ["E402", "B008", "B904", "E501"]
+select = ["E", "F", "B", "UP"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
