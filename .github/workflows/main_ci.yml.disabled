@@ -1,0 +1,56 @@
+name: Unified Deterministic CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHON_VERSION: "3.11"
+  SB_URL: "http://localhost:8080"
+  SB_TOKEN: "ci-stub-token"
+  SB_SECRET_KEY: "ci-stub-secret"
+  SB_JWT_SECRET: "ci-stub-jwt"
+  SB_PUB_KEY: "ci-stub-pubkey"
+  SB_DATA_URL: "http://localhost:8000"
+  RUNTIME_MODE: "ci"
+
+jobs:
+  ci:
+    name: Full CI Pipeline
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Bootstrap Environment
+        run: python tools/env_bootstrap.py ci
+
+      - name: Run CI (single entrypoint)
+        run: python3 ../tools/run_ci.py
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy trigger
+        run: echo "All checks passed for ${{ github.sha }}"

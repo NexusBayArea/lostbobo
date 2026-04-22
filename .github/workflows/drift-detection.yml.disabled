@@ -1,0 +1,25 @@
+name: "Dependency Drift Detection"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  dependency-drift:
+    name: Verify Lockfile Integrity
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bootstrap Environment
+        run: python tools/env_bootstrap.py ci
+
+      - name: Runtime import check
+        run: python3 -c "from app.gateway import app; print('Gateway import OK')"

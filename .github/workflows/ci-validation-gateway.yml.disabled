@@ -1,0 +1,28 @@
+name: CI Validation Gateway
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bootstrap Environment
+        run: python tools/env_bootstrap.py ci
+
+      - name: Ruff lint
+        run: ruff check . --config pyproject.toml --fix
+
+      - name: Ruff format check
+        run: ruff format . --check --config pyproject.toml
