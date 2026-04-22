@@ -10,6 +10,7 @@ RULES = {
     "worker": ["app"],
 }
 
+
 def scan():
     violations = []
 
@@ -17,7 +18,7 @@ def scan():
         layer_path = ROOT / layer
         if not layer_path.exists():
             continue
-            
+
         for py in layer_path.rglob("*.py"):
             text = py.read_text()
 
