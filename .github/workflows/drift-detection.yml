@@ -7,7 +7,7 @@ on:
     branches:
       - main
 env:
-  DRIFT_TEST_IMPORT: "backend.app.main"
+  DRIFT_TEST_IMPORT: "backend.app.gateway"
   BACKEND_PATH: "backend"
 jobs:
   dependency-drift:
