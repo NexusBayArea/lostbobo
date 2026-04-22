@@ -1,0 +1,40 @@
+# Use the NVIDIA runtime for A40 compatibility
+FROM nvidia/cuda:12.1.1-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PATH="/root/.local/bin:${PATH}"
+
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip curl supervisor libgomp1 \
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+
+WORKDIR /app
+
+# Copy manifest and lockfile from backend/
+COPY backend/pyproject.toml backend/requirements.api.lock ./
+
+# Install deps from lockfile, then install package (non-editable for prod)
+RUN pip install --no-cache-dir -r requirements.api.lock
+RUN pip install --no-cache-dir .
+
+# Copy backend source components with consistent paths
+COPY backend/app ./app
+COPY backend/packages ./packages
+COPY backend/autoscaler ./autoscaler
+COPY backend/compiler ./compiler
+COPY backend/infra ./infra
+COPY backend/tools ./tools
+COPY backend/worker ./worker
+
+# Copy the Supervisor config
+COPY backend/worker/supervisor/simhpc.conf /etc/supervisor/conf.d/simhpc.conf
+
+EXPOSE 8080 8000
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/simhpc.conf"]
