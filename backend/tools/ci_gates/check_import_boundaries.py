@@ -24,7 +24,7 @@ def scan():
 
             for bad in forbidden:
                 # Check for explicit package imports
-                if f"import backend.{bad}" in text or f"from backend.{bad}" in text:
+                if f"import {bad}" in text or f"from {bad}" in text:
                     violations.append(f"{py}: illegal import of '{bad}'")
 
     return violations
