@@ -3,6 +3,7 @@ name: CI Validation Gateway
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -17,28 +18,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Install dependencies
-        run: |
-          uv pip install --system ruff
-          uv pip install --system -r requirements.api.lock
+      - name: Bootstrap Environment
+        run: python tools/env_bootstrap.py ci
 
       - name: Ruff lint
-        run: python -m ruff check . --config pyproject.toml
+        run: ruff check . --config pyproject.toml --fix
 
       - name: Ruff format check
-        run: python -m ruff format . --check --config pyproject.toml
-
-      - name: Bootstrap contract
-        run: |
-          export PYTHONPATH=$GITHUB_WORKSPACE
-          python -m tools.bootstrap ci
+        run: ruff format . --check --config pyproject.toml

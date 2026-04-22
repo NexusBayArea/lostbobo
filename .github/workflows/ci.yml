@@ -3,6 +3,7 @@ name: CI Validation Gateway
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   validate:
