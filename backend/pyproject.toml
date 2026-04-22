@@ -9,7 +9,7 @@ dependencies = [
     "fastapi",
     "uvicorn",
     "pydantic-settings",
-    "numpy",
+    "numpy>=2.2.6,<2.3",
     "pillow",
     "python-dotenv",
     "annotated-doc",
@@ -30,19 +30,18 @@ target-version = "py311"
 [tool.ruff.lint]
 select = ["E", "F", "B", "UP", "I"]
 ignore = [
-    "E402",   # module import not at top
-    "B008",   # Depends() in default args - FastAPI pattern
-    "B904",   # raise from err
-    "E501",   # line too long
-    "UP042",  # StrEnum
-    "B007",   # loop var not used
-    "TID252", # relative imports
-    "I001",   # import sort
+    "E402",
+    "B008",
+    "B904",
+    "E501",
+    "UP042",
+    "B007",
+    "TID252",
+    "I001",
 ]
 fixable = ["ALL"]
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
-"backend.app.api" = { msg = "API routes cannot be imported outside the API layer" }
 "backend.app.api.routes" = { msg = "API routes cannot be imported outside the API layer" }
 
 [tool.ruff.format]
