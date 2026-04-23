@@ -1,7 +1,6 @@
 """Execution Diff Engine - Compare runs to detect changes."""
 
 
-
 def diff_runs(prev, current):
     """Compare previous and current run to detect changes."""
     diff = []
