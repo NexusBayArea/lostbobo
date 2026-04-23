@@ -14,9 +14,9 @@ TRACE_NODES: list[NodeTrace] = []
 
 
 def load_manifest() -> dict:
-    path = Path("tools/ci_manifest.yml")
+    path = Path("backend/tools/ci_manifest.yml")
     if not path.exists():
-        raise FileNotFoundError("tools/ci_manifest.yml missing")
+        raise FileNotFoundError("backend/tools/ci_manifest.yml missing")
 
     import yaml
 

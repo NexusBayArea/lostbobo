@@ -7,11 +7,11 @@ import glob
 import argparse
 from datetime import datetime
 from pathlib import Path
-from tools.ci.dag import CI_DAG
-from tools.ci.diff_engine import diff_runs
-from tools.ci.root_cause import find_root_failure, infer_hint
-from tools.ci.fix_engine import propose_fix, validate_fix
-from tools.ci.apply_fix import apply_and_validate
+from backend.tools.ci.dag import CI_DAG
+from backend.tools.ci.diff_engine import diff_runs
+from backend.tools.ci.root_cause import find_root_failure, infer_hint
+from backend.tools.ci.fix_engine import propose_fix, validate_fix
+from backend.tools.ci.apply_fix import apply_and_validate
 
 TRACE = []
 HISTORY_DIR = "ci_history"

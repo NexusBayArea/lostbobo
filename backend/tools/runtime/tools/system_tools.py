@@ -1,6 +1,6 @@
 import subprocess
 
-from tools.runtime.tool_registry import TOOL_REGISTRY, Tool
+from backend.tools.runtime.tool_registry import TOOL_REGISTRY, Tool
 
 
 def run_ruff_check(_):

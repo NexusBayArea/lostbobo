@@ -2,7 +2,7 @@ import ast
 import os
 import sys
 
-from tools.runtime.contract import CONTRACT
+from backend.tools.runtime.contract import CONTRACT
 
 VIOLATIONS = []
 

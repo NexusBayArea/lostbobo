@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from tools.runtime.contract import CONTRACT
-from tools.runtime.execution_log import ExecutionLog
+from backend.tools.runtime.contract import CONTRACT
+from backend.tools.runtime.execution_log import ExecutionLog
 
 
 @dataclass

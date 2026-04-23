@@ -13,7 +13,7 @@ import yaml
 
 
 def load_manifest():
-    manifest_path = Path("tools/ci_manifest.yml")
+    manifest_path = Path("backend/tools/ci_manifest.yml")
     if not manifest_path.exists():
         print("[DAG VALIDATION FAILED] - manifest not found")
         sys.exit(1)

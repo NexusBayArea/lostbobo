@@ -6,7 +6,7 @@ import sys
 import os
 import json
 from pathlib import Path
-from tools.ci.fix_engine import propose_fix, validate_fix, generate_fix_script
+from backend.tools.ci.fix_engine import propose_fix, validate_fix, generate_fix_script
 
 
 def copy_repo_to_sandbox(repo_path: str, sandbox_path: str):
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     with open(trace_path) as f:
         trace = json.load(f)
     
-    from tools.ci.root_cause import find_root_failure
+    from backend.tools.ci.root_cause import find_root_failure
     
     root = find_root_failure(trace)
     if root:

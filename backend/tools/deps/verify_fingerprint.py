@@ -14,11 +14,11 @@ def main() -> None:
 
     if not Path("build.fingerprint").exists():
         print("WARNING: No build.fingerprint found, generating...")
-        subprocess.run(["python", "tools/deps/fingerprint.py"])
+        subprocess.run(["python", "backend/tools/deps/fingerprint.py"])
 
     expected = Path("build.fingerprint").read_text().strip()
 
-    subprocess.run(["python", "tools/deps/fingerprint.py"])
+    subprocess.run(["python", "backend/tools/deps/fingerprint.py"])
 
     actual = Path("build.fingerprint").read_text().strip()
 

@@ -54,7 +54,10 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "B", "UP"]
-ignore = ["E402", "B008", "B904", "E501", "UP042", "B007", "I001", "I"]
+ignore = ["E402", "B008", "B904", "E501", "UP042", "B007", "I001"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "runtime", "compiler", "worker", "packages", "autoscaler", "skills", "tools"]
 
 [tool.ruff.format]
 quote-style = "double"

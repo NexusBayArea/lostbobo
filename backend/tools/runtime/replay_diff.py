@@ -10,8 +10,8 @@ import sys
 from pathlib import Path
 from typing import Any, Callable, Dict
 
-from tools.runtime.diff import diff_nodes, format_diffs, save_diff_report
-from tools.runtime.replay import replay
+from backend.tools.runtime.diff import diff_nodes, format_diffs, save_diff_report
+from backend.tools.runtime.replay import replay
 
 
 def default_executor(node_name: str, input_data: dict) -> Any:
@@ -20,7 +20,7 @@ def default_executor(node_name: str, input_data: dict) -> Any:
     Replace this with custom executor for your system.
     """
     import importlib.util
-    from tools.runtime.manifest import load_manifest
+    from backend.tools.runtime.manifest import load_manifest
 
     manifest = load_manifest()
     nodes = manifest.get("nodes", {})

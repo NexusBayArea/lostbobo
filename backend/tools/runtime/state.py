@@ -1,6 +1,6 @@
 import json
 
-from tools.runtime.contract import CONTRACT
+from backend.tools.runtime.contract import CONTRACT
 
 STATE_FILE = CONTRACT.root / ".runtime_state.json"
 

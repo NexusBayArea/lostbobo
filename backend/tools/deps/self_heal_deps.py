@@ -106,9 +106,9 @@ def resolve(imports: set[str]) -> None:
 
 if __name__ == "__main__":
     files = [
-        "tools/bootstrap.py",
-        "tools/runtime/dag_executor.py",
-        "tools/ci_gates/system_contract.py",
+        "backend/tools/bootstrap.py",
+        "backend/tools/runtime/dag_executor.py",
+        "backend/tools/ci_gates/system_contract.py",
     ]
 
     all_imports = set()

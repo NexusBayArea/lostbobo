@@ -35,9 +35,10 @@ def run(label: str, cmd: list[str]) -> bool:
 def main():
     steps = [
         ("Ruff format check", ["python", "-m", "ruff", "format", "--check", "."]),
-        ("Ruff lint", ["python", "-m", "ruff", "check", "."]),
-        ("API purity check", ["python", "tools/check_api_purity.py"]),
-        ("Import boundaries", ["python", "tools/ci_gates/check_import_boundaries.py"]),
+        ("Ruff lint",         ["python", "-m", "ruff", "check", ".", "--config", "pyproject.toml"]),
+("Ruff format check", ["python", "-m", "ruff", "format", "--check", ".", "--config", "pyproject.toml"]),
+        ("API purity check", ["python", "backend/tools/check_api_purity.py"]),
+        ("Import boundaries", ["python", "backend/tools/ci_gates/check_import_boundaries.py"]),
     ]
 
     failed = []

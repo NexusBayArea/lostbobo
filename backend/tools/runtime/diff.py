@@ -35,7 +35,7 @@ def diff_nodes(replayed_nodes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     Compare expected vs actual outputs for each node.
     
     Args:
-        replayed_nodes: List of node replay results from tools.runtime.replay.replay()
+        replayed_nodes: List of node replay results from backend.tools.runtime.replay.replay()
         
     Returns:
         List of diffs (empty if no differences)
@@ -76,7 +76,7 @@ def diff_trace(
     Returns:
         List of diffs (empty if no differences)
     """
-    from tools.runtime.replay import replay
+    from backend.tools.runtime.replay import replay
 
     replayed = replay(trace_path, contract_version, executor)
     return diff_nodes(replayed)

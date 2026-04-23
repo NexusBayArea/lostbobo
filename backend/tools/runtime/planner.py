@@ -1,5 +1,5 @@
-from tools.runtime.contract import compute_contract
-from tools.runtime.trace import load
+from backend.tools.runtime.contract import compute_contract
+from backend.tools.runtime.trace import load
 
 
 def build_index(nodes):

@@ -33,12 +33,12 @@ def main() -> None:
     # 1. Dependency Integrity
     run_step(
         "Dependency Integrity",
-        ["python", "tools/deps/verify_fingerprint.py"],
+        ["python", "backend/tools/deps/verify_fingerprint.py"],
     )
 
     run_step(
         "Dependency Scan",
-        ["python", "tools/deps/dependency_scan.py"],
+        ["python", "backend/tools/deps/dependency_scan.py"],
     )
 
     # 2. Environment Parity (if separate)

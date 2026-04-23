@@ -2,8 +2,8 @@ import json
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
-from tools.runtime.contract import CONTRACTS
-from tools.runtime.trace import ExecutionTrace, NodeTrace
+from backend.tools.runtime.contract import CONTRACTS
+from backend.tools.runtime.trace import ExecutionTrace, NodeTrace
 
 
 def replay(

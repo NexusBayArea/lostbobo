@@ -86,11 +86,11 @@ def export_csv():
 
 @router.post("/admin/replay")
 def replay_failed():
-    subprocess.Popen(["python", "tools/runtime/replay.py"])
+    subprocess.Popen(["python", "backend/tools/runtime/replay.py"])
     return {"status": "started"}
 
 
 @router.post("/admin/replay/full")
 def replay_full():
-    subprocess.Popen(["python", "tools/runtime/replay.py", "full"])
+    subprocess.Popen(["python", "backend/tools/runtime/replay.py", "full"])
     return {"status": "started"}
