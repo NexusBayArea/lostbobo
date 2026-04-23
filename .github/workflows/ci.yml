@@ -1,9 +1,8 @@
 name: Unified Kernel CI
-
 on:
   push:
     branches: [main]
-  pull_request:
+  pull_request: {}
 
 jobs:
   kernel:

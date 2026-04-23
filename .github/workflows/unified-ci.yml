@@ -1,5 +1,4 @@
 name: Unified Deterministic CI
-
 on:
   push:
     branches: [main]
