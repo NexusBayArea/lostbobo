@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 """
+#!/usr/bin/env python
+"""
 Single-command CI entrypoint for deterministic execution.
 Run from backend/ directory: python tools/run_ci.py
 """
-
 import os
-import subprocess
 import sys
+import subprocess
 from pathlib import Path
 
 # When called with working-directory: backend in CI,
@@ -35,10 +36,9 @@ def run(label: str, cmd: list[str]) -> bool:
 def main():
     steps = [
         ("Ruff format check", ["python", "-m", "ruff", "format", "--check", "."]),
-        ("Ruff lint",         ["python", "-m", "ruff", "check", ".", "--config", "pyproject.toml"]),
-("Ruff format check", ["python", "-m", "ruff", "format", "--check", ".", "--config", "pyproject.toml"]),
-        ("API purity check", ["python", "backend/tools/check_api_purity.py"]),
-        ("Import boundaries", ["python", "backend/tools/ci_gates/check_import_boundaries.py"]),
+        ("Ruff lint",         ["python", "-m", "ruff", "check", "."]),
+        ("API purity check",  ["python", "tools/check_api_purity.py"]),
+        ("Import boundaries", ["python", "tools/ci_gates/check_import_boundaries.py"]),
     ]
 
     failed = []
@@ -55,3 +55,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

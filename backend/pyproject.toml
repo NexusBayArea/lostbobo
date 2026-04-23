@@ -24,44 +24,12 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.ruff]
-line-length = 120
+line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "B", "UP"]
-ignore = [
-    "E402",
-    "B008",
-    "B904",
-    "E501",
-    "UP042",
-    "B007",
-    "TID252",
-    "I001",
-]
-fixable = ["ALL"]
-
-[tool.ruff.lint.flake8-tidy-imports.banned-api]
-"backend.app.api.routes" = { msg = "API routes cannot be imported outside the API layer" }
+select = ["E", "F", "I", "UP"]
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
-
-[tool.ruff]
-line-length = 120
-target-version = "py311"
-
-[tool.ruff.lint]
-select = ["E", "F", "B", "UP"]
-ignore = ["E402", "B008", "B904", "E501", "UP042", "B007", "I001"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["app", "runtime", "compiler", "worker", "packages", "autoscaler", "skills", "tools"]
-
-[tool.ruff.format]
-quote-style = "double"
-indent-style = "space"
-
-[tool.ruff.lint.isort]
-known-first-party = ["app", "runtime", "compiler", "worker", "packages", "autoscaler", "skills", "tools"]

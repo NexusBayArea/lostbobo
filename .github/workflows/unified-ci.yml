@@ -14,7 +14,7 @@ jobs:
       run:
         working-directory: backend
     env:
-      PYTHONPATH: ${{ github.workspace }}
+      PYTHONPATH: ${{ github.workspace }}/backend
       RUNTIME_MODE: ci
       SB_URL: http://localhost:8080
       SB_TOKEN: ci-stub-token
@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -34,5 +34,5 @@ jobs:
       - name: Install dependencies
         run: pip install ruff
 
-      - name: Run CI Kernel
-        run: python ../tools/runtime/kernel.py
+      - name: Run CI
+        run: python tools/run_ci.py
