@@ -10,8 +10,8 @@ import sys
 import subprocess
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-BACKEND = REPO_ROOT / "backend"
+# path computed from cwd at runtime
+BACKEND = Path.cwd()
 
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(BACKEND))
