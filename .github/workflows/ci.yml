@@ -1,8 +1,9 @@
 name: Unified Kernel CI
+
 on:
   push:
     branches: [main]
-  pull_request: {}
+  pull_request:
 
 jobs:
   kernel:
@@ -23,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install ruff
+          pip install ruff==0.4.4
 
       - name: Run Unified CI
         run: python tools/run_ci.py

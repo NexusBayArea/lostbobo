@@ -30,7 +30,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install ruff
+        run: pip install ruff==0.4.4
 
       - name: Run CI
         run: python tools/run_ci.py
