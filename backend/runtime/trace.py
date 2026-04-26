@@ -63,7 +63,9 @@ def run_node(name: str, fn, input_data: dict, trace_nodes: list[NodeTrace]) -> d
     return output
 
 
-def capture_trace(contract_version: str, nodes: list[NodeTrace], edges: list[tuple[str, str]] = None, manifest_hash: str | None = None) -> ExecutionTrace:
+def capture_trace(
+    contract_version: str, nodes: list[NodeTrace], edges: list[tuple[str, str]] = None, manifest_hash: str | None = None
+) -> ExecutionTrace:
     return ExecutionTrace(
         contract_version=contract_version,
         timestamp=time.time(),

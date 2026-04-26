@@ -11,25 +11,13 @@ def diff_runs(a: dict, b: dict):
         nb = nodes_b.get(nid)
 
         if not na or not nb:
-            result.append({
-                "node": nid,
-                "type": "added_or_removed"
-            })
+            result.append({"node": nid, "type": "added_or_removed"})
             continue
 
         if na["status"] != nb["status"]:
-            result.append({
-                "node": nid,
-                "type": "status_change",
-                "from": na["status"],
-                "to": nb["status"]
-            })
+            result.append({"node": nid, "type": "status_change", "from": na["status"], "to": nb["status"]})
 
         if abs(na["duration"] - nb["duration"]) > 0.01:
-            result.append({
-                "node": nid,
-                "type": "duration_change",
-                "delta": nb["duration"] - na["duration"]
-            })
+            result.append({"node": nid, "type": "duration_change", "delta": nb["duration"] - na["duration"]})
 
     return result

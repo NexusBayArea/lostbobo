@@ -1,6 +1,6 @@
+import shutil
 import subprocess
 import tempfile
-import shutil
 from pathlib import Path
 
 BASE_IMAGE = "python:3.11-slim"
@@ -18,24 +18,23 @@ def run_in_sandbox(script_path: str):
 
         # docker run with deterministic environment
         cmd = [
-            "docker", "run", "--rm",
-            "-e", "RUNTIME_MODE=ci",
-            "-e", "PYTHONHASHSEED=0",
-            "-v", f"{workdir}:/app",
-            "-w", "/app",
+            "docker",
+            "run",
+            "--rm",
+            "-e",
+            "RUNTIME_MODE=ci",
+            "-e",
+            "PYTHONHASHSEED=0",
+            "-v",
+            f"{workdir}:/app",
+            "-w",
+            "/app",
             BASE_IMAGE,
-            "bash", "-c",
-            "pip install -r requirements.lock && python " + script_path.name
+            "bash",
+            "-c",
+            "pip install -r requirements.lock && python " + script_path.name,
         ]
 
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True
-        )
+        result = subprocess.run(cmd, capture_output=True, text=True)
 
-        return {
-            "returncode": result.returncode,
-            "stdout": result.stdout,
-            "stderr": result.stderr
-        }
+        return {"returncode": result.returncode, "stdout": result.stdout, "stderr": result.stderr}

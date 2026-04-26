@@ -1,6 +1,7 @@
-from fastapi import APIRouter
-from pathlib import Path
 import json
+from pathlib import Path
+
+from fastapi import APIRouter
 
 router = APIRouter(prefix="/observability", tags=["observability"])
 
@@ -23,10 +24,7 @@ def get_history():
 
     runs = []
     for f in sorted(HISTORY_PATH.glob("*.json")):
-        runs.append({
-            "name": f.name,
-            "path": str(f)
-        })
+        runs.append({"name": f.name, "path": str(f)})
     return runs
 
 
