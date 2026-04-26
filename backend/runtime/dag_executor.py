@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 from runtime.contract import CONTRACTS
-from runtime.safe_exec import run_subprocess
+from runtime.sandbox import run_in_sandbox
 from runtime.telemetry import TelemetryManager
 from runtime.time_utils import now
 from runtime.trace import NodeTrace, capture_trace
@@ -14,9 +14,9 @@ TRACE_NODES: list[NodeTrace] = []
 
 
 def load_manifest() -> dict:
-    path = Path("backend/tools/ci_manifest.yml")
+    path = Path("tools/ci_manifest.yml")
     if not path.exists():
-        raise FileNotFoundError("backend/tools/ci_manifest.yml missing")
+        raise FileNotFoundError("tools/ci_manifest.yml missing")
 
     import yaml
 
@@ -39,14 +39,14 @@ def execute_node(node: dict, capture: bool = True) -> int:
     if capture and name:
         output = trace_run_node(
             name,
-            lambda **kw: run_subprocess([sys.executable, path]).returncode,
+            lambda **kw: run_in_sandbox(path)["returncode"],
             input_data,
             TRACE_NODES,
         )
         result_code = 0 if output.get("returncode", 1) == 0 else 1
     else:
-        result = run_subprocess([sys.executable, path])
-        result_code = result.returncode
+        result = run_in_sandbox(path)
+        result_code = result["returncode"]
 
     end_time = now()
 
@@ -64,6 +64,7 @@ def execute_node(node: dict, capture: bool = True) -> int:
     )
 
     return result_code
+...
 
 
 ...
