@@ -1,56 +1,73 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
-Single-command CI entrypoint for deterministic execution.
-Run from backend/ directory: python tools/run_ci.py
-"""
+Unified Deterministic CI runner.
 
-import os
-import subprocess
+Usage:
+    python tools/run_ci.py
+"""
 import sys
+import subprocess
 from pathlib import Path
 
 # When called with working-directory: backend in CI,
 # cwd IS the backend directory already.
 BACKEND = Path.cwd()
 
-os.environ.setdefault("RUNTIME_MODE", "ci")
-os.environ.setdefault("SB_URL", "http://localhost:8080")
-os.environ.setdefault("SB_TOKEN", "ci-stub-token")
-os.environ.setdefault("SB_SECRET_KEY", "ci-stub-secret")
-os.environ.setdefault("SB_JWT_SECRET", "ci-stub-jwt")
-os.environ.setdefault("SB_PUB_KEY", "ci-stub-pubkey")
-os.environ.setdefault("SB_DATA_URL", "http://localhost:8000")
+# Define the DAG of CI steps
+STEPS = {
+    "format": {
+        "cmd": ["python", "-m", "ruff", "format", "--check", "."],
+        "deps": [],
+    },
+    "lint": {
+        "cmd": ["python", "-m", "ruff", "check", "."],
+        "deps": ["format"],
+    },
+    "api": {
+        "cmd": ["python", "tools/check_api_purity.py"],
+        "deps": ["lint"],
+    },
+    "imports": {
+        "cmd": ["python", "tools/ci_gates/check_import_boundaries.py"],
+        "deps": ["lint"],
+    },
+    "deps": {
+        "cmd": ["python", "tools/ci_gates/dependency_integrity.py"],
+        "deps": ["lint"],
+    },
+}
 
 
-def run(label: str, cmd: list[str]) -> bool:
-    print(f"[CI] Running: {label}")
-    result = subprocess.run(cmd, cwd=BACKEND)
-    if result.returncode != 0:
-        print(f"[CI] FAILED: {label}")
-        return False
-    print(f"[CI] PASS: {label}")
-    return True
+def topo_run(steps):
+    executed = set()
 
+    def run_step(name):
+        if name in executed:
+            return True
 
-def main():
-    steps = [
-        ("Ruff format check", ["python", "-m", "ruff", "format", "--check", "."]),
-        ("Ruff lint", ["python", "-m", "ruff", "check", "."]),
-        ("API purity check", ["python", "tools/check_api_purity.py"]),
-        ("Import boundaries", ["python", "tools/ci_gates/check_import_boundaries.py"]),
-    ]
+        step = steps[name]
 
-    failed = []
-    for label, cmd in steps:
-        if not run(label, cmd):
-            failed.append(label)
+        for dep in step["deps"]:
+            if not run_step(dep):
+                return False
 
-    if failed:
-        print(f"\n[CI] {len(failed)} step(s) failed: {failed}")
-        sys.exit(1)
+        print(f"[CI] Running: {name}")
+        # Run from BACKEND as cwd is managed by workflow
+        result = subprocess.run(step["cmd"], cwd=BACKEND)
 
-    print("\n[CI] All checks passed")
+        if result.returncode != 0:
+            print(f"[CI] FAILED: {name}")
+            return False
+
+        executed.add(name)
+        return True
+
+    for s in steps:
+        if not run_step(s):
+            sys.exit(1)
+
+    print("[CI] All steps passed")
 
 
 if __name__ == "__main__":
-    main()
+    topo_run(STEPS)
