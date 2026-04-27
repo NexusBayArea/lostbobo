@@ -4,6 +4,7 @@ from runtime.job import Job
 from runtime.queue import FakeQueue
 from runtime.worker import FakeWorker
 
+
 @pytest.mark.asyncio
 async def test_idempotency():
     queue = FakeQueue()
@@ -26,6 +27,7 @@ async def test_idempotency():
     await worker.run_once()
 
     assert len(seen) == 1
+
 
 @pytest.mark.asyncio
 async def test_timeout_handling():

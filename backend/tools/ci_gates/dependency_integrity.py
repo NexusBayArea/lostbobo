@@ -21,6 +21,7 @@ import importlib.metadata as metadata
 # utils
 # ----------------------------
 
+
 def run(cmd):
     return subprocess.run(
         cmd,
@@ -33,17 +34,14 @@ def run(cmd):
 # 1. lockfile correctness
 # ----------------------------
 
+
 def check_lockfile():
     print("[deps] Checking lockfile determinism...")
 
     with tempfile.NamedTemporaryFile(suffix=".lock", delete=False) as tmp:
         tmp_path = tmp.name
 
-    result = run([
-        "uv", "pip", "compile",
-        "pyproject.toml",
-        "-o", tmp_path
-    ])
+    result = run(["uv", "pip", "compile", "pyproject.toml", "-o", tmp_path])
 
     if result.returncode != 0:
         print(result.stderr)
@@ -55,8 +53,7 @@ def check_lockfile():
     with open(tmp_path) as f:
         generated = f.read()
 
-    if hashlib.sha256(committed.encode()).hexdigest() != \
-       hashlib.sha256(generated.encode()).hexdigest():
+    if hashlib.sha256(committed.encode()).hexdigest() != hashlib.sha256(generated.encode()).hexdigest():
         print("Lockfile drift detected")
         sys.exit(1)
 
@@ -66,6 +63,7 @@ def check_lockfile():
 # ----------------------------
 # 2. dependency graph validity
 # ----------------------------
+
 
 def check_dependency_graph():
     print("[deps] Checking dependency graph integrity...")
@@ -96,6 +94,7 @@ def check_dependency_graph():
 # 3. optional import sanity
 # ----------------------------
 
+
 def check_import():
     target = "app.main"
 
@@ -113,6 +112,7 @@ def check_import():
 # ----------------------------
 # main
 # ----------------------------
+
 
 def main():
     check_lockfile()

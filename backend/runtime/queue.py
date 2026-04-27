@@ -29,12 +29,14 @@ class FakeQueue:
             job.attempts += 1
 
             if job.attempts >= job.max_retries:
-                self.dlq.append({
-                    "job": job,
-                    "error": str(error),
-                    "attempts": job.attempts,
-                    "failed_at": time.time(),
-                })
+                self.dlq.append(
+                    {
+                        "job": job,
+                        "error": str(error),
+                        "attempts": job.attempts,
+                        "failed_at": time.time(),
+                    }
+                )
             else:
                 # simple deterministic backoff
                 await asyncio.sleep(0.01 * job.attempts)
