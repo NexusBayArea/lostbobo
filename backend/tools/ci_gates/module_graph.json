@@ -1,0 +1,8 @@
+{
+  "packages": [],
+  "app": ["packages"],
+  "worker": ["packages"],
+  "runtime": ["app", "worker", "packages"],
+  "tools": ["app", "worker", "packages", "runtime"],
+  "tests": ["app", "worker", "packages", "runtime"]
+}
