@@ -1,1 +1,6 @@
-ÿþimport subprocess; def run(): return subprocess.run(['python', '-m', 'ruff', 'format', '--check', '.']).returncode == 0
+import subprocess
+
+
+def run():
+    r = subprocess.run(["python", "-m", "ruff", "format", "--check", "."])
+    return r.returncode == 0

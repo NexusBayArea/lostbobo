@@ -1,10 +1,8 @@
 import json
-from pathlib import Path
 import sys
+from pathlib import Path
 
-GRAPH = json.loads(
-    Path("backend/tools/ci_gates/module_graph.json").read_text()
-)
+GRAPH = json.loads(Path("backend/tools/ci_gates/module_graph.json").read_text())
 
 
 def reverse_graph(graph):

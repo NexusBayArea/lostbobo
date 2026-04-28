@@ -21,16 +21,17 @@ SRC_DIRS = [
 
 # packages that are allowed to be "unused" (infra / optional)
 ALLOWLIST = {
-    "uvicorn",     # entrypoint only
-    "pytest",      # test-only
-    "ruff",        # dev-only
-    "mypy",        # dev-only
-    "pillow",      # dependency of qrcode
+    "uvicorn",  # entrypoint only
+    "pytest",  # test-only
+    "ruff",  # dev-only
+    "mypy",  # dev-only
+    "pillow",  # dependency of qrcode
     "setuptools",  # build-only
 }
 
 
 # --- helpers -------------------------------------------------
+
 
 def get_declared_dependencies():
     pyproject = ROOT / "backend" / "pyproject.toml"
@@ -85,6 +86,7 @@ def extract_imports():
 
 
 # --- main ----------------------------------------------------
+
 
 def main():
     declared = get_declared_dependencies()

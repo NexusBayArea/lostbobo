@@ -54,9 +54,7 @@ def scan():
 
         for imp in imports:
             if imp in graph and imp not in allowed:
-                violations.append(
-                    f"{py} → illegal dependency '{imp}' (allowed: {sorted(allowed)})"
-                )
+                violations.append(f"{py} → illegal dependency '{imp}' (allowed: {sorted(allowed)})")
 
     return violations
 

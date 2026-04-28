@@ -1,8 +1,7 @@
+import fnmatch
 import hashlib
-import json
 import subprocess
 from pathlib import Path
-import fnmatch
 
 CACHE_DIR = Path(".ci_cache")
 CACHE_DIR.mkdir(exist_ok=True)
@@ -21,9 +20,7 @@ def hash_tools(tools: list[str]) -> str:
     h = hashlib.sha256()
     for tool in tools:
         try:
-            out = subprocess.check_output(
-                ["python", "-m", tool, "--version"], text=True
-            )
+            out = subprocess.check_output(["python", "-m", tool, "--version"], text=True)
         except Exception:
             out = "unknown"
         h.update(out.encode())
