@@ -36,6 +36,9 @@ jobs:
       - name: Smoke test CI runner
         run: python -c "import tools.run_ci" || (echo 'run_ci.py has broken imports' && exit 1)
 
+      - name: Smoke test CI runner
+        run: python -c "import tools.run_ci" || (echo 'run_ci.py has broken imports' && exit 1)
+
       - name: Run CI
         run: python tools/run_ci.py
 
