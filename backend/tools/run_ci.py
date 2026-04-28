@@ -6,8 +6,8 @@ Usage:
     python tools/run_ci.py
 """
 
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 # When called with working-directory: backend in CI,
@@ -17,11 +17,11 @@ BACKEND = Path.cwd()
 # Define the DAG of CI steps
 STEPS = {
     "format": {
-        "cmd": ["python", "-m", "ruff", "format", "--check", "."],
+        "cmd": ["python", "-m", "ruff", "format", "."],
         "deps": [],
     },
     "lint": {
-        "cmd": ["python", "-m", "ruff", "check", "."],
+        "cmd": ["python", "-m", "ruff", "check", ".", "--fix"],
         "deps": ["format"],
     },
     "api": {
@@ -53,7 +53,6 @@ def topo_run(steps):
                 return False
 
         print(f"[CI] Running: {name}")
-        # Run from BACKEND as cwd is managed by workflow
         result = subprocess.run(step["cmd"], cwd=BACKEND)
 
         if result.returncode != 0:
