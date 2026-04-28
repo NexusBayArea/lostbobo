@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Unified Deterministic CI runner with parallel stage execution.
+Unified Deterministic CI runner with parallel execution and caching.
 
 Usage:
     python tools/run_ci.py
@@ -11,6 +11,7 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+from tools.ci.cache import hash_files, cache_key, is_cached, write_cache
 from tools.ci.detect_changes import git_changed_files, classify
 
 # When called with working-directory: backend in CI,
@@ -18,12 +19,46 @@ from tools.ci.detect_changes import git_changed_files, classify
 BACKEND = Path.cwd()
 
 
+def step_inputs(label: str) -> list[Path]:
+    base = Path(".")
+    if "Lockfile" in label:
+        return [base / "pyproject.toml"]
+    if "Dependency pruning" in label:
+        return list(base.rglob("app/**/*.py"))
+    if "Ruff" in label:
+        return list(base.rglob("**/*.py"))
+    if "Import boundaries" in label:
+        return list(base.rglob("**/*.py"))
+    if "API purity" in label:
+        return [base / "requirements.api.lock"]
+    return []
+
+
+def tool_version(cmd: list[str]) -> str:
+    try:
+        return subprocess.check_output(cmd, text=True).strip()
+    except Exception:
+        return "unknown"
+
+
 def run_step(label: str, cmd: list[str]) -> tuple[str, bool]:
+    inputs = step_inputs(label)
+    file_hash = hash_files(inputs)
+    extra = tool_version(["python", "-m", "ruff", "--version"]) if "Ruff" in label else ""
+    key = cache_key(label, file_hash, extra)
+
+    if is_cached(key):
+        print(f"[CI] SKIP (cached): {label}")
+        return (label, True)
+
     print(f"[CI] Running: {label}")
     result = subprocess.run(cmd, cwd=BACKEND)
+
     if result.returncode != 0:
         print(f"[CI] FAILED: {label}")
         return (label, False)
+
+    write_cache(key)
     print(f"[CI] PASS: {label}")
     return (label, True)
 
