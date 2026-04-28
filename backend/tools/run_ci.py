@@ -9,65 +9,70 @@ Usage:
 import subprocess
 import sys
 from pathlib import Path
+from tools.ci.detect_changes import git_changed_files, classify
 
 # When called with working-directory: backend in CI,
 # cwd IS the backend directory already.
 BACKEND = Path.cwd()
 
-# Define the DAG of CI steps
-STEPS = {
-    "format": {
-        "cmd": ["python", "-m", "ruff", "format", "."],
-        "deps": [],
-    },
-    "lint": {
-        "cmd": ["python", "-m", "ruff", "check", ".", "--fix"],
-        "deps": ["format"],
-    },
-    "api": {
-        "cmd": ["python", "tools/check_api_purity.py"],
-        "deps": ["lint"],
-    },
-    "imports": {
-        "cmd": ["python", "tools/ci_gates/check_import_boundaries.py"],
-        "deps": ["lint"],
-    },
-    "deps": {
-        "cmd": ["python", "tools/ci_gates/dependency_integrity.py"],
-        "deps": ["lint"],
-    },
-}
+
+def run(label: str, cmd: list[str]) -> bool:
+    print(f"[CI] Running: {label}")
+    result = subprocess.run(cmd, cwd=BACKEND)
+    if result.returncode != 0:
+        print(f"[CI] FAILED: {label}")
+        return False
+    print(f"[CI] PASS: {label}")
+    return True
 
 
-def topo_run(steps):
-    executed = set()
+def main():
+    files = git_changed_files()
+    flags = classify(files)
 
-    def run_step(name):
-        if name in executed:
-            return True
+    steps = []
 
-        step = steps[name]
+    # --- always safe minimal checks ---
+    steps.append(("Import boundaries", ["python", "tools/ci_gates/check_import_boundaries.py"]))
 
-        for dep in step["deps"]:
-            if not run_step(dep):
-                return False
+    # --- dependency-related ---
+    if flags["deps"]:
+        steps.insert(0, ("Lockfile sync", ["python", "tools/ci_gates/check_lock_sync.py"]))
+        steps.append(("Dependency pruning", ["python", "tools/ci_gates/check_dependency_usage.py"]))
+        steps.append(("API purity check", ["python", "tools/check_api_purity.py"]))
 
-        print(f"[CI] Running: {name}")
-        result = subprocess.run(step["cmd"], cwd=BACKEND)
+    # --- code-related ---
+    if flags["api"] or flags["runtime"] or flags["worker"]:
+        steps.append(("Ruff format check", ["python", "-m", "ruff", "format", "."]))
+        steps.append(("Ruff lint", ["python", "-m", "ruff", "check", ".", "--fix"]))
 
-        if result.returncode != 0:
-            print(f"[CI] FAILED: {name}")
-            return False
+    # --- tooling changes ---
+    if flags["tools"]:
+        steps.append(("Ruff lint (tools)", ["python", "-m", "ruff", "check", "tools"]))
 
-        executed.add(name)
-        return True
+    # --- fallback ---
+    if flags["global"] or not files:
+        print("[CI] Global change detected → full CI run")
+        steps = [
+            ("Lockfile sync", ["python", "tools/ci_gates/check_lock_sync.py"]),
+            ("Dependency pruning", ["python", "tools/ci_gates/check_dependency_usage.py"]),
+            ("Ruff format check", ["python", "-m", "ruff", "format", "."]),
+            ("Ruff lint", ["python", "-m", "ruff", "check", ".", "--fix"]),
+            ("API purity check", ["python", "tools/check_api_purity.py"]),
+            ("Import boundaries", ["python", "tools/ci_gates/check_import_boundaries.py"]),
+        ]
 
-    for s in steps:
-        if not run_step(s):
-            sys.exit(1)
+    failed = []
+    for label, cmd in steps:
+        if not run(label, cmd):
+            failed.append(label)
 
-    print("[CI] All steps passed")
+    if failed:
+        print(f"\n[CI] {len(failed)} step(s) failed: {failed}")
+        sys.exit(1)
+
+    print("\n[CI] All checks passed")
 
 
 if __name__ == "__main__":
-    topo_run(STEPS)
+    main()
