@@ -1,6 +1,6 @@
 import asyncio
-from collections import deque
 import time
+from collections import deque
 
 
 class FakeQueue:

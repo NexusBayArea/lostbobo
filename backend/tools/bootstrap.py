@@ -7,7 +7,7 @@ if str(ROOT) not in sys.path:
 
 
 def bootstrap():
-    from backend.tools.runtime.tools import system_tools
+    from backend.runtime.tools import system_tools
     from tools import registry
 
     print("[BOOTSTRAP] validating module map")
@@ -18,8 +18,8 @@ def bootstrap():
     system_tools.register_system_tools(registry)
 
     print("[BOOTSTRAP] executing deterministic graph")
-    from backend.tools.runtime.graph import GRAPH
-    from backend.tools.runtime.nodes import register_default_nodes
+    from backend.runtime.graph import GRAPH
+    from backend.runtime.nodes import register_default_nodes
 
     register_default_nodes()
     order = GRAPH.topologically_sorted()

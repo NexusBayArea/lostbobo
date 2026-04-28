@@ -1,1 +1,0 @@
-BOOT_MANIFEST = {"nodes": []}

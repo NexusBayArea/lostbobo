@@ -11,11 +11,10 @@ No mutation. No caching. No state.
 """
 
 import hashlib
+import importlib.metadata as metadata
 import subprocess
 import sys
 import tempfile
-import importlib.metadata as metadata
-
 
 # ----------------------------
 # utils

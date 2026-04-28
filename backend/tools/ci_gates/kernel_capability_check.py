@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-from backend.tools.runtime.capabilities import CAPABILITIES
+from backend.runtime.capabilities import CAPABILITIES
 
 
 def main():
