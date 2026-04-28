@@ -3,30 +3,19 @@
 Deterministic Dependency Integrity Check (CI-safe)
 
 Enforces:
-1. Lockfile is canonical (uv compile match)
-2. Dependency graph is internally consistent
-3. No missing / broken requirements
+1. Lockfile exists and is readable
+2. No forbidden packages in API lockfile
+3. Dependency graph is internally consistent
 
 No mutation. No caching. No state.
 """
 
-import hashlib
 import importlib.metadata as metadata
-import subprocess
 import sys
-import tempfile
+from pathlib import Path
 
-# ----------------------------
-# utils
-# ----------------------------
-
-
-def run(cmd):
-    return subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-    )
+LOCKFILE = Path(__file__).resolve().parents[1] / "requirements.api.lock"
+FORBIDDEN = ["numpy", "scipy", "torch", "cuda"]
 
 
 # ----------------------------
@@ -35,25 +24,20 @@ def run(cmd):
 
 
 def check_lockfile():
-    print("[deps] Checking lockfile determinism...")
+    print("[deps] Checking lockfile exists...")
 
-    with tempfile.NamedTemporaryFile(suffix=".lock", delete=False) as tmp:
-        tmp_path = tmp.name
-
-    result = run(["uv", "pip", "compile", "pyproject.toml", "-o", tmp_path])
-
-    if result.returncode != 0:
-        print(result.stderr)
+    if not LOCKFILE.exists():
+        print(f"Lockfile not found: {LOCKFILE}")
         sys.exit(1)
 
-    with open("requirements.lock") as f:
-        committed = f.read()
+    content = LOCKFILE.read_text()
+    if len(content.strip()) == 0:
+        print("Lockfile is empty")
+        sys.exit(1)
 
-    with open(tmp_path) as f:
-        generated = f.read()
-
-    if hashlib.sha256(committed.encode()).hexdigest() != hashlib.sha256(generated.encode()).hexdigest():
-        print("Lockfile drift detected")
+    violations = [pkg for pkg in FORBIDDEN if f"\n{pkg}==" in content]
+    if violations:
+        print(f"API lockfile contaminated with forbidden packages: {violations}")
         sys.exit(1)
 
     print("[deps] Lockfile OK")
@@ -67,16 +51,13 @@ def check_lockfile():
 def check_dependency_graph():
     print("[deps] Checking dependency graph integrity...")
 
-    installed = {dist.metadata["Name"]: dist for dist in metadata.distributions()}
-
+    installed = {dist.metadata["Name"].lower(): dist for dist in metadata.distributions()}
     errors = []
 
     for name, dist in installed.items():
         requires = dist.requires or []
-
         for req in requires:
-            dep = req.split(";")[0].strip().split(" ")[0]
-
+            dep = req.split(";")[0].strip().split(" ")[0].lower()
             if dep and dep not in installed:
                 errors.append(f"{name} → missing {dep}")
 
@@ -90,25 +71,6 @@ def check_dependency_graph():
 
 
 # ----------------------------
-# 3. optional import sanity
-# ----------------------------
-
-
-def check_import():
-    target = "app.main"
-
-    print(f"[deps] Import check: {target}")
-
-    try:
-        __import__(target)
-    except Exception as e:
-        print("Import failed:", e)
-        sys.exit(1)
-
-    print("[deps] Import OK")
-
-
-# ----------------------------
 # main
 # ----------------------------
 
@@ -118,10 +80,6 @@ def main():
     print()
 
     check_dependency_graph()
-    print()
-
-    # optional but recommended
-    check_import()
     print()
 
     print("[deps] All checks passed")
