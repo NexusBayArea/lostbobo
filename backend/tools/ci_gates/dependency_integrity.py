@@ -14,7 +14,7 @@ import importlib.metadata as metadata
 import sys
 from pathlib import Path
 
-LOCKFILE = Path(__file__).resolve().parents[1] / "requirements.api.lock"
+LOCKFILE = Path(__file__).resolve().parents[2] / "requirements.api.lock"
 FORBIDDEN = ["numpy", "scipy", "torch", "cuda"]
 
 
