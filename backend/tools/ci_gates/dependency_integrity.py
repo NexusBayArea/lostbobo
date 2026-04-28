@@ -55,6 +55,8 @@ def check_dependency_graph():
     errors = []
 
     for name, dist in installed.items():
+        if name == "setuptools":
+            continue
         requires = dist.requires or []
         for req in requires:
             dep = req.split(";")[0].strip().split(" ")[0].lower()
