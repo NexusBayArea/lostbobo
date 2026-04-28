@@ -1,34 +1,104 @@
 #!/usr/bin/env python3
-import subprocess
+"""
+Unified Deterministic CI runner with topological DAG execution and content-addressed caching.
+
+Usage:
+    python tools/run_ci.py
+"""
 import sys
+import subprocess
 from pathlib import Path
 
+from tools.ci.cache import node_hash, load_cache, save_cache
+from tools.ci.detect_changes import git_changed_files, classify
+
+# When called with working-directory: backend in CI,
+# cwd IS the backend directory already.
 BACKEND = Path.cwd()
 
-STEPS = {
-    "format": {"cmd": ["python", "-m", "ruff", "format", "."], "deps": []},
-    "lint":   {"cmd": ["python", "-m", "ruff", "check", ".", "--fix"], "deps": ["format"]},
-    "api":    {"cmd": ["python", "tools/check_api_purity.py"], "deps": ["lint"]},
-    "imports":{"cmd": ["python", "tools/ci_gates/check_import_boundaries.py"], "deps": ["lint"]},
-    "deps":   {"cmd": ["python", "tools/ci_gates/dependency_integrity.py"], "deps": ["lint"]},
-}
 
-def topo_run(steps):
-    executed = set()
-    def run_step(name):
-        if name in executed: return True
-        for dep in steps[name]["deps"]:
-            if not run_step(dep): return False
-        print(f"[CI] Running: {name}")
-        result = subprocess.run(steps[name]["cmd"], cwd=BACKEND)
-        if result.returncode != 0:
-            print(f"[CI] FAILED: {name}")
-            return False
-        executed.add(name)
-        return True
-    for s in steps:
-        if not run_step(s): sys.exit(1)
-    print("[CI] All checks passed")
+def load_steps(step_paths):
+    steps = {}
+    for path in step_paths:
+        try:
+            mod = __import__(path, fromlist=["meta", "run"])
+        except ImportError:
+            print(f"[CI] SKIP (missing): {path}")
+            continue
+
+        m = mod.meta()
+        steps[m["name"]] = {
+            "meta": m,
+            "run": mod.run,
+            "deps": m.get("deps", []),
+        }
+    return steps
+
+
+def execute_dag_fused(steps):
+    completed = {}
+    failed = set()
+
+    while len(completed) + len(failed) < len(steps):
+        ready = [
+            name for name, s in steps.items()
+            if name not in completed
+            and name not in failed
+            and all(dep in completed for dep in s["deps"])
+        ]
+
+        if not ready:
+            raise RuntimeError("Deadlock in DAG")
+
+        for name in ready:
+            step = steps[name]
+            dep_hashes = [completed[d] for d in step["deps"]]
+            current_hash = node_hash(step, dep_hashes)
+            cached_hash = load_cache(name)
+
+            if cached_hash == current_hash:
+                print(f"[CI] SKIP (cache hit): {name}")
+                completed[name] = current_hash
+                continue
+
+            print(f"[CI] RUN: {name}")
+            ok = step["run"]()
+
+            if not ok:
+                print(f"[CI] FAIL: {name}")
+                failed.add(name)
+                continue
+
+            save_cache(name, current_hash)
+            completed[name] = current_hash
+            print(f"[CI] PASS: {name}")
+
+        if failed:
+            break
+
+    return failed
+
+
+def main():
+    # Load plugins
+    STEP_MODULES = [
+        "tools.ci_steps.lockfile",
+        "tools.ci_steps.pruning",
+        "tools.ci_steps.lint",
+        "tools.ci_steps.boundaries",
+        "tools.ci_steps.api",
+    ]
+    steps = load_steps(STEP_MODULES)
+
+    # Execute DAG with caching
+    failed = execute_dag_fused(steps)
+
+    if failed:
+        print(f"\n[CI] Failed steps: {failed}")
+        sys.exit(1)
+
+    print("\n[CI] All checks passed")
+
 
 if __name__ == "__main__":
-    topo_run(STEPS)
+    main()
