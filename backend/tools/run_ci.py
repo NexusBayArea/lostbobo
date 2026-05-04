@@ -12,7 +12,6 @@ Usage:
 import sys
 from pathlib import Path
 
-# Ensure backend/ is on sys.path so tools.* resolves correctly
 _backend = str(Path(__file__).resolve().parent.parent)
 if _backend not in sys.path:
     sys.path.insert(0, _backend)
@@ -32,7 +31,7 @@ def run_step(module_path: str):
         mod = __import__(module_path, fromlist=["run"])
     except ImportError:
         print(f"[CI] SKIP (missing): {module_path}")
-        return True  # skip, not fail
+        return True
 
     print(f"[CI] Running: {module_path}")
     ok = mod.run()
