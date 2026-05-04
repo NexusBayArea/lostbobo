@@ -30,7 +30,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { PageLayout } from '@/components/PageLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
-console.log('SimHPC: App.tsx loaded.');
+// Force rebuild timestamp: 2026-05-04
 
 function HomePage() {
   return (
