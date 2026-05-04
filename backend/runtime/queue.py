@@ -5,8 +5,8 @@ SimHPC Distributed Queue System
 Persistent disk-backed queue with Redis fallback and FakeQueue for testing.
 """
 
-import json
 import asyncio
+import json
 from pathlib import Path
 
 from backend.runtime.job import Job
@@ -30,7 +30,7 @@ class PersistentQueue:
             self.q = []
 
     def _save(self):
-        self.path.write_text(json.dumps([j.__dict__ if hasattr(j, '__dict__') else j for j in self.q], indent=2))
+        self.path.write_text(json.dumps([j.__dict__ if hasattr(j, "__dict__") else j for j in self.q], indent=2))
 
     def enqueue(self, job: Job):
         self.q.append(job)
@@ -71,7 +71,7 @@ class FakeQueue:
     async def dequeue(self) -> Job | None:
         try:
             return await asyncio.wait_for(self.queue.get(), timeout=1.0)
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return None
 
     async def mark_success(self, job: Job):

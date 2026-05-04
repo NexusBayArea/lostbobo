@@ -5,8 +5,8 @@ SimHPC RunPod Autoscaler
 Intelligent GPU fleet scaling based on queue depth + job priority.
 """
 
-import os
 import asyncio
+import os
 
 from backend.runtime.queue import QUEUE
 
@@ -20,7 +20,7 @@ class RunPodAutoscaler:
 
     def get_queue_depth(self) -> int:
         """Return current queue length."""
-        return len(QUEUE.snapshot()) if hasattr(QUEUE, 'snapshot') else 0
+        return len(QUEUE.snapshot()) if hasattr(QUEUE, "snapshot") else 0
 
     def scale_fleet(self, target: int):
         """Scale RunPod pods to target count (stub - replace with real GraphQL)."""

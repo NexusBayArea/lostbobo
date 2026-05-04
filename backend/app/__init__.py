@@ -6,6 +6,7 @@ Core FastAPI application, routers, and business logic.
 """
 
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -13,9 +14,11 @@ if TYPE_CHECKING:
 
 __all__ = ["app", "create_app"]
 
-def create_app() -> "FastAPI":
+
+def create_app() -> FastAPI:
     """Factory function to create the SimHPC application."""
     from .main import app
+
     return app
 
 
@@ -23,5 +26,6 @@ def create_app() -> "FastAPI":
 def __getattr__(name: str):
     if name == "app":
         from .main import app
+
         return app
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

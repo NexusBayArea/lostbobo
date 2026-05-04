@@ -13,9 +13,9 @@ from pathlib import Path
 if str(Path(__file__).resolve().parents[2]) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from backend.runtime.queue import FakeQueue, PersistentQueue
 from backend.runtime.dag_executor import execute_node
 from backend.runtime.job import Job
+from backend.runtime.queue import FakeQueue, PersistentQueue
 
 
 async def process_job(job: Job):
@@ -39,13 +39,13 @@ async def main():
 
     while True:
         try:
-            job = await queue.dequeue() if hasattr(queue, 'dequeue') else None
+            job = await queue.dequeue() if hasattr(queue, "dequeue") else None
             if not job:
                 await asyncio.sleep(1)
                 continue
 
             await process_job(job)
-            await queue.mark_success(job) if hasattr(queue, 'mark_success') else None
+            await queue.mark_success(job) if hasattr(queue, "mark_success") else None
 
         except Exception as e:
             print(f"Worker error: {e}")
