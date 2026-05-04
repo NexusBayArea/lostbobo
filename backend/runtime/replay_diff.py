@@ -12,8 +12,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from runtime.diff import diff_nodes, format_diffs, save_diff_report
-from runtime.replay import replay
+from backend.runtime.diff import diff_nodes, format_diffs, save_diff_report
+from backend.runtime.replay import replay
 
 
 def default_executor(node_name: str, input_data: dict) -> Any:

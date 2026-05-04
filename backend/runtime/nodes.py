@@ -1,4 +1,4 @@
-from runtime.graph import GRAPH, Node
+from backend.runtime.graph import GRAPH, Node
 
 
 def register_default_nodes():

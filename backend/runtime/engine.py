@@ -1,7 +1,7 @@
-from runtime.backends.registry import BACKENDS
-from runtime.cache import lookup_contract
-from runtime.contract import compute_contract
-from runtime.trace import record
+from backend.runtime.backends.registry import BACKENDS
+from backend.runtime.cache import lookup_contract
+from backend.runtime.contract import compute_contract
+from backend.runtime.trace import record
 
 
 class ExecutionEngine:

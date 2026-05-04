@@ -3,7 +3,7 @@ import subprocess
 import tarfile
 import urllib.request
 
-from runtime.contract import CONTRACT
+from backend.runtime.contract import CONTRACT
 
 
 def ensure_solver(solver_name: str):

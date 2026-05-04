@@ -1,8 +1,8 @@
 from collections.abc import Callable
 from typing import Any
 
-from runtime.contract import CONTRACTS
-from runtime.trace import ExecutionTrace
+from backend.runtime.contract import CONTRACTS
+from backend.runtime.trace import ExecutionTrace
 
 
 def replay(

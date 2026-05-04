@@ -1,8 +1,10 @@
-import pytest
 import asyncio
-from runtime.job import Job
-from runtime.queue import FakeQueue
-from runtime.worker import FakeWorker
+
+import pytest
+
+from backend.runtime.job import Job
+from backend.runtime.queue import FakeQueue
+from backend.runtime.worker import FakeWorker
 
 
 @pytest.mark.asyncio

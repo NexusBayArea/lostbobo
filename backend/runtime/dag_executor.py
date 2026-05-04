@@ -1,12 +1,12 @@
 import sys
 from pathlib import Path
 
-from runtime.contract import CONTRACTS
-from runtime.sandbox import run_in_sandbox
-from runtime.telemetry import TelemetryManager
-from runtime.time_utils import now
-from runtime.trace import NodeTrace, capture_trace
-from runtime.trace import run_node as trace_run_node
+from backend.runtime.contract import CONTRACTS
+from backend.runtime.sandbox import run_in_sandbox
+from backend.runtime.telemetry import TelemetryManager
+from backend.runtime.time_utils import now
+from backend.runtime.trace import NodeTrace, capture_trace
+from backend.runtime.trace import run_node as trace_run_node
 
 tm = TelemetryManager()
 

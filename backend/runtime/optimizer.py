@@ -1,6 +1,6 @@
 from typing import Any
 
-from runtime.contract import CONTRACT
+from backend.runtime.contract import CONTRACT
 
 
 class DAGOptimizer:

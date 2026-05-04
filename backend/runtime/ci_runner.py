@@ -1,4 +1,4 @@
-from runtime.ci_compiler import compile_ci
+from backend.runtime.ci_compiler import compile_ci
 
 
 def run_ci():
