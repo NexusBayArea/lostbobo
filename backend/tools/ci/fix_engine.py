@@ -145,8 +145,8 @@ def generate_fix_script(fix: dict, workspace: str = ".") -> str:
 # Auto-generated fix script
 set -e
 cd {workspace}
-{fix['command']}
-echo "Fix applied: {fix.get('description')}"
+{fix["command"]}
+echo "Fix applied: {fix.get("description")}"
 """
 
 

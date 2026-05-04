@@ -97,7 +97,7 @@ def check_requirements() -> None:
         print("\nMISSING DEPENDENCIES DETECTED:")
         for m in missing:
             print(f" - {m}")
-        print("\nAdd these to pyproject.toml and run: uv pip compile backend/pyproject.toml -o requirements.api.lock")
+        print("\nAdd these to pyproject.toml and run: uv pip compile pyproject.toml -o requirements.api.lock")
         sys.exit(1)
 
     print(f"Dependency scan OK: {len(external)} external packages verified in lockfile")

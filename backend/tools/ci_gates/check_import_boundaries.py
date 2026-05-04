@@ -57,9 +57,9 @@ if __name__ == "__main__":
     v = scan()
 
     if v:
-        print("❌ Import boundary violations:")
+        print("[FAIL] Import boundary violations:")
         for x in v:
             print(" -", x)
         sys.exit(1)
 
-    print("✅ Import boundaries clean")
+    print("[OK] Import boundaries clean")

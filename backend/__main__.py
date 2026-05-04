@@ -15,8 +15,8 @@ if __name__ == "__main__":
     if str(backend_root.parent) not in sys.path:
         sys.path.insert(0, str(backend_root.parent))
 
-import os
 import multiprocessing
+import os
 
 from backend.app.main import app
 
@@ -76,6 +76,7 @@ def main():
     except ImportError:
         print("⚠️  Gunicorn not found. Falling back to Uvicorn.")
         import uvicorn
+
         uvicorn.run("backend.app.main:app", host="0.0.0.0", port=8000, log_level="info")
 
 

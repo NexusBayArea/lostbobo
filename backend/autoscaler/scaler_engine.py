@@ -3,22 +3,31 @@ Main autoscaler loop for scaling worker pods based on queue depth
 """
 
 import logging
+import os
 import time
 
+import redis
+
 from backend.app.core.config import get_settings
-from packages.core.queue import redis_client
 
 settings = get_settings()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Redis client for queue monitoring
+redis_client = redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"))
+
 
 def get_queue_depth() -> int:
-    high_depth = redis_client.llen(settings.QUEUE_HIGH)
-    med_depth = redis_client.llen(settings.QUEUE_MED)
-    default_depth = redis_client.llen(settings.QUEUE_DEFAULT)
-    return high_depth + med_depth + default_depth
+    try:
+        high_depth = redis_client.llen(settings.QUEUE_HIGH)
+        med_depth = redis_client.llen(settings.QUEUE_MED)
+        default_depth = redis_client.llen(settings.QUEUE_DEFAULT)
+        return high_depth + med_depth + default_depth
+    except Exception as e:
+        logger.error(f"Failed to get queue depth from Redis: {e}")
+        return 0
 
 
 def get_current_worker_count() -> int:

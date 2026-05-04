@@ -76,7 +76,7 @@ def validate_trace_node(node):
     """Validate that a trace node has complete signal data."""
     if node["status"] == "FAIL":
         if not node.get("stderr") and not node.get("stdout"):
-            raise RuntimeError(f"Non-informative failure in node {node['node']} - " "no stderr or stdout captured")
+            raise RuntimeError(f"Non-informative failure in node {node['node']} - no stderr or stdout captured")
     return True
 
 

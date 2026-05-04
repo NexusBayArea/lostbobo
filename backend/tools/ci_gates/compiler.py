@@ -40,7 +40,7 @@ class DependencyCompiler:
         try:
             cycles = list(nx.simple_cycles(self.graph))
             if cycles:
-                print(f"❌ CIRCULAR DEPENDENCY DETECTED: {' -> '.join(cycles[0])}")
+                print(f"[FAIL] CIRCULAR DEPENDENCY DETECTED: {' -> '.join(cycles[0])}")
                 return False
         except Exception as e:
             print(f"ℹ Could not run cycle detection: {e}")

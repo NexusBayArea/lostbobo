@@ -63,9 +63,9 @@ if __name__ == "__main__":
     violations = scan()
 
     if violations:
-        print("❌ Module graph violations:\n")
+        print("[FAIL] Module graph violations:\n")
         for v in violations:
             print(" -", v)
         sys.exit(1)
 
-    print("✅ Module graph locked")
+    print("[OK] Module graph locked")

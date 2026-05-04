@@ -19,6 +19,7 @@ __all__ = [
     "CONTRACT",
 ]
 
+
 # Version access
 def version() -> str:
     """Return the current backend version."""
@@ -30,15 +31,19 @@ def __getattr__(name: str):
     """Lazy loading of major components."""
     if name == "app":
         from .app.main import app
+
         return app
     elif name == "runtime":
         import backend.runtime
+
         return backend.runtime
     elif name == "KERNEL":
         from .runtime.kernel import KERNEL
+
         return KERNEL
     elif name == "CONTRACT":
         from .runtime.contract import CONTRACT
+
         return CONTRACT
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 

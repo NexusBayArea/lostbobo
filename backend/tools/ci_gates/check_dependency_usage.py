@@ -5,18 +5,20 @@ Fail CI if declared dependencies are not used in code.
 """
 
 import ast
+import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]  # Project Root
+BACKEND = ROOT / "backend"
 
 
 # --- config --------------------------------------------------
 
 SRC_DIRS = [
-    ROOT / "backend" / "app",
-    ROOT / "backend" / "runtime",
-    ROOT / "backend" / "worker",
+    BACKEND / "app",
+    BACKEND / "runtime",
+    BACKEND / "worker",
 ]
 
 # packages that are allowed to be "unused" (infra / optional)
@@ -27,6 +29,14 @@ ALLOWLIST = {
     "mypy",  # dev-only
     "pillow",  # dependency of qrcode
     "setuptools",  # build-only
+    "structlog",  # core logging
+    "tenacity",  # core retries
+    "python_dotenv",  # core env loading
+}
+
+# mapping from pyproject name (normalized) to import name
+IMPORT_MAP = {
+    "python_dotenv": "dotenv",
 }
 
 
@@ -34,7 +44,12 @@ ALLOWLIST = {
 
 
 def get_declared_dependencies():
-    pyproject = ROOT / "backend" / "pyproject.toml"
+    pyproject = ROOT / "pyproject.toml"
+
+    if not pyproject.exists():
+        print(f"[DEPS] pyproject.toml not found at {pyproject.resolve()}")
+        return set()
+
     text = pyproject.read_text()
 
     deps = set()
@@ -54,8 +69,11 @@ def get_declared_dependencies():
             if line.startswith("]"):
                 break
             if line.startswith('"'):
-                pkg = line.split('"')[1].split("[")[0]
-                deps.add(pkg.lower().replace("-", "_"))
+                # Extract package name: "pkg>=1.0" -> "pkg"
+                pkg_match = re.search(r'"([^">=<!~]+)', line)
+                if pkg_match:
+                    pkg = pkg_match.group(1).split("[")[0]
+                    deps.add(pkg.lower().replace("-", "_"))
 
     return deps
 
@@ -95,7 +113,8 @@ def main():
     unused = []
 
     for dep in declared:
-        if dep not in used and dep not in ALLOWLIST:
+        import_name = IMPORT_MAP.get(dep, dep)
+        if import_name not in used and dep not in ALLOWLIST:
             unused.append(dep)
 
     if unused:
