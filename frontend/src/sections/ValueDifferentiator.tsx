@@ -1,18 +1,38 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { X, Check } from 'lucide-react';
+import { CheckCircle2, XCircle } from 'lucide-react';
 
-const traditionalWorkflow = [
-  'Run simulation',
-  'Inspect output',
-  'Manually run parameter sweeps',
-];
-
-const simhpcWorkflow = [
-  'Run simulation',
-  'Automatically quantify sensitivity',
-  'Generate structured technical report',
-  'Understand result stability',
+const comparison = [
+  {
+    feature: 'Speed',
+    simhpc: '< 5 minutes per run',
+    traditional: '2-8 hours',
+  },
+  {
+    feature: 'Confidence Intervals',
+    simhpc: 'Built-in (Sobol GSA)',
+    traditional: 'Manual post-processing',
+  },
+  {
+    feature: 'GPU Support',
+    simhpc: 'A40, H100, native CUDA',
+    traditional: 'CPU-bound or expensive',
+  },
+  {
+    feature: 'Determinism',
+    simhpc: 'Verified and audited',
+    traditional: 'Manual verification',
+  },
+  {
+    feature: 'API Access',
+    simhpc: 'REST + WebSocket streaming',
+    traditional: 'Manual downloads',
+  },
+  {
+    feature: 'Compliance',
+    simhpc: 'ITAR/EAR ready, audit logs',
+    traditional: 'Manual controls',
+  },
 ];
 
 export function ValueDifferentiator() {
@@ -25,7 +45,6 @@ export function ValueDifferentiator() {
       className="py-24 lg:py-32 bg-white dark:bg-slate-900"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -33,92 +52,48 @@ export function ValueDifferentiator() {
           className="text-center max-w-3xl mx-auto mb-16"
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white tracking-tight mb-6">
-            We Don't Just Run Simulations.
-            <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-              We Measure How Stable They Are.
-            </span>
+            Why Choose SimHPC?
           </h2>
+          <p className="text-lg text-slate-600 dark:text-slate-400">
+            Faster, more reliable, and enterprise-ready compared to traditional workflows.
+          </p>
         </motion.div>
 
-        {/* Comparison */}
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Traditional Workflow */}
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="relative"
-          >
-            <div className="absolute -inset-px bg-gradient-to-r from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 rounded-2xl opacity-50" />
-            <div className="relative bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-8 border border-slate-200 dark:border-slate-700">
-              <h3 className="text-lg font-semibold text-slate-500 dark:text-slate-400 mb-6 flex items-center gap-2">
-                <X className="w-5 h-5 text-red-500" />
-                Traditional Workflow
-              </h3>
-              <ul className="space-y-4">
-                {traditionalWorkflow.map((step, index) => (
-                  <motion.li
-                    key={step}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={isInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{
-                      duration: 0.5,
-                      delay: 0.3 + index * 0.1,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    className="flex items-center gap-3"
-                  >
-                    <span className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-sm font-medium text-slate-500 dark:text-slate-400">
-                      {index + 1}
-                    </span>
-                    <span className="text-slate-500 dark:text-slate-400 line-through">
-                      {step}
-                    </span>
-                  </motion.li>
-                ))}
-              </ul>
-            </div>
-          </motion.div>
-
-          {/* SimHPC Workflow */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="relative"
-          >
-            <div className="absolute -inset-px bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl" />
-            <div className="relative bg-white dark:bg-slate-800 rounded-2xl p-8">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                <Check className="w-5 h-5 text-green-500" />
-                SimHPC Workflow
-              </h3>
-              <ul className="space-y-4">
-                {simhpcWorkflow.map((step, index) => (
-                  <motion.li
-                    key={step}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={isInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{
-                      duration: 0.5,
-                      delay: 0.4 + index * 0.1,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    className="flex items-center gap-3"
-                  >
-                    <span className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-sm font-medium text-white">
-                      {index + 1}
-                    </span>
-                    <span className="text-slate-900 dark:text-white font-medium">
-                      {step}
-                    </span>
-                    <Check className="w-5 h-5 text-green-500 ml-auto" />
-                  </motion.li>
-                ))}
-              </ul>
-            </div>
-          </motion.div>
+        <div className="overflow-x-auto">
+          <table className="w-full max-w-4xl mx-auto">
+            <thead>
+              <tr className="border-b-2 border-slate-200 dark:border-slate-700">
+                <th className="text-left py-4 px-6 font-semibold text-slate-900 dark:text-white">Feature</th>
+                <th className="text-left py-4 px-6 font-semibold text-blue-600 dark:text-blue-400">SimHPC</th>
+                <th className="text-left py-4 px-6 font-semibold text-slate-500 dark:text-slate-400">Traditional</th>
+              </tr>
+            </thead>
+            <tbody>
+              {comparison.map((row, index) => (
+                <motion.tr
+                  key={row.feature}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={isInView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                >
+                  <td className="py-4 px-6 font-medium text-slate-900 dark:text-white">{row.feature}</td>
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                      <span className="text-slate-700 dark:text-slate-300">{row.simhpc}</span>
+                    </div>
+                  </td>
+                  <td className="py-4 px-6">
+                    <div className="flex items-center gap-2">
+                      <XCircle className="w-5 h-5 text-slate-400 dark:text-slate-600 flex-shrink-0" />
+                      <span className="text-slate-500 dark:text-slate-400">{row.traditional}</span>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>

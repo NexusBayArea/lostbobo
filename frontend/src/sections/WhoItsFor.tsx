@@ -1,32 +1,31 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import { Battery, Rocket, Building2, Landmark, Factory } from 'lucide-react';
+import { Building2, Zap, Shield, TrendingUp } from 'lucide-react';
 
 const audiences = [
   {
-    icon: Battery,
-    title: 'Battery & Energy R&D Teams',
-    description: 'Thermal simulation for lithium-ion cells and energy storage systems.',
-  },
-  {
-    icon: Rocket,
-    title: 'Hardware Startups',
-    description: 'Rapid prototyping validation with cloud-scale compute.',
-  },
-  {
     icon: Building2,
-    title: 'Engineering Consultancies',
-    description: 'Client-ready reports with quantified confidence metrics.',
+    title: 'Engineering Teams',
+    description: 'Run robustness analysis and sensitivity studies 100x faster with GPU acceleration and built-in confidence intervals.',
+    features: ['Fast iteration', 'Statistical confidence', 'Team collaboration'],
   },
   {
-    icon: Landmark,
-    title: 'National Labs',
-    description: 'HPC-class simulation without infrastructure overhead.',
+    icon: Zap,
+    title: 'Research Institutions',
+    description: 'Publish reproducible results with deterministic, audited execution and complete computational transparency.',
+    features: ['Reproducible science', 'Audit trails', 'Paper-ready outputs'],
   },
   {
-    icon: Factory,
-    title: 'Advanced Manufacturing',
-    description: 'Process optimization and quality control simulation.',
+    icon: Shield,
+    title: 'Defense & Aerospace',
+    description: 'ITAR/EAR compliant infrastructure with zero-trust secrets, on-prem options, and enterprise controls.',
+    features: ['Export compliant', 'Secure infrastructure', 'Audit logs'],
+  },
+  {
+    icon: TrendingUp,
+    title: 'Design Optimization',
+    description: 'Accelerate design iterations with parametric studies and sensitivity ranking to guide decision-making.',
+    features: ['Fast optimization', 'Parameter sweeps', 'Design insights'],
   },
 ];
 
@@ -40,7 +39,6 @@ export function WhoItsFor() {
       className="py-24 lg:py-32 bg-slate-50 dark:bg-slate-800/50"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -51,12 +49,11 @@ export function WhoItsFor() {
             Who It's For
           </h2>
           <p className="text-lg text-slate-600 dark:text-slate-400">
-            Built for teams that require stable, defensible simulation results.
+            From design teams to research labs, SimHPC powers anyone doing serious FEM work.
           </p>
         </motion.div>
 
-        {/* Audience Cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
           {audiences.map((audience, index) => (
             <motion.div
               key={audience.title}
@@ -67,20 +64,30 @@ export function WhoItsFor() {
                 delay: index * 0.1,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="group bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg text-center"
+              className="group bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
-              {/* Icon */}
-              <div className="w-14 h-14 mx-auto rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                <audience.icon className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <audience.icon className="w-6 h-6 text-white" />
               </div>
 
-              {/* Content */}
-              <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-2">
+              <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
                 {audience.title}
               </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+              <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 leading-relaxed">
                 {audience.description}
               </p>
+
+              <div className="flex flex-wrap gap-2">
+                {audience.features.map((feature) => (
+                  <span
+                    key={feature}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full"
+                  >
+                    <span className="w-1 h-1 rounded-full bg-blue-500" />
+                    {feature}
+                  </span>
+                ))}
+              </div>
             </motion.div>
           ))}
         </div>
