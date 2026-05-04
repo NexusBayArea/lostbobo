@@ -1,6 +1,6 @@
 from supabase import create_client
 
-from app.core.config import settings
+from backend.app.core.config import settings
 
 supabase = create_client(settings.SB_URL, settings.SB_SECRET_KEY)
 

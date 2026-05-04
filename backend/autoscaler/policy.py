@@ -4,7 +4,7 @@ Scaling rules and policies for autoscaler
 
 from typing import Any
 
-from app.core.config import get_settings
+from backend.app.core.config import get_settings
 
 settings = get_settings()
 

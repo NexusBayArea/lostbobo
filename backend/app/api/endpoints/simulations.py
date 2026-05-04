@@ -2,8 +2,8 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
-from app.core.supabase import supabase
-from app.services.mercury import mercury_ai
+from backend.app.core.supabase import supabase
+from backend.app.services.mercury import mercury_ai
 
 router = APIRouter()
 
