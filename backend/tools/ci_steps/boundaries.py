@@ -1,10 +1,17 @@
-import subprocess
 from pathlib import Path
 
 
-def run():
+def run() -> bool:
+    """Enforce import boundaries."""
     gate = Path("tools/ci_gates/check_import_boundaries.py")
     if not gate.exists():
-        print("[boundaries] Gate script not found, skipping")
+        print("[BOUNDARIES] SKIP (gate not found)")
         return True
-    return subprocess.run(["python", str(gate)]).returncode == 0
+
+    import subprocess
+
+    result = subprocess.run(["python", str(gate)], capture_output=True, text=True)
+
+    success = result.returncode == 0
+    print("[BOUNDARIES] Import boundaries clean" if success else "[BOUNDARIES] Boundary violation")
+    return success
