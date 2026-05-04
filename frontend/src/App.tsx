@@ -24,6 +24,7 @@ const SignUp = lazy(() => import('@/pages/SignUp').then(module => ({ default: mo
 const Terms = lazy(() => import('@/pages/Terms').then(module => ({ default: module.Terms })));  
 const Privacy = lazy(() => import('@/pages/Privacy').then(module => ({ default: module.Privacy })));
 const Contact = lazy(() => import('@/pages/Contact').then(module => ({ default: module.Contact })));
+const DAGDashboard = lazy(() => import('@/pages/DAGDashboard').then(module => ({ default: module.default })));
 
 import { CookieConsent } from '@/components/CookieConsent';
 import { PageLayout } from '@/components/PageLayout';
@@ -80,6 +81,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/dag"
+              element={
+                <ProtectedRoute>
+                  <DAGDashboard />
                 </ProtectedRoute>
               }
             />
