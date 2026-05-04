@@ -13,7 +13,7 @@ from pathlib import Path
 if str(Path(__file__).resolve().parents[2]) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from backend.runtime.kernel import execute_node
+from backend.runtime.dag_executor import execute_node
 
 
 def main():
