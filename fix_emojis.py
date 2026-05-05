@@ -1,5 +1,4 @@
 import os
-import re
 
 directory = "c:/Users/arche/SimHPC/backend/tools/ci_gates"
 count = 0
@@ -26,11 +25,11 @@ for root, _, files in os.walk(directory):
             try:
                 with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
                     content = f.read()
-                
+
                 new_content = content
                 for emoji, text in REPLACEMENTS.items():
                     new_content = new_content.replace(emoji, text)
-                
+
                 if new_content != content:
                     with open(filepath, "w", encoding="utf-8") as f:
                         f.write(new_content)
