@@ -1,3 +1,3 @@
-from backend.runtime.rag.router import RAGRouter
+from .router import RAGRouter
 
 __all__ = ["RAGRouter"]

@@ -62,9 +62,7 @@ class BrierEngine:
         ensemble_brier = self._brier(ensemble_prob, event.actual_outcome)
         agent_results = await self._score_agents(agent_probs, event.actual_outcome, category)
 
-        conformal_ok = await self._update_conformal(
-            ensemble_prob, event.actual_outcome, event.question_id, category
-        )
+        conformal_ok = await self._update_conformal(ensemble_prob, event.actual_outcome, event.question_id, category)
         edges_added = await self._enrich_graph(event, forecast, agent_results)
 
         seal = self._seal(event, ensemble_brier, agent_results)
@@ -90,9 +88,7 @@ class BrierEngine:
             log.warning("Failed to load forecast: %s", e)
             return None
 
-    async def _score_agents(
-        self, agent_probs: dict, actual_outcome: float, category: str
-    ) -> list[AgentBrierResult]:
+    async def _score_agents(self, agent_probs: dict, actual_outcome: float, category: str) -> list[AgentBrierResult]:
         results = []
         for role, prob in agent_probs.items():
             old_weight = 1.0
@@ -102,35 +98,35 @@ class BrierEngine:
             results.append(AgentBrierResult(role, prob, score, old_weight, new_weight, perf))
         return results
 
-    async def _update_conformal(
-        self, predicted: float, actual: float, question_id: str, category: str
-    ) -> bool:
+    async def _update_conformal(self, predicted: float, actual: float, question_id: str, category: str) -> bool:
         try:
             score = abs(predicted - actual)
-            self._sb.table("conformal_calibration").insert({
-                "question_id": question_id,
-                "predicted": predicted,
-                "actual": actual,
-                "score": score,
-                "category": category,
-            }).execute()
+            self._sb.table("conformal_calibration").insert(
+                {
+                    "question_id": question_id,
+                    "predicted": predicted,
+                    "actual": actual,
+                    "score": score,
+                    "category": category,
+                }
+            ).execute()
             return True
         except Exception as e:
             log.warning("Failed to update conformal: %s", e)
             return False
 
-    async def _enrich_graph(
-        self, event, forecast: dict, agent_results: list[AgentBrierResult]
-    ) -> int:
+    async def _enrich_graph(self, event, forecast: dict, agent_results: list[AgentBrierResult]) -> int:
         edges_added = 0
         try:
             for ar in agent_results:
-                self._sb.table("graph_edges").insert({
-                    "source": f"agent:{ar.agent_role}",
-                    "target": f"question:{event.question_id}",
-                    "weight": ar.performance,
-                    "category": "feedback",
-                }).execute()
+                self._sb.table("graph_edges").insert(
+                    {
+                        "source": f"agent:{ar.agent_role}",
+                        "target": f"question:{event.question_id}",
+                        "weight": ar.performance,
+                        "category": "feedback",
+                    }
+                ).execute()
                 edges_added += 1
         except Exception as e:
             log.warning("Failed to enrich graph: %s", e)
@@ -149,12 +145,14 @@ class BrierEngine:
         self, event, ensemble_brier: float, agent_results: list[AgentBrierResult], seal: str
     ) -> None:
         try:
-            self._sb.table("feedback_results").insert({
-                "question_id": event.question_id,
-                "actual_outcome": event.actual_outcome,
-                "ensemble_brier": ensemble_brier,
-                "sha256_seal": seal,
-            }).execute()
+            self._sb.table("feedback_results").insert(
+                {
+                    "question_id": event.question_id,
+                    "actual_outcome": event.actual_outcome,
+                    "ensemble_brier": ensemble_brier,
+                    "sha256_seal": seal,
+                }
+            ).execute()
         except Exception as e:
             log.warning("Failed to persist result: %s", e)
 

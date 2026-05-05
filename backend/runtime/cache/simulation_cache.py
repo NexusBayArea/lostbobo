@@ -66,9 +66,7 @@ class SimulationCache:
                 log.warning("Cache get failed: %s", e)
         return None
 
-    async def store(
-        self, params: dict, outputs: dict, zfp_fields: bytes | None = None
-    ) -> str:
+    async def store(self, params: dict, outputs: dict, zfp_fields: bytes | None = None) -> str:
         """Store result with hash."""
         h = simulation_hash(params)
 

@@ -34,11 +34,14 @@ class QueueRouter:
         payload["enqueued_at"] = time.time()
 
         await self.redis.rpush(f"queue:{stage}", json.dumps(payload))
-        await self.redis.hset(f"job:{job_id}", mapping={
-            "status": "queued",
-            "stage": stage,
-            "payload": json.dumps(payload),
-        })
+        await self.redis.hset(
+            f"job:{job_id}",
+            mapping={
+                "status": "queued",
+                "stage": stage,
+                "payload": json.dumps(payload),
+            },
+        )
 
         log.info("Enqueued %s → %s", stage, job_id)
         return job_id
@@ -53,17 +56,22 @@ class QueueRouter:
 
     async def mark_complete(self, job_id: str, result: dict):
         """Worker calls this after completion."""
-        await self.redis.hset(f"job:{job_id}", mapping={
-            "status": "completed",
-            "result": json.dumps(result),
-            "completed_at": time.time(),
-        })
+        await self.redis.hset(
+            f"job:{job_id}",
+            mapping={
+                "status": "completed",
+                "result": json.dumps(result),
+                "completed_at": time.time(),
+            },
+        )
         if self._sb and "question_id" in result:
             try:
-                self._sb.table("simulation_results").upsert({
-                    "job_id": job_id,
-                    **result,
-                }).execute()
+                self._sb.table("simulation_results").upsert(
+                    {
+                        "job_id": job_id,
+                        **result,
+                    }
+                ).execute()
             except Exception as e:
                 log.warning("Failed to persist result: %s", e)
 

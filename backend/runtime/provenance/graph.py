@@ -25,11 +25,14 @@ class ProvenanceNode:
 
     def __post_init__(self):
         if not self.hash:
-            payload = json.dumps({
-                "type": self.node_type,
-                "data": self.data,
-                "parents": self.parent_ids,
-            }, sort_keys=True)
+            payload = json.dumps(
+                {
+                    "type": self.node_type,
+                    "data": self.data,
+                    "parents": self.parent_ids,
+                },
+                sort_keys=True,
+            )
             self.hash = hashlib.sha256(payload.encode()).hexdigest()[:16]
 
 
@@ -43,14 +46,16 @@ class ProvenanceGraph:
         """Persist node and return node_id."""
         if self._sb:
             try:
-                self._sb.table("provenance_nodes").upsert({
-                    "node_id": node.node_id,
-                    "node_type": node.node_type,
-                    "data": node.data,
-                    "parent_ids": node.parent_ids,
-                    "timestamp": node.timestamp,
-                    "hash": node.hash,
-                }).execute()
+                self._sb.table("provenance_nodes").upsert(
+                    {
+                        "node_id": node.node_id,
+                        "node_type": node.node_type,
+                        "data": node.data,
+                        "parent_ids": node.parent_ids,
+                        "timestamp": node.timestamp,
+                        "hash": node.hash,
+                    }
+                ).execute()
             except Exception as e:
                 log.warning("Failed to persist provenance node: %s", e)
         log.info("Provenance: %s node %s", node.node_type, node.node_id)

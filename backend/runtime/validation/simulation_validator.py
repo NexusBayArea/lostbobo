@@ -121,6 +121,7 @@ def compress_simulation(data: np.ndarray) -> bytes:
     """ZFP compression for simulation grids/fields."""
     try:
         import zfpy
+
         return zfpy.compress_numpy(data, tolerance=1e-6)
     except ImportError:
         return data.tobytes()
@@ -130,6 +131,7 @@ def decompress_simulation(blob: bytes, shape: tuple[int, ...]) -> np.ndarray:
     """Fast decompression."""
     try:
         import zfpy
+
         return zfpy.decompress_numpy(blob)
     except ImportError:
         return np.frombuffer(blob, dtype=np.float64).reshape(shape)

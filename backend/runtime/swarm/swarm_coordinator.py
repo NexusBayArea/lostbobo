@@ -57,18 +57,20 @@ class SwarmCoordinator:
 
     async def _persist_forecast(self, forecast: AggregatedForecast, question: PredictionQuestion) -> None:
         try:
-            self._sb.table("forecasts").insert({
-                "question_id": forecast.question_id,
-                "probability": forecast.probability,
-                "log_odds": forecast.log_odds,
-                "conf_lower": forecast.conf_lower,
-                "conf_upper": forecast.conf_upper,
-                "consensus_score": forecast.consensus_score,
-                "agent_probabilities": forecast.agent_probabilities,
-                "effective_weights": forecast.effective_weights,
-                "category": question.category,
-                "title": question.title,
-            }).execute()
+            self._sb.table("forecasts").insert(
+                {
+                    "question_id": forecast.question_id,
+                    "probability": forecast.probability,
+                    "log_odds": forecast.log_odds,
+                    "conf_lower": forecast.conf_lower,
+                    "conf_upper": forecast.conf_upper,
+                    "consensus_score": forecast.consensus_score,
+                    "agent_probabilities": forecast.agent_probabilities,
+                    "effective_weights": forecast.effective_weights,
+                    "category": question.category,
+                    "title": question.title,
+                }
+            ).execute()
             log.info("Forecast persisted: %s", forecast.question_id)
         except Exception as e:
             log.warning("Failed to persist forecast: %s", e)

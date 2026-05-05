@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Any
+
 
 class PluginBase(ABC):
     @abstractmethod
-    async def run(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def run(self, params: dict[str, Any]) -> dict[str, Any]:
         pass

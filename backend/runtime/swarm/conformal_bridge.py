@@ -19,7 +19,9 @@ class ConformaBridge:
             float(np.clip(point_estimate + radius, 0.0, 1.0)),
         )
 
-    def update(self, predicted_prob: float, actual_outcome: float, question_id: str, category: str | None = None) -> float:
+    def update(
+        self, predicted_prob: float, actual_outcome: float, question_id: str, category: str | None = None
+    ) -> float:
         score = abs(actual_outcome - predicted_prob)
         self._cal_scores.append(score)
         return score

@@ -52,13 +52,13 @@ class EnvironmentReplayEngine:
 
     async def replay(self, req: ReplayRequest) -> ReplayResult:
         """Run or fetch replay with modifications."""
-        base_hash = simulation_hash({
-            "flight_id": req.flight_id,
-            "timestamp": req.timestamp,
-            "telemetry_hash": hashlib.sha256(
-                json.dumps(req.telemetry, sort_keys=True).encode()
-            ).hexdigest()[:16],
-        })
+        base_hash = simulation_hash(
+            {
+                "flight_id": req.flight_id,
+                "timestamp": req.timestamp,
+                "telemetry_hash": hashlib.sha256(json.dumps(req.telemetry, sort_keys=True).encode()).hexdigest()[:16],
+            }
+        )
 
         modified_params = {**req.telemetry, **req.environment, **req.modifications}
         mod_hash = simulation_hash(modified_params)
