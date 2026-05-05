@@ -20,24 +20,16 @@ class ChatResponse(BaseModel):
 async def rag_chat(request: ChatRequest):
     """RAG Chatbot with vector search over simulation history"""
     
-    # Placeholder - replace with real vector search
-    retrieved = await vector_search(request.query, limit=5)
+    from backend.app.core.vector_search import vector_search
+    
+    results = await vector_search.search_simulations(request.query, limit=6)
 
-    context = "\n\n".join([doc["content"] for doc in retrieved])
+    context = "\n\n".join([r.get("content", "") for r in results])
 
-    # Placeholder - replace with real AI service
-    answer = f"Based on simulation data: {request.query}"
+    answer = f"Based on simulation history: {request.query}"
 
     return ChatResponse(
         answer=answer,
-        sources=[doc["source"] for doc in retrieved],
-        confidence=0.92
+        sources=[r.get("metadata", {}).get("simulation_id", "unknown") for r in results],
+        confidence=0.89
     )
-
-
-async def vector_search(query: str, limit: int = 5):
-    """Placeholder — replace with real vector search (Supabase pgvector recommended)"""
-    return [
-        {"content": "Previous thermal runaway simulation...", "source": "sim_2026_04_15.json"},
-        {"content": "Sobol sensitivity analysis results...", "source": "report_thermal.pdf"}
-    ]

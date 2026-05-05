@@ -58,4 +58,26 @@ async def execute_dag() -> ExecutionTrace:
 
     trace.save("trace_latest.json")
     print("DAG execution completed. Trace saved.")
+
+    if any(n.status == "success" for n in trace_nodes):
+        print("Auto-generating report after successful DAG run...")
+        await trigger_auto_report()
+
     return trace
+
+
+async def trigger_auto_report():
+    """Auto-generate report after DAG completion."""
+    try:
+        from backend.app.api.reports import process_report
+        from backend.app.api.reports import ReportRequest
+        request = ReportRequest(
+            simulation_id="auto-dag-run",
+            report_type="full",
+            format="markdown",
+            dag_trigger=False
+        )
+        await process_report("auto-job", request)
+        print("Auto-report generated successfully")
+    except Exception as e:
+        print(f"Auto-report generation skipped: {e}")
