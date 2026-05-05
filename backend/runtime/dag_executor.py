@@ -3,7 +3,7 @@ import time
 
 from backend.runtime.contract import CONTRACT
 from backend.runtime.graph import GRAPH
-from backend.runtime.trace import NodeTrace, capture_trace, ExecutionTrace
+from backend.runtime.trace import ExecutionTrace, NodeTrace, capture_trace
 
 
 async def execute_node(node_id: str) -> dict:
