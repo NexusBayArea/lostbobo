@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import ReactFlow, { Node, Edge, Controls, Background, MiniMap } from 'reactflow';
+import ReactFlow, { Node, Edge, Controls, Background, MiniMap, Handle, Position } from 'reactflow';
 import 'reactflow/dist/style.css';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Play, Zap, RefreshCw, Target, AlertCircle } from 'lucide-react';
+import { Play, Zap, RefreshCw, Target, AlertCircle, Brain } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTheme } from '@/hooks/useTheme';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -35,6 +35,26 @@ const DAGNode = ({ data }: any) => {
       {data.duration && (
         <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">{data.duration}ms</div>
       )}
+    </div>
+  );
+};
+
+const SwarmNode = ({ data }: any) => {
+  return (
+    <div className="px-4 py-3 bg-gradient-to-br from-purple-950 to-blue-950 border border-purple-500/50 rounded-xl shadow-xl min-w-[220px]">
+      <Handle type="target" position={Position.Top} className="bg-purple-500" />
+      <div className="flex items-center gap-2 mb-2">
+        <Brain className="h-5 w-5 text-purple-400" />
+        <div className="font-semibold text-purple-300">Swarm Forecast</div>
+      </div>
+      <div className="text-xs text-purple-400/80 mb-3 line-clamp-2">
+        {data.query?.substring(0, 90)}...
+      </div>
+      <div className="flex justify-between text-[10px] text-purple-500">
+        <div>5 Agents</div>
+        <div>GraphRAG + Bayesian</div>
+      </div>
+      <Handle type="source" position={Position.Bottom} className="bg-purple-500" />
     </div>
   );
 };
@@ -330,7 +350,7 @@ export default function DAGDashboard() {
           <ReactFlow
             nodes={nodes}
             edges={edges}
-            nodeTypes={{ default: DAGNode }}
+            nodeTypes={{ default: DAGNode, swarmNode: SwarmNode }}
             fitView
             className={theme === 'dark' ? 'bg-slate-950' : 'bg-slate-50'}
           >

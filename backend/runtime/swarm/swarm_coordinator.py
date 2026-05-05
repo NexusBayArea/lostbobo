@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Any
 
@@ -12,6 +13,8 @@ from backend.runtime.swarm.bayesian_aggregator import (
     BayesianAggregator,
 )
 from backend.runtime.swarm.conformal_bridge import ConformaBridge
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -45,4 +48,18 @@ class SwarmCoordinator:
             agent_outputs=dummy_outputs,
             conformal_bridge=self.conformal_bridge,
         )
+
+        try:
+            from backend.app.services.pdf_service import PDFReportService
+
+            pdf_service = PDFReportService()
+            report_path = pdf_service.generate_forecast_report(
+                forecast=forecast,
+                question=question,
+                agent_outputs=dummy_outputs,
+            )
+            log.info("PDF report generated: %s", report_path)
+        except Exception as e:
+            log.warning("PDF report generation failed: %s", e)
+
         return forecast

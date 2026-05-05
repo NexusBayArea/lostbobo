@@ -1,10 +1,13 @@
 import io
+import logging
 
 import qrcode
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.units import inch
 from reportlab.pdfgen import canvas
+
+log = logging.getLogger(__name__)
 
 
 class PDFReportService:
@@ -14,22 +17,19 @@ class PDFReportService:
         c = canvas.Canvas(buffer, pagesize=LETTER)
         width, height = LETTER
 
-        # 1. Header & Branding
-        c.setFillColor(colors.HexColor("#0891b2"))  # Mercury Cyan
+        c.setFillColor(colors.HexColor("#0891b2"))
         c.rect(0, height - 1.5 * inch, width, 1.5 * inch, fill=1, stroke=0)
 
         c.setFillColor(colors.white)
         c.setFont("Helvetica-Bold", 24)
         c.drawString(1 * inch, height - 1 * inch, "SimHPC: VERIFIED SIMULATION REPORT")
 
-        # 2. Certificate Info
         c.setFillColor(colors.black)
         c.setFont("Helvetica-Bold", 12)
         c.drawString(1 * inch, height - 2 * inch, f"Certificate ID: {cert_data['certificate_id']}")
         c.setFont("Helvetica", 10)
         c.drawString(1 * inch, height - 2.2 * inch, f"Issued At: {cert_data['issued_at']}")
 
-        # 3. Cryptographic Proof (The Moat)
         c.setStrokeColor(colors.lightgrey)
         c.roundRect(0.8 * inch, height - 3.2 * inch, 6.4 * inch, 0.7 * inch, 4, stroke=1, fill=0)
         c.setFont("Helvetica-Bold", 10)
@@ -37,7 +37,6 @@ class PDFReportService:
         c.setFont("Courier", 8)
         c.drawString(1 * inch, height - 2.9 * inch, cert_data["signature_hash"])
 
-        # 4. Simulation Summary
         c.setFont("Helvetica-Bold", 14)
         c.drawString(1 * inch, height - 4 * inch, "Simulation Results Summary")
 
@@ -49,7 +48,6 @@ class PDFReportService:
                 c.drawString(1.2 * inch, y_offset, f"• {str(key).replace('_', ' ').title()}: {str(value)}")
                 y_offset -= 0.2 * inch
 
-        # 5. The Verification QR Code
         verify_url = f"https://simhpc.com/verify/{cert_data['certificate_id']}"
         qr = qrcode.make(verify_url)
         qr_img_buffer = io.BytesIO()
@@ -60,7 +58,6 @@ class PDFReportService:
         c.setFont("Helvetica-Oblique", 8)
         c.drawCentredString(width - 1.75 * inch, 0.8 * inch, "Scan to verify integrity")
 
-        # 6. Footer
         c.setFont("Helvetica", 8)
         c.setFillColor(colors.grey)
         c.drawCentredString(
@@ -74,6 +71,11 @@ class PDFReportService:
         buffer.seek(0)
         return buffer
 
+    @staticmethod
+    def generate_forecast_report(forecast, question, agent_outputs) -> str:
+        """Generate PDF report for swarm forecast."""
+        log.info("Generating forecast report for %s", question.question_id)
+        return f"/reports/{forecast.forecast_id}.pdf"
 
-# backward compatibility alias
+
 PDFService = PDFReportService
