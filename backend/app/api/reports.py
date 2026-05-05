@@ -1,7 +1,8 @@
+import uuid
+from typing import Literal
+
 from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel
-from typing import Literal
-import uuid
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
 
