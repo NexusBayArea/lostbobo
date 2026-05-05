@@ -1,14 +1,15 @@
-from typing import Dict, Type
 from backend.plugins.base import PluginBase
 
+
 class PluginRegistry:
-    _plugins: Dict[str, PluginBase] = {}
+    _plugins: dict[str, PluginBase] = {}
 
     @classmethod
     def register(cls, name: str):
-        def decorator(plugin_class: Type[PluginBase]):
+        def decorator(plugin_class: type[PluginBase]):
             cls._plugins[name] = plugin_class()
             return plugin_class
+
         return decorator
 
     @classmethod
