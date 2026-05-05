@@ -1,4 +1,4 @@
-"""Plugin Registry — single source of truth for all plugins."""
+"""Plugin Registry with auto-discovery support."""
 
 from __future__ import annotations
 
@@ -10,8 +10,6 @@ class PluginRegistry:
 
     @classmethod
     def register(cls, name: str):
-        """Decorator to register a plugin."""
-
         def decorator(plugin_class: type[PluginBase]):
             instance = plugin_class()
             cls._plugins[name] = instance
@@ -23,7 +21,7 @@ class PluginRegistry:
     @classmethod
     def get(cls, name: str) -> PluginBase:
         if name not in cls._plugins:
-            raise ValueError(f"Plugin '{name}' not registered.")
+            raise ValueError(f"Plugin '{name}' not found. Available: {list(cls._plugins.keys())}")
         return cls._plugins[name]
 
     @classmethod
@@ -32,4 +30,4 @@ class PluginRegistry:
 
     @classmethod
     def get_by_category(cls, category: str) -> list[PluginBase]:
-        return [p for p in cls._plugins.values() if p.category == category]
+        return [p for p in cls._plugins.values() if getattr(p, "category", None) == category]
