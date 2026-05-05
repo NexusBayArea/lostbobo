@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from typing import List
 
 router = APIRouter(prefix="/rag", tags=["RAG"])
 
@@ -12,16 +11,15 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
-    sources: List[str] = []
+    sources: list[str] = []
     confidence: float = 0.0
 
 
-@router.post("/chat", response_model=ChatResponse)
-async def rag_chat(request: ChatRequest):
-    """RAG Chatbot with vector search over simulation history"""
-    
+@router.post("/chat")
+async def rag_chat(request: ChatRequest) -> ChatResponse:
+    """RAG Chatbot with vector search over simulation history."""
     from backend.app.core.vector_search import vector_search
-    
+
     results = await vector_search.search_simulations(request.query, limit=6)
 
     context = "\n\n".join([r.get("content", "") for r in results])
@@ -31,5 +29,5 @@ async def rag_chat(request: ChatRequest):
     return ChatResponse(
         answer=answer,
         sources=[r.get("metadata", {}).get("simulation_id", "unknown") for r in results],
-        confidence=0.89
+        confidence=0.89,
     )
