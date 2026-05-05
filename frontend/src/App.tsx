@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/hooks/useTheme';
+import { AuthProvider } from '@/hooks/useAuth';
 import { Hero } from '@/sections/Hero';
 import { Stack } from '@/sections/Stack';
 import { ValueDifferentiator } from '@/sections/ValueDifferentiator';
@@ -51,31 +52,33 @@ const LoadingFallback = () => (
 function App() {
   return (
     <ThemeProvider>
-      <BrowserRouter>
-        <Suspense fallback={<LoadingFallback />}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/benchmarks" element={<Benchmarks />} />
-            <Route path="/docs" element={<Docs />} />
-            <Route path="/api-reference" element={<APIReference />} />
-            <Route path="/ccpa" element={<CCPA />} />
-            <Route path="/dpa" element={<DPA />} />
-            <Route path="/cookies" element={<CookiePolicy />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/dashboard/notebook" element={<ProtectedRoute><ExperimentNotebook /></ProtectedRoute>} />
-            <Route path="/dashboard/alpha" element={<ProtectedRoute><AlphaControlRoom /></ProtectedRoute>} />
-            <Route path="/admin/analytics" element={<ProtectedRoute requireAdmin><AdminAnalyticsPage /></ProtectedRoute>} />
-          </Routes>
-        </Suspense>
-        <CookieConsent />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/benchmarks" element={<Benchmarks />} />
+              <Route path="/docs" element={<Docs />} />
+              <Route path="/api-reference" element={<APIReference />} />
+              <Route path="/ccpa" element={<CCPA />} />
+              <Route path="/dpa" element={<DPA />} />
+              <Route path="/cookies" element={<CookiePolicy />} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/dashboard/notebook" element={<ProtectedRoute><ExperimentNotebook /></ProtectedRoute>} />
+              <Route path="/dashboard/alpha" element={<ProtectedRoute><AlphaControlRoom /></ProtectedRoute>} />
+              <Route path="/admin/analytics" element={<ProtectedRoute requireAdmin><AdminAnalyticsPage /></ProtectedRoute>} />
+            </Routes>
+          </Suspense>
+          <CookieConsent />
+        </BrowserRouter>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
