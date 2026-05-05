@@ -13,6 +13,17 @@ MANIFEST = {
         "boundaries": {"type": "ci", "depends_on": ["pruning"], "description": "Import boundary enforcement"},
         "api_purity": {"type": "ci", "depends_on": ["boundaries"], "description": "API purity check"},
         "kernel_boot": {"type": "runtime", "depends_on": ["api_purity"], "description": "Kernel initialization test"},
+        "graphrag_retrieve": {
+            "type": "intelligence",
+            "depends_on": ["kernel_boot"],
+            "description": "Three-phase GraphRAG retrieval (vector + knowledge graph expansion)",
+            "metadata": {
+                "gpu": False,
+                "timeout": 30,
+                "hops": 2,
+                "final_k": 10,
+            },
+        },
     },
 }
 
