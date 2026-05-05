@@ -1,11 +1,10 @@
-"""GraphRAG DAG node."""
+"""GraphRAG DAG node — integrates cleanly with your existing runtime DAG."""
 
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-from backend.runtime.graphrag.entity_extractor import EntityExtractor
 from backend.runtime.graphrag.graphrag_retriever import GraphRAGContext, GraphRAGRetriever
 
 log = logging.getLogger(__name__)
@@ -14,25 +13,20 @@ log = logging.getLogger(__name__)
 class GraphRAGDagNode:
     def __init__(self):
         self.retriever = GraphRAGRetriever()
-        self.extractor = EntityExtractor(embed_entities=False)
 
     async def run(self, context: dict[str, Any]) -> dict[str, Any]:
         question_id = context.get("question_id", "")
         query = context.get("query", "")
-        category = context.get("category")
-        hops = context.get("hops")
-        final_k = context.get("final_k")
-        run_extract = context.get("run_extractor", False)
 
-        if run_extract:
-            await self.extractor.process_unprocessed(limit=200)
+        if not question_id or not query:
+            return {"graph_context": None, "chunk_ids": [], "prompt_context": "(no context)"}
 
         graph_ctx: GraphRAGContext = await self.retriever.retrieve(
             question_id=question_id,
             query=query,
-            category=category,
-            hops=hops,
-            final_k=final_k,
+            category=context.get("category"),
+            hops=context.get("hops"),
+            final_k=context.get("final_k"),
         )
 
         return {
