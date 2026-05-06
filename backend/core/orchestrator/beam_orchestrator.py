@@ -1,4 +1,4 @@
-"""Final Beam Orchestrator with Redis Streaming + Robustness."""
+"""Beam Orchestrator with full Simulation Runner integration + Redis streaming."""
 
 from __future__ import annotations
 
@@ -9,16 +9,16 @@ from typing import Any
 
 from backend.core.models.hypothesis import Hypothesis
 from backend.core.redis.beam_streamer import BeamStreamer
-from backend.core.robustness.check import RobustnessCheck
+from backend.core.simulation.runner import SimulationRunner
 from backend.runtime.rag.router import RAGRouter
 
 log = logging.getLogger(__name__)
 
 
 class BeamOrchestrator:
-    def __init__(self, agents: list, sim_runner, rag: RAGRouter, config: dict[str, Any]):
+    def __init__(self, agents: list, rag: RAGRouter, config: dict[str, Any]):
         self.agents = agents
-        self.sim_runner = sim_runner
+        self.sim_runner = SimulationRunner()
         self.rag = rag
         self.config = config
         self.streamer = BeamStreamer()
@@ -41,9 +41,7 @@ class BeamOrchestrator:
                 break
 
         winner = max(beams, key=lambda h: h.trust_score)
-        winner = RobustnessCheck.run(winner)
         winner.stage = "complete"
-
         await self.streamer.publish_hypothesis(winner, request_id)
         return winner
 
@@ -56,7 +54,7 @@ class BeamOrchestrator:
         return beams
 
     async def _run_stage(self, beams: list[Hypothesis], stage: str, tenant_id: str) -> list[Hypothesis]:
-        if stage == "simulation" and self.sim_runner:
+        if stage == "simulation":
             return await asyncio.gather(*[self.sim_runner.run(h) for h in beams])
         return beams
 
