@@ -39,8 +39,5 @@ jobs:
       - name: Smoke test CI runner
         run: python -c "import tools.run_ci; print('[SMOKE] run_ci.py imports OK')"
 
-      - name: Run Full CI via Makefile
-        run: make ci
-
-      - name: Strict Validation (Read-Only Phase)
-        run: make check
+      - name: Run Full CI
+        run: bash ci.sh
