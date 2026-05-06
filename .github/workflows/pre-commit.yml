@@ -1,10 +1,10 @@
-name: Pre-commit Checks (Simplified)
+name: Pre-commit Checks
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -14,17 +14,24 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install ruff
-        run: pip install ruff
+      - name: Install pre-commit
+        run: |
+          pip install pre-commit
+          pre-commit install --install-hooks
 
-      - name: Run ruff format
-        run: ruff format .
+      - name: Run pre-commit on all files
+        run: pre-commit run --all-files --show-diff-on-failure
 
-      - name: Run ruff check
-        run: ruff check . --fix
+      - name: Summary
+        if: always()
+        run: |
+          echo "✅ Pre-commit checks completed"
+          echo "Ruff + formatting + hygiene enforced"
