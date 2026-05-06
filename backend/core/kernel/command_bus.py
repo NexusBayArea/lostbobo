@@ -30,4 +30,6 @@ class CommandBus:
         if cmd_type == "AGENT_RUN":
             agent_name = payload["agent"]
             return await self.kernel.agents[agent_name].run(payload["input"])
+        if cmd_type == "AUTO_RESEARCH_RUN":
+            return await self.kernel.auto_research.run_research_cycle(payload["target"], payload["dsl"])
         raise ValueError(f"Unknown command type: {cmd_type}")

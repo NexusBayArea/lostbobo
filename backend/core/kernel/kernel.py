@@ -6,6 +6,7 @@ import logging
 from typing import Any
 
 from backend.core.kernel.agents.planner import PlannerAgent
+from backend.core.kernel.auto_research.engine import AutoResearchEngine
 from backend.core.kernel.command_bus import CommandBus
 from backend.core.kernel.services.memory_service import KernelMemoryService
 from backend.core.kernel.services.reconciliation_service import ReconciliationService
@@ -46,6 +47,7 @@ class Kernel:
         self.agents = {
             "planner": PlannerAgent(self),
         }
+        self.auto_research = AutoResearchEngine(self)
 
         self.command_bus = CommandBus(self)
 
