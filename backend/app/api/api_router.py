@@ -12,6 +12,7 @@ from backend.app.api.routes.memory import router as memory_router
 from backend.app.api.routes.skills import router as skill_router
 from backend.app.api.swarm import swarm_router
 from backend.app.api.world_routes import router as world_router
+from backend.core.services.beam_orchestrator_service import router as orchestrator_router
 
 api_router = APIRouter()
 
@@ -28,3 +29,4 @@ api_router.include_router(memory_router, prefix="/memory", tags=["Memory"])
 api_router.include_router(agent_router, prefix="/agents", tags=["Agents"])
 api_router.include_router(world_router, prefix="/world_model", tags=["WorldModel"])
 api_router.include_router(skill_router, prefix="/skills", tags=["Skills"])
+api_router.include_router(orchestrator_router, prefix="/orchestrator", tags=["Orchestrator"])
