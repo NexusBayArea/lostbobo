@@ -1,21 +1,27 @@
+"""Structured Index — Layer 2: Parameters, constants, equations."""
+
+from __future__ import annotations
+
+import logging
+from typing import Any
+
 from backend.app.core.supabase import get_supabase_client
+
+log = logging.getLogger(__name__)
 
 
 class StructuredIndex:
-    async def search(self, query: str, tenant_id: str = "public", limit: int = 8):
+    async def search(
+        self, query: str, tenant_id: str = "public", limit: int = 8
+    ) -> list[dict[str, Any]]:
+        """Search material properties and constants."""
         sb = get_supabase_client()
         if not sb:
             return []
+
         try:
-            resp = (
-                sb.table("material_properties")
-                .select("*")
-                .eq("tenant_id", tenant_id)
-                .text_search("property", query)
-                .limit(limit)
-                .execute()
-            )
-            return resp.data or []
+            resp = sb.table("material_properties").select("*").eq("tenant_id", tenant_id).execute()
+            return resp.data[:limit] if resp.data else []
         except Exception as e:
-            print("StructuredIndex error:", e)
+            log.warning("StructuredIndex search failed: %s", e)
             return []
