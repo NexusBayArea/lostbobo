@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from backend.core.kernel.kernel import Kernel
+if TYPE_CHECKING:
+    from backend.core.kernel.kernel import Kernel
+
 from backend.core.models.hypothesis import Hypothesis
 from backend.core.simulation.runner import SimulationRunner
 
 
 class PlannerAgent:
-    def __init__(self, kernel: Kernel):
+    def __init__(self, kernel: "Kernel"):
         self.kernel = kernel
         self.runner = SimulationRunner()
 

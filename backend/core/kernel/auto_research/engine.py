@@ -4,17 +4,19 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Any
+from typing import Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from backend.core.kernel.kernel import Kernel
 
 from backend.core.kernel.auto_research.evaluation import compute_score, run_simulation_gate
 from backend.core.kernel.auto_research.memory import ExperimentRecord, ResearchMemory
-from backend.core.kernel.kernel import Kernel
 
 log = logging.getLogger(__name__)
 
 
 class AutoResearchEngine:
-    def __init__(self, kernel: Kernel):
+    def __init__(self, kernel: "Kernel"):
         self.kernel = kernel
         self.memory = ResearchMemory(kernel)
 

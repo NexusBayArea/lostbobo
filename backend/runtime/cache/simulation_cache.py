@@ -26,9 +26,9 @@ class CachedSimulation:
     parameters: dict
     solver: str
     outputs: dict
-    zfp_fields: bytes | None = None
     metadata: dict
     timestamp: float
+    zfp_fields: bytes | None = None
 
 
 class SimulationCache:

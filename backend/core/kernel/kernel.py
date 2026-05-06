@@ -8,6 +8,8 @@ from typing import Any
 from backend.core.kernel.agents.planner import PlannerAgent
 from backend.core.kernel.auto_research.engine import AutoResearchEngine
 from backend.core.kernel.command_bus import CommandBus
+from backend.core.kernel.memory.observational import Observer
+from backend.core.kernel.memory.reflector import Reflector
 from backend.core.kernel.services.memory_service import KernelMemoryService
 from backend.core.kernel.services.reconciliation_service import ReconciliationService
 from backend.core.kernel.services.world_service import WorldService
@@ -48,6 +50,8 @@ class Kernel:
             "planner": PlannerAgent(self),
         }
         self.auto_research = AutoResearchEngine(self)
+        self.observer = Observer(self)
+        self.reflector = Reflector(self)
 
         self.command_bus = CommandBus(self)
 

@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
-from backend.core.kernel.kernel import Kernel
+if TYPE_CHECKING:
+    from backend.core.kernel.kernel import Kernel
 
 
 @dataclass
@@ -21,7 +22,7 @@ class ExperimentRecord:
 
 
 class ResearchMemory:
-    def __init__(self, kernel: Kernel):
+    def __init__(self, kernel: "Kernel"):
         self.kernel = kernel
         self.experiments: dict[str, ExperimentRecord] = {}
 
