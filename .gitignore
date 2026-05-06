@@ -20,15 +20,13 @@ runtime_trace.json
 .ruff_cache/
 .pytest_cache/
 
-# --- KEEP THESE ---
-!progress.md
-
 # -------------------------
-# Progress & Roadmap (KEEP TRACKED)
+# Progress & Roadmap (LOCAL ONLY)
 # -------------------------
-!progress.md
-!ROADMAP.md
-!SYSTEM.md
+progress.md
+ROADMAP.md
+SYSTEM.md
+LOG.md
 
 # -------------------------
 # Python / Build Artifacts (THE RED-CLEARERS)
