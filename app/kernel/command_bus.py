@@ -35,6 +35,10 @@ class CommandBus:
                 return await self.kernel.prompt_stack.build(
                     payload["agent_id"], payload["query"], payload.get("mode")
                 )
+            case "SAFEGUARD_GATE":
+                return await self.kernel.safeguards.gate_action(payload)
+            case "MONITOR_METRIC":
+                return await self.kernel.safeguards.monitor_metric(payload["name"], payload["value"])
             case _:
                 # Fallback
                 return await self.kernel.execute(command)

@@ -21,6 +21,8 @@ class Kernel:
         }
         self.skills = SkillsMock()
         self.agents = {"planner": PlannerAgentMock()}
+        # Initialize safeguards service
+        self.safeguards = SafeguardsService(self)
         # In a real system, you would initialize other subsystems here: memory, world model, etc.
         log.info("Kernel initialized")
 

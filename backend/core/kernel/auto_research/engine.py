@@ -40,6 +40,9 @@ class AutoResearchEngine:
         score = compute_score(experiment_result)
         accepted = run_simulation_gate(experiment_result) and score > research_dsl.get("baseline_score", 0)
 
+        # Monitor with safeguards
+        await self.kernel.execute({"type": "MONITOR_METRIC", "payload": {"name": "research_score", "value": score}})
+
         record = ExperimentRecord(
             id=experiment_id,
             timestamp=datetime.utcnow(),
