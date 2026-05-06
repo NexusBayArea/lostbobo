@@ -7,12 +7,12 @@ echo "🚀 Starting SimHPC CI Pipeline..."
 echo "📦 Ensuring ruff is installed..."
 pip install ruff --quiet
 
-# 1. Lockfiles (skip in CI to save time - lockfiles already checked elsewhere)
+# 1. Lockfiles (skip in CI to save time)
 echo "📦 Checking lockfiles..."
 
-# 2. Ruff
+# 2. Ruff - format first, then check
 echo "🔍 Running lint & format..."
-ruff format --check .
+ruff format .
 ruff check .
 
 # 3. Tests
