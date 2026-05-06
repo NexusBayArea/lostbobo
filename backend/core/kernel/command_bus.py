@@ -31,9 +31,7 @@ class CommandBus:
             agent_name = payload["agent"]
             return await self.kernel.agents[agent_name].run(payload["input"])
         if cmd_type == "AUTO_RESEARCH_RUN":
-            return await self.kernel.auto_research.run_research_cycle(
-                payload["target"], payload["dsl"]
-            )
+            return await self.kernel.auto_research.run_research_cycle(payload["target"], payload["dsl"])
         if cmd_type == "OBSERVE_EVENT":
             return await self.kernel.observer.observe(payload["event"])
         if cmd_type == "REFLECT":

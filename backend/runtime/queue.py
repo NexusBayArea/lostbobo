@@ -79,6 +79,12 @@ class FakeQueue:
 
     async def mark_failure(self, job: Job, error: str):
         print(f"❌ [Fake] Job {job.id} failed: {error}")
+        job.attempts += 1
+        if job.attempts >= job.max_retries:
+            print(f"💀 [Fake] Job {job.id} moved to DLQ after {job.attempts} attempts")
+            self.dlq.append(job)
+        else:
+            await self.enqueue(job)  # requeue
 
 
 # Global instance

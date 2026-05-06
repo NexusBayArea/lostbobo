@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from backend.core.kernel.kernel import Kernel
@@ -12,7 +12,7 @@ from backend.core.simulation.runner import SimulationRunner
 
 
 class PlannerAgent:
-    def __init__(self, kernel: "Kernel"):
+    def __init__(self, kernel: Kernel):
         self.kernel = kernel
         self.runner = SimulationRunner()
 

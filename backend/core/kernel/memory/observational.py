@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from backend.core.kernel.kernel import Kernel
 
 
 @dataclass
@@ -29,7 +32,7 @@ class Observation:
 class Observer:
     """Extracts structured signals from raw events."""
 
-    def __init__(self, kernel: "Kernel"):
+    def __init__(self, kernel: Kernel):
         self.kernel = kernel
 
     async def observe(self, event_data: Event | dict[str, Any]) -> Observation:
@@ -51,12 +54,14 @@ class Observer:
             timestamp=datetime.utcnow(),
         )
 
-        await self.kernel.execute({
-            "type": "MEMORY_RECORD",
-            "payload": {
-                "type": "observation",
-                "content": obs.__dict__,
-            },
-        })
+        await self.kernel.execute(
+            {
+                "type": "MEMORY_RECORD",
+                "payload": {
+                    "type": "observation",
+                    "content": obs.__dict__,
+                },
+            }
+        )
 
         return obs

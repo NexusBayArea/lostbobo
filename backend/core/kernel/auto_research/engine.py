@@ -4,19 +4,20 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from backend.core.kernel.kernel import Kernel
 
 from backend.core.kernel.auto_research.evaluation import compute_score, run_simulation_gate
 from backend.core.kernel.auto_research.memory import ExperimentRecord, ResearchMemory
+from backend.core.kernel.memory.observational import Event
 
 log = logging.getLogger(__name__)
 
 
 class AutoResearchEngine:
-    def __init__(self, kernel: "Kernel"):
+    def __init__(self, kernel: Kernel):
         self.kernel = kernel
         self.memory = ResearchMemory(kernel)
 
@@ -49,6 +50,20 @@ class AutoResearchEngine:
             experiment_id=experiment_id,
         )
         await self.memory.log(record)
+
+        # Feed result into Observational Memory
+        event = Event(
+            id=f"evt_{experiment_id}",
+            type="experiment_result",
+            timestamp=datetime.utcnow(),
+            payload=experiment_result,
+            source="auto_research",
+        )
+        observation = await self.kernel.observer.observe(event)
+
+        # Trigger reflection if high confidence
+        if observation.confidence > 0.75:
+            await self.kernel.reflector.reflect([observation])
 
         log.info("Auto-research cycle complete → %s | score=%.3f | accepted=%s", target, score, accepted)
 
