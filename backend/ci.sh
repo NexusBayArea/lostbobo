@@ -10,7 +10,7 @@ pip install ruff --quiet
 # 1. Lockfiles (skip in CI to save time - lockfiles already checked elsewhere)
 echo "📦 Checking lockfiles..."
 
-# 2. Ruff 
+# 2. Ruff
 echo "🔍 Running lint & format..."
 ruff format --check .
 ruff check .
