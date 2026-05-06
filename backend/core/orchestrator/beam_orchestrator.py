@@ -1,4 +1,4 @@
-"""Beam Orchestrator with Redis Real-Time Streaming."""
+"""Final Beam Orchestrator with Redis Streaming + Robustness."""
 
 from __future__ import annotations
 
@@ -9,6 +9,7 @@ from typing import Any
 
 from backend.core.models.hypothesis import Hypothesis
 from backend.core.redis.beam_streamer import BeamStreamer
+from backend.core.robustness.check import RobustnessCheck
 from backend.runtime.rag.router import RAGRouter
 
 log = logging.getLogger(__name__)
@@ -36,10 +37,13 @@ class BeamOrchestrator:
             await self.streamer.rerank_and_notify(request_id, beams)
 
             if self._should_early_exit(beams):
+                log.info("Early exit at stage %s", stage)
                 break
 
         winner = max(beams, key=lambda h: h.trust_score)
+        winner = RobustnessCheck.run(winner)
         winner.stage = "complete"
+
         await self.streamer.publish_hypothesis(winner, request_id)
         return winner
 
