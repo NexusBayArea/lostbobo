@@ -9,8 +9,10 @@ from backend.core.kernel.agents.planner import PlannerAgent
 from backend.core.kernel.command_bus import CommandBus
 from backend.core.kernel.services.memory_service import KernelMemoryService
 from backend.core.kernel.services.reconciliation_service import ReconciliationService
+from backend.core.kernel.services.world_service import WorldService
 from backend.core.kernel.skills.registry import SkillRegistry
 from backend.core.kernel.state.memory_state import MemoryState
+from backend.core.kernel.state.world_state import WorldState
 
 log = logging.getLogger(__name__)
 
@@ -32,11 +34,12 @@ class Kernel:
         self._initialized = True
 
         self.memory_state = MemoryState()
-        self.world_state = {}
+        self.world_state = WorldState()
 
         self.services = {
             "memory": KernelMemoryService(self.memory_state),
             "reconcile": ReconciliationService(self.memory_state),
+            "world": WorldService(self.world_state),
         }
 
         self.skills = SkillRegistry()

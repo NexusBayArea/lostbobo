@@ -20,8 +20,11 @@ class CommandBus:
         if cmd_type == "MEMORY_RECONCILE":
             return await self.kernel.services["reconcile"].reconcile(payload["decision_id"], payload["observed"])
         if cmd_type == "WORLD_UPDATE":
-            world_svc = self.kernel.services.get("world")
-            return await world_svc.update(payload) if world_svc else {"status": "world_service_not_yet_wired"}
+            return await self.kernel.services["world"].update(payload)
+        if cmd_type == "WORLD_SIMULATE":
+            return await self.kernel.services["world"].simulate(payload)
+        if cmd_type == "WORLD_PROPAGATE":
+            return await self.kernel.services["world"].propagate_uncertainty(payload)
         if cmd_type == "SKILL_EXECUTE":
             return await self.kernel.skills.execute(payload["skill"], payload["input"])
         if cmd_type == "AGENT_RUN":
