@@ -10,10 +10,10 @@ uv pip compile ../pyproject.toml --extra worker -o requirements.worker.lock
 uv pip compile ../pyproject.toml --extra dev -o requirements-dev.txt
 uv pip compile ../pyproject.toml --extra gpu -o requirements.gpu.lock
 
-# 2. Ruff (must use uv run)
+# 2. Ruff (using uv pip run)
 echo "🔍 Running lint & format..."
-uv run ruff format --check .
-uv run ruff check .
+uv pip run ruff format --check .
+uv pip run ruff check .
 
 # 3. Tests
 echo "🧪 Running tests..."
