@@ -56,3 +56,9 @@ class Kernel:
         log.debug("Kernel.execute → %s", command["type"])
 
         return await self.command_bus.route(command)
+
+    async def _ensure_workers(self):
+        """Background task to start Redis workers if not running."""
+        from backend.core.workers.consumer import BeamWorker
+
+        BeamWorker()

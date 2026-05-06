@@ -1,4 +1,4 @@
-"""World Model API routes."""
+"""World Model API routes — wired through Kernel."""
 
 from __future__ import annotations
 
@@ -6,27 +6,22 @@ from typing import Any
 
 from fastapi import APIRouter
 
-from backend.core.world_model.schema import WorldState
-from backend.core.world_model.service import WorldModelService
+from backend.core.kernel.kernel import Kernel
 
 router = APIRouter(prefix="/world_model", tags=["world_model"])
-service = WorldModelService()
+kernel = Kernel()
 
 
 @router.post("/update")
-async def update_world(state: dict[str, Any]) -> dict[str, Any]:
-    ws = WorldState(**state)
-    result = await service.update(ws)
-    return {"state_id": result.state_id}
+async def update(payload: dict[str, Any]) -> dict[str, Any]:
+    return await kernel.execute({"type": "WORLD_UPDATE", "payload": payload})
 
 
-@router.post("/query")
-async def query_world(filter: dict[str, Any]) -> list[dict[str, Any]]:
-    results = await service.query(filter)
-    return [{"state_id": r.state_id, "timestamp": r.timestamp.isoformat()} for r in results]
+@router.post("/simulate")
+async def simulate(payload: dict[str, Any]) -> dict[str, Any]:
+    return await kernel.execute({"type": "SKILL_EXECUTE", "payload": {"skill": "simulate", "input": payload}})
 
 
 @router.post("/propagate")
-async def propagate(state: dict[str, Any], steps: int = 1000) -> dict[str, Any]:
-    ws = WorldState(**state)
-    return await service.propagate_uncertainty(ws, steps)
+async def propagate(payload: dict[str, Any]) -> dict[str, Any]:
+    return await kernel.execute({"type": "WORLD_PROPAGATE", "payload": payload})

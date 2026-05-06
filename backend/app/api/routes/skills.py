@@ -1,4 +1,4 @@
-"""Skill API routes."""
+"""Skill API routes — wired through Kernel."""
 
 from __future__ import annotations
 
@@ -6,18 +6,17 @@ from typing import Any
 
 from fastapi import APIRouter
 
-from backend.core.skills.registry import SkillRegistry
+from backend.core.kernel.kernel import Kernel
 
 router = APIRouter(prefix="/skills", tags=["skills"])
-registry = SkillRegistry()
+kernel = Kernel()
 
 
 @router.get("/list")
 async def list_skills() -> dict[str, Any]:
-    return {"skills": [{"name": s.name, "kind": s.kind} for s in registry.list()]}
+    return {"skills": list(kernel.skills.skills.keys())}
 
 
 @router.post("/execute/{name}")
-async def execute_skill(name: str, inputs: dict[str, Any]) -> dict[str, Any]:
-    result = await registry.execute(name, inputs)
-    return {"id": result.id}
+async def execute_skill(name: str, input_data: dict[str, Any]) -> dict[str, Any]:
+    return await kernel.execute({"type": "SKILL_EXECUTE", "payload": {"skill": name, "input": input_data}})

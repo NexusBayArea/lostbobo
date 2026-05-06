@@ -1,4 +1,4 @@
-"""Agent API routes."""
+"""Agent API routes — wired through Kernel."""
 
 from __future__ import annotations
 
@@ -6,19 +6,17 @@ from typing import Any
 
 from fastapi import APIRouter
 
-from backend.core.agents.orchestrator import AgentOrchestrator
+from backend.core.kernel.kernel import Kernel
 
 router = APIRouter(prefix="/agents", tags=["agents"])
-orchestrator = AgentOrchestrator()
+kernel = Kernel()
 
 
 @router.post("/analyst/run")
 async def analyst_run(payload: dict[str, Any]) -> dict[str, Any]:
-    results = await orchestrator.analyze(payload.get("world_snapshot", {}), payload.get("memory_context"))
-    return {"hypotheses": [{"id": h.id} for h in results]}
+    return await kernel.execute({"type": "AGENT_RUN", "payload": {"agent": "analyst", "input": payload}})
 
 
 @router.post("/planner/run")
 async def planner_run(payload: dict[str, Any]) -> dict[str, Any]:
-    results = await orchestrator.plan(payload.get("goals", {}), payload.get("constraints", {}))
-    return {"plans": [{"id": h.id} for h in results]}
+    return await kernel.execute({"type": "AGENT_RUN", "payload": {"agent": "planner", "input": payload}})
