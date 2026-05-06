@@ -1,4 +1,4 @@
-"""Fat Skills Registry — typed, executable knowledge objects."""
+"""SkillRegistry — fat skills execution layer (SOPs, simulations, policies)."""
 
 from __future__ import annotations
 
@@ -14,17 +14,19 @@ class Skill:
     name: str
     kind: str
     description: str
-    inputs: dict[str, Any]
-    outputs: dict[str, Any]
-    execute: Callable
-    success_metrics: list[str] | None
+    input_schema: dict[str, Any]
+    output_schema: dict[str, Any]
+    handler: Callable
 
 
 class SkillRegistry:
-    """Central registry for all fat skills."""
+    _instance = None
 
-    def __init__(self):
-        self.skills: dict[str, Skill] = {}
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.skills = {}
+        return cls._instance
 
     def register(self, skill: Skill):
         self.skills[skill.name] = skill
@@ -32,12 +34,12 @@ class SkillRegistry:
     def get(self, name: str) -> Skill | None:
         return self.skills.get(name)
 
-    def list_by_kind(self, kind: str) -> list[Skill]:
-        return [s for s in self.skills.values() if s.kind == kind]
+    def list(self) -> list[Skill]:
+        return list(self.skills.values())
 
-    async def execute(self, name: str, inputs: dict) -> Hypothesis:
+    async def execute(self, name: str, inputs: dict[str, Any]) -> Hypothesis:
         skill = self.get(name)
         if not skill:
-            raise ValueError(f"Skill {name} not found")
-        result = await skill.execute(inputs)
+            raise ValueError(f"Skill '{name}' not registered")
+        result = await skill.handler(inputs)
         return result
