@@ -1,0 +1,43 @@
+{
+  "uid": "governance-compute",
+  "title": "SimHPC Compute Governance",
+  "tags": ["governance", "redis", "infisical"],
+  "panels": [
+    {
+      "title": "Governance Decisions",
+      "type": "stat",
+      "targets": [{ "expr": "sum(governance_requests_total) by (status)" }]
+    },
+    {
+      "title": "Blocked Requests by Reason",
+      "type": "piechart",
+      "targets": [{ "expr": "governance_blocked_total" }]
+    },
+    {
+      "title": "Token Usage (Last Hour)",
+      "type": "timeseries",
+      "targets": [{ "expr": "increase(governance_token_usage_total[1h])" }]
+    },
+    {
+      "title": "Simulation Queue Depth",
+      "type": "gauge",
+      "targets": [{ "expr": "simulation_queue_depth" }]
+    },
+    {
+      "title": "Active Streams",
+      "type": "stat",
+      "targets": [{ "expr": "active_streams" }]
+    },
+    {
+      "title": "Governance Check Latency",
+      "type": "heatmap",
+      "targets": [{ "expr": "governance_check_latency_seconds" }]
+    },
+    {
+      "title": "Rate Limit Violations",
+      "type": "table",
+      "targets": [{ "expr": "governance_blocked_total{reason=~\"rate.*\"}" }]
+    }
+  ],
+  "time": { "from": "now-6h", "to": "now" }
+}
