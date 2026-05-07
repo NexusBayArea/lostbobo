@@ -2,19 +2,26 @@
 # SimHPC Makefile
 # ================================================
 
-.PHONY: help dev lint format check ci lock test clean
+.PHONY: help dev lint format check ci lock test clean \
+        minikube-start minikube-stop k8s-deploy k8s-delete \
+        helm-install helm-upgrade helm-uninstall
 
 help:
 	@echo "SimHPC Development Commands"
 	@echo "============================"
-	@echo "make dev           → Install editable dev environment"
-	@echo "make lint          → Ruff lint"
-	@echo "make format        → Auto-format code"
-	@echo "make check         → Lint + format check"
-	@echo "make ci            → Full CI (lock + check + test)"
-	@echo "make lock          → Regenerate all lockfiles"
-	@echo "make test          → Run tests"
-	@echo "make clean         → Cleanup"
+	@echo "make dev              → Install editable dev environment"
+	@echo "make lint             → Ruff lint"
+	@echo "make format           → Auto-format code"
+	@echo "make check            → Lint + format check"
+	@echo "make ci               → Full CI (lock + check + test)"
+	@echo "make lock             → Regenerate all lockfiles"
+	@echo "make test             → Run tests"
+	@echo "make clean            → Cleanup"
+	@echo ""
+	@echo "Kubernetes / Helm:"
+	@echo "make minikube-start   → Start Minikube + addons"
+	@echo "make helm-install     → Install via Helm"
+	@echo "make helm-upgrade     → Upgrade Helm release"
 	@echo ""
 
 # Development Setup
@@ -25,30 +32,28 @@ dev:
 
 # Linting & Formatting
 lint:
-	cd backend && ruff check .
+	cd backend && uv run ruff check .
 
 format:
-	cd backend && ruff format .
+	cd backend && uv run ruff format .
 
 check:
-	cd backend && ruff format --check .
-	cd backend && ruff check .
+	cd backend && uv run ruff format --check .
+	cd backend && uv run ruff check .
 
-# Full CI (this is what your workflow calls)
+# Full CI
 ci: lock check test
 	@echo "✅ Full CI pipeline passed"
 
 # Lockfiles
 lock:
-	uv pip compile pyproject.toml --extra api -o requirements.api.lock
-	uv pip compile pyproject.toml --extra worker -o requirements.worker.lock
-	uv pip compile pyproject.toml --extra dev -o requirements-dev.txt
-	uv pip compile pyproject.toml --extra gpu -o requirements.gpu.lock
+	cd backend && uv pip compile ../pyproject.toml --extra dev -o requirements-dev.txt
+	cd backend && uv pip compile ../pyproject.toml --extra iceberg -o requirements.iceberg.lock
 	@echo "✅ All lockfiles regenerated"
 
 # Testing
 test:
-	cd backend && pytest -q || echo "No tests yet - skipping"
+	cd backend && uv run pytest -q || echo "No tests yet - skipping"
 
 # Cleanup
 clean:
@@ -56,15 +61,27 @@ clean:
 	find . -type f -name "*.pyc" -delete
 	find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
 	find . -type d -name ".ruff_cache" -exec rm -rf {} + 2>/dev/null || true
-	@echo "✅ Cleanup completed
+	@echo "✅ Cleanup completed"
 
-# Kubernetes / Minikube
+# ==================== Kubernetes / Minikube ====================
+
 minikube-start:
 	./deploy/minikube-setup.sh
 
 minikube-stop:
 	minikube stop
 
+# Helm (preferred)
+helm-install:
+	helm install simhpc deploy/helm/simhpc --namespace simhpc --create-namespace
+
+helm-upgrade:
+	helm upgrade simhpc deploy/helm/simhpc --namespace simhpc
+
+helm-uninstall:
+	helm uninstall simhpc --namespace simhpc
+
+# Legacy raw k8s (optional)
 k8s-deploy:
 	kubectl apply -f deploy/k8s/
 
@@ -76,13 +93,3 @@ k8s-logs:
 
 k8s-dashboard:
 	minikube dashboard
-
-# Helm Chart
-helm-install:
-	helm install simhpc deploy/helm/simhpc --namespace simhpc --create-namespace
-
-helm-upgrade:
-	helm upgrade simhpc deploy/helm/simhpc --namespace simhpc
-
-helm-uninstall:
-	helm uninstall simhpc --namespace simhpc
