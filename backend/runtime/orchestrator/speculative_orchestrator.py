@@ -12,6 +12,7 @@ from typing import Any
 from backend.runtime.agent.graph_agent import GraphRAGAgent
 from backend.runtime.agent.sim_retrieval_agent import SimulationRetrievalAgent
 from backend.runtime.agent.vector_agent import VectorRAGAgent
+from backend.runtime.fallback import FallbackResult, GenAIFallback
 from backend.runtime.rag.router import RAGRouter
 from backend.runtime.resilience import SwarmResilience
 
@@ -30,18 +31,12 @@ class AgentResult:
     score: float
     latency_ms: float
     evidence: list[dict] = field(default_factory=list)
+    degraded: bool = False
 
 
 class SpeculativeOrchestrator:
     """
     Runs multiple reasoning paths in parallel (vector, graph, simulation).
-
-    Behaviour:
-    - Streams a ``partial`` event the moment each agent returns.
-    - Emits a ``best_update`` event whenever the incumbent best answer changes.
-    - Applies early-exit: if one agent exceeds the confidence threshold within
-      the first 70 % of the timeout window, all slower branches are cancelled.
-    - Always emits a final ``complete`` event.
     """
 
     def __init__(self) -> None:
@@ -63,12 +58,6 @@ class SpeculativeOrchestrator:
     ) -> AsyncGenerator[dict[str, Any], None]:
         """
         Speculative execution with streaming.
-
-        Yields dicts with a ``type`` key:
-          - ``start``       — query received
-          - ``partial``     — one agent finished
-          - ``best_update`` — incumbent answer improved
-          - ``complete``    — final answer selected
         """
         start = time.time()
         timeout_s = timeout_ms / 1000.0
@@ -104,7 +93,6 @@ class SpeculativeOrchestrator:
             )
 
             if not done:
-                # Timeout expired before any remaining task finished
                 log.warning("[Swarm] Timeout — %d agent(s) cancelled", len(pending))
                 break
 
@@ -122,6 +110,7 @@ class SpeculativeOrchestrator:
                     "content": result.content,
                     "score": result.score,
                     "latency_ms": result.latency_ms,
+                    "degraded": result.degraded,
                 }
 
                 if best is None or result.score > best.score:
@@ -143,15 +132,13 @@ class SpeculativeOrchestrator:
                         result.score,
                         elapsed_frac * 100,
                     )
-                    pending = set()  # signal outer while to break
+                    pending = set()
                     break
 
         # Cancel anything still running
         for task in pending:
             task.cancel()
-            log.debug("[Swarm] Cancelled task: %s", task.get_name())
 
-        # Synthesise final answer
         final = best or AgentResult(
             agent_name="fallback",
             content="No strong result within timeout — returning best effort.",
@@ -167,12 +154,6 @@ class SpeculativeOrchestrator:
             "agents_completed": completed,
             "total_latency_ms": round((time.time() - start) * 1000, 1),
         }
-        log.info(
-            "[Swarm] Complete — best=%s confidence=%.3f latency=%.0fms",
-            final.agent_name,
-            final.score,
-            (time.time() - start) * 1000,
-        )
 
     # ------------------------------------------------------------------
     # Internals
@@ -182,39 +163,35 @@ class SpeculativeOrchestrator:
         @SwarmResilience.retry_async(max_attempts=3)
         @SwarmResilience.circuit_breaker(fail_max=5)
         async def _wrapped():
-            return await agent.run(query, tenant_id)
+            async def primary():
+                return await agent.run(query, tenant_id)
+
+            async def fallback():
+                return await agent.run_with_secondary_provider(query, tenant_id)
+
+            return await GenAIFallback.call_llm_with_fallback(primary(), fallback(), name)
 
         try:
             result = await SwarmResilience.run_with_resilience(
                 _wrapped(), task_name=f"agent_{name}", metrics=self.task_metrics, timeout_seconds=45.0
             )
-            score = self._score(result, name)
+            # Handle both direct and FallbackResult objects
+            data = result.data if isinstance(result, FallbackResult) else result
+            score = self._score(data, name)
             return AgentResult(
                 agent_name=name,
-                content=result.get("content", ""),
+                content=data.get("content", ""),
                 score=score,
                 latency_ms=self.task_metrics[f"agent_{name}"]["latency_ms"],
-                evidence=result.get("evidence", []),
+                evidence=data.get("evidence", []),
+                degraded=getattr(result, "degraded", False),
             )
         except Exception as exc:
             log.warning("[Swarm] Agent '%s' failed resilient execution: %s", name, exc)
-            return AgentResult(
-                agent_name=name,
-                content=f"Agent failed: {exc}",
-                score=0.30,
-                latency_ms=0.0,
-            )
+            return AgentResult(agent_name=name, content=f"Agent failed: {exc}", score=0.30, latency_ms=0.0)
 
     @staticmethod
     def _score(result: dict, agent_name: str) -> float:
-        """
-        Blend the agent's self-reported confidence with a trust prior per tier.
-        Simulation evidence is highest trust; vector is fastest but shallowest.
-        """
         base = float(result.get("confidence", 0.60))
-        boost = {
-            "vector": 0.08,
-            "graph": 0.18,
-            "simulation": 0.28,
-        }.get(agent_name, 0.0)
+        boost = {"vector": 0.08, "graph": 0.18, "simulation": 0.28}.get(agent_name, 0.0)
         return round(min(0.98, base + boost), 4)
