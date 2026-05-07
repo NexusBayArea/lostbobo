@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import time
 import logging
+import time
 from dataclasses import dataclass
-from typing import Dict, Any, Optional
-import redis.asyncio as redis
+from typing import Any
 
-from backend.core.kernel.kernel import get_kernel
+import redis.asyncio as redis
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +41,7 @@ class ComputeGovernance:
             "max_agent_hops": 5,
         }
 
-    async def check(self, request: Dict[str, Any]) -> Dict[str, Any]:
+    async def check(self, request: dict[str, Any]) -> dict[str, Any]:
         """Main gateway check — called before every operation"""
         tenant_id = request.get("tenant_id", "public")
         user_id = request.get("user_id", "anonymous")
@@ -134,7 +133,7 @@ class ComputeGovernance:
 
 
 # Singleton
-_governance: Optional[ComputeGovernance] = None
+_governance: ComputeGovernance | None = None
 
 
 def get_governance() -> ComputeGovernance:
