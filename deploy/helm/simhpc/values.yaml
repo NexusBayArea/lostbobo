@@ -27,11 +27,19 @@ env:
 
 redis:
   enabled: true
-  host: simhpc-redis-master
-  port: 6379
-  persistence:
+  architecture: replication
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+  replica:
+    persistence:
+      enabled: true
+      size: 10Gi
+  metrics:
     enabled: true
-    size: 10Gi
 
 minikube:
   enabled: true
