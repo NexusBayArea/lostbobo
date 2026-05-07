@@ -1,0 +1,63 @@
+{
+  "uid": "simhpc-governance-full",
+  "title": "SimHPC Compute Governance — Full View",
+  "tags": ["governance", "infisical", "redis", "security"],
+  "panels": [
+    {
+      "id": 1,
+      "title": "Governance Secrets Status",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "governance_secrets_status", "legendFormat": "{{status}}" }],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "options": { "0": { "color": "red", "text": "DEGRADED" } }, "type": "value" },
+            { "options": { "1": { "color": "green", "text": "HEALTHY" } }, "type": "value" }
+          ],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red" }, { "color": "green", "value": 1 }] }
+        }
+      },
+      "options": { "colorMode": "background", "textMode": "value" }
+    },
+    {
+      "id": 2,
+      "title": "Governance Decisions (Allowed vs Blocked)",
+      "type": "stat",
+      "targets": [{ "expr": "sum(governance_requests_total) by (status)" }]
+    },
+    {
+      "id": 3,
+      "title": "Blocked Requests by Reason",
+      "type": "piechart",
+      "targets": [{ "expr": "governance_blocked_total" }]
+    },
+    {
+      "id": 4,
+      "title": "Token Usage (Last Hour)",
+      "type": "timeseries",
+      "targets": [{ "expr": "increase(governance_token_usage_total[1h]) by (operation)" }]
+    },
+    {
+      "id": 5,
+      "title": "Simulation Queue Depth",
+      "type": "gauge",
+      "targets": [{ "expr": "simulation_queue_depth" }]
+    },
+    {
+      "id": 6,
+      "title": "Active Streams",
+      "type": "stat",
+      "targets": [{ "expr": "active_streams" }]
+    },
+    {
+      "id": 7,
+      "title": "Governance Check Latency",
+      "type": "heatmap",
+      "targets": [{ "expr": "governance_check_latency_seconds" }]
+    }
+  ],
+  "time": { "from": "now-6h", "to": "now" },
+  "refresh": "30s"
+}
