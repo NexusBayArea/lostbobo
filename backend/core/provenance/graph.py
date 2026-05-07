@@ -9,7 +9,7 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-from backend.app.core.supabase import get_supabase_client
+from backend.core.provenance.graph_service import HypothesisGraph
 
 log = logging.getLogger(__name__)
 
@@ -32,33 +32,29 @@ class ProvenanceNode:
 class ProvenanceGraph:
     """Supabase-backed provenance for full reproducibility and audit."""
 
-    async def add_node(self, node: ProvenanceNode) -> str:
-        sb = get_supabase_client()
-        if not sb:
-            log.warning("Supabase not available — provenance skipped")
-            return node.node_id
+    def __init__(self):
+        self.graph = HypothesisGraph()
 
+    async def add_node(self, node: ProvenanceNode) -> str:
         payload = {
             "node_type": node.node_type,
             "data": node.data,
             "parent_ids": node.parent_ids,
-            "timestamp": node.timestamp,
         }
-        node_hash = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()[:16]
+        hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()[:16]
 
-        try:
-            sb.table("provenance_nodes").insert(
+        # Use new Graph Service
+        await (
+            self.graph.client.table("provenance_nodes")
+            .insert(
                 {
                     "node_id": node.node_id,
-                    "node_hash": node_hash,
                     "node_type": node.node_type,
                     "data": node.data,
                     "parent_ids": node.parent_ids,
-                    "created_at": "now()",
                 }
-            ).execute()
-            log.info("Provenance node recorded: %s (%s)", node.node_id, node.node_type)
-        except Exception as e:
-            log.error("Failed to record provenance: %s", e)
-
+            )
+            .execute()
+        )
+        log.info("Provenance node recorded: %s (%s)", node.node_id, node.node_type)
         return node.node_id
