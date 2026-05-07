@@ -24,7 +24,7 @@ Every experiment follows this template:
 
 ### 1. Multi-Layer RAG (RAGRouter + DocumentIndex / StructuredIndex / ExperimentIndex)
 
-**Hypothesis**:  
+**Hypothesis**:
 The RAG system will maintain >95% query success rate and <2s P95 latency even under 30% pod kills, 200ms network latency, and partial Redis/Supabase timeouts. Cross-layer deduplication and domain-aware routing will continue to function correctly. SpeculativeOrchestrator will early-exit on high-confidence partial results.
 
 **Chaos Experiments**:
@@ -49,7 +49,7 @@ The RAG system will maintain >95% query success rate and <2s P95 latency even un
 
 ### 2. World Model (Probabilistic Digital Twin + WorldState / DepthAttentionRegistry)
 
-**Hypothesis**:  
+**Hypothesis**:
 The World Model will preserve causal graph integrity and uncertainty propagation under pod restarts and memory stress. `update()` and `query()` will recover via SupabaseJobStore retries. DepthAttentionRegistry will still provide relevant prior_context to Planner/Analyst agents. Observational Memory loop (Observer → Reflector) will not lose high-confidence observations.
 
 **Chaos Experiments**:
@@ -74,7 +74,7 @@ The World Model will preserve causal graph integrity and uncertainty propagation
 
 ### 3. Physics Engine (Multi-Physics Coupler + MaterialPropertyService + SimulationRunner + PhysicsValidation)
 
-**Hypothesis**:  
+**Hypothesis**:
 The Physics Engine will gracefully degrade (partial simulation results + validation warnings) under heavy CPU stress and pod kills. MaterialPropertyService will fallback to cached values via RAG. RobustnessCheck will catch drift, and BeamOrchestrator will retry failed Monte Carlo paths. No silent corruption of simulation outputs.
 
 **Chaos Experiments**:
