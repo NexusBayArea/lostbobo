@@ -10,6 +10,7 @@ from backend.app.api.reports import router as reports_router
 from backend.app.api.routes import certificates, onboarding
 from backend.app.api.routes.alpha import router as alpha_router
 from backend.app.api.routes.auto_research import router as auto_research_router
+from backend.app.api.routes.discovery import router as discovery_router
 from backend.app.api.routes.memory import router as memory_router
 from backend.app.api.routes.observational import router as observational_router
 from backend.app.api.routes.skills import router as skill_router
@@ -40,3 +41,4 @@ api_router.include_router(auto_research_router, prefix="/auto-research", tags=["
 api_router.include_router(observational_router, prefix="/observational", tags=["Observational"])
 api_router.include_router(swarm_api_router, prefix="", tags=["SwarmAPI"])
 api_router.include_router(grid_router, prefix="", tags=["ExperimentGrid"])
+api_router.include_router(discovery_router, prefix="/api/v1", tags=["DiscoveryGraph"])
