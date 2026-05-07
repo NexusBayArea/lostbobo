@@ -2,8 +2,8 @@ apiVersion: v2
 name: simhpc
 description: SimHPC World Brain - Simulation Intelligence Platform
 type: application
-version: 0.3.2
-appVersion: "0.3.2"
+version: 0.3.1
+appVersion: "0.3.1"
 keywords:
   - simulation
   - ai
@@ -13,9 +13,3 @@ keywords:
 maintainers:
   - name: neXusEvents
     email: your-email@example.com
-
-dependencies:
-  - name: redis
-    version: "20.6.0"
-    repository: "https://charts.bitnami.com/bitnami"
-    condition: redis.enabled
