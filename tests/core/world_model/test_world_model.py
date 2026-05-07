@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 from backend.core.world_model.service import WorldModelService
 from backend.core.world_model.schema import WorldState, Uncertainty
@@ -17,7 +17,6 @@ async def test_world_model_update_with_fallback(world_model):
         "backend.core.world_model.service.WorldModelService._persist_to_supabase",
         side_effect=[Exception("Supabase timeout"), True],
     ):
-
         state = WorldState(
             entities={"battery": {"energy": 42.0}},
             uncertainty=Uncertainty(mean=0.05, std=0.02),
@@ -32,7 +31,9 @@ async def test_world_model_update_with_fallback(world_model):
 
 @pytest.mark.asyncio
 async def test_uncertainty_propagation_under_chaos(world_model):
-    with patch("backend.core.world_model.service.WorldModelService.propagate_uncertainty") as mock_prop:
+    with patch(
+        "backend.core.world_model.service.WorldModelService.propagate_uncertainty"
+    ) as mock_prop:
         mock_prop.return_value = {"entities": {"battery": {"energy": 41.8}}}
 
         result = await world_model.propagate_uncertainty("energy", scenarios=5)

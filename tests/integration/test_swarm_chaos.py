@@ -2,8 +2,10 @@ import pytest
 from unittest.mock import AsyncMock, patch
 
 from backend.runtime.swarm.swarm_coordinator import SwarmCoordinator
-from backend.runtime.orchestrator.speculative_orchestrator import SpeculativeOrchestrator
-from backend.runtime.chaos_monkey import chaos_monkey, ChaosConfig
+from backend.runtime.orchestrator.speculative_orchestrator import (
+    SpeculativeOrchestrator,
+)
+from backend.runtime.chaos_monkey import chaos_monkey
 from backend.runtime.fallback import FallbackResult
 
 
@@ -33,7 +35,9 @@ async def test_full_swarm_genai_chaos_fallback(swarm_coordinator):
     chaos_monkey.config.enabled = True
     chaos_monkey.config.probability = 1.0  # force chaos
 
-    with patch("backend.runtime.fallback.GenAIFallback.call_llm_with_fallback") as mock_fallback:
+    with patch(
+        "backend.runtime.fallback.GenAIFallback.call_llm_with_fallback"
+    ) as mock_fallback:
         mock_fallback.return_value = FallbackResult(
             success=True,
             data={"forecast": "Degraded but valid"},
@@ -53,11 +57,15 @@ async def test_swarm_with_circuit_breaker_and_retry():
     """E2E: Circuit breaker + retry under repeated failures."""
     orch = SpeculativeOrchestrator()
 
-    with patch("backend.runtime.fallback.GenAIFallback.call_llm_with_fallback") as mock_fb:
+    with patch(
+        "backend.runtime.fallback.GenAIFallback.call_llm_with_fallback"
+    ) as mock_fb:
         mock_fb.side_effect = [
             Exception("LLM fail 1"),
             Exception("LLM fail 2"),
-            FallbackResult(True, {"content": "recovered"}, ["deterministic"], 0.70, True),
+            FallbackResult(
+                True, {"content": "recovered"}, ["deterministic"], 0.70, True
+            ),
         ]
 
         result = await orch._run_agent_resilient(
