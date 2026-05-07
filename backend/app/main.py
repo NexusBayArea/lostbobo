@@ -1,14 +1,33 @@
+import logging
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.api.api_router import api_router
 from backend.core.gateway.gateway import GovernanceMiddleware
+from backend.core.governance.health import validate_governance_secrets
 from backend.core.governance.metrics import metrics_app
 from backend.core.governance.simulation_worker import start_simulation_worker
+from backend.core.security.infisical import infisical_jit_inject
 
-app = FastAPI(title="SimHPC Core Orchestrator", version="3.5.0")
+log = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    log.info("Starting SimHPC with Infisical-backed governance...")
+    infisical_jit_inject()
+    await validate_governance_secrets()
+    await start_simulation_worker()
+    yield
+    # Shutdown
+    log.info("Shutting down...")
+
+
+app = FastAPI(title="SimHPC Core Orchestrator", version="3.5.0", lifespan=lifespan)
 
 app.mount("/metrics", metrics_app)
 
@@ -23,11 +42,6 @@ app.add_middleware(GovernanceMiddleware)
 
 # --- ROUTER INTEGRATION ---
 app.include_router(api_router, prefix="/api/v1")
-
-
-@app.on_event("startup")
-async def startup():
-    await start_simulation_worker()
 
 
 @app.get("/health")
