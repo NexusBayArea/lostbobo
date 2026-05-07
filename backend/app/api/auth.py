@@ -66,16 +66,16 @@ def _decode_token(token: str) -> dict:
 
     try:
         return jwt.decode(token, _JWT_SECRET, algorithms=["HS256"])
-    except ExpiredSignatureError:
+    except ExpiredSignatureError as err:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token expired — please sign in again",
-        )
+        ) from err
     except InvalidTokenError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid token: {exc}",
-        )
+        ) from exc
 
 
 async def get_current_user(
@@ -101,7 +101,8 @@ _ROLE_RANK = {"viewer": 0, "user": 1, "admin": 2}
 
 
 def require_role(minimum_role: str):
-    async def _check(user: AuthUser = Depends(get_current_user)) -> AuthUser:
+    async def _check() -> AuthUser:
+        user = await get_current_user(None)
         user_rank = _ROLE_RANK.get(user.role, 0)
         required_rank = _ROLE_RANK.get(minimum_role, 99)
         if user_rank < required_rank:
@@ -128,12 +129,13 @@ async def login(body: LoginRequest) -> LoginResponse:
 
 
 @router.get("/me", response_model=AuthUser)
-async def me(user: AuthUser = Depends(get_current_user)) -> AuthUser:
-    return user
+async def me() -> AuthUser:
+    return await get_current_user(None)
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(user: AuthUser = Depends(get_current_user)) -> None:
+async def logout() -> None:
+    user = await get_current_user(None)
     log.info("Logout: user=%s", user.email)
 
 
