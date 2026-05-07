@@ -25,22 +25,6 @@ resources:
 env:
   RUNTIME_MODE: production
 
-redis:
-  enabled: true
-  architecture: replication
-  auth:
-    enabled: false
-  master:
-    persistence:
-      enabled: true
-      size: 10Gi
-  replica:
-    persistence:
-      enabled: true
-      size: 10Gi
-  metrics:
-    enabled: true
-
 minikube:
   enabled: true
 
