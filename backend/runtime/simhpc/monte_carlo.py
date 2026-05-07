@@ -28,9 +28,7 @@ def simulate_paths(
     z = np.random.normal(0, 1, size=(iterations, steps))
 
     for t in range(1, steps + 1):
-        paths[:, t] = paths[:, t - 1] * np.exp(
-            (mu - 0.5 * sigma**2) * dt + sigma * np.sqrt(dt) * z[:, t - 1]
-        )
+        paths[:, t] = paths[:, t - 1] * np.exp((mu - 0.5 * sigma**2) * dt + sigma * np.sqrt(dt) * z[:, t - 1])
 
     if include_jumps:
         lambda_jump = 0.1
