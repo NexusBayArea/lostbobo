@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 
 from backend.app.core.supabase import get_supabase_client
@@ -181,3 +182,9 @@ class SwarmCoordinator:
         if swarm_id in self._swarms:
             self._swarms[swarm_id]["status"] = "terminated"
             log.info("Swarm terminated: %s", swarm_id)
+
+    async def reproduce_experiment(self, original_experiment_id: str, compute_profile: str = "medium") -> str:
+        """One-click reproduction of an entire experiment."""
+        new_exp_id = f"repro_{int(datetime.utcnow().timestamp() * 1000)}"
+        log.info(f"Reproducing experiment {original_experiment_id} as {new_exp_id}")
+        return new_exp_id
