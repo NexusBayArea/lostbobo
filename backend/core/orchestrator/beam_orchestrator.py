@@ -28,8 +28,24 @@ class BeamOrchestrator:
         self.certificate_service = CertificateService()
 
     async def run(self, query: str, tenant_id: str = "public", request_id: str | None = None) -> Hypothesis:
+        from backend.core.governance.service import get_governance
+        from backend.core.kernel.kernel import get_kernel
+        
+        kernel = get_kernel()
+        
+        # Pre-flight governance check
+        gov_result = await kernel.execute({
+            "type": "GOVERNANCE_CHECK",
+            "payload": {
+                "operation": "llm",
+                "estimated_tokens": 800,   # adjust dynamically
+                "tenant_id": tenant_id,
+                "user_id": "current_user" # Placeholder, actual user_id should be retrieved
+            }
+        })
+        
         await self.streamer.connect()
-
+        
         if not request_id:
             request_id = f"req_{int(time.time() * 1000)}"
 

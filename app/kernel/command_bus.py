@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from backend.core.governance.service import get_governance
 from typing import Dict, Any
 
 log = logging.getLogger(__name__)
@@ -50,6 +51,12 @@ class CommandBus:
                 return await self.kernel.safeguards.monitor_metric(
                     payload["name"], payload["value"]
                 )
+            case "GOVERNANCE_CHECK":
+                gov = get_governance()
+                result = await gov.check(payload)
+                if not result["allowed"]:
+                    raise PermissionError(f"Governance blocked: {result['reason']}")
+                return result
             case "AUTO_RESEARCH_RUN":
                 return await self.kernel.auto_research.run_research_cycle(
                     payload["target"], payload["dsl"]
