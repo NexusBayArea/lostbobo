@@ -1,0 +1,62 @@
+{{- if .Values.customMetrics.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "simhpc.fullname" . }}-custom
+  labels:
+    {{- include "simhpc.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "simhpc.fullname" . }}
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
+
+    - type: Pods
+      pods:
+        metric:
+          name: redis_connected_clients
+        target:
+          type: AverageValue
+          averageValue: 60
+
+    - type: Pods
+      pods:
+        metric:
+          name: simhpc_queue_depth
+        target:
+          type: AverageValue
+          averageValue: 30
+
+    - type: Pods
+      pods:
+        metric:
+          name: simhpc_simulation_latency_seconds
+        target:
+          type: AverageValue
+          averageValue: "1.2"
+
+    - type: Pods
+      pods:
+        metric:
+          name: simhpc_error_rate
+        target:
+          type: AverageValue
+          averageValue: "0.05"
+
+    - type: Pods
+      pods:
+        metric:
+          name: simhpc_simulation_success_rate
+        target:
+          type: AverageValue
+          averageValue: "0.85"
+{{- end }}

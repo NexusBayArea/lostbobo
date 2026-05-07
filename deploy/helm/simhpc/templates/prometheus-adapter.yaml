@@ -1,0 +1,43 @@
+{{- if .Values.prometheusAdapter.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "simhpc.fullname" . }}-adapter-config
+data:
+  config.yaml: |
+    rules:
+    - seriesQuery: 'redis_connected_clients{namespace="{{ .Release.Namespace }}"}'
+      resources:
+        template: <<.Resource>>
+      name:
+        as: "redis_connected_clients"
+      metricsQuery: 'sum(redis_connected_clients{namespace="{{ .Release.Namespace }}"}) by (pod)'
+
+    - seriesQuery: 'simhpc_queue_depth{namespace="{{ .Release.Namespace }}"}'
+      resources:
+        template: <<.Resource>>
+      name:
+        as: "simhpc_queue_depth"
+      metricsQuery: 'sum(simhpc_queue_depth{namespace="{{ .Release.Namespace }}"}) by (pod)'
+
+    - seriesQuery: 'simhpc_simulation_latency_seconds{namespace="{{ .Release.Namespace }}"}'
+      resources:
+        template: <<.Resource>>
+      name:
+        as: "simhpc_simulation_latency"
+      metricsQuery: 'avg(simhpc_simulation_latency_seconds{namespace="{{ .Release.Namespace }}"}) by (pod)'
+
+    - seriesQuery: 'simhpc_error_rate{namespace="{{ .Release.Namespace }}"}'
+      resources:
+        template: <<.Resource>>
+      name:
+        as: "simhpc_error_rate"
+      metricsQuery: 'avg(simhpc_error_rate{namespace="{{ .Release.Namespace }}"}) by (pod)'
+
+    - seriesQuery: 'simhpc_simulation_success_rate{namespace="{{ .Release.Namespace }}"}'
+      resources:
+        template: <<.Resource>>
+      name:
+        as: "simhpc_simulation_success_rate"
+      metricsQuery: 'avg(simhpc_simulation_success_rate{namespace="{{ .Release.Namespace }}"}) by (pod)'
+{{- end }}

@@ -1,0 +1,15 @@
+# Monitoring Stack (Prometheus + Grafana)
+# Install once: kubectl apply -f deploy/monitoring-stack.yaml
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+# Prometheus + Grafana via Helm (run after namespace)
+# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+# helm install prometheus prometheus-community/kube-prometheus-stack \
+#   --namespace monitoring \
+#   --set grafana.enabled=true \
+#   --set alertmanager.enabled=false \
+#   --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false

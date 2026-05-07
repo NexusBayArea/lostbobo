@@ -47,9 +47,12 @@ minikube:
 autoscaling:
   enabled: true
   minReplicas: 2
-  maxReplicas: 10
+  maxReplicas: 15
   targetCPUUtilizationPercentage: 70
   targetMemoryUtilizationPercentage: 80
 
 customMetrics:
+  enabled: false
+
+prometheusAdapter:
   enabled: false
