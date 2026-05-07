@@ -1,0 +1,34 @@
+replicaCount: 2
+
+image:
+  repository: simhpc/backend
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  className: nginx
+  host: simhpc.local
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 512Mi
+  limits:
+    cpu: 2000m
+    memory: 2Gi
+
+env:
+  RUNTIME_MODE: production
+
+redis:
+  enabled: true
+  host: redis-master
+  port: 6379
+
+minikube:
+  enabled: true

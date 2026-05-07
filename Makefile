@@ -75,4 +75,14 @@ k8s-logs:
 	kubectl logs -l app=simhpc -f
 
 k8s-dashboard:
-	minikube dashboard"
+	minikube dashboard
+
+# Helm Chart
+helm-install:
+	helm install simhpc deploy/helm/simhpc --namespace simhpc --create-namespace
+
+helm-upgrade:
+	helm upgrade simhpc deploy/helm/simhpc --namespace simhpc
+
+helm-uninstall:
+	helm uninstall simhpc --namespace simhpc

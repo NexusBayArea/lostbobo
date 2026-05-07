@@ -1,0 +1,15 @@
+Thank you for installing SimHPC!
+
+1. Get the application URL:
+   {{- if .Values.ingress.enabled }}
+   http://{{ .Values.ingress.host }}
+   {{- else }}
+   kubectl port-forward svc/{{ include "simhpc.fullname" . }} 8000:8000
+   {{- end }}
+
+2. Minikube commands:
+   minikube dashboard
+   minikube tunnel
+
+3. Check logs:
+   kubectl logs -l app.kubernetes.io/name=simhpc -f
