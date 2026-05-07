@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from backend.api.routes.governance import router as governance_router
 from backend.app.api.admin.observability import router as observability_router
 from backend.app.api.agent_routes import router as agent_router
 from backend.app.api.auth import router as auth_router
@@ -39,6 +40,7 @@ api_router.include_router(skill_router, prefix="/skills", tags=["Skills"])
 api_router.include_router(orchestrator_router, prefix="/orchestrator", tags=["Orchestrator"])
 api_router.include_router(auto_research_router, prefix="/auto-research", tags=["AutoResearch"])
 api_router.include_router(observational_router, prefix="/observational", tags=["Observational"])
+api_router.include_router(governance_router, prefix="/governance", tags=["Governance"])
 api_router.include_router(swarm_api_router, prefix="", tags=["SwarmAPI"])
 api_router.include_router(grid_router, prefix="", tags=["ExperimentGrid"])
 api_router.include_router(discovery_router, prefix="/api/v1", tags=["DiscoveryGraph"])
