@@ -1,0 +1,15 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pod-kill-swarm
+  namespace: simhpc
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    labelSelectors:
+      app: simhpc-swarm
+      chaos: enabled
+  scheduler:
+    cron: "*/5 * * * *"
+  duration: "30s"

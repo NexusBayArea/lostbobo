@@ -1,0 +1,15 @@
+# Chaos Engineering Targets
+
+chaos-mesh-install:
+	helm repo add chaos-mesh https://charts.chaos-mesh.org
+	kubectl create ns chaos-mesh --dry-run=client -o yaml | kubectl apply -f -
+	helm upgrade --install chaos-mesh chaos-mesh/chaos-mesh \
+	  --namespace chaos-mesh \
+	  --set dashboard.securityMode=false \
+	  --set chaosDaemon.runtime=containerd
+
+chaos-run:
+	@kubectl apply -f deploy/chaos/experiments/$(EXPERIMENT).yaml
+
+chaos-cleanup:
+	@kubectl delete -f deploy/chaos/experiments/ --ignore-not-found
