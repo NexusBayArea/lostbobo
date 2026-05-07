@@ -28,4 +28,5 @@ async def search_discoveries(query: dict):
 
 @router.get("/leaderboard")
 async def global_leaderboard(limit: int = 50):
-    return await graph.search({"score_gt": 0.8, "limit": limit})
+    """Global ranked discoveries across all experiments."""
+    return await graph.get_leaderboard(limit)

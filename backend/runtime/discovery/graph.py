@@ -6,6 +6,7 @@ import logging
 from typing import Any
 
 from backend.runtime.discovery.models import DiscoveryLink, DiscoveryNode
+from backend.runtime.discovery.ranking import DiscoveryRankingEngine
 
 log = logging.getLogger(__name__)
 
@@ -13,6 +14,7 @@ log = logging.getLogger(__name__)
 class DiscoveryGraph:
     def __init__(self, kernel: Any = None):
         self.kernel = kernel
+        self.ranking = DiscoveryRankingEngine(kernel, self)
 
     async def create_discovery(self, node: DiscoveryNode) -> str:
         """Create a new discovery node."""
@@ -26,3 +28,7 @@ class DiscoveryGraph:
     async def search(self, query: dict[str, Any]) -> list[DiscoveryNode]:
         """Search discoveries with filters."""
         return []
+
+    async def get_leaderboard(self, limit: int = 50):
+        """Global ranked discoveries."""
+        return await self.ranking.get_global_leaderboard(limit)
