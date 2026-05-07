@@ -13,9 +13,14 @@ def extractor():
 async def test_claim_extractor_primary_success(extractor):
     llm_output = '{"hypothesis": "Valid claim", "confidence": 0.9}'
 
-    with patch.object(extractor, "_parse_llm_output", new_callable=AsyncMock) as mock_parse:
+    with patch.object(
+        extractor, "_parse_llm_output", new_callable=AsyncMock
+    ) as mock_parse:
         mock_parse.return_value = ClaimExtractionResult(
-            hypothesis="Valid claim", raw_output=llm_output, confidence=0.9, degraded=False
+            hypothesis="Valid claim",
+            raw_output=llm_output,
+            confidence=0.9,
+            degraded=False,
         )
 
         result = await extractor.extract(llm_output)
@@ -30,7 +35,9 @@ async def test_claim_extractor_regex_fallback(extractor):
     """Malformed JSON → regex fallback."""
     bad_output = "Some unstructured text with hypothesis: 'Energy density improved'"
 
-    with patch.object(extractor, "_parse_llm_output", side_effect=Exception("JSON parse error")):
+    with patch.object(
+        extractor, "_parse_llm_output", side_effect=Exception("JSON parse error")
+    ):
         with patch.object(extractor, "_regex_fallback_parser") as mock_regex:
             mock_regex.return_value = ["Energy density improved"]
             with patch.object(extractor, "_default_template_claims", return_value=[]):
