@@ -1,9 +1,10 @@
-"""SwarmCoordinator — Generalized Multi-Agent Forecasting Engine."""
+"""SwarmCoordinator — Generalized Multi-Agent Forecasting Engine with Graceful Cancellation."""
 
 from __future__ import annotations
 
+import asyncio
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from backend.app.core.supabase import get_supabase_client
@@ -39,39 +40,65 @@ class SwarmCoordinator:
         self.conformal_threshold = conformal_threshold
         self.minimum_edge = minimum_edge
         self._sb = get_supabase_client()
+        self._current_tasks: list[asyncio.Task] = field(default_factory=list)
+        self._is_aborted: bool = False
 
     async def evaluate(self, question: ForecastingQuestion) -> dict[str, Any]:
-        """End-to-end generalized forecasting lifecycle."""
+        """End-to-end generalized forecasting lifecycle with cancellable tasks."""
+        if self._is_aborted:
+            return {"status": "aborted", "reason": "Previous run was cancelled"}
 
-        dummy_outputs = [
-            AgentOutput(
-                agent_role=role,
-                probability=0.5 + (i - 2) * 0.1,
-                confidence=0.7,
-                reasoning=f"[{role.value}] Analysis based on provided context.",
+        self._is_aborted = False
+        self._current_tasks.clear()
+
+        try:
+            dummy_outputs = [
+                AgentOutput(
+                    agent_role=role,
+                    probability=0.5 + (i - 2) * 0.1,
+                    confidence=0.7,
+                    reasoning=f"[{role.value}] Analysis based on provided context.",
+                )
+                for i, role in enumerate(AgentRole)
+            ]
+
+            forecast = self.aggregator.aggregate(
+                question_id=question.query,
+                agent_outputs=dummy_outputs,
+                conformal_bridge=self.conformal_bridge,
             )
-            for i, role in enumerate(AgentRole)
-        ]
 
-        forecast = self.aggregator.aggregate(
-            question_id=question.query,
-            agent_outputs=dummy_outputs,
-            conformal_bridge=self.conformal_bridge,
-        )
+            decision = "PROCEED" if forecast.probability >= self.minimum_edge else "ABORT_LOW_CONFIDENCE"
 
-        decision = "PROCEED" if forecast.probability >= self.minimum_edge else "ABORT_LOW_CONFIDENCE"
+            await self._persist_forecast(forecast, question)
+            report_path = await self._trigger_report_and_feedback(forecast, question)
 
-        await self._persist_forecast(forecast, question)
-        report_path = await self._trigger_report_and_feedback(forecast, question)
+            return {
+                "query": question.query,
+                "decision": decision,
+                "swarm_probability": forecast.probability,
+                "confidence_interval": forecast.conf_upper - forecast.conf_lower,
+                "report_url": report_path,
+                "raw_agent_outputs": [o.model_dump() for o in dummy_outputs],
+            }
 
-        return {
-            "query": question.query,
-            "decision": decision,
-            "swarm_probability": forecast.probability,
-            "confidence_interval": forecast.conf_upper - forecast.conf_lower,
-            "report_url": report_path,
-            "raw_agent_outputs": [o.model_dump() for o in dummy_outputs],
-        }
+        except asyncio.CancelledError:
+            log.warning("Swarm evaluation cancelled gracefully")
+            return {"status": "cancelled", "reason": "Emergency halt requested"}
+        finally:
+            for task in self._current_tasks:
+                if not task.done():
+                    task.cancel()
+            self._current_tasks.clear()
+
+    async def abort_current_run(self):
+        """Graceful cancellation for kill switch."""
+        self._is_aborted = True
+        for task in self._current_tasks:
+            if not task.done():
+                task.cancel()
+        log.critical("SwarmCoordinator aborted — all tasks cancelled gracefully")
+        self._current_tasks.clear()
 
     async def _persist_forecast(self, forecast: AggregatedForecast, question: ForecastingQuestion) -> None:
         try:
