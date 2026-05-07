@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from backend.app.api.admin.observability import router as observability_router
 from backend.app.api.agent_routes import router as agent_router
+from backend.app.api.auth import router as auth_router
 from backend.app.api.dag import router as dag_router
 from backend.app.api.endpoints.simulations import router as simulations_router
 from backend.app.api.graphrag import router as graphrag_router
@@ -18,6 +19,7 @@ from backend.core.services.beam_orchestrator_service import router as orchestrat
 
 api_router = APIRouter()
 
+api_router.include_router(auth_router, prefix="/api", tags=["Auth"])
 api_router.include_router(dag_router, prefix="", tags=["DAG"])
 api_router.include_router(observability_router, prefix="/admin", tags=["Admin"])
 api_router.include_router(simulations_router, prefix="/simulations", tags=["Simulations"])
