@@ -1,0 +1,10 @@
+apiVersion: 1
+providers:
+- name: 'simhpc-rl'
+  orgId: 1
+  folder: 'SimHPC RL'
+  type: file
+  disableDeletion: false
+  editable: true
+  options:
+    path: /var/lib/grafana/dashboards/rl

@@ -1,0 +1,8 @@
+{
+  "title": "PPO Training Curves",
+  "panels": [
+    { "title": "Mean Episode Reward", "type": "graph" },
+    { "title": "Policy/Value Loss", "type": "graph" },
+    { "title": "Entropy Curves", "type": "graph" }
+  ]
+}

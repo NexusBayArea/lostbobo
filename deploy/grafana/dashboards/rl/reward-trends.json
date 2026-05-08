@@ -1,0 +1,8 @@
+{
+  "title": "Reward Trends & Component Analysis",
+  "panels": [
+    { "title": "Reward by Component", "type": "timeseries" },
+    { "title": "Cumulative Reward Trend", "type": "timeseries" },
+    { "title": "Novelty vs Reward correlation", "type": "heatmap" }
+  ]
+}
