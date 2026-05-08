@@ -1,0 +1,53 @@
+{
+  "title": "SimHPC — Novelty & Entropy Monitoring",
+  "uid": "simhpc-novelty-entropy",
+  "panels": [
+    {
+      "title": "Composite Novelty Score (Last 24h)",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "simhpc_novelty_composite_score", "legendFormat": "Composite Novelty" }
+      ],
+      "thresholds": [
+        { "value": 0.35, "color": "red", "op": "lt" },
+        { "value": 0.6, "color": "orange", "op": "lt" }
+      ],
+      "description": "Low score = high risk of loops / stagnation"
+    },
+    {
+      "title": "Multi-Dimensional Entropy Breakdown",
+      "type": "timeseries",
+      "targets": [
+        { "expr": "simhpc_novelty_semantic_entropy", "legendFormat": "Semantic Entropy" },
+        { "expr": "simhpc_novelty_structural_entropy", "legendFormat": "Structural Entropy" },
+        { "expr": "simhpc_novelty_temporal_entropy", "legendFormat": "Temporal Entropy" },
+        { "expr": "simhpc_novelty_confidence_entropy", "legendFormat": "Confidence Entropy" }
+      ]
+    },
+    {
+      "title": "Anomaly Risk Heatmap (by Job)",
+      "type": "heatmap",
+      "targets": [
+        { "expr": "sum(rate(simhpc_anomaly_detected_total{score=\"low\"}[5m])) by (job_id)" }
+      ]
+    },
+    {
+      "title": "Reflection Spiral Detection",
+      "type": "stat",
+      "targets": [
+        { "expr": "sum(increase(simhpc_reflection_spiral_detected[1h]))" }
+      ],
+      "colorMode": "value",
+      "thresholds": [
+        { "value": 1, "color": "red" }
+      ]
+    },
+    {
+      "title": "Top Low-Novelty Jobs (Last Hour)",
+      "type": "table",
+      "targets": [
+        { "expr": "bottomk(10, simhpc_novelty_composite_score{score=\"low\"})" }
+      ]
+    }
+  ]
+}

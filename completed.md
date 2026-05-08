@@ -232,5 +232,5 @@
 ## May 08, 2026 [01:34 PM]
 - [x] Loop Prevention & Safety Layer (SafetyService, ExecutionGraphEngine, StateHashing, BudgetManager, MemoryTrustWeights) - CI Passed
 
-## May 08, 2026 [01:42 PM]
-- [x] Cognition & Novelty Scoring Layer (ExecutionAttentionGraph, MultiResolutionCognition, CognitiveRouter, NoveltyScorer) - CI Passed
+## May 08, 2026 [01:45 PM]
+- [x] Anomaly Detection & Monitoring Layer (AnomalyDetectionService, Prometheus Metrics, Grafana Provisioning) - CI Passed
