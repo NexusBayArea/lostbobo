@@ -5,13 +5,18 @@ from stable_baselines3.common.env_util import make_vec_env
 
 from backend.app.kernel.command_bus import command_bus
 from backend.core.services.rl.rl_service import SimHPCEnv
-from backend.core.services.rl_envs import PhysicsRLWrapper, RAGRLEnv
+from backend.core.services.rl_envs import (
+    ClaimVerifierRLEnv,
+    PhysicsRLWrapper,
+    RAGRLEnv,
+    TrustRuntimeRLEnv,
+)
 from backend.core.supabase_job_store import SupabaseJobStore
 from backend.kernel.kernel import Kernel
 
 
 class ReinforcementLearningService:
-    """Kernel-centered PPO supporting multiple components (Swarm, Autonomous, Physics, RAG)."""
+    """PPO now supports: Swarm, Autonomous, Physics, RAG, ClaimVerifier, TrustRuntime."""
 
     def __init__(self, kernel: Kernel):
         self.kernel = kernel
@@ -27,7 +32,7 @@ class ReinforcementLearningService:
                 verbose=1,
                 learning_rate=3e-4,
                 n_steps=2048,
-                batch_size=64,
+                batch_size=256,
                 gamma=0.99,
                 gae_lambda=0.95,
                 clip_range=0.2,
@@ -36,11 +41,15 @@ class ReinforcementLearningService:
         return self.model
 
     def _get_env(self, component: str):
-        if component == "physics":
-            return PhysicsRLWrapper(self.kernel)
-        if component == "rag":
-            return RAGRLEnv(self.kernel)
-        return SimHPCEnv(self.kernel)
+        env_map = {
+            "physics": PhysicsRLWrapper,
+            "rag": RAGRLEnv,
+            "claim_verifier": ClaimVerifierRLEnv,
+            "trust_runtime": TrustRuntimeRLEnv,
+            "swarm": SimHPCEnv,
+            "autonomous": SimHPCEnv,
+        }
+        return env_map.get(component, SimHPCEnv)(self.kernel)
 
     async def step(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Unified PPO step — called by any component via Kernel command"""
@@ -57,10 +66,9 @@ class ReinforcementLearningService:
 
         reward = float(result.get("reward", 0.0))
 
-        # Online learning step
+        # Online PPO update
         model.learn(total_timesteps=1, reset_num_timesteps=False)
 
-        # Persist to Supabase
         await self.supabase.record_event(
             "rl_step",
             {
@@ -72,4 +80,4 @@ class ReinforcementLearningService:
             },
         )
 
-        return {"action": int(action), "reward": reward, "next_state": result}
+        return {"action": int(action), "reward": reward, "result": result}
