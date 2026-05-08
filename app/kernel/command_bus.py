@@ -108,6 +108,9 @@ class CommandBus:
             case "RL_STEP":
                 rl = self.kernel.services["rl"]
                 return await rl.step(payload)
+            case "SAH_RAG_QUERY":
+                rag = self.kernel.services["sah_rag"]
+                return await rag.query(payload.get("query"), payload.get("domain"), payload.get("top_k", 10))
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
