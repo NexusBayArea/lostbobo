@@ -38,13 +38,17 @@ def disable_genai():
 async def full_gameday_fixture():
     """Full end-to-end GameDay simulation fixture."""
     # Mock heavy external dependencies
-    with patch(
-        "backend.runtime.fallback.GenAIFallback.call_llm_with_fallback"
-    ) as mock_fallback, patch(
-        "backend.core.world_model.service.WorldModelService._persist_to_supabase"
-    ) as mock_world_update, patch(
-        "backend.core.simulation.runner.SimulationRunner.run_monte_carlo_simulation"
-    ) as mock_physics:
+    with (
+        patch(
+            "backend.runtime.fallback.GenAIFallback.call_llm_with_fallback"
+        ) as mock_fallback,
+        patch(
+            "backend.core.world_model.service.WorldModelService._persist_to_supabase"
+        ) as mock_world_update,
+        patch(
+            "backend.core.simulation.runner.SimulationRunner.run_monte_carlo_simulation"
+        ) as mock_physics,
+    ):
         mock_fallback.return_value = FallbackResult(
             success=True,
             data={"forecast": "Degraded but valid", "content": "Degraded but valid"},
