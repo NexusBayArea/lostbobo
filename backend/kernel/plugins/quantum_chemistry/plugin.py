@@ -1,6 +1,7 @@
 from typing import Any
 
 from backend.kernel.abi.plugin import PhysicsPlugin
+from backend.kernel.plugins.quantum_chemistry.backends.gaussian_backend import GaussianBackend
 from backend.kernel.plugins.quantum_chemistry.backends.orca_backend import OrcaBackend
 from backend.kernel.plugins.quantum_chemistry.backends.psi4_backend import Psi4Backend
 from backend.kernel.plugins.quantum_chemistry.backends.pyscf_backend import PySCFBackend
@@ -10,9 +11,14 @@ class QuantumChemistryPlugin(PhysicsPlugin):
     name = "quantum_chemistry"
 
     def __init__(self):
-        self.backends = {"pyscf": PySCFBackend(), "psi4": Psi4Backend(), "orca": OrcaBackend()}
-        # Priority: ORCA -> Psi4 -> PySCF
-        self.active_backend = "orca"
+        self.backends = {
+            "pyscf": PySCFBackend(),
+            "psi4": Psi4Backend(),
+            "orca": OrcaBackend(),
+            "gaussian": GaussianBackend(),
+        }
+        # Priority: Gaussian -> ORCA -> Psi4 -> PySCF
+        self.active_backend = "gaussian"
 
     async def initialize(self, context: dict[str, Any]) -> bool:
         backend_name = context.get("quantum_backend", self.active_backend)
