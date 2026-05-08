@@ -34,7 +34,7 @@ class SimHPCUser(HttpUser):
         with self.client.post(
             "/api/v1/orchestrator/run", json=payload, catch_response=True
         ) as resp:
-            duration = time.time() - start_time
+            time.time() - start_time
             swarm_requests.inc()
 
             if resp.status_code == 200:
@@ -52,7 +52,7 @@ class SimHPCUser(HttpUser):
     @task(2)
     def rag_query(self):
         start = time.time()
-        with self.client.get("/api/v1/rag/query?q=test") as resp:
+        with self.client.get("/api/v1/rag/query?q=test"):
             rag_latency.observe(time.time() - start)
 
     @task(1)
