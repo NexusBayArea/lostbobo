@@ -88,6 +88,16 @@ class CommandBus:
                     }
                 )
                 return result
+            case "RECORD_METRICS":
+                monitoring = self.kernel.services["monitoring"]
+                await monitoring.record_request(
+                    payload["method"],
+                    payload["route"],
+                    payload["status"],
+                    payload["duration"],
+                    payload["tenant_id"],
+                )
+                return None
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
