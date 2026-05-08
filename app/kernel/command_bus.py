@@ -105,6 +105,9 @@ class CommandBus:
                 return await self.kernel.services["cognition"].route(payload)
             case "COGNITION_ADD_NODE":
                 return await self.kernel.services["cognition"].add_node(payload)
+            case "RL_STEP":
+                rl = self.kernel.services["rl"]
+                return await rl.step(payload)
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
