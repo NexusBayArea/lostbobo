@@ -132,6 +132,12 @@ class CommandBus:
                     "ppo_federated_update_applied", payload
                 )
                 return {"success": True}
+            case "SMPC_COMPUTE":
+                smpc = self.kernel.services["smpc"]
+                return await smpc.compute(payload)
+            case "SMPC_GET_SHARE":
+                he = self.kernel.services["homomorphic"]
+                return await he.encrypt({"data": payload.get("data"), "job_id": payload.get("job_id")})
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
