@@ -1,0 +1,26 @@
+{
+  "uid": "locust-simhpc",
+  "title": "SimHPC Load Testing",
+  "tags": ["load-test", "locust", "performance"],
+  "panels": [
+    {
+      "id": 1,
+      "title": "RPS",
+      "type": "stat",
+      "targets": [{ "expr": "sum(rate(locust_swarm_requests_total[1m]))" }]
+    },
+    {
+      "id": 2,
+      "title": "Fallback Rate",
+      "type": "gauge",
+      "targets": [{ "expr": "locust_genai_degraded_ratio" }]
+    },
+    {
+      "id": 3,
+      "title": "RAG Latency (P95)",
+      "type": "timeseries",
+      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(locust_rag_query_latency_seconds_bucket[1m])) by (le))" }]
+    }
+  ],
+  "time": { "from": "now-6h", "to": "now" }
+}
