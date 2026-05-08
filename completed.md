@@ -261,3 +261,6 @@
 
 ## May 08, 2026 [04:02 PM]
 - [x] Core Intelligence Flywheel Layer (Welford statistics, privacy-safe prior aggregation, post-run reinforcement hooks, velocity/leaderboard API) - CI Passed
+
+## May 08, 2026 [04:13 PM]
+- [x] Flywheel Command Handlers (Kernel-centered command wiring, handler implementation, CI-validated integration) - CI Passed
