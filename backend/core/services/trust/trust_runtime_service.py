@@ -1,12 +1,16 @@
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Any
-from unittest.mock import AsyncMock
+
+import structlog
 
 from backend.core.extractor.claim_extractor import ClaimExtractor
-from backend.core.kernel.kernel import Kernel
 from backend.core.supabase_job_store import SupabaseJobStore
+from backend.kernel.kernel import Kernel
+from backend.security.leak_detection.detector import LeakageDetector
+from backend.security.prompt_guard.guard import PromptGuard
+from backend.security.verification.claim_verifier import ClaimVerifier
+
+log = structlog.get_logger(__name__)
 
 
 @dataclass
@@ -25,48 +29,67 @@ class TrustRuntimeService:
         self.kernel = kernel
         self.supabase = SupabaseJobStore()
         self.claim_extractor = ClaimExtractor()
-        # Stubs for other dependencies
-        self.claim_verifier = AsyncMock()
-        self.leak_detector = AsyncMock()
-        self.prompt_guard = AsyncMock()
+        self.claim_verifier = ClaimVerifier()
+        self.leak_detector = LeakageDetector()
+        self.prompt_guard = PromptGuard()
 
     async def verify(self, payload: dict[str, Any]) -> TrustVerificationResult:
-        job_id = payload.get("job_id") or await self.supabase.create_job("trust_verify")
+        """Main entry point — called via Kernel Command Bus."""
+        job_id = payload.get("job_id") or await self.supabase.create_job("trust_verify", payload)
 
-        # 1. Extract claims
-        claims = await self.claim_extractor.extract(payload.get("input", ""))
+        input_text = str(payload.get("input", ""))
 
-        # 2. Run parallel verification via orchestrator
-        await self.kernel.services["orchestrator"].run_parallel_validators(
-            {"claim": claims.hypothesis, "context": payload.get("context")}
-        )
+        # 1. Claim Extraction
+        claim_result = await self.claim_extractor.extract(input_text)
 
-        # 3. Leak + Prompt Guard
-        leaks = await self.leak_detector.scan(str(payload.get("input", "")))
-        await self.prompt_guard.detect(str(payload.get("input", "")))
+        # 2. Leak & Prompt Guard (early safety)
+        leaks = await self.leak_detector.scan(input_text)
+        guard_result = await self.prompt_guard.detect(input_text)
 
-        # 4. Final Trust Score (Mock logic for service consistency)
-        trust_score = 0.85
-        risk_flags = []
+        if leaks or not guard_result.get("safe", True):
+            risk_flags = ["leak_detected"] if leaks else ["prompt_injection"]
+            certificate = await self._save_certificate(job_id, 0.0, "BLOCK", risk_flags, payload.get("tenant_id"))
+            return TrustVerificationResult(
+                trust_score=0.0,
+                decision="BLOCK",
+                risk_flags=risk_flags,
+                provenance_hash="",
+                certificate_id=certificate["id"],
+            )
 
-        decision = "ALLOW" if trust_score >= 0.75 else "WARN" if trust_score >= 0.45 else "BLOCK"
+        # 3. Full Claim Verification
+        verification = await self.claim_verifier.verify(claim_result, context=payload.get("context", {}))
 
-        # 5. Persist certificate to Supabase
-        cert = await self.supabase.save_trust_certificate(
-            {
-                "job_id": job_id,
-                "trust_score": trust_score,
-                "decision": decision,
-                "risk_flags": risk_flags + (leaks or []),
-                "provenance_hash": "a1b2c3d4",
-                "tenant_id": payload.get("tenant_id"),
-            }
+        # 4. Final Trust Score
+        final_score = verification.confidence * (0.0 if verification.risk_flags else 1.0)
+
+        decision = "ALLOW" if final_score >= 0.75 else "WARN" if final_score >= 0.45 else "BLOCK"
+
+        certificate = await self._save_certificate(
+            job_id=job_id,
+            score=final_score,
+            decision=decision,
+            risk_flags=verification.risk_flags + (leaks or []),
+            tenant_id=payload.get("tenant_id"),
         )
 
         return TrustVerificationResult(
-            trust_score=trust_score,
+            trust_score=final_score,
             decision=decision,
-            risk_flags=risk_flags,
-            provenance_hash="a1b2c3d4",
-            certificate_id=cert["id"],
+            risk_flags=verification.risk_flags,
+            provenance_hash=verification.provenance_hash,
+            certificate_id=certificate["id"],
+        )
+
+    async def _save_certificate(
+        self, job_id: str, score: float, decision: str, risk_flags: list[str], tenant_id: str
+    ) -> dict[str, Any]:
+        return await self.supabase.save_trust_certificate(
+            {
+                "job_id": job_id,
+                "trust_score": score,
+                "decision": decision,
+                "risk_flags": risk_flags,
+                "tenant_id": tenant_id,
+            }
         )
