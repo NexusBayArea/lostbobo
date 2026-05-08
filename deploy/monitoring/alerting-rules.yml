@@ -1,0 +1,131 @@
+groups:
+- name: simhpc-critical-thresholds
+  rules:
+
+  # === LOAD & PERFORMANCE ===
+  - alert: CriticalHighErrorRate
+    expr: |
+      sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+    for: 2m
+    labels:
+      severity: critical
+      category: load
+    annotations:
+      summary: "CRITICAL: Error rate > 5%"
+      description: "System-wide error rate exceeded 5% for 2 minutes. Immediate investigation required."
+
+  - alert: CriticalHighLatency
+    expr: |
+      histogram_quantile(0.95, sum(rate(request_duration_seconds_bucket[5m])) by (le, route)) > 5.0
+    for: 2m
+    labels:
+      severity: critical
+      category: performance
+    annotations:
+      summary: "CRITICAL: P95 Latency > 5s"
+      description: "{{ $labels.route }} is experiencing severe latency ({{ $value }}s)."
+
+  # === SWARM & GENAI RESILIENCE ===
+  - alert: CriticalGenAIFallbackRate
+    expr: |
+      locust_swarm_fallbacks_total / locust_swarm_requests_total > 0.30
+    for: 3m
+    labels:
+      severity: critical
+      category: resilience
+    annotations:
+      summary: "CRITICAL: GenAI Fallback Rate > 30%"
+      description: "More than 30% of swarm tasks are using fallback paths. LLM providers or RAG may be degraded."
+
+  - alert: CriticalSwarmSuccessRateDrop
+    expr: |
+      rate(swarm_task_completion_rate[5m]) < 0.90
+    for: 3m
+    labels:
+      severity: critical
+      category: swarm
+    annotations:
+      summary: "CRITICAL: Swarm Completion Rate < 90%"
+
+  # === PHYSICS & COMPUTE ===
+  - alert: CriticalPhysicsFailureRate
+    expr: |
+      rate(physics_simulation_success_total[5m]) / rate(physics_simulation_success_total[5m] offset 5m) < 0.85
+    for: 4m
+    labels:
+      severity: critical
+      category: physics
+    annotations:
+      summary: "CRITICAL: Physics Engine Success Rate < 85%"
+
+  - alert: CriticalMonteCarloDrift
+    expr: |
+      monte_carlo_drift_detected > 3
+    for: 2m
+    labels:
+      severity: critical
+      category: simulation
+    annotations:
+      summary: "CRITICAL: Monte Carlo Drift Detection Triggered"
+
+  # === GOVERNANCE & SECURITY ===
+  - alert: CriticalGovernanceHealth
+    expr: |
+      simhpc_governance_health_score < 0.70
+    for: 1m
+    labels:
+      severity: critical
+      category: governance
+    annotations:
+      summary: "CRITICAL: Compute Governance Health < 70%"
+
+  - alert: CriticalTenantIsolationBreach
+    expr: |
+      rate(policy_engine_violations_total[2m]) > 0
+    for: 30s
+    labels:
+      severity: critical
+      category: security
+    annotations:
+      summary: "CRITICAL: Tenant Isolation Violation Detected"
+
+  - alert: CriticalCircuitBreakerStorm
+    expr: |
+      increase(swarm_circuit_breaker_open[5m]) > 8
+    for: 2m
+    labels:
+      severity: critical
+      category: resilience
+    annotations:
+      summary: "CRITICAL: Circuit Breaker Storm (>8 opens)"
+
+  # === CHAOS & RESOURCE ===
+  - alert: ChaosImpactCritical
+    expr: |
+      chaos_failures_injected > 5 and rate(swarm_task_completion_rate[5m]) < 0.88
+    for: 5m
+    labels:
+      severity: critical
+      category: chaos
+    annotations:
+      summary: "CRITICAL: Chaos experiments causing sustained degradation"
+
+  - alert: HighCPUUsage
+    expr: |
+      container_cpu_usage_seconds_total{container="simhpc"} / ignoring(cpu) container_cpu_limit_cores > 0.85
+    for: 3m
+    labels:
+      severity: critical
+      category: resources
+    annotations:
+      summary: "CRITICAL: CPU usage > 85%"
+
+  - alert: HighMemoryUsage
+    expr: |
+      container_memory_usage_bytes{container="simhpc"} / container_memory_limit_bytes > 0.90
+    for: 3m
+    labels:
+      severity: critical
+      category: resources
+    annotations:
+      summary: "CRITICAL: Memory usage > 90%"
