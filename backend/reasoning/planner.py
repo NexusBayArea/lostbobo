@@ -38,6 +38,12 @@ class ScientificPlanner:
                 graph.connect(previous.id, node.id)
             previous = node
 
+        # Add theorem proving node
+        # Assuming the plan needs to register or use this node
+        # We need a node implementation for this.
+        # Placeholder for proof_node integration in planning
+        # ...
+
         # Add verification & proof node
         from backend.reasoning.proof_dag.proof_node import ProofNode
 
