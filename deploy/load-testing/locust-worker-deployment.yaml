@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locust-worker
+  namespace: simhpc
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: locust
+      role: worker
+  template:
+    metadata:
+      labels:
+        app: locust
+        role: worker
+    spec:
+      containers:
+      - name: worker
+        image: simhpc-locust:latest
+        command: ["locust", "-f", "/mnt/locust/locustfile.py", "--worker", "--master-host=locust-master"]

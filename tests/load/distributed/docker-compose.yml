@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  locust-master:
+    build: .
+    ports:
+      - "8089:8089"   # Web UI
+      - "5557:5557"   # Worker communication
+    volumes:
+      - ./:/mnt/locust
+    command: >
+      locust -f /mnt/locust/locustfile.py
+      --master
+      --host=http://localhost:8000
+      --expect-workers=4
+      --loglevel=INFO
+
+  locust-worker:
+    build: .
+    volumes:
+      - ./:/mnt/locust
+    command: >
+      locust -f /mnt/locust/locustfile.py
+      --worker
+      --master-host=locust-master
+    deploy:
+      replicas: 4   # Scale as needed
+    depends_on:
+      - locust-master
