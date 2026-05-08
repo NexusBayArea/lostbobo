@@ -121,6 +121,17 @@ class CommandBus:
             case "SWARM_CONSENSUS_SCORE":
                 scorer = self.kernel.services["swarm_consensus"]
                 return await scorer.score(payload)
+            case "FEDERATED_AGGREGATE":
+                service = self.kernel.services["federated_consensus"]
+                return await service.aggregate(payload)
+            case "RL_APPLY_FEDERATED_UPDATE":
+                rl = self.kernel.services["rl"]
+                # Apply delta to model safely
+                await rl.apply_federated_update(payload["delta"])
+                await self.kernel.supabase_job_store.record_event(
+                    "ppo_federated_update_applied", payload
+                )
+                return {"success": True}
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
