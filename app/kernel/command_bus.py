@@ -115,6 +115,9 @@ class CommandBus:
                     payload.get("domain"),
                     payload.get("top_k", 10),
                 )
+            case "CASCADED_VERIFY":
+                pipeline = self.kernel.services["verification_pipeline"]
+                return await pipeline.verify(payload)
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
