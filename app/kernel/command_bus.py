@@ -118,6 +118,9 @@ class CommandBus:
             case "CASCADED_VERIFY":
                 pipeline = self.kernel.services["verification_pipeline"]
                 return await pipeline.verify(payload)
+            case "SWARM_CONSENSUS_SCORE":
+                scorer = self.kernel.services["swarm_consensus"]
+                return await scorer.score(payload)
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
