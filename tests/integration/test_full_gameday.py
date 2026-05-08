@@ -5,7 +5,9 @@ from backend.runtime.swarm.swarm_coordinator import ForecastingQuestion
 
 
 @pytest.mark.asyncio
-async def test_full_gameday_simulation(full_gameday_fixture, enable_chaos, disable_genai):
+async def test_full_gameday_simulation(
+    full_gameday_fixture, enable_chaos, disable_genai
+):
     """Complete end-to-end GameDay simulation under maximum chaos + GenAI outage."""
     fixture = full_gameday_fixture
 
@@ -26,7 +28,9 @@ async def test_full_gameday_simulation(full_gameday_fixture, enable_chaos, disab
     assert wm_result["success"] is True
 
     # 4. Physics Engine
-    sim_result = await fixture["physics_runner"].run_monte_carlo_simulation({"iterations": 500})
+    sim_result = await fixture["physics_runner"].run_monte_carlo_simulation(
+        {"iterations": 500}
+    )
     assert sim_result["validation_passed"] is True
 
     print("✅ Full GameDay E2E completed under chaos + GenAI outage")

@@ -1,13 +1,14 @@
 import os
-import asyncio
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import patch, MagicMock
 
-from backend.runtime.chaos_monkey import chaos_monkey, ChaosConfig
+from backend.runtime.chaos_monkey import chaos_monkey
 from backend.runtime.swarm.swarm_coordinator import SwarmCoordinator
 from backend.core.world_model.service import WorldModelService
 from backend.core.simulation.runner import SimulationRunner
-from backend.runtime.orchestrator.speculative_orchestrator import SpeculativeOrchestrator
+from backend.runtime.orchestrator.speculative_orchestrator import (
+    SpeculativeOrchestrator,
+)
 from backend.runtime.fallback import FallbackResult
 
 
@@ -37,19 +38,27 @@ def disable_genai():
 async def full_gameday_fixture():
     """Full end-to-end GameDay simulation fixture."""
     # Mock heavy external dependencies
-    with patch("backend.runtime.fallback.GenAIFallback.call_llm_with_fallback") as mock_fallback, \
-         patch("backend.core.world_model.service.WorldModelService._persist_to_supabase") as mock_world_update, \
-         patch("backend.core.simulation.runner.SimulationRunner.run_monte_carlo_simulation") as mock_physics:
-
+    with patch(
+        "backend.runtime.fallback.GenAIFallback.call_llm_with_fallback"
+    ) as mock_fallback, patch(
+        "backend.core.world_model.service.WorldModelService._persist_to_supabase"
+    ) as mock_world_update, patch(
+        "backend.core.simulation.runner.SimulationRunner.run_monte_carlo_simulation"
+    ) as mock_physics:
         mock_fallback.return_value = FallbackResult(
             success=True,
             data={"forecast": "Degraded but valid", "content": "Degraded but valid"},
             fallback_used=["rag_deterministic"],
             confidence=0.68,
-            degraded=True
+            degraded=True,
         )
         mock_world_update.return_value = True
-        mock_physics.return_value = {"result": "degraded_mc", "validation_passed": True, "degraded": True, "fallback_used": ["deterministic"]}
+        mock_physics.return_value = {
+            "result": "degraded_mc",
+            "validation_passed": True,
+            "degraded": True,
+            "fallback_used": ["deterministic"],
+        }
 
         coordinator = SwarmCoordinator()
         orchestrator = SpeculativeOrchestrator()
