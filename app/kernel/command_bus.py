@@ -140,6 +140,12 @@ class CommandBus:
                 return await he.encrypt(
                     {"data": payload.get("data"), "job_id": payload.get("job_id")}
                 )
+            case "ZKP_PROVE":
+                zkp = self.kernel.services["zkp"]
+                return await zkp.prove(payload)
+            case "ZKP_VERIFY":
+                zkp = self.kernel.services["zkp"]
+                return await zkp.verify(payload)
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
