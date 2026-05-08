@@ -264,3 +264,6 @@
 
 ## May 08, 2026 [04:13 PM]
 - [x] Flywheel Command Handlers (Kernel-centered command wiring, handler implementation, CI-validated integration) - CI Passed
+
+## May 08, 2026 [04:18 PM]
+- [x] Flywheel Background Scheduler & Runner Integration (5-min decay loop, background task, runner hooks, CI-validated) - CI Passed
