@@ -1,0 +1,23 @@
+{
+  "version": "4",
+  "status": "{{ .Status }}",
+  "alerts": [
+    {
+      "status": "{{ .Status }}",
+      "labels": {{ .Labels | toJson }},
+      "annotations": {
+        "summary": "{{ .CommonAnnotations.summary }}",
+        "description": "{{ .CommonAnnotations.description }}",
+        "dashboard_url": "https://grafana.simhpc.ai/d/simhpc-main?var-alertname={{ .Labels.alertname }}"
+      },
+      "startsAt": "{{ .StartsAt }}",
+      "endsAt": "{{ .EndsAt }}"
+    }
+  ],
+  "groupLabels": {{ .GroupLabels | toJson }},
+  "commonLabels": {{ .CommonLabels | toJson }},
+  "commonAnnotations": {{ .CommonAnnotations | toJson }},
+  "externalURL": "https://grafana.simhpc.ai",
+  "severity": "{{ .Labels.severity }}",
+  "category": "{{ .Labels.category }}"
+}

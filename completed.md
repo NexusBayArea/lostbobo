@@ -112,5 +112,8 @@
 ## May 07, 2026 [06:02 PM]
 - [x] Grafana Notification Policies (Contact Points, Notification Policies, Mute Timings) - CI Passed
 
+## May 07, 2026 [06:28 PM]
+- [x] Kernel-Centric Migration (ChaosService, LoadTestService, TrustRuntimeService + Command Bus Integration) - CI Passed
+
 ---
 *Note: This log is automatically generated based on the current filesystem and development history.*

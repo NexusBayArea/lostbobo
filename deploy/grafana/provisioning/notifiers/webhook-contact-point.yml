@@ -1,0 +1,13 @@
+apiVersion: 1
+contactPoints:
+  - uid: simhpc-webhook
+    name: SimHPC Webhook
+    type: webhook
+    settings:
+      url: "{{ .Values.webhook.url | default \"https://hooks.simhpc.ai/alerts\" }}"
+      httpMethod: POST
+      username: "{{ .Values.webhook.username | default \"\" }}"
+      password: "{{ .Values.webhook.password | default \"\" }}"
+      authorization_scheme: Bearer
+      authorization_credentials: "{{ .Values.webhook.token | default \"\" }}"
+    disableResolveMessage: false

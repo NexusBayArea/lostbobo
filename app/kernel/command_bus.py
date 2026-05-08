@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import logging
+from typing import Any, Dict
+
 from backend.core.governance.service import get_governance
-from typing import Dict, Any
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ class CommandBus:
                 )
             case "WORLD_UPDATE":
                 return await self.kernel.services["world"].update(payload)
-            case "WORLD_SIMULATE":  # ← NEW
+            case "WORLD_SIMULATE":
                 return await self.kernel.services["world"].simulate(payload)
             case "WORLD_PROPAGATE":
                 return await self.kernel.services["world"].propagate_uncertainty(
@@ -61,9 +62,33 @@ class CommandBus:
                 return await self.kernel.auto_research.run_research_cycle(
                     payload["target"], payload["dsl"]
                 )
+            case "CHAOS_RUN_GAME_DAY":
+                result = await self.kernel.services["chaos"].run_gameday(
+                    payload.get("experiment")
+                )
+                await self.kernel.supabase_job_store.record_event(
+                    "gameday_completed", result
+                )
+                return result
+            case "LOAD_TEST_RUN":
+                return await self.kernel.services["load"].run_load_test(
+                    payload.get("test_name")
+                )
+            case "TRUST_VERIFY":
+                result = await self.kernel.services["trust_runtime"].verify(
+                    payload["input"]
+                )
+                await self.kernel.supabase_job_store.save_trust_certificate(
+                    {
+                        "input_hash": hash(str(payload["input"])),
+                        "trust_score": result["confidence"],
+                        "provenance_hash": result["provenance_hash"],
+                        "risk_flags": result["risk_flags"],
+                        "tenant_id": payload.get("tenant_id"),
+                    }
+                )
+                return result
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
-                return await self.kernel.execute(
-                    command
-                )  # recursive fallback if needed
+                return await self.kernel.execute(command)

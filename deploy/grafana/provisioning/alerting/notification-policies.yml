@@ -14,6 +14,13 @@ policies:
         receiver: pagerduty-critical
         group_interval: 1m
         repeat_interval: 10m
+        continue: true
+
+      # Webhook for All Critical Alerts
+      - matchers:
+          - severity = critical
+        receiver: simhpc-webhook
+        continue: true
 
       # Chaos & Resilience
       - matchers:
@@ -21,6 +28,13 @@ policies:
         receiver: slack-engineering
         mute_timings:
           - "maintenance-window"
+        continue: true
+
+      # Dedicated webhook for Chaos & Load Testing
+      - matchers:
+          - category =~ "chaos|load|performance"
+        receiver: simhpc-webhook
+        group_interval: 8m
 
       # Load + Performance
       - matchers:
