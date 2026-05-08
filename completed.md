@@ -230,4 +230,7 @@
 - [x] Trust Runtime Service (Full re-implementation, Kernel-centered command integration, automated safety/leak detection) - CI Passed
 
 ## May 08, 2026 [01:34 PM]
-- [x] Loop Prevention & Safety Layer (SafetyService, ExecutionGraphEngine, StateHasher, BudgetManager, MemoryTrustWeights) - CI Passed
+- [x] Loop Prevention & Safety Layer (SafetyService, ExecutionGraphEngine, StateHashing, BudgetManager, MemoryTrustWeights) - CI Passed
+
+## May 08, 2026 [01:37 PM]
+- [x] Anomaly Detection Service (Statistical Runtime Monitoring, Trust/Novelty/Latency Correlation, Grafana Provisioning) - CI Passed
