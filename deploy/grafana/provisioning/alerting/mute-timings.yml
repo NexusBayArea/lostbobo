@@ -1,0 +1,6 @@
+apiVersion: 1
+muteTimings:
+  - name: maintenance-window
+    interval: 
+      - start: "0 2 * * 0"   # Sunday 02:00 UTC
+        end: "0 4 * * 0"     # Sunday 04:00 UTC

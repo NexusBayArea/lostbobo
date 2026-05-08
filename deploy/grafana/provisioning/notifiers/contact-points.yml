@@ -1,0 +1,23 @@
+apiVersion: 1
+contactPoints:
+  - uid: slack-engineering
+    name: Slack Engineering
+    type: slack
+    settings:
+      url: "${SLACK_WEBHOOK_URL}"
+      recipient: "#simhpc-alerts"
+      title: "{{ .CommonAnnotations.summary }}"
+      text: "{{ .CommonAnnotations.description }}\n\nLabels: {{ .Labels }}"
+
+  - uid: pagerduty-critical
+    name: PagerDuty Critical
+    type: pagerduty
+    settings:
+      integrationKey: "${PAGERDUTY_KEY}"
+      severity: critical
+
+  - uid: email-team
+    name: Team Email
+    type: email
+    settings:
+      addresses: "team@simhpc.ai;ops@simhpc.ai"
