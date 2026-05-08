@@ -1,0 +1,55 @@
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.example.com:587'
+  smtp_from: 'alerts@simhpc.ai'
+
+route:
+  group_by: ['alertname', 'category', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'default'
+
+  routes:
+  # Critical Security & Governance → Immediate
+  - matchers:
+    - severity = "critical"
+    - category =~ "security|governance"
+    receiver: 'pagerduty-critical'
+    group_interval: 1m
+
+  # Chaos & Resilience → Slack + Email
+  - matchers:
+    - category = "chaos|resilience"
+    receiver: 'slack-engineering'
+
+  # Load & Performance → Slack + lower urgency
+  - matchers:
+    - category = "load|performance"
+    receiver: 'slack-ops'
+
+  # Default fallback
+  - receiver: 'default'
+
+receivers:
+- name: 'default'
+  email_configs:
+  - to: 'team@simhpc.ai'
+
+- name: 'pagerduty-critical'
+  pagerduty_configs:
+  - routing_key: '<your-pagerduty-integration-key>'
+    severity: 'critical'
+
+- name: 'slack-engineering'
+  slack_configs:
+  - api_url: '<slack-webhook-url>'
+    channel: '#simhpc-alerts'
+    title: '{{ .CommonAnnotations.summary }}'
+    text: '{{ .CommonAnnotations.description }}'
+
+- name: 'slack-ops'
+  slack_configs:
+  - api_url: '<slack-webhook-url>'
+    channel: '#simhpc-ops'
+    title: 'Performance Alert: {{ .CommonAnnotations.summary }}'
