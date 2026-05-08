@@ -1,201 +1,99 @@
-"""SwarmCoordinator — Generalized Multi-Agent Forecasting Engine with Graceful Cancellation."""
-
-from __future__ import annotations
-
-import asyncio
-import logging
-from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Any
 
-from backend.app.core.supabase import get_supabase_client
-from backend.runtime.resilience import SwarmResilience
-from backend.runtime.swarm.bayesian_aggregator import (
-    AgentOutput,
-    AgentRole,
-    AggregatedForecast,
-    BayesianAggregator,
-)
-from backend.runtime.swarm.conformal_bridge import ConformaBridge
+import structlog
 
-log = logging.getLogger(__name__)
+from backend.core.kernel.command_bus import command_bus
+from backend.core.supabase_job_store import SupabaseJobStore
+from backend.kernel.kernel import Kernel
+from backend.runtime.cognition.cognitive_router import CognitiveRouter
+from backend.runtime.cognition.execution_attention_graph import ExecutionNode
+from backend.runtime.cognition.multi_res_cognition import MultiResolutionCognition
+from backend.runtime.cognition.novelty_scorer import NoveltyScorer
 
-
-@dataclass
-class ForecastingQuestion:
-    """Generic forecasting request — works for any domain (energy, grid, finance, climate, etc.)."""
-
-    query: str
-    resolution_date: str | None = None
-    category: str = "general"
-    context_hints: dict[str, Any] | None = None
+log = structlog.get_logger(__name__)
 
 
 class SwarmCoordinator:
-    """
-    Main Swarm Coordinator — Generalized, domain-agnostic forecasting engine.
-    """
+    """Extended with structured intermediate cognition + entropy/novelty monitoring."""
 
-    def __init__(self, conformal_threshold: float = 0.85, minimum_edge: float = 0.05):
-        self.aggregator = BayesianAggregator()
-        self.conformal_bridge = ConformaBridge()
-        self.conformal_threshold = conformal_threshold
-        self.minimum_edge = minimum_edge
-        self._sb = get_supabase_client()
-        self._current_tasks: list[asyncio.Task] = field(default_factory=list)
-        self._is_aborted: bool = False
-        self._experiments: dict = {}
-        self._swarms: dict = {}
-        self._leaderboard: dict = {}
-        self.task_metrics: dict = {}
-        self.resilience = SwarmResilience()
+    def __init__(self, kernel: Kernel):
+        self.kernel = kernel
+        self.supabase = SupabaseJobStore()
+        self.cognition_graph = kernel.services["execution_graph"]
+        self.multi_res = MultiResolutionCognition(kernel)
+        self.cognitive_router = CognitiveRouter(kernel)
+        self.novelty_scorer = NoveltyScorer(kernel)
 
-    async def evaluate(self, question: ForecastingQuestion) -> dict[str, Any]:
-        """End-to-end generalized forecasting lifecycle with cancellable tasks."""
-        if self._is_aborted:
-            return {"status": "aborted", "reason": "Previous run was cancelled"}
+    async def evaluate(self, payload: dict[str, Any]) -> dict[str, Any]:
+        job_id = payload.get("job_id") or await self.supabase.create_job("swarm_evaluate", payload)
 
-        self._is_aborted = False
-        self._current_tasks.clear()
+        # 1. Multi-Resolution Context Retrieval
+        local_state = await self.multi_res.get_local_state(job_id)
+        global_state = await self.multi_res.get_global_state()
+        fused_context = await self.multi_res.fuse_states(local_state, global_state)
 
-        async def _run():
-            dummy_outputs = [
-                AgentOutput(
-                    agent_role=role,
-                    probability=0.5 + (i - 2) * 0.1,
-                    confidence=0.7,
-                    reasoning=f"[{role.value}] Analysis based on provided context.",
-                )
-                for i, role in enumerate(AgentRole)
-            ]
+        # 2. Sparse Cognitive Routing
+        routing_result = await self.cognitive_router.route(
+            {**payload, "job_id": job_id, "fused_context": fused_context}
+        )
 
-            forecast = self.aggregator.aggregate(
-                question_id=question.query,
-                agent_outputs=dummy_outputs,
-                conformal_bridge=self.conformal_bridge,
+        # 3. Parallel Agent Execution with Cognition Nodes
+        agent_results = {}
+        for agent_name, agent_payload in routing_result["results"].items():
+            node = ExecutionNode(
+                node_id=f"{job_id}-{agent_name}-{len(agent_results)}",
+                parent_id=job_id,
+                operation=f"swarm_agent_{agent_name}",
+                state_hash=await self.kernel.services["state_hasher"].hash(agent_payload),
+                trust_score=0.0,
+                confidence=0.0,
+                token_cost=0,
+                timestamp="now",
             )
+            await self.cognition_graph.add_node(node, job_id)
 
-            decision = "PROCEED" if forecast.probability >= self.minimum_edge else "ABORT_LOW_CONFIDENCE"
-
-            await self._persist_forecast(forecast, question)
-            report_path = await self._trigger_report_and_feedback(forecast, question)
-
-            return {
-                "query": question.query,
-                "decision": decision,
-                "swarm_probability": forecast.probability,
-                "confidence_interval": forecast.conf_upper - forecast.conf_lower,
-                "report_url": report_path,
-                "raw_agent_outputs": [o.model_dump() for o in dummy_outputs],
-            }
-
-        try:
-            # Wrap in resilience
-            return await self.resilience.run_with_resilience(
-                _run(), task_name="swarm_aggregate", metrics=self.task_metrics
-            )
-        except asyncio.CancelledError:
-            log.warning("Swarm evaluation cancelled gracefully")
-            return {"status": "cancelled", "reason": "Emergency halt requested"}
-        except Exception as e:
-            log.error("Swarm evaluation failed: %s", e)
-            return {"status": "error", "reason": str(e)}
-        finally:
-            for task in self._current_tasks:
-                if not task.done():
-                    task.cancel()
-            self._current_tasks.clear()
-
-    async def abort_current_run(self):
-        """Graceful cancellation for kill switch."""
-        self._is_aborted = True
-        for task in self._current_tasks:
-            if not task.done():
-                task.cancel()
-        log.critical("SwarmCoordinator aborted — all tasks cancelled gracefully")
-        self._current_tasks.clear()
-
-    async def _persist_forecast(self, forecast: AggregatedForecast, question: ForecastingQuestion) -> None:
-        try:
-            self._sb.table("forecasts").insert(
+            # Execute via Kernel Command Bus
+            result = await command_bus.route(
                 {
-                    "question_id": forecast.question_id,
-                    "probability": forecast.probability,
-                    "log_odds": forecast.log_odds,
-                    "conf_lower": forecast.conf_lower,
-                    "conf_upper": forecast.conf_upper,
-                    "consensus_score": forecast.consensus_score,
-                    "agent_probabilities": forecast.agent_probabilities,
-                    "effective_weights": forecast.effective_weights,
-                    "category": question.category,
-                    "title": question.query,
+                    "type": "AGENT_RUN",
+                    "payload": {"agent": agent_name, "input": {**agent_payload, "cognition_context": fused_context}},
                 }
-            ).execute()
-            log.info("Forecast persisted: %s", forecast.question_id)
-        except Exception as e:
-            log.warning("Failed to persist forecast: %s", e)
-
-    async def _trigger_report_and_feedback(self, forecast: AggregatedForecast, question: ForecastingQuestion) -> str:
-        try:
-            from backend.app.services.pdf_service import PDFReportService
-
-            pdf_service = PDFReportService()
-            report_path = pdf_service.generate_forecast_report(
-                forecast=forecast,
-                question=question,
-                agent_outputs=[],
             )
-            log.info("PDF report generated: %s", report_path)
-            return report_path
-        except Exception as e:
-            log.warning("PDF report generation failed: %s", e)
-            return ""
 
-    async def process_resolution(
-        self, query_id: str, actual_outcome: float, cached_outputs: list[AgentOutput]
-    ) -> list[dict]:
-        """Post-resolution calibration."""
-        brier_results = []
+            agent_results[agent_name] = result
 
-        for output in cached_outputs:
-            score = (output.probability - actual_outcome) ** 2
-            result = {"agent_id": output.agent_role.value, "query_id": query_id, "brier_score": score}
-            brier_results.append(result)
+            node.trust_score = result.get("trust_score", 0.0)
+            node.confidence = result.get("confidence", 0.0)
+            await self.cognition_graph.add_node(node, job_id)
 
-        await self.aggregator.calibrate_weights_from_history()
-        return brier_results
+        # 4. Entropy / Novelty Scoring
+        novelty_score = await self.novelty_scorer.compute(
+            {"agent_results": agent_results, "fused_context": fused_context, "job_id": job_id}
+        )
 
-    async def create_experiment(self, experiment_id: str, config: dict):
-        """Create experiment."""
-        self._experiments[experiment_id] = config
-        log.info("Experiment created: %s", experiment_id)
+        # 5. Final Safety + Trust Check
+        safety_result = await command_bus.route(
+            {
+                "type": "SAFETY_CHECK_EXECUTION",
+                "payload": {
+                    "job_id": job_id,
+                    "state": {"agent_results": agent_results, "novelty": novelty_score},
+                    "is_swarm_step": True,
+                },
+            }
+        )
 
-    async def launch_swarm(self, experiment_id: str, swarm_id: str, config: dict):
-        """Launch swarm for experiment."""
-        self._swarms[swarm_id] = {"experiment_id": experiment_id, "config": config, "status": "running"}
-        log.info("Swarm launched: %s for experiment %s", swarm_id, experiment_id)
+        if not safety_result.safe:
+            return {"decision": "ABORT", "reason": safety_result.reason}
 
-    async def run_single_agent(self, payload: dict) -> dict:
-        """Run single agent."""
-        return {"agent_id": payload.get("agentId"), "status": "completed"}
+        final_report = {
+            "job_id": job_id,
+            "active_agents": routing_result["active_paths"],
+            "results": agent_results,
+            "fused_cognition": fused_context,
+            "novelty_score": novelty_score,
+            "decision": "PROCEED" if novelty_score > 0.4 else "ABORT_LOW_NOVELTY",
+        }
 
-    async def submit_agent_result(self, agent_id: str, result: dict):
-        """Submit agent result."""
-        self._leaderboard[agent_id] = result
-        log.info("Agent result received: %s", agent_id)
-
-    async def get_leaderboard(self, swarm_id: str) -> list:
-        """Get leaderboard."""
-        return list(self._leaderboard.values())
-
-    async def terminate_swarm(self, swarm_id: str):
-        """Terminate swarm."""
-        if swarm_id in self._swarms:
-            self._swarms[swarm_id]["status"] = "terminated"
-            log.info("Swarm terminated: %s", swarm_id)
-
-    async def reproduce_experiment(self, original_experiment_id: str, compute_profile: str = "medium") -> str:
-        """One-click reproduction of an entire experiment."""
-        new_exp_id = f"repro_{int(datetime.utcnow().timestamp() * 1000)}"
-        log.info(f"Reproducing experiment {original_experiment_id} as {new_exp_id}")
-        return new_exp_id
+        await self.supabase.update_job(job_id, status="completed", result=final_report)
+        return final_report
