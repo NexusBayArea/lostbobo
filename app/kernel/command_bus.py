@@ -146,6 +146,12 @@ class CommandBus:
             case "ZKP_VERIFY":
                 zkp = self.kernel.services["zkp"]
                 return await zkp.verify(payload)
+            case "BULLETPROOFS_PROVE_RANGE":
+                bp = self.kernel.services["bulletproofs"]
+                return await bp.prove_range(payload)
+            case "BULLETPROOFS_VERIFY":
+                bp = self.kernel.services["bulletproofs"]
+                return await bp.verify_range_proof(payload)
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
