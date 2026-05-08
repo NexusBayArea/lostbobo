@@ -1,0 +1,42 @@
+groups:
+  - name: simhpc-alerts
+    rules:
+      - alert: GovernanceSecretsDegraded
+        expr: governance_secrets_status{status="degraded"} > 0
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Governance secrets validation failed"
+          description: "Infisical secrets are not loading correctly. Current status: {{ $value }}"
+
+      - alert: HighGovernanceBlockRate
+        expr: rate(governance_blocked_total[5m]) > 1
+        for: 1m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High rate of governance blocks"
+          description: "More than 1 request blocked per second over the last 5 minutes."
+
+      - alert: SimulationQueueBacklog
+        expr: simulation_queue_depth > 15
+        for: 5m
+        labels:
+          severity: warning
+          team: simulation
+        annotations:
+          summary: "High simulation queue depth"
+          description: "Simulation queue depth is above 15. System may be struggling to process jobs."
+
+      - alert: SwarmAgentDegraded
+        expr: rate(locust_swarm_fallbacks_total[5m]) / rate(locust_swarm_requests_total[5m]) > 0.25
+        for: 2m
+        labels:
+          severity: warning
+          team: agents
+        annotations:
+          summary: "High agent fallback rate"
+          description: "More than 25% of swarm requests are falling back to deterministic mode."
