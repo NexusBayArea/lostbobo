@@ -270,3 +270,6 @@
 
 ## May 08, 2026 [04:23 PM]
 - [x] Simulation Command Handlers (Full RunSimulationCommand, handler orchestration of all engine subsystems, CI-validated integration) - CI Passed
+
+## May 08, 2026 [04:27 PM]
+- [x] Flywheel Leaderboard Scoring Engine (Weighted performance/reproducibility/novelty logic, integration with Supabase, automated background discovery refresh) - CI Passed
