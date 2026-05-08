@@ -1,68 +1,32 @@
 from typing import Any
 
-import structlog
-
 from backend.kernel.abi.plugin import PhysicsPlugin
-
-log = structlog.get_logger(__name__)
+from backend.kernel.plugins.quantum_chemistry.backends.psi4_backend import Psi4Backend
+from backend.kernel.plugins.quantum_chemistry.backends.pyscf_backend import PySCFBackend
 
 
 class QuantumChemistryPlugin(PhysicsPlugin):
-    """Quantum chemistry plugin (PySCF/Psi4 backend) — couples with classical physics."""
-
     name = "quantum_chemistry"
 
     def __init__(self):
-        self.molecule = None
-        self.basis = "def2-svp"
-        self.method = "b3lyp"  # default DFT
-        self.results = {}
+        self.backends = {"pyscf": PySCFBackend(), "psi4": Psi4Backend()}
+        self.active_backend = "psi4"
 
     async def initialize(self, context: dict[str, Any]) -> bool:
-        """Load molecule from context (geometry from classical plugins)"""
-        self.molecule = context.get("geometry")
-        self.basis = context.get("basis", self.basis)
-        self.method = context.get("method", self.method)
-        log.info("quantum chemistry initialized", molecule=self.molecule)
-        return True
+        backend_name = context.get("quantum_backend", self.active_backend)
+        if backend_name not in self.backends:
+            backend_name = "psi4"
+        self.active_backend = backend_name
+        return await self.backends[backend_name].initialize(context)
 
     async def step(self, dt: float, exchanged: dict[str, Any]) -> dict[str, Any]:
-        """Coupled QM step — receives classical fields and returns quantum corrections"""
-        classical_temp = exchanged.get("thermal", {}).get("temperature", 298.15)
-        electric_field = exchanged.get("electrochemistry", {}).get("field", 0.0)
-
-        # Run quantum calculation
-        energy, forces, dipole = await self._run_quantum_calculation(
-            geometry=self.molecule, temperature=classical_temp, field=electric_field
-        )
-
-        self.results = {
-            "energy": energy,
-            "forces": forces,
-            "dipole_moment": dipole,
-            "homo_lumo_gap": 2.5,  # example
-        }
-
-        # Export quantum corrections back to classical plugins
-        return {
-            "quantum_energy_correction": energy,
-            "quantum_forces": forces,
-            "dipole": dipole,
-        }
+        return await self.backends[self.active_backend].step(dt, exchanged)
 
     async def export_state(self) -> dict[str, Any]:
-        return self.results
+        return await self.backends[self.active_backend].export_state()
 
     async def validate(self) -> dict[str, Any]:
-        return {
-            "valid": self.results.get("energy", 0) > -1000,
-            "issues": [],
-        }
+        return await self.backends[self.active_backend].validate()
 
     async def checkpoint(self) -> str:
-        # Assumes kernel service exists as initialized in Kernel object
-        uri = await self.kernel.services["artifact_store"].write(self.results, "quantum_checkpoint")
-        return uri
-
-    async def _run_quantum_calculation(self, geometry, temperature, field):
-        return -75.3, [0.1, 0.2, 0.3], 1.8
+        return await self.backends[self.active_backend].checkpoint()
