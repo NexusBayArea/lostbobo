@@ -137,7 +137,9 @@ class CommandBus:
                 return await smpc.compute(payload)
             case "SMPC_GET_SHARE":
                 he = self.kernel.services["homomorphic"]
-                return await he.encrypt({"data": payload.get("data"), "job_id": payload.get("job_id")})
+                return await he.encrypt(
+                    {"data": payload.get("data"), "job_id": payload.get("job_id")}
+                )
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
