@@ -1,0 +1,111 @@
+groups:
+- name: simhpc-loki-detailed
+  rules:
+
+  # Trust Runtime Specific
+  - alert: TrustRuntimeBlockSpike
+    expr: |
+      sum(rate({service_name="simhpc"} | json | trust_decision="BLOCK" [5m])) > 8
+    for: 2m
+    labels:
+      severity: critical
+      category: trust
+    annotations:
+      summary: "Trust Runtime BLOCK spike detected"
+      description: "High number of requests blocked by Trust Runtime in last 5 minutes."
+
+  - alert: TrustRuntimeLowAverageScore
+    expr: |
+      avg_over_time({service_name="simhpc"} | json | trust_score < 0.5 [10m]) > 0.4
+    for: 5m
+    labels:
+      severity: warning
+      category: trust
+    annotations:
+      summary: "Low average Trust Score across requests"
+
+  # Safety & Loop Prevention
+  - alert: SafetyHaltFrequent
+    expr: |
+      sum(rate({service_name="simhpc"} | json | safety_action="HALT" [5m])) > 4
+    for: 3m
+    labels:
+      severity: critical
+      category: safety
+    annotations:
+      summary: "Frequent Safety HALTs — possible loop or instability"
+
+  - alert: ReflectionSpiralDetected
+    expr: |
+      sum(rate({service_name="simhpc"} | json | reason=~"reflection spiral|quality degradation" [10m])) > 2
+    for: 5m
+    labels:
+      severity: warning
+      category: safety
+    annotations:
+      summary: "Reflection spiral detected in logs"
+
+  # RL & Agent Behavior
+  - alert: RLNegativeRewardTrend
+    expr: |
+      avg_over_time({service_name="simhpc"} | json | rl_reward < -0.2 [15m]) > 0.5
+    for: 5m
+    labels:
+      severity: warning
+      category: rl
+    annotations:
+      summary: "Persistent negative RL rewards — policy degradation"
+
+  # Cognition & Novelty
+  - alert: LowNoveltyStagnation
+    expr: |
+      avg_over_time({service_name="simhpc"} | json | novelty_score < 0.35 [10m]) > 0.45
+    for: 5m
+    labels:
+      severity: warning
+      category: cognition
+    annotations:
+      summary: "Persistent low novelty — risk of reasoning loops"
+
+  # Swarm Coordinator
+  - alert: SwarmConsensusFailure
+    expr: |
+      sum(rate({service_name="simhpc"} | json | swarm_decision="ABORT_LOW_NOVELTY" [5m])) > 3
+    for: 3m
+    labels:
+      severity: warning
+      category: swarm
+    annotations:
+      summary: "Frequent swarm aborts due to low novelty"
+
+  # Physics Engine
+  - alert: PhysicsSimulationFailureSpike
+    expr: |
+      sum(rate({service_name="simhpc"} | json | physics_validation="failed" [5m])) > 5
+    for: 2m
+    labels:
+      severity: warning
+      category: physics
+    annotations:
+      summary: "Physics simulation failure spike detected"
+
+  # General Runtime Errors
+  - alert: HighErrorLogRateByComponent
+    expr: |
+      sum by (component) (rate({service_name="simhpc"} |~ "(?i)(error|exception|failed|blocked)" [5m])) > 10
+    for: 2m
+    labels:
+      severity: critical
+      category: runtime
+    annotations:
+      summary: "High error rate in component {{ $labels.component }}"
+
+  - alert: AnomalyDetectionFrequent
+    expr: |
+      sum(rate({service_name="simhpc"} | json | anomaly_detected="true" [5m])) > 2
+    for: 3m
+    labels:
+      severity: warning
+      category: anomaly
+    annotations:
+      summary: "Multiple anomalies detected in logs"
