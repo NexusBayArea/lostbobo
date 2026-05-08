@@ -99,6 +99,12 @@ class CommandBus:
                     },
                 )
                 return result
+            case "COGNITION_ATTEND":
+                return await self.kernel.services["cognition"].attend(payload)
+            case "COGNITION_ROUTE":
+                return await self.kernel.services["cognition"].route(payload)
+            case "COGNITION_ADD_NODE":
+                return await self.kernel.services["cognition"].add_node(payload)
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
