@@ -267,3 +267,6 @@
 
 ## May 08, 2026 [04:18 PM]
 - [x] Flywheel Background Scheduler & Runner Integration (5-min decay loop, background task, runner hooks, CI-validated) - CI Passed
+
+## May 08, 2026 [04:23 PM]
+- [x] Simulation Command Handlers (Full RunSimulationCommand, handler orchestration of all engine subsystems, CI-validated integration) - CI Passed
