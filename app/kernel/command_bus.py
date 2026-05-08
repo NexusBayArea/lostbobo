@@ -64,7 +64,7 @@ class CommandBus:
                 )
             case "CHAOS_RUN_GAME_DAY":
                 result = await self.kernel.services["chaos"].run_gameday(
-                    payload.get("experiment")
+                    payload
                 )
                 await self.kernel.supabase_job_store.record_event(
                     "gameday_completed", result
@@ -72,27 +72,38 @@ class CommandBus:
                 return result
             case "LOAD_TEST_RUN":
                 return await self.kernel.services["load"].run_load_test(
-                    payload.get("test_name")
+                    payload
                 )
             case "TRUST_VERIFY":
                 result = await self.kernel.services["trust_runtime"].verify(
-                    payload["input"]
+                    payload
                 )
                 await self.kernel.supabase_job_store.save_trust_certificate(
                     {
                         "input_hash": hash(str(payload["input"])),
-                        "trust_score": result["confidence"],
-                        "provenance_hash": result["provenance_hash"],
-                        "risk_flags": result["risk_flags"],
+                        "trust_score": result.trust_score,
+                        "provenance_hash": result.provenance_hash,
+                        "risk_flags": result.risk_flags,
                         "tenant_id": payload.get("tenant_id"),
                     }
                 )
                 return result
             case "RECORD_OBSERVABILITY":
-                return await self.kernel.services[
-                    "observability"
-                ].record_observability_event(payload)
+                return await self.kernel.services["observability"].record_observability_event(
+                    payload
+                )
+            case "SAFETY_CHECK_EXECUTION":
+                safety = self.kernel.services["safety"]
+                result = await safety.check_execution(payload)
+                await self.kernel.supabase_job_store.record_event("safety_check", {
+                    "job_id": payload.get("job_id"),
+                    "safe": result.safe,
+                    "action": result.action,
+                    "reason": result.reason
+                })
+                return result
             case _:
                 # Fallback for unknown commands
                 log.warning(f"Unknown command type: {cmd_type}")
                 return await self.kernel.execute(command)
+
