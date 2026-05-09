@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from typing import Any
+
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+import torch.nn.functional as functional
 
 from backend.core.runtime.temporal.regime_forecast import RegimeForecast
 from backend.core.services.observability_service import observability
@@ -34,13 +36,13 @@ class LSTMRegimeForecaster(nn.Module):
         lstm_out, _ = self.lstm(x)
         last_hidden = lstm_out[:, -1, :]  # take last timestep
 
-        x_out = F.relu(self.fc1(last_hidden))
+        x_out = functional.relu(self.fc1(last_hidden))
         x_out = self.dropout(x_out)
 
         logits = self.fc2(x_out)
         uncertainty = torch.sigmoid(self.uncertainty_head(x_out))
 
-        probs = F.softmax(logits, dim=1)
+        probs = functional.softmax(logits, dim=1)
         return probs, uncertainty
 
 
