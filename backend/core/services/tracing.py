@@ -1,5 +1,5 @@
 """
-OpenTelemetry Tracing + Jaeger Integration
+OpenTelemetry Tracing + Grafana Tempo Integration
 """
 
 import os
@@ -7,7 +7,7 @@ from typing import Any
 
 try:
     from opentelemetry import trace
-    from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
     from opentelemetry.sdk.resources import SERVICE_NAME, Resource
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -18,23 +18,29 @@ except ImportError:
     OTEL_AVAILABLE = False
 
 
-def setup_tracing(service_name: str = "simhpc") -> Any:
-    """Initialize OpenTelemetry with Jaeger exporter."""
+def setup_tempo_tracing(service_name: str = "simhpc") -> Any:
+    """Initialize OpenTelemetry with Grafana Tempo OTLP exporter."""
     if not OTEL_AVAILABLE:
         return _NoOpTracer()
 
-    resource = Resource(attributes={SERVICE_NAME: service_name})
+    resource = Resource(
+        attributes={
+            SERVICE_NAME: service_name,
+            "environment": os.getenv("ENVIRONMENT", "production"),
+            "deployment": os.getenv("DEPLOYMENT", "unknown"),
+        }
+    )
 
-    jaeger_host = os.getenv("JAEGER_AGENT_HOST", "localhost")
-    jaeger_port = int(os.getenv("JAEGER_AGENT_PORT", "6831"))
+    tempo_endpoint = os.getenv("TEMPO_OTLP_ENDPOINT", "http://tempo:4317")
 
     try:
-        jaeger_exporter = JaegerExporter(
-            agent_host_name=jaeger_host,
-            agent_port=jaeger_port,
+        exporter = OTLPSpanExporter(
+            endpoint=tempo_endpoint,
+            insecure=True,
         )
         trace.set_tracer_provider(TracerProvider(resource=resource))
-        trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(jaeger_exporter))
+        trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(exporter))
+        print(f"Tracing initialized → {tempo_endpoint}")
     except Exception:
         pass
 
@@ -58,4 +64,4 @@ class _NoOpSpan:
         pass
 
 
-tracer = setup_tracing("simhpc")
+tracer = setup_tempo_tracing("simhpc")

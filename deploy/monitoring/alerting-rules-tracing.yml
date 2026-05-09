@@ -1,0 +1,58 @@
+groups:
+  - name: simhpc-trace-alerts
+    rules:
+
+    - alert: HighPhysicsInferenceLatency
+      expr: |
+        histogram_quantile(0.95, sum(rate(ml_inference_latency_ms_bucket[5m])) by (le, model_used)) > 800
+      for: 2m
+      labels:
+        severity: warning
+        category: ml
+      annotations:
+        summary: "High inference latency (P95 > 800ms)"
+        description: "{{ $labels.model_used }} inference latency is {{ $value | humanize }}ms"
+
+    - alert: HighModelFallbackRate
+      expr: |
+        sum(rate(ml_inference_total{fallback_used="true"}[5m])) / sum(rate(ml_inference_total[5m])) > 0.25
+      for: 3m
+      labels:
+        severity: critical
+        category: ml
+      annotations:
+        summary: "High fallback rate detected"
+        description: "{{ $value | humanizePercentage }} of inferences falling back to base LLM"
+
+    - alert: LowConfidenceInference
+      expr: |
+        avg(ml_inference_total * (1 - ml_inference_confidence)) > 0.4
+      for: 5m
+      labels:
+        severity: warning
+        category: ml
+      annotations:
+        summary: "Low confidence physics inferences"
+        description: "Average confidence dropped below 60%"
+
+    - alert: TraceErrorRateHigh
+      expr: |
+        sum(rate(jaeger_spans_total{status_code="ERROR"}[5m])) / sum(rate(jaeger_spans_total[5m])) > 0.05
+      for: 2m
+      labels:
+        severity: critical
+        category: tracing
+      annotations:
+        summary: "High error span rate in traces"
+        description: "{{ $value | humanizePercentage }} of spans have error status"
+
+    - alert: SlowAuditChainVerification
+      expr: |
+        histogram_quantile(0.99, sum(rate(audit_chain_verification_latency_ms_bucket[5m])) by (le)) > 1500
+      for: 1m
+      labels:
+        severity: warning
+        category: compliance
+      annotations:
+        summary: "Slow audit chain verification"
+        description: "Hash chain verification taking >1.5s"

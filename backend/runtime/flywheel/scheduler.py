@@ -3,6 +3,7 @@ import logging
 
 from backend.core.kernel.commands.flywheel_commands import GetFlywheelSnapshotCommand
 from backend.core.kernel.kernel import Kernel as _Kernel
+from backend.ml.monitoring.trace_alerts import TraceAlertService
 from backend.runtime.flywheel.engine import get_flywheel
 
 logger = logging.getLogger(__name__)
@@ -19,8 +20,10 @@ class FlywheelScheduler:
         if self._is_running:
             return
         self._is_running = True
+        self._alert_service = TraceAlertService()
+        asyncio.create_task(self._alert_service.run_periodic_check())
         self._task = asyncio.create_task(self._scheduler_loop())
-        logger.info("🚀 Flywheel background scheduler started")
+        logger.info("Flywheel background scheduler started")
 
     async def stop(self):
         """Graceful shutdown."""
