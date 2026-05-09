@@ -54,4 +54,10 @@ class CommandBus:
 
             EventLogService.event_log().subscribe(payload["pattern"], payload["handler"])
             return {"status": "subscribed"}
+        if cmd_type == "STATE_MUTATE":
+            from backend.core.runtime.event_fabric.schema import SimHPCEvent
+            from backend.core.runtime.state_registry.service import StateRegistryService
+
+            evt = SimHPCEvent.model_validate(payload["event"])
+            return await StateRegistryService.registry().mutate(evt)
         raise ValueError(f"Unknown command type: {cmd_type}")

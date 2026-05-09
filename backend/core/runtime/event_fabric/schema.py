@@ -11,6 +11,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from backend.core.runtime.event_fabric.vector_clock import VectorClock
+
 
 class EventPriority(str, Enum):
     CRITICAL = "critical"
@@ -30,6 +32,7 @@ class SimHPCEvent(BaseModel):
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
     payload: dict[str, Any] = Field(default_factory=dict)
     provenance_hash: str | None = None
+    vector_clock: VectorClock = Field(default_factory=VectorClock)
 
     @field_validator("confidence")
     @classmethod
@@ -37,8 +40,11 @@ class SimHPCEvent(BaseModel):
         return float(max(0.0, min(1.0, v)))
 
     def seal(self) -> SimHPCEvent:
+        self.vector_clock.increment(self.source_plugin)
         data = self.model_dump(exclude={"provenance_hash"})
+        data["vector_clock"] = dict(self.vector_clock)
         content = json.dumps(data, sort_keys=True, default=str)
         h = hashlib.sha256(content.encode()).hexdigest()
-        sealed_data = {**data, "provenance_hash": h}
+        compact_causal = hashlib.sha256(json.dumps(dict(self.vector_clock), sort_keys=True).encode()).hexdigest()[:16]
+        sealed_data = {**data, "provenance_hash": h, "causal_id": compact_causal}
         return SimHPCEvent.model_validate(sealed_data)

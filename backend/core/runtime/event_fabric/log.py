@@ -1,25 +1,27 @@
-"""Event Log Service — singleton append-only event fabric."""
+"""Event Log Service — singleton append-only event fabric with causal enforcement."""
 
 from __future__ import annotations
 
 import asyncio
 import fnmatch
-import hashlib
-import json
 import logging
 from collections.abc import Callable
 from typing import Any
 
 from backend.app.core.supabase import get_supabase_client
+from backend.core.runtime.event_fabric.vector_clock import VectorClock
 from backend.core.services.observability_service import observability
 from backend.core.services.tracing import tracer
 
-from .schema import SimHPCEvent
+from .schema import EventPriority, SimHPCEvent
 
 log = logging.getLogger(__name__)
 
 
 def seal_result(data: dict) -> str:
+    import hashlib
+    import json
+
     content = json.dumps(data, sort_keys=True, default=str)
     return hashlib.sha256(content.encode()).hexdigest()
 
@@ -32,6 +34,7 @@ class EventLogService:
             cls._instance = super().__new__(cls)
             cls._instance._supabase = get_supabase_client()
             cls._instance._subscribers: dict[str, list[Callable]] = {}
+            cls._instance._causal_frontier: dict[str, VectorClock] = {}
         return cls._instance
 
     @classmethod
@@ -39,37 +42,64 @@ class EventLogService:
         return cls()
 
     async def publish(self, event: SimHPCEvent) -> str:
-        sealed = event.seal()
-        sealed.provenance_hash = seal_result(sealed.model_dump())
-
         obs = observability()
-        obs.increment(
-            "events_published_total",
-            {"priority": event.priority, "source": event.source_plugin},
-        )
 
         with tracer.start_as_current_span(
             "event.publish",
             attributes={"event_type": event.event_type},
         ):
+            if not self._is_causally_ready(event):
+                obs.increment("causal_violations_total")
+                violation = SimHPCEvent(
+                    event_type="runtime.causal.violation",
+                    source_plugin="kernel",
+                    priority=EventPriority.CRITICAL,
+                    payload={
+                        "offending_event_id": event.event_id,
+                        "causal_id": event.causal_id,
+                    },
+                )
+                await self.publish(violation)
+                raise RuntimeError(f"Causal violation: {event.event_id}")
+
+            sealed = event.seal()
+            sealed.provenance_hash = seal_result(sealed.model_dump())
+
             if self._supabase:
                 try:
                     self._supabase.table("events").insert(sealed.model_dump()).execute()
                 except Exception as exc:
                     log.error("Failed to persist event %s: %s", event.event_id, exc)
 
-        for pattern, handlers in list(self._subscribers.items()):
-            if fnmatch.fnmatch(event.event_type, pattern):
-                for handler in handlers:
-                    asyncio.create_task(self._safe_handler(handler, sealed))
+            self._update_causal_frontier(sealed)
+            self._notify_subscribers(sealed)
 
+        obs.increment(
+            "events_published_total",
+            {"priority": event.priority, "source": event.source_plugin},
+        )
         return sealed.event_id
+
+    def _is_causally_ready(self, event: SimHPCEvent) -> bool:
+        frontier = self._causal_frontier.get(event.source_plugin, VectorClock())
+        return event.vector_clock <= frontier
+
+    def _update_causal_frontier(self, event: SimHPCEvent) -> None:
+        if event.source_plugin not in self._causal_frontier:
+            self._causal_frontier[event.source_plugin] = VectorClock()
+        self._causal_frontier[event.source_plugin].merge(event.vector_clock)
 
     async def _safe_handler(self, handler: Callable, event: SimHPCEvent) -> None:
         try:
             await handler(event)
         except Exception as exc:
             log.warning("Event handler error: %s", exc)
+
+    def _notify_subscribers(self, event: SimHPCEvent) -> None:
+        for pattern, handlers in list(self._subscribers.items()):
+            if fnmatch.fnmatch(event.event_type, pattern):
+                for handler in handlers:
+                    asyncio.create_task(self._safe_handler(handler, event))
 
     def subscribe(self, event_type_pattern: str, handler: Callable) -> None:
         if event_type_pattern not in self._subscribers:
