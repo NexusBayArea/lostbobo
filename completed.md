@@ -304,3 +304,6 @@
 
 ## May 09, 2026 [12:00 PM]
 - [x] Temporal Graph Analytics (PageRank + Decay, Community Evolution, Causal Pathing, Change Point Detection) - [May 9]
+
+## May 09, 2026 [01:00 PM]
+- [x] GNN Core (Native PyG integration, Temporal-Probabilistic embeddings, Kernel-centered Inference) - [May 9]
