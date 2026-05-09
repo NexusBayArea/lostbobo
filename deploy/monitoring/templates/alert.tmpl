@@ -1,0 +1,15 @@
+{{ define "common.subject" }}[{{ .Status | toUpper }}] {{ .CommonAnnotations.summary }}{{ end }}
+
+{{ define "common.body" }}
+Severity: {{ .CommonLabels.severity | toUpper }}
+Category: {{ .CommonLabels.category }}
+Alert: {{ .CommonAnnotations.summary }}
+
+{{ range .Alerts }}
+* {{ .Annotations.description }}
+  Labels: {{ .Labels }}
+  Trace ID: {{ .Labels.trace_id | default "N/A" }}
+{{ end }}
+
+Resolved: {{ .CommonAnnotations.resolved | default "Still firing" }}
+{{ end }}

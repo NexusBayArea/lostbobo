@@ -1,55 +1,76 @@
 global:
   resolve_timeout: 5m
-  smtp_smarthost: 'smtp.example.com:587'
-  smtp_from: 'alerts@simhpc.ai'
+
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
 
 route:
-  group_by: ['alertname', 'category', 'severity']
+  group_by: ['alertname', 'severity', 'category']
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 4h
+
   receiver: 'default'
 
   routes:
-  # Critical Security & Governance → Immediate
-  - matchers:
-    - severity = "critical"
-    - category =~ "security|governance"
-    receiver: 'pagerduty-critical'
-    group_interval: 1m
+    - matchers:
+        - severity = "critical"
+        - category = "ml"
+      receiver: 'ml-critical'
+      group_interval: 2m
 
-  # Chaos & Resilience → Slack + Email
-  - matchers:
-    - category = "chaos|resilience"
-    receiver: 'slack-engineering'
+    - matchers:
+        - severity = "critical"
+        - category =~ "compliance|security|audit"
+      receiver: 'compliance-critical'
+      group_interval: 1m
 
-  # Load & Performance → Slack + lower urgency
-  - matchers:
-    - category = "load|performance"
-    receiver: 'slack-ops'
+    - matchers:
+        - severity = "warning"
+        - category = "ml"
+      receiver: 'ml-warning'
 
-  # Default fallback
-  - receiver: 'default'
+    - matchers:
+        - severity = "warning"
+      receiver: 'team-warning'
 
 receivers:
-- name: 'default'
-  email_configs:
-  - to: 'team@simhpc.ai'
+  - name: 'default'
+    webhook_configs:
+      - url: 'https://hooks.simhpc.com/alerts/default'
 
-- name: 'pagerduty-critical'
-  pagerduty_configs:
-  - routing_key: '<your-pagerduty-integration-key>'
-    severity: 'critical'
+  - name: 'ml-critical'
+    webhook_configs:
+      - url: 'https://hooks.simhpc.com/alerts/ml-critical'
+        send_resolved: true
+    email_configs:
+      - to: 'ml-team@simhpc.com'
+        send_resolved: true
 
-- name: 'slack-engineering'
-  slack_configs:
-  - api_url: '<slack-webhook-url>'
-    channel: '#simhpc-alerts'
-    title: '{{ .CommonAnnotations.summary }}'
-    text: '{{ .CommonAnnotations.description }}'
+  - name: 'compliance-critical'
+    webhook_configs:
+      - url: 'https://hooks.simhpc.com/alerts/compliance-critical'
+        send_resolved: true
+    email_configs:
+      - to: 'compliance@simhpc.com,isso@simhpc.com'
+        send_resolved: true
+    pagerduty_configs:
+      - routing_key: '<your-pagerduty-integration-key>'
+        send_resolved: true
 
-- name: 'slack-ops'
-  slack_configs:
-  - api_url: '<slack-webhook-url>'
-    channel: '#simhpc-ops'
-    title: 'Performance Alert: {{ .CommonAnnotations.summary }}'
+  - name: 'ml-warning'
+    webhook_configs:
+      - url: 'https://hooks.simhpc.com/alerts/ml-warning'
+        send_resolved: true
+
+  - name: 'team-warning'
+    webhook_configs:
+      - url: 'https://hooks.simhpc.com/alerts/team-warning'
+        send_resolved: true
+
+inhibit_rules:
+  - source_matchers:
+      - severity = "critical"
+    target_matchers:
+      - severity = "warning"
+    equal: ['alertname', 'category']

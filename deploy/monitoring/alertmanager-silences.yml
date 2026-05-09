@@ -1,0 +1,48 @@
+# SimHPC Alertmanager Silence Rules
+# Managed via Alertmanager API or files (recommended: use amtool or UI)
+
+silences:
+
+  - id: "load-testing-suppression"
+    matchers:
+      - name: alertname
+        value: "HighPhysicsInferenceLatency|HighModelFallbackRate"
+        isRegex: true
+    startsAt: "2026-05-08T20:00:00Z"
+    endsAt: "2026-05-08T23:00:00Z"
+    createdBy: "engineering"
+    comment: "Load testing window — expected high latency"
+    status: active
+
+  - id: "ml-training-silence"
+    matchers:
+      - name: alertname
+        value: "HighPhysicsInferenceLatency|HighModelFallbackRate"
+        isRegex: true
+    startsAt: "2026-05-08T21:00:00Z"
+    endsAt: "2026-05-08T23:00:00Z"
+    createdBy: "ml-team"
+    comment: "Model training in progress — temporary degradation expected"
+    status: active
+
+  - id: "audit-log-volume-spike"
+    matchers:
+      - name: alertname
+        value: "HighAuditLogVolume"
+      - name: category
+        value: "compliance"
+    startsAt: "2026-05-08T21:00:00Z"
+    endsAt: "2026-05-08T21:30:00Z"
+    createdBy: "isso"
+    comment: "Expected audit log spike during batch processing"
+    status: active
+
+  - id: "trace-error-during-deployment"
+    matchers:
+      - name: alertname
+        value: "TraceErrorRateHigh"
+    startsAt: "2026-05-08T21:00:00Z"
+    endsAt: "2026-05-08T21:15:00Z"
+    createdBy: "devops"
+    comment: "Deployment window — transient trace errors expected"
+    status: active
