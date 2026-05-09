@@ -4,9 +4,23 @@ import { useState, useEffect, useCallback } from "react";
 import { simhpcFetch } from "@/lib/simhpc-client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
+import Link from "next/link";
+
+interface InferenceLog {
+  timestamp: string;
+  task_type: string;
+  domain: string;
+  model_used: string;
+  latency_ms: number;
+  confidence: number | null;
+  fallback_used: boolean;
+  trace_id: string | null;
+}
 
 interface ModelVersion {
   version_id: string;
@@ -47,6 +61,7 @@ export default function MLMonitoringDashboard() {
   const [modelStatus, setModelStatus] = useState<ModelStatus | null>(null);
   const [datasetStats, setDatasetStats] = useState<DatasetStats | null>(null);
   const [versions, setVersions] = useState<ModelVersion[]>([]);
+  const [recentInferences, setRecentInferences] = useState<InferenceLog[]>([]);
   const [selectedVersion, setSelectedVersion] = useState<string>("latest");
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
@@ -54,14 +69,16 @@ export default function MLMonitoringDashboard() {
 
   const fetchAllData = useCallback(async () => {
     try {
-      const [statusRes, datasetRes, versionsRes] = await Promise.all([
+      const [statusRes, datasetRes, versionsRes, inferencesRes] = await Promise.all([
         simhpcFetch("/ml/model/status"),
         simhpcFetch("/ml/dataset/stats"),
         simhpcFetch("/ml/models"),
+        simhpcFetch("/ml/inference/recent"),
       ]);
       setModelStatus(statusRes);
       setDatasetStats(datasetRes.data);
       setVersions(versionsRes.versions || []);
+      setRecentInferences(inferencesRes.inferences || []);
     } catch {
       toast.error("Failed to load ML dashboard");
     } finally {
@@ -71,7 +88,7 @@ export default function MLMonitoringDashboard() {
 
   useEffect(() => {
     fetchAllData();
-    const interval = setInterval(fetchAllData, 30000);
+    const interval = setInterval(fetchAllData, 15000);
     return () => clearInterval(interval);
   }, [fetchAllData]);
 
@@ -132,7 +149,7 @@ export default function MLMonitoringDashboard() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">ML Intelligence Dashboard</h1>
           <p className="text-slate-400">
-            Physics model performance &amp; version control
+            Physics model performance &amp; live tracing
           </p>
         </div>
 
@@ -145,7 +162,7 @@ export default function MLMonitoringDashboard() {
               <SelectItem value="latest">Latest Active Model</SelectItem>
               {versions.map((v) => (
                 <SelectItem key={v.version_id} value={v.version_id}>
-                  {v.version_id} — {v.overall_score.toFixed(2)} • {v.trained_on_runs.toLocaleString()} runs
+                  {v.version_id} — {v.overall_score?.toFixed(2)} • {v.trained_on_runs.toLocaleString()} runs
                 </SelectItem>
               ))}
             </SelectContent>
@@ -224,6 +241,94 @@ export default function MLMonitoringDashboard() {
         </Card>
       </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            Recent Inferences
+            <Badge variant="outline">Live &bull; Last 15</Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Time</TableHead>
+                <TableHead>Task</TableHead>
+                <TableHead>Domain</TableHead>
+                <TableHead>Model</TableHead>
+                <TableHead>Latency</TableHead>
+                <TableHead>Confidence</TableHead>
+                <TableHead>Trace ID</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentInferences.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8 text-slate-500">
+                    No recent inferences yet. Run some physics queries to see live traces.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                recentInferences.map((inf, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="text-xs text-slate-500">
+                      {new Date(inf.timestamp).toLocaleTimeString()}
+                    </TableCell>
+                    <TableCell className="font-mono text-sm">{inf.task_type}</TableCell>
+                    <TableCell>{inf.domain}</TableCell>
+                    <TableCell>
+                      <Badge variant={inf.fallback_used ? "secondary" : "default"}>
+                        {inf.model_used}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-mono">{inf.latency_ms.toFixed(0)} ms</TableCell>
+                    <TableCell>
+                      {inf.confidence !== null ? (
+                        <span className="font-mono text-emerald-400">
+                          {(inf.confidence * 100).toFixed(0)}%
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs text-blue-400">
+                      {inf.trace_id ? (
+                        <Link
+                          href={`https://jaeger.simhpc.com/search?traceID=${inf.trace_id}`}
+                          target="_blank"
+                          className="hover:underline"
+                        >
+                          {inf.trace_id.slice(0, 8)}...
+                        </Link>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {inf.trace_id && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            window.open(
+                              `https://jaeger.simhpc.com/search?traceID=${inf.trace_id}`,
+                              "_blank"
+                            )
+                          }
+                        >
+                          View Trace
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
       {modelStatus?.performance_trend && modelStatus.performance_trend.length > 0 && (
         <Card>
           <CardHeader>
@@ -293,7 +398,7 @@ export default function MLMonitoringDashboard() {
       </Card>
 
       <div className="text-xs text-slate-500 text-center">
-        Real-time updates every 30 seconds — Data from Flywheel + Certificates
+        Real-time updates every 15 seconds — Data from Flywheel + Certificates + Inference Traces
       </div>
     </div>
   );

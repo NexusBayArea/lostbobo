@@ -225,8 +225,36 @@ class PhysicsInferenceAPI:
             return sum(r.get("n", 0) for r in result.data)
         return 0
 
+    async def get_recent_inferences(self, limit: int = 15) -> list[dict[str, Any]]:
+        """Return recent inference logs with trace IDs for the dashboard."""
+        return [
+            {
+                "timestamp": entry["timestamp"],
+                "task_type": entry["task_type"],
+                "domain": entry["domain"],
+                "model_used": entry["model_used"],
+                "latency_ms": entry["latency_ms"],
+                "confidence": entry.get("confidence"),
+                "fallback_used": entry.get("fallback_used", False),
+                "trace_id": entry.get("trace_id"),
+            }
+            for entry in self._inference_log[-limit:]
+        ]
+
     async def _log_inference(self, request: PhysicsInferenceRequest, response: PhysicsInferenceResponse) -> None:
         from datetime import datetime
+
+        trace_id = None
+        try:
+            from opentelemetry import trace
+
+            span = trace.get_current_span()
+            if span:
+                ctx = span.get_span_context()
+                if ctx.is_valid:
+                    trace_id = format(ctx.trace_id, "032x")
+        except Exception:
+            pass
 
         log_entry = {
             "timestamp": datetime.now(UTC).isoformat(),
@@ -237,6 +265,7 @@ class PhysicsInferenceAPI:
             "confidence": response.confidence_score,
             "fallback_used": response.fallback_used,
             "is_ensemble": response.is_ensemble,
+            "trace_id": trace_id,
         }
         self._inference_log.append(log_entry)
 

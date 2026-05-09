@@ -137,6 +137,15 @@ async def activate_model(version_id: str):
     return {"success": success, "active_version": version_id}
 
 
+@router.get("/inference/recent")
+async def get_recent_inferences(limit: int | None = None):
+    from backend.ml.inference.physics_api import get_physics_inference_api
+
+    api = get_physics_inference_api()
+    raw = api.get_recent_inferences(limit=limit or 15)
+    return {"inferences": raw}
+
+
 @router.post("/infer")
 async def run_physics_inference(request: InferenceRequest, version: str | None = None):
     try:
