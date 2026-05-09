@@ -186,6 +186,59 @@ class ModelRegistry:
             hasher.update(file.read_bytes())
         return hasher.hexdigest()
 
+    async def auto_rollback_if_needed(self, threshold: float = 0.65) -> dict[str, Any]:
+        """
+        Automatic rollback if latest model score drops below threshold.
+        Rolls back to the best previous version and logs the event.
+        """
+        versions = await self.list_versions(limit=10)
+        if len(versions) < 2:
+            return {"action": "NONE", "reason": "Not enough versions"}
+
+        latest = versions[0]
+        previous = max(versions[1:], key=lambda v: v.overall_score)
+
+        if latest.overall_score < threshold:
+            await self.set_active_version(previous.version_id)
+
+            try:
+                from backend.core.kernel.commands.compliance_commands import LogAuditCommand
+                from backend.core.kernel.kernel import Kernel
+
+                kernel = Kernel()
+                await kernel.execute(
+                    LogAuditCommand(
+                        event_type="MODEL_ROLLBACK",
+                        outcome="SUCCESS",
+                        tenant_id="system",
+                        user_id="system",
+                        user_email="system@simhpc.com",
+                        user_role="simhpc_admin",
+                        resource_type="model",
+                        resource_id=latest.version_id,
+                        resource_classification="PUBLIC",
+                        action=f"Auto-rollback from {latest.version_id} to {previous.version_id}",
+                        details={
+                            "old_score": latest.overall_score,
+                            "new_score": previous.overall_score,
+                            "threshold": threshold,
+                            "reason": "Poor performance detected",
+                        },
+                    )
+                )
+            except Exception:
+                pass
+
+            return {
+                "action": "ROLLBACK",
+                "from_version": latest.version_id,
+                "to_version": previous.version_id,
+                "old_score": latest.overall_score,
+                "new_score": previous.overall_score,
+            }
+
+        return {"action": "NONE", "reason": "Performance within acceptable range"}
+
     async def get_latest_model(self) -> ModelBenchmark | None:
         if not self._models:
             await self._load_registry()

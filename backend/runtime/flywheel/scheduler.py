@@ -64,6 +64,14 @@ class FlywheelScheduler:
             logger.info("[Flywheel Scheduler] >=1000 qualified runs — triggering training data export")
             await trigger_background_export()
 
+        from backend.ml.registry import ModelRegistry
+
+        registry = ModelRegistry()
+        rollback_result = await registry.auto_rollback_if_needed(threshold=0.65)
+
+        if rollback_result["action"] == "ROLLBACK":
+            logger.warning(f"⚠️ Auto-rollback performed: {rollback_result}")
+
 
 # Singleton
 _scheduler: FlywheelScheduler | None = None
