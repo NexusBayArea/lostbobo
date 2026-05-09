@@ -1,0 +1,14 @@
+from enum import Enum
+
+
+class AuditEventType(Enum):
+    SIMULATION_COMPLETED = "SIMULATION_COMPLETED"
+    CERTIFICATE_ISSUED = "CERTIFICATE_ISSUED"
+    DATA_ACCESSED = "DATA_ACCESSED"
+
+
+class AuditOutcome(Enum):
+    SUCCESS = "SUCCESS"
+    FAILURE = "FAILURE"
+    PARTIAL = "PARTIAL"
+    UNKNOWN = "UNKNOWN"
