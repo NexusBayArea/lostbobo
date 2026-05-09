@@ -310,3 +310,6 @@
 
 ## May 09, 2026 [02:00 PM]
 - [x] Federated Graph Learning (Federated Averaging/FedAvg, Plugin-based GNN Training, Causal Consistency, Privacy-Preserving) - [May 9]
+
+## May 09, 2026 [03:00 PM]
+- [x] Homomorphic Encryption Layer (Paillier-based HE, encrypted WorldState/Graph snapshots, HE-Aggr/GNN Inference) - [May 9]
