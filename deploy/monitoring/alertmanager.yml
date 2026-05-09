@@ -10,6 +10,10 @@ route:
 
   routes:
     - matchers:
+        - priority = "critical"
+      receiver: 'ml-critical'
+
+    - matchers:
         - severity = "critical"
         - category = "ml"
       receiver: 'ml-critical'
@@ -18,6 +22,11 @@ route:
         - severity = "critical"
         - category =~ "compliance|security|audit"
       receiver: 'compliance-critical'
+
+    - matchers:
+        - severity = "warning"
+        - category = "ml"
+      receiver: 'ml-warning'
 
     - matchers:
         - severity = "warning"
@@ -48,6 +57,11 @@ receivers:
       - to: 'compliance@simhpc.com,isso@simhpc.com'
     pagerduty_configs:
       - routing_key_file: '/etc/alertmanager/pagerduty-key'
+
+  - name: 'ml-warning'
+    webhook_configs:
+      - url: 'https://hooks.simhpc.com/alerts/ml-warning'
+        send_resolved: true
 
   - name: 'team-warning'
     webhook_configs:

@@ -40,4 +40,18 @@ class CommandBus:
             return await self.kernel.depth_registry.store(payload["layer"], payload["state"], payload.get("metadata"))
         if cmd_type == "DEPTH_QUERY":
             return await self.kernel.depth_registry.query(payload["query"], payload.get("top_k", 8))
+        if cmd_type == "EVENT_PUBLISH":
+            from backend.core.runtime.event_fabric.log import EventLogService
+
+            event = EventLogService.event_log()
+            evt = payload["event"]
+            from backend.core.runtime.event_fabric.schema import SimHPCEvent
+
+            sim_event = SimHPCEvent.model_validate(evt)
+            return await event.publish(sim_event)
+        if cmd_type == "EVENT_SUBSCRIBE":
+            from backend.core.runtime.event_fabric.log import EventLogService
+
+            EventLogService.event_log().subscribe(payload["pattern"], payload["handler"])
+            return {"status": "subscribed"}
         raise ValueError(f"Unknown command type: {cmd_type}")
