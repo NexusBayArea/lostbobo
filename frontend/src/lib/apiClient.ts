@@ -100,6 +100,22 @@ async function apiFetch<T>(
   if (token) headers["Authorization"] = `Bearer ${token}`;
   if (apiKey) headers["X-API-Key"] = apiKey;
 
+  if (typeof window !== "undefined") {
+    try {
+      const { context, propagation } = (window as unknown as { __OTEL__: { context: typeof import("@opentelemetry/api"); propagation: typeof import("@opentelemetry/api") } }).__OTEL__ || {};
+      if (context && propagation) {
+        const activeSpan = context.active();
+        if (activeSpan) {
+          const carrier: Record<string, string> = {};
+          propagation.inject(context.active(), carrier);
+          Object.assign(headers, carrier);
+        }
+      }
+    } catch {
+      // OTEL not initialized — skip trace propagation
+    }
+  }
+
   const url = `${API_BASE}${path}`;
 
   let response: Response;
