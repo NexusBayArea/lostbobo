@@ -1,0 +1,3050 @@
+{
+  "C:\\Users\\arche\\SimHPC\\fix.ps1": {
+    "mtime": 1778095464.0588312,
+    "hash": "e4c82e8c722a0b460d1188a0d46872e5"
+  },
+  "C:\\Users\\arche\\SimHPC\\fix_emojis.py": {
+    "mtime": 1777959272.9420514,
+    "hash": "17f5cb9ba4250c095e9711ad2712cfc3"
+  },
+  "C:\\Users\\arche\\SimHPC\\run.py": {
+    "mtime": 1776883765.0487685,
+    "hash": "80864fa511a972fcfe290752432901de"
+  },
+  "C:\\Users\\arche\\SimHPC\\run_api.py": {
+    "mtime": 1776793410.1300712,
+    "hash": "78720ae57bd14081d8c65a35b2072b76"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\router.py": {
+    "mtime": 1778090170.073594,
+    "hash": "088d19e009a8111520b86f65c20d2219"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\api\\routes\\auto_research.py": {
+    "mtime": 1778090943.337187,
+    "hash": "fb03898a77eef6a0e068db6ec3375fd6"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\api\\routes\\safeguards.py": {
+    "mtime": 1778090943.3397014,
+    "hash": "18ba92de73f26a948c47945ce4e19d14"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\api\\routes\\workspace.py": {
+    "mtime": 1778058786.2708025,
+    "hash": "acbbfca276c29d9b1fe2e0280f0ee5dd"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\kernel\\command_bus.py": {
+    "mtime": 1778223529.1099336,
+    "hash": "05107e652d5a7b3ada53368985f39384"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\kernel\\kernel.py": {
+    "mtime": 1778090943.3391862,
+    "hash": "79e0fe83081c3093ef27d5f6931879cb"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\kernel\\agents\\planner.py": {
+    "mtime": 1778058786.2724378,
+    "hash": "47adf30e337f4e726a50c66301496cca"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\kernel\\auto_research\\engine.py": {
+    "mtime": 1778090943.876815,
+    "hash": "ac06f936dc70e5dd2cf472d7990e385c"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\kernel\\auto_research\\evaluation.py": {
+    "mtime": 1778090943.3397014,
+    "hash": "0adc961aa29edfaa12b2369a92294c35"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\kernel\\auto_research\\memory.py": {
+    "mtime": 1778095753.2980878,
+    "hash": "c7047fbacabd6400a66add60201cbb7e"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\kernel\\prompt\\stack.py": {
+    "mtime": 1778058786.280962,
+    "hash": "273a526d2ab8f4a45b6168f70ed137d8"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\kernel\\safeguards\\drift.py": {
+    "mtime": 1778090943.8827293,
+    "hash": "d03284267a2237137238db93329afc72"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\kernel\\safeguards\\service.py": {
+    "mtime": 1778090943.338194,
+    "hash": "0efe9f6b2242cf5a216ff49e2579b150"
+  },
+  "C:\\Users\\arche\\SimHPC\\app\\kernel\\workspace\\manager.py": {
+    "mtime": 1778058786.28351,
+    "hash": "67df37055f9a7fab9da93dcb3b90daa8"
+  },
+  "C:\\Users\\arche\\SimHPC\\apps\\web\\app\\dashboard\\billing\\success\\page.tsx": {
+    "mtime": 1778286866.6205933,
+    "hash": "0f119bd76f175200371b244c7450675b"
+  },
+  "C:\\Users\\arche\\SimHPC\\apps\\web\\lib\\simhpc-client.ts": {
+    "mtime": 1778286813.9535768,
+    "hash": "893630eb3241156eafaf6d6fa294c598"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\test_beam_orchestrator.py": {
+    "mtime": 1778042059.1547923,
+    "hash": "ec8c0bcc40363f9a38e7bdb824171a8b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\__init__.py": {
+    "mtime": 1777912032.7593906,
+    "hash": "b32757dcd89e483c64d5bd7372278dae"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\__main__.py": {
+    "mtime": 1777912032.7616467,
+    "hash": "43aa4bc0dfb6878b0629c6bc3c2b3b17"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\agents\\research_director.py": {
+    "mtime": 1778293916.7902975,
+    "hash": "8b2f0e7bc03c9d13da6c121a1bb79f74"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\api\\routes\\governance.py": {
+    "mtime": 1778187874.8901155,
+    "hash": "016323e3399000e8879e9c84e0aa0138"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\gateway.py": {
+    "mtime": 1777886067.0795271,
+    "hash": "f9b6234583abe8a1462e5eac2b77aae3"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\main.py": {
+    "mtime": 1778295784.3767598,
+    "hash": "6757974fe5746c3c0178c214fecdb0af"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\utils.py": {
+    "mtime": 1776883764.9534962,
+    "hash": "48ca451c9e7235b129743311bec3c54e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\__init__.py": {
+    "mtime": 1777887528.3620403,
+    "hash": "0bc7948a37aece247c9b3e14b7f7c42e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\agent_routes.py": {
+    "mtime": 1778049606.686563,
+    "hash": "d1bbcdf2ca1acb361f88b98bca226de2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\api_router.py": {
+    "mtime": 1778313951.6482031,
+    "hash": "7cb0c1551a67aba3944887333fa292e2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\auth.py": {
+    "mtime": 1778129413.6485372,
+    "hash": "2eebfa04f034e79d21a29984824b1382"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\compiler_api.py": {
+    "mtime": 1777885103.1722407,
+    "hash": "edb9690e73b4eae30348b754dfc12f82"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\dag.py": {
+    "mtime": 1777928097.1264758,
+    "hash": "ca7c2b4c710ec447dd01ffeba2a98a4d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\flywheel.py": {
+    "mtime": 1778285408.0164497,
+    "hash": "af3e8cef9845c195b43b210c63b25368"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\graphrag.py": {
+    "mtime": 1777962142.2640495,
+    "hash": "d2ce766b09eb82746dc774a4b381cb0e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\graph_viz.py": {
+    "mtime": 1778313951.6482031,
+    "hash": "f69b3297b5dca0f2e20c302b3b7c1d7a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\ml.py": {
+    "mtime": 1778296081.9716887,
+    "hash": "90532468436977be91fc97fa2a671c89"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\observability.py": {
+    "mtime": 1777240501.6115377,
+    "hash": "70cb7790be1dedfa18388ed760ddee2d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\reports.py": {
+    "mtime": 1777959028.0673587,
+    "hash": "e69470e033312025ee65bc410ec21035"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\s3_storage.py": {
+    "mtime": 1776883764.9305885,
+    "hash": "1e34d144edbf1e3e9e084bd15eaa1768"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\swarm.py": {
+    "mtime": 1777999411.056118,
+    "hash": "e1f27ecd5a01b77ddab60c2160638302"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\world_routes.py": {
+    "mtime": 1778049606.686563,
+    "hash": "400b5644f7c7c2d279c93d18bb77239d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\world_state.py": {
+    "mtime": 1778308386.0651486,
+    "hash": "d2086b492fc4db463ad43cc542900b0a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\__init__.py": {
+    "mtime": 1776883764.913174,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\admin\\observability.py": {
+    "mtime": 1778028552.1951468,
+    "hash": "cc64a85f48f35a0a50d1b2a69c9d3afb"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\admin\\__init__.py": {
+    "mtime": 1776883764.91459,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\endpoints\\simulations.py": {
+    "mtime": 1777886067.0825367,
+    "hash": "025efc1b9a7d7d50bf2c9e1283e0c873"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\alpha.py": {
+    "mtime": 1777886067.0835266,
+    "hash": "4188bd2be2b72922257b01afae37e402"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\auto_research.py": {
+    "mtime": 1778049980.41025,
+    "hash": "96f24faac0be1e8483a07b84d049ce92"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\backtest.py": {
+    "mtime": 1777886067.0840347,
+    "hash": "7cdb0d5852e60b6d6614f672fe8b8419"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\backtest_audit.py": {
+    "mtime": 1777886067.0840347,
+    "hash": "1eee985903a4345f860408e485f61120"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\certificates.py": {
+    "mtime": 1777886067.0855448,
+    "hash": "bfcf7baa7074426f9a71407b2e6e463d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\discovery.py": {
+    "mtime": 1778134321.370692,
+    "hash": "2bc9e9260a0d8e39ea261a39ea3723a2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\kill_switch.py": {
+    "mtime": 1778126459.067683,
+    "hash": "6272ea65035005f4c29bcb52e22459e9"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\memory.py": {
+    "mtime": 1778049606.6875858,
+    "hash": "c005886bce5769c6bdb38c11130f306c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\monitoring.py": {
+    "mtime": 1778278146.272653,
+    "hash": "82e4cb19170daa828eeebc1d00fa5fcf"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\observational.py": {
+    "mtime": 1778054724.110625,
+    "hash": "ad2b9a50938728665f6cb2458f6dce7a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\onboarding.py": {
+    "mtime": 1777886067.0855448,
+    "hash": "2cb670901de14f4ae3dfeffa5a5326c6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\skills.py": {
+    "mtime": 1778049606.6875858,
+    "hash": "2596678bbd7738688c2b8ae431c4529a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\streaming.py": {
+    "mtime": 1778128164.3894992,
+    "hash": "6b1f6dc59d1c211c8159f578a068e6bb"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\routes\\world_model.py": {
+    "mtime": 1778276579.6257954,
+    "hash": "af6629e29e6ca26eeb0c355afd887fdd"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\schemas\\backtest.py": {
+    "mtime": 1776883764.9315953,
+    "hash": "91a9448ed9f7ca52f6f69dba0c60331a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\webhooks\\alerts.py": {
+    "mtime": 1778297000.949698,
+    "hash": "e7300e7b4a53c485463e72d1d71907d8"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\api\\webhooks\\__init__.py": {
+    "mtime": 1778296918.1040156,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\core\\config.py": {
+    "mtime": 1776883764.9910069,
+    "hash": "bfd17c3a270489d6e856af7504b3600a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\core\\supabase.py": {
+    "mtime": 1777999427.342598,
+    "hash": "c9cd9bc1f2abbe954d910ad0dbeaa812"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\core\\__init__.py": {
+    "mtime": 1776883764.9336839,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\kernel\\memory\\__init__.py": {
+    "mtime": 1778115634.025289,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\services\\mercury.py": {
+    "mtime": 1776883764.9443984,
+    "hash": "0dc9e653878de1deecbba2a861866506"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\services\\mercury_ai.py": {
+    "mtime": 1776883764.9464116,
+    "hash": "ec78a31da4a74db5ec681eef6257365c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\services\\onboarding_service.py": {
+    "mtime": 1777886067.087071,
+    "hash": "acd40f8de80582c7300ed91edcb60dc3"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\services\\pdf_service.py": {
+    "mtime": 1777999411.0309625,
+    "hash": "dfe40adbf5e0f382cfd8724dcd48311f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\services\\simulation_utils.py": {
+    "mtime": 1777886067.0880792,
+    "hash": "ac9eb655f184cd9972f0492a3a638667"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\services\\execution\\allocator.py": {
+    "mtime": 1776883764.939762,
+    "hash": "a6ce21fc4f7ac594d4bee6181bd0a4cd"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\services\\execution\\engine.py": {
+    "mtime": 1776883764.9417605,
+    "hash": "c8e554a7560f41e27cbe6b76c5de2273"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\services\\execution\\risk_engine.py": {
+    "mtime": 1776883764.9428608,
+    "hash": "01b1065dba623011fcd05b98b992a067"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\services\\skills\\panic_button.py": {
+    "mtime": 1776850133.8306708,
+    "hash": "b7a210625a76c6f0633420524cbf6375"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\services\\skills\\resource_reaper.py": {
+    "mtime": 1777886067.0900786,
+    "hash": "20a3f26fab3e2f046f8ac7b4faba1342"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\app\\services\\uncertainty\\conformal.py": {
+    "mtime": 1776883764.9515026,
+    "hash": "48c8d3fc524d6eae3a26eb7ef680b029"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\autoscaler\\policy.py": {
+    "mtime": 1777886067.0910835,
+    "hash": "bedf01a7f0591b7da3660eb4bae7ef9c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\autoscaler\\predictor.py": {
+    "mtime": 1776883764.9580178,
+    "hash": "366fb8c258524774ce90f153e36a1070"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\autoscaler\\scaler_engine.py": {
+    "mtime": 1777912833.9177444,
+    "hash": "c7dd717c73609b9dab7d062b72ff8ae0"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\autoscaler\\__init__.py": {
+    "mtime": 1776883764.9545002,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\__init__.py": {
+    "mtime": 1776883764.9605632,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\backend\\py_graph.py": {
+    "mtime": 1776883764.9625676,
+    "hash": "583ea9b1ab1faaba5bd6e1b7c9abfa8e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\backend\\__init__.py": {
+    "mtime": 1776883764.9615617,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\frontend\\ts_graph.py": {
+    "mtime": 1776883764.9658954,
+    "hash": "501dd2b514161cecae11710dab603b59"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\frontend\\__init__.py": {
+    "mtime": 1776883764.9642968,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\imc\\cache\\cassettes.py": {
+    "mtime": 1776883764.9669068,
+    "hash": "1f17a0c92076fae411ffc7758f8a4f61"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\imc\\cache\\store.py": {
+    "mtime": 1776883764.967906,
+    "hash": "812a6cfe75c78bbc2d643a4f525f9b04"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\imc\\core\\dag.py": {
+    "mtime": 1776883764.9695623,
+    "hash": "b64f4be73ca55f05613331cb89c9e42f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\imc\\core\\diff.py": {
+    "mtime": 1776883764.9701054,
+    "hash": "2d1a072ad648b70c9d949e4048dda1b4"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\imc\\core\\graph.py": {
+    "mtime": 1776883764.9711192,
+    "hash": "c5f5b65346b5a6f3c77c5316cfb0ee39"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\imc\\core\\hash.py": {
+    "mtime": 1776883764.973164,
+    "hash": "9d49c3fe276dfee9f3bcd9dc0840ffa4"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\imc\\distributed\\sync.py": {
+    "mtime": 1776883764.9741862,
+    "hash": "8692169e18eb0dc009bee00c880c9673"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\imc\\engine\\incremental.py": {
+    "mtime": 1776883764.9741862,
+    "hash": "945f78610cab966ee5f72385f2b7c3da"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\imc\\engine\\validation.py": {
+    "mtime": 1776883764.9757042,
+    "hash": "a641a3e98263252577de1781d5b8f862"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\manifest\\build_manifest.py": {
+    "mtime": 1776883733.9472156,
+    "hash": "997e8ac8b5e1ce682d6b96bd94bd8eb5"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\manifest\\graph.py": {
+    "mtime": 1776883733.9432096,
+    "hash": "269636ae1f743721152cd9adeb1f5bf2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\manifest\\rules.py": {
+    "mtime": 1776883673.5856812,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\manifest\\validator.py": {
+    "mtime": 1776883733.9675431,
+    "hash": "4ae51ad2b193b3cc756816437ff0b675"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\manifest\\__init__.py": {
+    "mtime": 1776883673.5873075,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\runtime\\execute.py": {
+    "mtime": 1776883764.9790235,
+    "hash": "abbbf1f5dc92346b974fec27cb8bfb52"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\runtime\\loader.py": {
+    "mtime": 1776883764.980179,
+    "hash": "180a364d8c1d24bea6f087191a350fd9"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\compiler\\runtime\\__init__.py": {
+    "mtime": 1776883764.9773405,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\supabase_job_store.py": {
+    "mtime": 1778124679.544005,
+    "hash": "8e9d2aea6f22ac83e45ad6ddd99fba77"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\tenant.py": {
+    "mtime": 1778189080.1087613,
+    "hash": "5f502f4d417127d2981fd9c0652734e3"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\agents\\analyst.py": {
+    "mtime": 1778048566.0022619,
+    "hash": "4fb6e70ff8655538927365265cee6aff"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\agents\\base_agent.py": {
+    "mtime": 1778042059.155789,
+    "hash": "c7ad5966f6dc44fa31538fabb8d67e91"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\agents\\orchestrator.py": {
+    "mtime": 1778048565.7259233,
+    "hash": "1eb17966fa6dcd804e94ef905f5375d1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\agents\\planner.py": {
+    "mtime": 1778048565.7269175,
+    "hash": "8e3954952a2cc53893662199487d6519"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\agents\\rag_agent.py": {
+    "mtime": 1778058786.2718184,
+    "hash": "bdd926c05fbfd78361d13dfba8707fe5"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\agents\\reasoning_agent.py": {
+    "mtime": 1778058786.277959,
+    "hash": "5e1ed753c104d43b3a219675aa1d8e92"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\agents\\simulation_agent.py": {
+    "mtime": 1778058786.28351,
+    "hash": "ea3bd8e5002048ff1d35860de0381775"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\auth\\models.py": {
+    "mtime": 1778189099.7073038,
+    "hash": "83fdac96ec4a7fc1c9e44ed09e4778b5"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\auth\\policy_engine.py": {
+    "mtime": 1778189276.2935212,
+    "hash": "f14025322d287de93bcce227d436850b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\certificate\\service.py": {
+    "mtime": 1778044164.0831192,
+    "hash": "15821d1ad9b37cf7ac5075b47ff30584"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\extractor\\claim_extractor.py": {
+    "mtime": 1778137603.6541824,
+    "hash": "5fa5b5cab3f7ed9226940431032cb73c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\gateway\\gateway.py": {
+    "mtime": 1778189269.651849,
+    "hash": "d019cab58613e876b6f97c59ed722cf9"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\governance\\config.py": {
+    "mtime": 1778187550.9434314,
+    "hash": "71715d95d40a651797e4f1cc70903fd0"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\governance\\health.py": {
+    "mtime": 1778188768.4558716,
+    "hash": "3e2404534bc99d622a334d7db2f6ed8d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\governance\\metrics.py": {
+    "mtime": 1778188754.4266438,
+    "hash": "bc46df2c43f94644ddf0a777e8f79425"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\governance\\service.py": {
+    "mtime": 1778184130.220165,
+    "hash": "e3dabfc3e32ea3b88ebf739e6ec8897b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\governance\\simulation_worker.py": {
+    "mtime": 1778294554.0088277,
+    "hash": "6ea9356c11a58a033a36fc553dfeb579"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\command_bus.py": {
+    "mtime": 1778309095.3989615,
+    "hash": "71f4437895539f330580d48f52f785d1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\kernel.py": {
+    "mtime": 1778115182.5183413,
+    "hash": "10f00a3a1e03654f972c327561572337"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\world_brain.py": {
+    "mtime": 1778115186.210603,
+    "hash": "d76ff35e3e4b383479a69d27c5f67177"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\__init__.py": {
+    "mtime": 1778049362.4604604,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\agents\\planner.py": {
+    "mtime": 1778115037.833377,
+    "hash": "45455a6f6ef2331ed3ef09274674d2a5"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\agents\\__init__.py": {
+    "mtime": 1778049362.9772296,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\auto_research\\engine.py": {
+    "mtime": 1778114904.9549646,
+    "hash": "0cbe21de87ec5aa4ca191e5c8b074b83"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\auto_research\\evaluation.py": {
+    "mtime": 1778049980.41025,
+    "hash": "911b9f312366cea019806d667dae3f09"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\auto_research\\memory.py": {
+    "mtime": 1778054676.791121,
+    "hash": "c7273fb517a861b041371ed3ea6ac6cc"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\auto_research\\__init__.py": {
+    "mtime": 1778049934.6166165,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\commands\\anomaly_commands.py": {
+    "mtime": 1778272623.15081,
+    "hash": "e2b1fce3cf2d77f08e61d179e2eb0c5e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\commands\\certificate_commands.py": {
+    "mtime": 1778280641.8905013,
+    "hash": "838cf76a2bde2bd4ed9db0dffdbdb815"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\commands\\compliance_commands.py": {
+    "mtime": 1778287402.2923033,
+    "hash": "cfdae342ac47e1f82da66d250f97dd12"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\commands\\flywheel_commands.py": {
+    "mtime": 1778281977.082021,
+    "hash": "1fa03530ed2efaa60d167bf2987a0781"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\commands\\rl_commands.py": {
+    "mtime": 1778273456.5188282,
+    "hash": "3ccc44b448d36f93c8f60579211efc42"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\commands\\safety_commands.py": {
+    "mtime": 1778272005.7746358,
+    "hash": "8af9b0b9be283e6951db96d9d149c6ae"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\commands\\simulation_commands.py": {
+    "mtime": 1778282577.0127635,
+    "hash": "97902a69b9ed2a6ffe4ca6899b859c45"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\handlers\\compliance_handlers.py": {
+    "mtime": 1778287402.2902985,
+    "hash": "bf43d9af050ea9ac1760ee707679dc1f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\handlers\\flywheel_handlers.py": {
+    "mtime": 1778281977.0810065,
+    "hash": "27ce8c0f662a175d1e94c72029d47496"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\handlers\\simulation_handlers.py": {
+    "mtime": 1778294542.4855201,
+    "hash": "905442bb31e49a6a516891259b6ebdbc"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\memory\\depth.py": {
+    "mtime": 1778115037.959124,
+    "hash": "ab4320648ccb4ae69ddafd5af070a5e0"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\memory\\observational.py": {
+    "mtime": 1778058786.274818,
+    "hash": "d132e3bc579d27fdf263ab6c6b9b8c04"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\memory\\reflector.py": {
+    "mtime": 1778054724.110625,
+    "hash": "beadbd89e5f9fa04699d6f5437376b0c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\memory\\__init__.py": {
+    "mtime": 1778052795.0513203,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\plugins\\gamma_module.py": {
+    "mtime": 1778115186.08959,
+    "hash": "b873983c8b0db73e622c677b4bdc7282"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\plugins\\loader.py": {
+    "mtime": 1778115186.216239,
+    "hash": "0dd8b4d826d16cc3bc513a31eb90a87d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\plugins\\gamma\\energy.py": {
+    "mtime": 1778115186.0911064,
+    "hash": "1af9546ae12a8435bb4d03576ce1a8b3"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\plugins\\gamma\\__init__.py": {
+    "mtime": 1778115161.517655,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\services\\memory_service.py": {
+    "mtime": 1778049367.7202814,
+    "hash": "363ab590b034d00e35bef36696705ddf"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\services\\reconciliation_service.py": {
+    "mtime": 1778049367.33726,
+    "hash": "d0d8bcbad2a1e2ff4ffca347a55700db"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\services\\world_service.py": {
+    "mtime": 1778049744.129629,
+    "hash": "583dbd680c99ff79482ae6c671c5ac40"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\services\\__init__.py": {
+    "mtime": 1778049362.8073637,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\skills\\registry.py": {
+    "mtime": 1778049367.33726,
+    "hash": "c9730c94e779e5089dedc56c2564e90a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\skills\\__init__.py": {
+    "mtime": 1778049362.9526,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\state\\memory_state.py": {
+    "mtime": 1778049367.33726,
+    "hash": "b577c8d6d4258d0581d24a371efbaee4"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\state\\world_state.py": {
+    "mtime": 1778058786.28351,
+    "hash": "44374e8ea93760d410942d9b5e863c38"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\kernel\\state\\__init__.py": {
+    "mtime": 1778049362.624345,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\memory\\reconciliation.py": {
+    "mtime": 1778045107.6353755,
+    "hash": "9440f4a8eaa4196f8ba95f130316fe69"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\memory\\schema.py": {
+    "mtime": 1778058786.29214,
+    "hash": "8c63b2351cd33313a4b1ee1aa11d05d0"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\memory\\service.py": {
+    "mtime": 1778045107.6353755,
+    "hash": "d7c8263620e0b52178e55212ca60efe9"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\models\\hypothesis.py": {
+    "mtime": 1778031905.143921,
+    "hash": "6b5e075c44d127a7f5708065e9ba8e05"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\orchestrator\\beam_orchestrator.py": {
+    "mtime": 1778293858.51591,
+    "hash": "96845cbb3ad47206ddd04e3b5e03bca6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\provenance\\graph.py": {
+    "mtime": 1778133658.0389366,
+    "hash": "2f7c651e9241b5381c361b4de419edaa"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\provenance\\graph_service.py": {
+    "mtime": 1778133657.9051867,
+    "hash": "168680ab328800df1facb7eb7433d9d7"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\redis\\beam_streamer.py": {
+    "mtime": 1778125162.5823104,
+    "hash": "de4f483e7cc9cce9676f7f2e8fee0b03"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\redis\\__init__.py": {
+    "mtime": 1778043662.7223418,
+    "hash": "b6abb271e0f0f068f9846f41be18e5d2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\robustness\\check.py": {
+    "mtime": 1778043886.863892,
+    "hash": "ba109a178f17ba4c2c2efb81d2f81c65"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\runtime\\entity_graph\\schema.py": {
+    "mtime": 1778308386.0651486,
+    "hash": "8bb0fd53af551753d975fc0bd2145882"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\runtime\\entity_graph\\service.py": {
+    "mtime": 1778308386.0651486,
+    "hash": "e321ed63564872be731965a1790a516a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\runtime\\event_fabric\\log.py": {
+    "mtime": 1778307839.938472,
+    "hash": "92beb7634ef691ed6b0ce6eb0a9e8b71"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\runtime\\event_fabric\\schema.py": {
+    "mtime": 1778307828.3508506,
+    "hash": "2f4d68cbe4d1a35d92fba61914d0800e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\runtime\\event_fabric\\vector_clock.py": {
+    "mtime": 1778307839.938472,
+    "hash": "74cac5d3fac9e8bdc8bf5c57318827ec"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\runtime\\formalization\\invariants.py": {
+    "mtime": 1778313951.6598618,
+    "hash": "63ef1f418bee9d380d4117e8e9e5b56d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\runtime\\state_registry\\service.py": {
+    "mtime": 1778309153.1860323,
+    "hash": "b1bca4cb5a6846217a3f31239ada3ac6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\runtime\\temporal\\engine.py": {
+    "mtime": 1778313951.6482031,
+    "hash": "00207d11c8922484d0d0fe66e251fdcd"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\scoring\\trust_score.py": {
+    "mtime": 1778031904.8800578,
+    "hash": "c1449e6a065a1f0000fb9d7560752a54"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\security\\infisical.py": {
+    "mtime": 1778187853.3094325,
+    "hash": "bbb077f54329a9693708aac037206446"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\beam_orchestrator_service.py": {
+    "mtime": 1778049606.686563,
+    "hash": "2040fb0c851c9021c91b2e12e4797952"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\homomorphic_encryption.py": {
+    "mtime": 1778294542.520146,
+    "hash": "af08516d3eb3e16e13821a3d1af66eb9"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\observability_service.py": {
+    "mtime": 1778294542.5181208,
+    "hash": "b16d65a986eec5372325e80640a38a67"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\swarm_consensus_scorer.py": {
+    "mtime": 1778294542.539165,
+    "hash": "dc6f19359e28608b25875cd0f62eb73a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\tracing.py": {
+    "mtime": 1778296501.4723332,
+    "hash": "907bbbd3eba373ef49fd6b9ed9045d48"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\trust_scoring.py": {
+    "mtime": 1778294542.5347373,
+    "hash": "d86483739f6fbda55dfb8cbcc01a7457"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\anomaly\\anomaly_detection_service.py": {
+    "mtime": 1778294542.4855201,
+    "hash": "add0f80ba83dcf827cc7809ea61329ff"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\bulletproofs\\bulletproofs_service.py": {
+    "mtime": 1778294542.5166085,
+    "hash": "be0ffbe6c49123ee46de7feb863ea7da"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\chaos\\chaos_service.py": {
+    "mtime": 1778204869.4971657,
+    "hash": "3126010e67e8d3474602d49f79ab467d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\cognition\\cognitive_runtime_service.py": {
+    "mtime": 1778211003.08943,
+    "hash": "bd4d7d56b3afadecf302c52e91ca880e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\cognitive\\cognitive_runtime_service.py": {
+    "mtime": 1778294542.4829688,
+    "hash": "8b304b7728fa97635961cf8a04dc8f4a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\federated\\federated_consensus.py": {
+    "mtime": 1778294542.506397,
+    "hash": "826cc53a98790fd1c2806714afa86fda"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\load\\load_test_service.py": {
+    "mtime": 1778204869.4956498,
+    "hash": "0c3b44592d43bf30d61da00e09feee31"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\monitoring\\monitoring_service.py": {
+    "mtime": 1778205298.2063286,
+    "hash": "2d44f04b4e77884731580b233957b85d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\observability\\observability_service.py": {
+    "mtime": 1778209243.6005874,
+    "hash": "2744c9dbb36114a38de3dc3e9e21bde1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\rl\\rl_service.py": {
+    "mtime": 1778294542.5398042,
+    "hash": "c5415b0dfa5844a89c7d7b1be821bfb0"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\rl_envs\\claim_verifier_rl_env.py": {
+    "mtime": 1778293916.880628,
+    "hash": "c3a34a60a6067583ce6702d278cccb03"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\rl_envs\\memory_world_meta_envs.py": {
+    "mtime": 1778293916.8851767,
+    "hash": "5184c0a18d4669689f45aea781415797"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\rl_envs\\__init__.py": {
+    "mtime": 1778293916.8771043,
+    "hash": "107f67cac1bb2d9990b8add5db9e373a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\safety\\safety_service.py": {
+    "mtime": 1778294542.5181208,
+    "hash": "227f887eb4d906a9190cae72bd80eb5f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\smpc\\smpc_service.py": {
+    "mtime": 1778294542.5181208,
+    "hash": "1ff5282bd8e73450f574afc328610f4f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\temporal\\temporal_state_service.py": {
+    "mtime": 1778294542.481974,
+    "hash": "86ba4b7e88641154f9b13f7ad8aba118"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\tracing\\tracing_service.py": {
+    "mtime": 1778206318.2351353,
+    "hash": "cf8d9adc0a9cb2553c832a2d8d600eab"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\trust\\trust_runtime_service.py": {
+    "mtime": 1778294542.5110655,
+    "hash": "c3cbedf21ef9d4abe158dfeaf241b595"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\verification\\verification_pipeline.py": {
+    "mtime": 1778222210.8067143,
+    "hash": "6416d5a20157a006fbe323228afee4ed"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\services\\zkp\\zkp_service.py": {
+    "mtime": 1778223342.353464,
+    "hash": "24550c33ea47dad106f9c507953532ce"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\simulation\\runner.py": {
+    "mtime": 1778044057.332515,
+    "hash": "747ad1d2d1629ea116c8c14a408078df"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\skills\\examples.py": {
+    "mtime": 1778044916.7518487,
+    "hash": "7ebba2eda8710f6820006ed3dba9286c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\skills\\registry.py": {
+    "mtime": 1778048565.7259233,
+    "hash": "5941eb904cb0ff0ec0d8a8930291539f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\supabase\\migrations\\20260508_flywheel_schema.sql": {
+    "mtime": 1778285340.8056786,
+    "hash": "bb53b70227951b98129f03a683557be2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\supabase\\migrations\\20260508_ml_registry.sql": {
+    "mtime": 1778287888.1853106,
+    "hash": "a028df7000f8f1473ce81f5525db7e82"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\workers\\consumer.py": {
+    "mtime": 1778049607.0719807,
+    "hash": "f2472276a2e96202a34a130b7a75bf44"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\world_model\\schema.py": {
+    "mtime": 1778308066.511393,
+    "hash": "0ca6bc122c5635af78e9328bedd43dbf"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\core\\world_model\\service.py": {
+    "mtime": 1778294542.5181208,
+    "hash": "8fb134ce01ff5956de86330f08e5d21a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\infra\\__init__.py": {
+    "mtime": 1776883764.981195,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\infra\\deploy\\deploy_unified.py": {
+    "mtime": 1776850166.9842415,
+    "hash": "6c353d41ee8f074263f301bf47a87e3a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\infra\\deploy\\deploy_worker.py": {
+    "mtime": 1776883764.9832354,
+    "hash": "03d11761f942c194f5f227d6efa00ebf"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\infra\\runpod\\deploy_runpod.py": {
+    "mtime": 1776883764.984254,
+    "hash": "0b5365b21cdf3bd7efb43f97172eafd7"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\infra\\runpod\\restart_pod.py": {
+    "mtime": 1776883764.985767,
+    "hash": "156dc2090691bf57110901d9dca6055a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\calibration\\engine.py": {
+    "mtime": 1778294542.4829688,
+    "hash": "ed222b90f7b673f2f3a243b877e6396d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\coupling\\coordinator.py": {
+    "mtime": 1778294542.4961352,
+    "hash": "e8c991c4e2651c16f34547170612a364"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\dag\\graph.py": {
+    "mtime": 1778224417.9113674,
+    "hash": "51a494a1f10bb03c1c013da08c040cb9"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\dag\\node.py": {
+    "mtime": 1778224417.0319693,
+    "hash": "ad9aa5e6fc5cca5050699ba0818c22b1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\dag\\nodes\\quantum_node.py": {
+    "mtime": 1778224852.6260028,
+    "hash": "7bb979184a69cc19a7ff8d98acdd92eb"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\digital_twin\\runtime.py": {
+    "mtime": 1778293916.9319615,
+    "hash": "2ce4594e2c9f96ae4ec93d77f5129c74"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\mesh\\adaptive.py": {
+    "mtime": 1778293916.9354746,
+    "hash": "6da09e01dd7e23716d305698835964e5"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\plugins\\quantum_chemistry\\plugin.py": {
+    "mtime": 1778225622.119544,
+    "hash": "2cfaef9be75a942d5ae05a5a7a92c1a1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\plugins\\quantum_chemistry\\backends\\gaussian_backend.py": {
+    "mtime": 1778225464.171736,
+    "hash": "ca209e9d6abd5165d86494c58ec4f895"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\plugins\\quantum_chemistry\\backends\\nwchem_backend.py": {
+    "mtime": 1778225622.121616,
+    "hash": "c9b4180299fbe72e6c099fde30e4dc4f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\plugins\\quantum_chemistry\\backends\\orca_backend.py": {
+    "mtime": 1778225351.2696552,
+    "hash": "6333a8020e69b61f56f3ec323f9d0ce5"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\plugins\\quantum_chemistry\\backends\\psi4_backend.py": {
+    "mtime": 1778225218.9914875,
+    "hash": "a6f96a5d5b6b2dec8e4dfb20dbcb38a9"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\plugins\\quantum_chemistry\\backends\\pyscf_backend.py": {
+    "mtime": 1778225034.3997407,
+    "hash": "d63e7bc8313ebe85a1d75a6506d0ecfc"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\kernel\\uq\\polynomial_chaos\\engine.py": {
+    "mtime": 1778294542.4855201,
+    "hash": "2f5e804fcfd2ad60125e09166b2389ee"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\ml\\registry.py": {
+    "mtime": 1778295652.0572085,
+    "hash": "84f597016294cb3a7bf268f285589fca"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\ml\\__init__.py": {
+    "mtime": 1778294542.4880621,
+    "hash": "12a8500cd0e78300c8025de76958d201"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\ml\\inference\\physics_api.py": {
+    "mtime": 1778296286.9826148,
+    "hash": "248b12ae6442b2bbc40e4e6a56c7d592"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\ml\\monitoring\\trace_alerts.py": {
+    "mtime": 1778296507.652581,
+    "hash": "b7d3d86dca89c86d735716892bf2eb1a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\ml\\training\\exporter.py": {
+    "mtime": 1778295352.4043074,
+    "hash": "5eba8b038d4d905e0f8b3e3f45fd869e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\ml\\training\\finetuner.py": {
+    "mtime": 1778294542.508046,
+    "hash": "0b89cbea99e7caa8a62e4938296704c0"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\packages\\__init__.py": {
+    "mtime": 1776883764.9869926,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\packages\\contracts\\tasks.py": {
+    "mtime": 1776886763.3652296,
+    "hash": "c31791da62194096b91fc609d5b5176d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\packages\\contracts\\__init__.py": {
+    "mtime": 1776883764.9880118,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\packages\\types\\enums.py": {
+    "mtime": 1776883764.9936197,
+    "hash": "65c0d1405fdc1f1594cfdca9e40f24df"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\packages\\types\\job.py": {
+    "mtime": 1776883764.9954839,
+    "hash": "bb550bce97d6a3c4f7c67b0b2a5e3d60"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\packages\\types\\__init__.py": {
+    "mtime": 1776883764.9926064,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\physics\\coupler.py": {
+    "mtime": 1778294542.4809744,
+    "hash": "41341aa23bd71f3eb04623cb72af31e2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\physics\\materials\\service.py": {
+    "mtime": 1778191158.1591806,
+    "hash": "a52d369b084310ef5b8e15cf9adbd808"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\physics\\postprocessing\\service.py": {
+    "mtime": 1778293870.0087903,
+    "hash": "cb9015f5f98bf8101f60ad69de1201a5"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\physics\\validation\\library.py": {
+    "mtime": 1778190094.0714006,
+    "hash": "0f80524b33c1bb24277e9ccd25ff2430"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\base.py": {
+    "mtime": 1778308446.6077533,
+    "hash": "7c480bcbd1ddd52c6a39993597614664"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\loader.py": {
+    "mtime": 1778008860.7895246,
+    "hash": "76d332a981b4fd18d83705129bd4210e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\registry.py": {
+    "mtime": 1778308400.4129076,
+    "hash": "50aae191ea6d541a68947291d1e48b69"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\__init__.py": {
+    "mtime": 1778001905.421727,
+    "hash": "011312a63b58ebe0fc06f7ba1c418665"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\ev_battery\\plugin.py": {
+    "mtime": 1778001931.7081068,
+    "hash": "ff218e2c0cb46382f80662e442480945"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\ev_battery\\__init__.py": {
+    "mtime": 1777999411.0309625,
+    "hash": "e51ba6ac9ffcf63a30a283f859a2495a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\forecasting_swarm\\bayesian_aggregator.py": {
+    "mtime": 1778299452.6751184,
+    "hash": "5d29f37952addf3fbcbb68088cb42626"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\forecasting_swarm\\conformal_bridge.py": {
+    "mtime": 1778299473.06307,
+    "hash": "deeabfa46a956c50a55ef8498c946010"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\forecasting_swarm\\models.py": {
+    "mtime": 1778299459.6844494,
+    "hash": "1bd628651fa42e0db95efb30baea1b15"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\forecasting_swarm\\plugin.py": {
+    "mtime": 1778299452.6751184,
+    "hash": "c69948a782f8f5ead2cee5d6a9fb95b7"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\forecasting_swarm\\swarmer.py": {
+    "mtime": 1778299452.6751184,
+    "hash": "73100d7f53b77d696c6d1448b182df69"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\forecasting_swarm\\swarm_coordinator.py": {
+    "mtime": 1778299539.0939682,
+    "hash": "aa68a29bf81eb06b85846f2539391e60"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\forecasting_swarm\\__init__.py": {
+    "mtime": 1778299459.6813972,
+    "hash": "479e04de4868d4b8c415176910e69974"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\graphrag\\plugin.py": {
+    "mtime": 1778299989.0807061,
+    "hash": "c451031fe71b3a245a19a211e7c978b6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\market_trading\\plugin.py": {
+    "mtime": 1777999414.867059,
+    "hash": "d3fe976f34f82d35a5bcb7697f70801c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\plugins\\market_trading\\__init__.py": {
+    "mtime": 1777999411.019619,
+    "hash": "bbbe740aa10aa6d1a5f970955592d9e3"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\reasoning\\planner.py": {
+    "mtime": 1778294542.4829688,
+    "hash": "928e1cf03b7d3d9d1d0c6d0f3e9f6679"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\reasoning\\proof_dag\\proof_node.py": {
+    "mtime": 1778226271.5724137,
+    "hash": "f061ef1dcb0808490461cbaed7a3f33a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\reasoning\\theorem\\prover\\prover.py": {
+    "mtime": 1778294542.4855201,
+    "hash": "11715b150b26a64fd99c97dcfb8eebcb"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\reasoning\\theorem\\symbolic\\engine.py": {
+    "mtime": 1778294542.4829688,
+    "hash": "1c73890c5d14d7b33a669a2b965cc0e9"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\reasoning\\theorem\\verification\\conservation.py": {
+    "mtime": 1778293916.9710243,
+    "hash": "a85caa7cbd267d9b96750bc115cf6733"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\autoscaler.py": {
+    "mtime": 1777887528.3620403,
+    "hash": "1110c3ed76675b6eada9b123b54af6ab"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\bootstrap.py": {
+    "mtime": 1777885103.184444,
+    "hash": "a7960417100a118d83fd816893bcf868"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\cache.py": {
+    "mtime": 1777886067.0991824,
+    "hash": "0116eb8e084a4aa8538111e2abe00ad4"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\capabilities.py": {
+    "mtime": 1777885156.1072445,
+    "hash": "3cd68d8fc04d0717951fe8a1db90a925"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\chaos_monkey.py": {
+    "mtime": 1778192910.5186276,
+    "hash": "27fc369433e4557179b190f502c4e53d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\ci_compiler.py": {
+    "mtime": 1776883765.0010335,
+    "hash": "b296291d506bb92f2123cf44f24866ca"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\ci_graph.py": {
+    "mtime": 1776883765.0020287,
+    "hash": "66b9c4c82bffb29f77197158d57cffd4"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\ci_runner.py": {
+    "mtime": 1777885103.1854467,
+    "hash": "c83b89a817473e191b10bfab6e95811b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\contract.py": {
+    "mtime": 1776886763.7450683,
+    "hash": "7c81d1a70ab6b778a0da0303ce3a8a44"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\contract_schema.py": {
+    "mtime": 1776883765.0060344,
+    "hash": "2868e7650f91c2364e2b47341f068a72"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\dag_executor.py": {
+    "mtime": 1777959028.0673587,
+    "hash": "a29ff9c8681210a41e8d64c56bbd322a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\deps.py": {
+    "mtime": 1776883765.0075433,
+    "hash": "47f9009a0fa16b9c033a5951f0ca38c0"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\diff.py": {
+    "mtime": 1777927218.4120057,
+    "hash": "a2912b70c871da6704c26efea5d4b3fa"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\diff_engine.py": {
+    "mtime": 1777240501.2443743,
+    "hash": "0ced6905ee7a3a42befb7114831556d6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\engine.py": {
+    "mtime": 1777885103.1864803,
+    "hash": "458080d9836eaa68d65a61a13bcbc2f1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\execution_intelligence.py": {
+    "mtime": 1777927218.4120057,
+    "hash": "d6e9d0c7a68c22f64b7c1fde0719fdc1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\execution_log.py": {
+    "mtime": 1776883765.0141983,
+    "hash": "43bbef6a2c3ed6763027b19b48995657"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\explain.py": {
+    "mtime": 1776883765.015353,
+    "hash": "7e81e8be7b7d75fb980776f633b4952d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\fallback.py": {
+    "mtime": 1778195596.5026934,
+    "hash": "9b0982a7e706bc988202faee74080c90"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\graph.py": {
+    "mtime": 1777925589.6695392,
+    "hash": "6a2ca33b8862ddc96a197052caa3f951"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\job.py": {
+    "mtime": 1777325136.7172863,
+    "hash": "0c706cbd78e9218b8e3e8b9b1456b023"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\kernel.py": {
+    "mtime": 1777926983.4163852,
+    "hash": "2a92626230a66f5a72fdfee5c6766eeb"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\lineage.py": {
+    "mtime": 1776883765.0203872,
+    "hash": "f8600aaa51f540c6dc98f6b31a18d2fc"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\lint_contract.py": {
+    "mtime": 1776883765.0214555,
+    "hash": "12c8522f443e49c9ad405593d0941747"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\manifest.py": {
+    "mtime": 1777962332.625836,
+    "hash": "cce84e93e26db435018c97141c23e335"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\multirun_diff.py": {
+    "mtime": 1776883765.0229661,
+    "hash": "a53cee4f94242654199b8cf93f066b7b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\nodes.py": {
+    "mtime": 1777925589.6695392,
+    "hash": "6ce0e764289601f52925c624a4dd41df"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\optimizer.py": {
+    "mtime": 1777927218.4120057,
+    "hash": "f88f18e9e7168eefcb3f8fca85bc2a1a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\orchestrator.py": {
+    "mtime": 1777927585.3710916,
+    "hash": "99826e59b99261ef06f73700408de426"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\persistent_queue.py": {
+    "mtime": 1776883765.0260992,
+    "hash": "bbb04b126f865db24fee56513212d443"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\physics_nodes.py": {
+    "mtime": 1777927585.3710916,
+    "hash": "89b0e4585054dfc9f8908cf172921591"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\planner.py": {
+    "mtime": 1777885103.1920571,
+    "hash": "ab5e70300c1c7d882519572d92925bb6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\queue.py": {
+    "mtime": 1778054699.622752,
+    "hash": "3a0474b6531ebbe471fed425cd239d00"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\replay.py": {
+    "mtime": 1777927218.4120057,
+    "hash": "bc033a9c028c62fac81c77657847ee9d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\replay_diff.py": {
+    "mtime": 1777885103.194761,
+    "hash": "f12e25e402a1db69c1311e231ce545de"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\resilience.py": {
+    "mtime": 1778192707.6223667,
+    "hash": "d88aa64b020e97a8ee9c6ecc72f080fa"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\safe_exec.py": {
+    "mtime": 1776920716.7198038,
+    "hash": "85c01ad33a107277e36d141704ab14b4"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\sandbox.py": {
+    "mtime": 1777240501.6115377,
+    "hash": "1852a517c20ad8e0ab09ccae65a16266"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\signature.py": {
+    "mtime": 1776883765.0327091,
+    "hash": "ef32a3ec8910893e677cdc670344ba2a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\state.py": {
+    "mtime": 1777885103.1967697,
+    "hash": "0337c57edd33563af07d8b51ac6d8db3"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\telemetry.py": {
+    "mtime": 1778028551.8322442,
+    "hash": "77b7fdf3a6611a55705adcfd2556fcde"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\test_isolation.py": {
+    "mtime": 1776883765.0357378,
+    "hash": "c11e9a2298fe33ab28fa90f1b3a21636"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\time_utils.py": {
+    "mtime": 1776920716.7198038,
+    "hash": "4dc041f520d90d4f905478c1bb153f2d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\tool_registry.py": {
+    "mtime": 1776883765.03638,
+    "hash": "5be48e6fe084819beb18f03d73b96a51"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\trace.py": {
+    "mtime": 1777240501.2443743,
+    "hash": "458e3e69ee234524d555bc8f3924f423"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\visualizer.py": {
+    "mtime": 1777927561.9367607,
+    "hash": "ac9310fbdd50922c5b9b3c465bd02b70"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\worker.py": {
+    "mtime": 1777242341.1695795,
+    "hash": "1e07c4944814a29062b1e086c0187ed6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\__init__.py": {
+    "mtime": 1778028553.2818427,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\a40\\simulation.py": {
+    "mtime": 1778128159.3759997,
+    "hash": "a03d86b059f75807ff115fb8ab7fb7a2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\agent\\autonomous.py": {
+    "mtime": 1778058786.2972233,
+    "hash": "5743a5112dfdb7d8da5c13c23365902a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\agent\\graph_agent.py": {
+    "mtime": 1778025142.1114025,
+    "hash": "9fbf3006f0999d011b8eaeb333df5368"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\agent\\sim_retrieval_agent.py": {
+    "mtime": 1778025144.1232648,
+    "hash": "9ad3c641b0a73cc93dd15e2332988fdc"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\agent\\vector_agent.py": {
+    "mtime": 1778025132.7935512,
+    "hash": "ba10a436df746b7a2fa7cec8b2833231"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\agent\\__init__.py": {
+    "mtime": 1778025190.332593,
+    "hash": "eeaa8f0ce19c4794f0f54c85a963e515"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\api\\reasoning_client.py": {
+    "mtime": 1778128139.4146912,
+    "hash": "b4118119d2f111682b3219dd443c8a4f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\backends\\base.py": {
+    "mtime": 1776883765.097019,
+    "hash": "169fbdadda9b501d2f52d96c5c520b8c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\backends\\loader.py": {
+    "mtime": 1776883765.0985258,
+    "hash": "fe0a4c20acdee8bfbc277969d7a808a2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\backends\\mfem_backend.py": {
+    "mtime": 1777343251.9158964,
+    "hash": "e469d56bc545b3ed2f116293c0e302af"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\backends\\registry.py": {
+    "mtime": 1776883765.100061,
+    "hash": "b2bd3cd532b5e1cf3ed51ba60d8559a2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\backends\\__init__.py": {
+    "mtime": 1776883765.097019,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\backtest\\planner.py": {
+    "mtime": 1776883765.1020622,
+    "hash": "2da7eea31d49583faa44639cf24d5248"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\backtest\\__init__.py": {
+    "mtime": 1776883765.1010594,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\cache\\simulation_cache.py": {
+    "mtime": 1778053666.2334967,
+    "hash": "290e754b6df2525823c5dcf29995be8b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\cache\\zfp.py": {
+    "mtime": 1777999411.0216172,
+    "hash": "fd8e94b0d48858e548f1ad73550f6f21"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\cache\\__init__.py": {
+    "mtime": 1777999411.019619,
+    "hash": "77980c878dca48db9bc7de69b17d9662"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\cognition\\cognitive_router.py": {
+    "mtime": 1778272908.0333166,
+    "hash": "6d2bebe10f4cc0607a4dcb4308ea80e2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\cognition\\execution_attention_graph.py": {
+    "mtime": 1778294542.501882,
+    "hash": "ca3d94c74e5e791d7a9897e048188b92"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\cognition\\multi_res_cognition.py": {
+    "mtime": 1778294542.4829688,
+    "hash": "d6e990c76c6a7cad83f7d90043c53256"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\cognition\\novelty_scorer.py": {
+    "mtime": 1778294542.5166085,
+    "hash": "a4d0154e8e975865b08e66347583aae1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\cognition\\physics_aware_cognition.py": {
+    "mtime": 1778294542.5181208,
+    "hash": "d03cb6872d2be88cb139a6f5ef74615a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\cpu_node\\orchestrator.py": {
+    "mtime": 1778128139.415687,
+    "hash": "f791913d3761411e06eb8caecbd3f77f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\dataset\\engine.py": {
+    "mtime": 1777999411.0667117,
+    "hash": "af4d5bcac61b93317a0162f93ece04c2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\dataset\\__init__.py": {
+    "mtime": 1777999411.0961602,
+    "hash": "a925b78d4a5b75d627850388174972d7"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\discovery\\graph.py": {
+    "mtime": 1778134303.6187801,
+    "hash": "dfc41417b83e72b334bb4cafb50ff239"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\discovery\\models.py": {
+    "mtime": 1778133736.5155034,
+    "hash": "adfff2bf30a85d820183bf951f61d7e9"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\discovery\\ranking.py": {
+    "mtime": 1778134343.015311,
+    "hash": "95624f41a4ab87254dd7d4d309456d28"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\feedback\\brier_engine.py": {
+    "mtime": 1777999411.061711,
+    "hash": "79ab631a8cf8d9bb9ecd47007dcb296a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\feedback\\calibration_dashboard.py": {
+    "mtime": 1777999411.061711,
+    "hash": "68fd2335830e298d742e348a0568b2ee"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\feedback\\feedback_dag_node.py": {
+    "mtime": 1777999411.0637052,
+    "hash": "a32942bc577091e8e16fe2a7c6d6ab06"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\feedback\\__init__.py": {
+    "mtime": 1777999411.0586388,
+    "hash": "43b383f1db1819e2eb4e57685b9f0e91"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\flywheel\\engine.py": {
+    "mtime": 1778294381.972347,
+    "hash": "8183a3f587e6af72ab3d97dae613e076"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\flywheel\\hooks.py": {
+    "mtime": 1778294542.512592,
+    "hash": "2549f1dfb929baf3f3cfd8d7d3b14a73"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\flywheel\\leaderboard_scorer.py": {
+    "mtime": 1778285003.7352996,
+    "hash": "e787674bc506d9bef2993ceab9c64e77"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\flywheel\\scheduler.py": {
+    "mtime": 1778296448.6759272,
+    "hash": "005cd46295bb8d46f0b0fbc67662d8a2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\graphrag\\entity_extractor.py": {
+    "mtime": 1777961721.5888402,
+    "hash": "9d4b3773ab81b9701153429e5868a632"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\graphrag\\graphrag_dag_node.py": {
+    "mtime": 1778299983.3303132,
+    "hash": "c7a5b8d245867a328b88f4c590403155"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\graphrag\\graphrag_retriever.py": {
+    "mtime": 1778299968.0991037,
+    "hash": "f98c69c8c43bccb98c50da0b5cacb957"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\graphrag\\graphrag_streamer.py": {
+    "mtime": 1777962142.2656407,
+    "hash": "9206f1cf18ef4b2cfbaa4c7d16c7b8c7"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\grid\\api.py": {
+    "mtime": 1778134332.9385912,
+    "hash": "25da95903066f1243595c9b0da39d79f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\grid\\intelligence.py": {
+    "mtime": 1778134342.9056413,
+    "hash": "cebafce96b25c8e746559cee03b8dde2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\grid\\public_library.py": {
+    "mtime": 1778134781.074669,
+    "hash": "0b1eef2386d5d799b7b5f050fad3c6c6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\grid\\registry.py": {
+    "mtime": 1778131387.126286,
+    "hash": "73846a9c7c2d3a52d781f15f00c25833"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\grid\\scheduler.py": {
+    "mtime": 1778131387.126286,
+    "hash": "637d9fb25917f36e3c1bc411882a9b85"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\orchestrator\\cascade.py": {
+    "mtime": 1777999411.0843732,
+    "hash": "51b572b33a30d4883d8f7c591d37c23b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\orchestrator\\queue_router.py": {
+    "mtime": 1778058786.2764237,
+    "hash": "668403f1084947a4edefb0c2d47a1ede"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\orchestrator\\speculative_orchestrator.py": {
+    "mtime": 1778195596.5011663,
+    "hash": "b62edbbb91474313eb9975b44552b214"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\orchestrator\\__init__.py": {
+    "mtime": 1778025192.3511822,
+    "hash": "41467d9ce9202c29b6fa387e6902071b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\provenance\\graph.py": {
+    "mtime": 1777999411.056118,
+    "hash": "32da8e966e4ea2aaaff0ad1b19663cc6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\provenance\\__init__.py": {
+    "mtime": 1777999411.0596354,
+    "hash": "0fda063cc7f9d53ad32e071abd1b4e8c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\base_index.py": {
+    "mtime": 1778001436.2801423,
+    "hash": "af2ebeec3597dbe1f75566a29387462c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\dataset_index.py": {
+    "mtime": 1778001436.2791407,
+    "hash": "c3efb0020402112aefdea62902ec16d1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\document_index.py": {
+    "mtime": 1778026490.243616,
+    "hash": "255f7b6fa6defa419631ec76e03609a9"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\experiment_index.py": {
+    "mtime": 1778026490.243616,
+    "hash": "1cb44dd1bc53315628626e8d7c178d13"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\manifest_parser.py": {
+    "mtime": 1778221813.2656512,
+    "hash": "dc862ea2c36234f3d2d9468819601b1f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\metadata.py": {
+    "mtime": 1778026490.243616,
+    "hash": "6f974d0bc7b747cfba1bc07b2f449f10"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\model_index.py": {
+    "mtime": 1778001436.2791407,
+    "hash": "9566ced2a8f66de38b8f042d462330c8"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\router.py": {
+    "mtime": 1778001436.2801423,
+    "hash": "19ae09b853c6d32531b30403f24d51dc"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\sah_router.py": {
+    "mtime": 1778221813.1507032,
+    "hash": "15c6968b7de3bbd3f6b9ebd1473e4c9d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\simulation_memory.py": {
+    "mtime": 1778294542.4829688,
+    "hash": "ada6be8c31090910aa0df8666cf6eee5"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\structured_index.py": {
+    "mtime": 1778026490.243616,
+    "hash": "045b6805f6219ad9e1c0c955781bccc6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\utils.py": {
+    "mtime": 1777999414.8675797,
+    "hash": "fae141f3e00fe87625b8ffccd6621f52"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\rag\\__init__.py": {
+    "mtime": 1778026490.243616,
+    "hash": "54379bc55101f1247ba66a70039010a4"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\replay\\engine.py": {
+    "mtime": 1777999411.0586388,
+    "hash": "b5ef493aeea942622f70817bf6f91dcf"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\replay\\__init__.py": {
+    "mtime": 1777999411.036027,
+    "hash": "bc15562fa0990a08df80b1fdc5452d78"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\safety\\budget_manager.py": {
+    "mtime": 1778209810.9821854,
+    "hash": "655e17491036648992b3467c9f91d2bf"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\safety\\execution_graph.py": {
+    "mtime": 1778294542.489081,
+    "hash": "db5644ab46291038b9f0c75670b88555"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\safety\\memory_trust.py": {
+    "mtime": 1778294542.5002007,
+    "hash": "7068d8161df9d95808a525fb0a2297a8"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\safety\\state_hash.py": {
+    "mtime": 1778209810.9821854,
+    "hash": "d4e8f11a3d9fe0c7dd850d5f497dda4f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\simhpc\\drift_engine.py": {
+    "mtime": 1778127349.661494,
+    "hash": "567dabb8da541e8166b740e680f1eb49"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\simhpc\\monte_carlo.py": {
+    "mtime": 1778128139.3004537,
+    "hash": "d1e923d7b352387584bb9c03031dec75"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\swarm\\agent_sdk.py": {
+    "mtime": 1778133658.0399342,
+    "hash": "42857b2bc62b1dc74e0648d04ddeaccb"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\swarm\\api.py": {
+    "mtime": 1778131387.2601323,
+    "hash": "52b35476750cc39dcec4579ae8e0a46f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\swarm\\bayesian_aggregator.py": {
+    "mtime": 1777999411.0339987,
+    "hash": "04c1f0d2de8303b1e3a0a137413bb351"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\swarm\\conformal_bridge.py": {
+    "mtime": 1777999411.0216172,
+    "hash": "707f5ac87854e583b58eb9560afb01da"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\swarm\\models.py": {
+    "mtime": 1778131387.259128,
+    "hash": "9733f79a2742cb86cecc0f29598888e1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\swarm\\swarm_coordinator.py": {
+    "mtime": 1778294542.4855201,
+    "hash": "c215e8fd1b0560b079d6917b8c8e0bd2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\swarm\\__init__.py": {
+    "mtime": 1777999411.019619,
+    "hash": "6b0ce0c85c0a8c619545250be7acd4eb"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\tools\\system_tools.py": {
+    "mtime": 1777343251.9204686,
+    "hash": "4d8244fe2a91d69fa993cadb1d5e9a74"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\tools\\__init__.py": {
+    "mtime": 1776883765.1255102,
+    "hash": "afade28739e65020c6797faa4bb2d2de"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\validation\\simulation_validator.py": {
+    "mtime": 1777999411.0657048,
+    "hash": "29180e7b9e542896887fd936b35eb9c8"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\runtime\\validation\\__init__.py": {
+    "mtime": 1777999411.051955,
+    "hash": "83f3a19f6f33d6ccc6630476078c2f52"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\scripts\\auto_stop.py": {
+    "mtime": 1776883765.0379822,
+    "hash": "fbc9bf3e3ffac5f3075ee1349ac26fd4"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\security\\metrics_middleware.py": {
+    "mtime": 1778278146.447014,
+    "hash": "a2f0b821f2d21e4df51f694e26e674a3"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\security\\leak_detection\\detector.py": {
+    "mtime": 1778271740.809045,
+    "hash": "2e9af854e2b62bc4d28598de8f6494d6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\security\\metrics_middleware\\prometheus_metrics_middleware.py": {
+    "mtime": 1778205298.2043223,
+    "hash": "c704d74f4aee1a0426bc9cc7070e708f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\security\\observability_middleware\\prometheus_metrics_middleware.py": {
+    "mtime": 1778208434.7678466,
+    "hash": "5e78343a74340d7abb306ba5aeb0cef8"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\security\\prompt_guard\\guard.py": {
+    "mtime": 1778271740.809045,
+    "hash": "d9fe27142f777d24644070a6ecf23148"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\security\\tracing_middleware\\prometheus_metrics_middleware.py": {
+    "mtime": 1778205624.487248,
+    "hash": "efe027f6074e5961619344ec777be9ff"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\security\\trust_middleware\\trust_runtime_middleware.py": {
+    "mtime": 1778210057.5916626,
+    "hash": "8ca684b902bcf8105ee84eec34129bc5"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\services\\certificate\\certificates.py": {
+    "mtime": 1778280642.032652,
+    "hash": "3864c76f008566ef0fd192bf54856b29"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\services\\certificate\\issuer.py": {
+    "mtime": 1778280670.4914658,
+    "hash": "99ba1f7afd1c744ab1851f657f155b11"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\services\\certificate\\models.py": {
+    "mtime": 1778280642.0346727,
+    "hash": "1cd5cc27ed2c747f94b61f5c9ed88039"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\services\\certificate\\signer.py": {
+    "mtime": 1778280642.0336678,
+    "hash": "4875d9ce7893cfdab900f8c7d8e410c4"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\services\\certificate\\verifier.py": {
+    "mtime": 1778280642.0346727,
+    "hash": "eeb974aa605cf5bf7d761e4ea335bbc2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\services\\compliance\\audit_log.py": {
+    "mtime": 1778295770.0905867,
+    "hash": "ea1246b5d042b1539a7b8dba24739447"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\services\\compliance\\models.py": {
+    "mtime": 1778287402.1463208,
+    "hash": "7cd2ebc5d667d5868ebb8fa0eb73381a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\services\\extractor\\claim_extractor.py": {
+    "mtime": 1778010048.4146576,
+    "hash": "259453ba9ab378af5cbdf859248c45a5"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\services\\orchestrator\\cascade.py": {
+    "mtime": 1778010048.4146576,
+    "hash": "938d21e1392d9d780892751d19de70a4"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\services\\trust\\trust_engine.py": {
+    "mtime": 1778022652.4734132,
+    "hash": "06bf576c189b325828569c162bb4d72e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\skills\\panic_button.py": {
+    "mtime": 1777886067.1069279,
+    "hash": "8798be0824dd6b331aa17c1c548ca14d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tests\\test_async_queue_integration.py": {
+    "mtime": 1777885103.2008533,
+    "hash": "917e025b1d1b49379ba328012493ea16"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\bootstrap.py": {
+    "mtime": 1777343251.3141286,
+    "hash": "fd68f44223c2401678e138bbcb32e829"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\check_api_purity.py": {
+    "mtime": 1776896906.8230965,
+    "hash": "9ee35f1123a9297035d7f6b4acaabfea"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gate.py": {
+    "mtime": 1776883765.0736575,
+    "hash": "8cfb7eaab2dfee5c3a9d21a8c0d5181b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_graph.py": {
+    "mtime": 1777926069.9584186,
+    "hash": "eca4333a152335b2eaafe329c98f56b8"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\env_bootstrap.py": {
+    "mtime": 1776886763.7423642,
+    "hash": "2baa6e9fdbd8dff62f8dd8d4251818f1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\registry.py": {
+    "mtime": 1776793408.775841,
+    "hash": "8426ed73fbb2339f0a9d5be3088a935c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\run_ci.py": {
+    "mtime": 1777926069.9584186,
+    "hash": "6c66a4c06470a126e27ca92372c22963"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\update_runpod.py": {
+    "mtime": 1776883765.1270876,
+    "hash": "d29086173727b4741c997b1d536536d8"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\__init__.py": {
+    "mtime": 1776883765.0630052,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci\\apply_fix.py": {
+    "mtime": 1776950256.3793986,
+    "hash": "08b3a19c8f69e00bc2d7860584066b72"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci\\cache.py": {
+    "mtime": 1777384126.1726997,
+    "hash": "cc5199b558bf0e2485813b6cfca3cd40"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci\\dag.py": {
+    "mtime": 1776950256.0669866,
+    "hash": "7566ea8bd894ffb9807130b685535c74"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci\\detect_changes.py": {
+    "mtime": 1777365095.226928,
+    "hash": "0e1f76fc2cb967c95834050d39839162"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci\\diagnose.py": {
+    "mtime": 1776950534.9693506,
+    "hash": "138b8c9829405945d681943e6f2370f6"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci\\diff_engine.py": {
+    "mtime": 1776950504.1220832,
+    "hash": "2d7620f102273c7b3edd970bc4f00674"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci\\executor.py": {
+    "mtime": 1777912032.7804205,
+    "hash": "31945dea1d09c0c26ac6e1636c031c47"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci\\fix_engine.py": {
+    "mtime": 1777912032.801864,
+    "hash": "62ecf3cc8400c26ea783f26956a1212c"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci\\root_cause.py": {
+    "mtime": 1776950256.3753831,
+    "hash": "c4a4b60a7ded79328877c2c4a5c24d33"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\check_dependency_usage.py": {
+    "mtime": 1777915049.5751185,
+    "hash": "994578d3fce7f39ed73edf515188bf15"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\check_import_boundaries.py": {
+    "mtime": 1777915077.4626307,
+    "hash": "7eec16bb87ba85267f74b512bde0311d"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\check_lock_sync.py": {
+    "mtime": 1777917897.7324467,
+    "hash": "3bfebeac9ae861cc236ea87cd687e058"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\check_module_graph.py": {
+    "mtime": 1777915077.465169,
+    "hash": "194c8fb140b85ef6d804335a772deb1a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\compiler.py": {
+    "mtime": 1777915077.4661834,
+    "hash": "c523323ac926ac9029f55e19b4ce8d66"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\dag_compiler.py": {
+    "mtime": 1776883765.075666,
+    "hash": "87f632bc9da7e61ff1e784f9b33cf155"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\dag_validator.py": {
+    "mtime": 1776948742.6220996,
+    "hash": "0e707fe2f54356f6d51148aa3f98bf20"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\dependency_integrity.py": {
+    "mtime": 1777362932.5884817,
+    "hash": "f72ebbcbf6ab56839d9da86eb2fd5656"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\dependency_scan.py": {
+    "mtime": 1777911800.5087254,
+    "hash": "3bf07a25c381e02a433ff2fba396461e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\detect_changed_modules.py": {
+    "mtime": 1777338498.2578676,
+    "hash": "173b35e5ea4ff6df5faf318ce8859bfb"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\expand_ci_scope.py": {
+    "mtime": 1777384126.1726997,
+    "hash": "0e41a8b71de3ce7decee2b209b46b02e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\import_guard.py": {
+    "mtime": 1777343251.5807624,
+    "hash": "c9d46a7d942d29b824c5a58b731d1597"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\kernel_capability_check.py": {
+    "mtime": 1777343251.5919983,
+    "hash": "957e1c6e1bf31578d74be45ba6acf21b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\runtime_contract.py": {
+    "mtime": 1776883765.0808756,
+    "hash": "fb8bf74ff9916818df104c135af4b33a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\runtime_isolation.py": {
+    "mtime": 1776920716.726473,
+    "hash": "b0f835d768d598bf74d1bd7fa173a436"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\system_contract.py": {
+    "mtime": 1776948742.6266313,
+    "hash": "6df8e887e13fa736ac16f5d3c3118040"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\worker_isolation.py": {
+    "mtime": 1776883765.0844646,
+    "hash": "9e23ff6b91bfaf84cbb454fcf983457e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_gates\\__init__.py": {
+    "mtime": 1776883765.0746691,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_steps\\api.py": {
+    "mtime": 1777926742.8993263,
+    "hash": "6d418ecfbdb40a82f635067d01f4383a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_steps\\boundaries.py": {
+    "mtime": 1777926696.3763971,
+    "hash": "658c07b2d3b0ff6ee74891081c2e1c9b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_steps\\deps.py": {
+    "mtime": 1777384115.699689,
+    "hash": "ce3cfe5e3d7a662925aa9ab8f1395b06"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_steps\\format.py": {
+    "mtime": 1777384115.699689,
+    "hash": "14a8bc767be25af6081891ad82dc2a98"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_steps\\lint.py": {
+    "mtime": 1777959267.3549194,
+    "hash": "e255978ecb5907e70b17e282f7db3ec2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_steps\\lockfile.py": {
+    "mtime": 1777926696.3763971,
+    "hash": "e69abbfc470b183a4e99395e1ce2a2e1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_steps\\pruning.py": {
+    "mtime": 1777926696.3763971,
+    "hash": "c6798f237fd74ccaafad078658e943bf"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_steps\\__init__.py": {
+    "mtime": 1777926069.9584186,
+    "hash": "89eadfdbb835d4bdcc57bbe9e3a8b536"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\compiler\\ast_normalizer.py": {
+    "mtime": 1776950256.077034,
+    "hash": "cb888f591ae2d32f3893b804ab115e95"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\deps\\compile_deps.py": {
+    "mtime": 1776883765.0869806,
+    "hash": "c192ffca1df86580dc57483ef2201f3f"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\deps\\fingerprint.py": {
+    "mtime": 1776883765.0889826,
+    "hash": "f52ff13234036efa86bcf4f47bb6654a"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\deps\\hermetic_lock.py": {
+    "mtime": 1776883765.0899978,
+    "hash": "2b850e7f8462cf9ce737fcb75a463409"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\deps\\lock.py": {
+    "mtime": 1776883765.0909908,
+    "hash": "edfd97e7e54db99e9ec4440685ce02c3"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\deps\\self_heal_deps.py": {
+    "mtime": 1776948742.63037,
+    "hash": "6d9502374fd2854a3e24929d38b0baa2"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\deps\\verify_fingerprint.py": {
+    "mtime": 1776948742.6324346,
+    "hash": "0306b8b00899cdcb8496c359bb5711e8"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\deps\\__init__.py": {
+    "mtime": 1776883765.0859714,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\worker\\entry.py": {
+    "mtime": 1776883765.0427167,
+    "hash": "5066f423d5bb555be71a1fe31e8878fd"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\worker\\kernel.py": {
+    "mtime": 1776883765.044253,
+    "hash": "85e45809fd87283a0715c957c8083e7b"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\worker\\worker.py": {
+    "mtime": 1777926983.4163852,
+    "hash": "dc373c6ae1cc9127ecbd8c8276f3d8e1"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\worker\\__init__.py": {
+    "mtime": 1777324769.666276,
+    "hash": "66e4ca78acde6147174761abae51c66d"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\migrations\\graphrag_migration.sql": {
+    "mtime": 1778299939.22109,
+    "hash": "878d6d48289b0840bb937354061eede6"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\eslint.config.js": {
+    "mtime": 1776793305.6061876,
+    "hash": "682e219fda4eb4bc41bb837f96a52dcc"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\postcss.config.js": {
+    "mtime": 1776793305.8928034,
+    "hash": "5b84f4567208c7c747079c0477373231"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\tailwind.config.js": {
+    "mtime": 1776793305.9015422,
+    "hash": "0d6daad880f60331671909b4cf831ac9"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\vite.config.ts": {
+    "mtime": 1778028552.069165,
+    "hash": "4f5d58f9ad22f2e773fd925469d08a0a"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\api\\[...path].ts": {
+    "mtime": 1775921075.239721,
+    "hash": "aabd49112ad3a3a578305a81f213d4b2"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\branch-model.ts": {
+    "mtime": 1776793408.944109,
+    "hash": "6ba0262ed47d20664542595767cb6efd"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\build-import-dag.ts": {
+    "mtime": 1776793408.9466286,
+    "hash": "29a2b87c534120e4788c7decc0804bcb"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\build-import-manifest.ts": {
+    "mtime": 1776793408.9502873,
+    "hash": "69514c8af23196fa1dffa8a123f4bede"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\change-classifier.ts": {
+    "mtime": 1776793408.9532907,
+    "hash": "75b033e573dac333a8b16d5edcc0c78b"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\ci-actions.ts": {
+    "mtime": 1776793408.955804,
+    "hash": "369217e452c451e52c854b429107e389"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\ci-state.ts": {
+    "mtime": 1776793408.9588258,
+    "hash": "2054037e1a30ad1bc05974b197be0217"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\hash.ts": {
+    "mtime": 1776793408.9618754,
+    "hash": "c647850aee305502998113ef9852b3f9"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\incremental-dag.ts": {
+    "mtime": 1776793409.003286,
+    "hash": "bc0c94fa065a680e83e2d84c79f8b46f"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\policy-agent.ts": {
+    "mtime": 1776793409.006398,
+    "hash": "21ce6236f0c5a391e64aed3424c6e555"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\policy-store.ts": {
+    "mtime": 1776793409.007399,
+    "hash": "823803212ed857b3597dad00c6e8e1b2"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\policy-update.ts": {
+    "mtime": 1776793409.0099175,
+    "hash": "6f5a4d9e5db8ee55a48f4d0406c762c2"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\prewarm-queue.ts": {
+    "mtime": 1776793409.0154414,
+    "hash": "02c4be2515d37a094e251ac73ad4358e"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\resolve-imports.ts": {
+    "mtime": 1776793409.0186386,
+    "hash": "0508cee559098b583384921b24ba8cc0"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\reward-engine.ts": {
+    "mtime": 1776793409.0231667,
+    "hash": "98bc67f41dbd50a0b878bf2eb39d9f17"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\rl-ci.ts": {
+    "mtime": 1778028552.3921123,
+    "hash": "51ce25c7770a8d4afd9f90f6e0b82db7"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\rl-router.ts": {
+    "mtime": 1776793409.0314465,
+    "hash": "a2d2756b9a6dcd6250864f4e8140e934"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\scripts\\update-policy-runner.ts": {
+    "mtime": 1776793409.0381486,
+    "hash": "cb45719031c579e4f3a4b97dea05812d"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\App.tsx": {
+    "mtime": 1778028553.249721,
+    "hash": "74371bd8516ca10e26fff7dcb6e4bba3"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\main.tsx": {
+    "mtime": 1776793409.7302938,
+    "hash": "fd24e853537490335ebd04564ab628f2"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\vite-env.d.ts": {
+    "mtime": 1776793409.732338,
+    "hash": "8f68c27c3fc38817b2726b20e2d4f1ee"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ActiveSimulations.tsx": {
+    "mtime": 1778028552.4183102,
+    "hash": "af06016e416b589bddf00006304deb88"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\AnimatedMesh.tsx": {
+    "mtime": 1778028552.0932498,
+    "hash": "6d26ffec9ae893188c71c5d95e967c8c"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ConfidenceGraph.tsx": {
+    "mtime": 1778028552.5331032,
+    "hash": "af83783cf27427df49cdfb5a8a1e5bc9"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\CookieConsent.tsx": {
+    "mtime": 1776793409.4211068,
+    "hash": "28d331c0d3725ac3535d34f5d90e3129"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ExperimentForkGraph.tsx": {
+    "mtime": 1778134900.91355,
+    "hash": "c7daf29b7a85266cae881436a1ae7b1b"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\GuidanceEngine.tsx": {
+    "mtime": 1776793409.4246163,
+    "hash": "c91a77e021512f4aaa61c3d438646896"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\JobProgress.tsx": {
+    "mtime": 1778028552.1640155,
+    "hash": "ba296a056f0c850cf13a0d40d4a5f83d"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\MLMonitoringDashboard.tsx": {
+    "mtime": 1778296812.148105,
+    "hash": "4bb17f03cef326604451175d67eef0d9"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\Navigation.tsx": {
+    "mtime": 1776793409.4403012,
+    "hash": "ac5e7ce268132893936735ecca2ff7a9"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\NotebookNavButton.tsx": {
+    "mtime": 1776793409.443843,
+    "hash": "b69f615f246da42b1c74df1d2389711b"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\OperatorConsole.tsx": {
+    "mtime": 1776793409.44794,
+    "hash": "ef5b9241a6244ff289cca5f14a33b681"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\PageLayout.tsx": {
+    "mtime": 1776793409.4514687,
+    "hash": "b68c9b7a96db7b3e8a6efaddad1c6a30"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ReportGenerator.tsx": {
+    "mtime": 1778028553.3174946,
+    "hash": "0ccf04a968985682256394ce40b9253c"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\SensitivityChart.tsx": {
+    "mtime": 1778028552.21568,
+    "hash": "ded1cdf5d5defba0f5840d18561be2b7"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\SimHPCLogo.tsx": {
+    "mtime": 1776793409.461732,
+    "hash": "ae86e9be29efeac849679d76b6cf7571"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\SimProgress.tsx": {
+    "mtime": 1778028551.931492,
+    "hash": "798cdf8bbb75d5bee5215f63e6282cb0"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\SimulationLineage.tsx": {
+    "mtime": 1776793409.4688296,
+    "hash": "106f034941cd54545d70b3a819f600b5"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\SwarmControlPanel.tsx": {
+    "mtime": 1778028553.173513,
+    "hash": "52fd580b6811a31149e76da41033f269"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\TelemetryPanel.tsx": {
+    "mtime": 1776793409.473353,
+    "hash": "f3aaf6386d6c3889778d6f8cc3edd0dc"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ThemeToggle.tsx": {
+    "mtime": 1778028552.5194838,
+    "hash": "40c247cd9428e0fbdc42085de521054b"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\WakeGPU.tsx": {
+    "mtime": 1776793409.4869878,
+    "hash": "6efe9c2f1078e207a9f34446f11953ed"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\WorldStateGraph.tsx": {
+    "mtime": 1778314152.8902535,
+    "hash": "d58eed8ba6bb41f9d2beec520a264d9e"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\admin\\WakeGPU.tsx": {
+    "mtime": 1776793409.0488043,
+    "hash": "cda1a870ee9bd2d69ce68c64e8a9b0bd"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\auth\\ProtectedRoute.tsx": {
+    "mtime": 1778028553.2436528,
+    "hash": "0e683fc867db25340cb893c43e337a0c"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\dashboard\\CreditDashboard.tsx": {
+    "mtime": 1778028552.265396,
+    "hash": "993c3af206f4288103b329d461dfc39c"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\dashboard\\LineageGraph.tsx": {
+    "mtime": 1778028552.2047818,
+    "hash": "6143d7609a08f793852cdcd0b5fbd0fb"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\dashboard\\RiskDashboard.tsx": {
+    "mtime": 1776793409.073072,
+    "hash": "cb19082048467f23633946dce2c6427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\onboarding\\WelcomeOverlay.tsx": {
+    "mtime": 1778028552.1349995,
+    "hash": "2ef7b3b9c8d6e74e9afaa29bdc5696f9"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\accordion.tsx": {
+    "mtime": 1776793409.086099,
+    "hash": "d757b74492c923b2587ac63d23dba787"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\alert-dialog.tsx": {
+    "mtime": 1776793409.0981765,
+    "hash": "bd50820e8ecd2fafb8ed966dbc0ee180"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\alert.tsx": {
+    "mtime": 1776793409.1041815,
+    "hash": "60a1358bb82344b005cea0eca2cbf275"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\aspect-ratio.tsx": {
+    "mtime": 1776793409.1089191,
+    "hash": "dcb189013ec808fefffceed9f15bcc3b"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\avatar.tsx": {
+    "mtime": 1776793409.1137087,
+    "hash": "72fcc511c804fae08573e9c71a2469c6"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\badge.tsx": {
+    "mtime": 1776793409.1193047,
+    "hash": "beee1c5870159cdbd5f3876f499e185a"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\breadcrumb.tsx": {
+    "mtime": 1776793409.12738,
+    "hash": "908958673b534e7ab8af02a47d450bf3"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\button-group.tsx": {
+    "mtime": 1776793409.1324637,
+    "hash": "a2256e299194271a0026118add476a85"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\button.tsx": {
+    "mtime": 1776793409.1376622,
+    "hash": "75c445103e5ed51dc928a0d95e3aa1c2"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\calendar.tsx": {
+    "mtime": 1776793409.1471348,
+    "hash": "1e2af5e139d38b1868487b5a188a6502"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\card.tsx": {
+    "mtime": 1776793409.154232,
+    "hash": "47a29c39097f9e68761c5ef152ace1e6"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\carousel.tsx": {
+    "mtime": 1776793409.1654959,
+    "hash": "d3b2ebb6a95ab5463194cd43e8ba328d"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\chart.tsx": {
+    "mtime": 1776793409.1747186,
+    "hash": "395979db9b962acc8c7678a482bcef89"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\checkbox.tsx": {
+    "mtime": 1776793409.1782408,
+    "hash": "d31f2bfdcb41e378da9ef00f025d0ef4"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\collapsible.tsx": {
+    "mtime": 1776793409.1818068,
+    "hash": "c755b8d085378c06a0465032412ef3ae"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\command.tsx": {
+    "mtime": 1776793409.187385,
+    "hash": "67d9e239c98bddffd9fbb293a0b1c9d2"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\context-menu.tsx": {
+    "mtime": 1776793409.1959727,
+    "hash": "f264628186c9b09dc8f8eabb6a7d02d3"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\dialog.tsx": {
+    "mtime": 1776793409.202168,
+    "hash": "fbd11b97a907b00cc03ceec64216ed99"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\drawer.tsx": {
+    "mtime": 1776793409.2087083,
+    "hash": "d013d8a10c5205e0436e0a0aceeb943e"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\dropdown-menu.tsx": {
+    "mtime": 1776793409.2173276,
+    "hash": "df9908a404c94aead6e7b40e3297290f"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\empty.tsx": {
+    "mtime": 1776793409.2224364,
+    "hash": "f972af182c8cec0e8d907ed5024514cb"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\field.tsx": {
+    "mtime": 1776793409.2289712,
+    "hash": "db74c0e80997bec1b79dbc55763c28e2"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\form.tsx": {
+    "mtime": 1776793409.2348735,
+    "hash": "e64386b85623695f340c84379477869a"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\hover-card.tsx": {
+    "mtime": 1776793409.2379398,
+    "hash": "f681899e530942801ad3d2a98fa868d4"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\input-group.tsx": {
+    "mtime": 1776793409.2429743,
+    "hash": "b95028fb13027010f07e6a8e5a7ca00e"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\input-otp.tsx": {
+    "mtime": 1776793409.247652,
+    "hash": "2294152da9899b197305aa30f0eaabf6"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\input.tsx": {
+    "mtime": 1776793409.250664,
+    "hash": "229513f0e77fbd6da03231cdb66cc50d"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\item.tsx": {
+    "mtime": 1776793409.2576985,
+    "hash": "46994786ad9d7ab94104eed15dea5de0"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\kbd.tsx": {
+    "mtime": 1776793409.2602253,
+    "hash": "1ddd8fc328895065aec377ecdbce4501"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\label.tsx": {
+    "mtime": 1776793409.2650585,
+    "hash": "54182f15eaa11b2f35bc2ff903e2557b"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\menubar.tsx": {
+    "mtime": 1776793409.2738483,
+    "hash": "1da36ffc720c0f485ad6673adcd3c961"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\navigation-menu.tsx": {
+    "mtime": 1776793409.2803538,
+    "hash": "74d588ba6187fb0c5620fcc3e5bfd19a"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\pagination.tsx": {
+    "mtime": 1776793409.2845485,
+    "hash": "d03d976da285f6244e3d7bc103446ebb"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\popover.tsx": {
+    "mtime": 1776793409.2883136,
+    "hash": "6a3f7b8119ecbf80cad8bbe2848266ba"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\progress.tsx": {
+    "mtime": 1776793409.2910495,
+    "hash": "c7f05d11213f703820bc8c7e3f2aaa3c"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\radio-group.tsx": {
+    "mtime": 1776793409.2949288,
+    "hash": "0f087070684fb1f5ca5eb2c1a263ad5f"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\resizable.tsx": {
+    "mtime": 1776793409.2980127,
+    "hash": "dcb2221cce0d520316af8c338f7b2cb1"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\scroll-area.tsx": {
+    "mtime": 1776793409.3025339,
+    "hash": "bcfa838c604a2e1b3cba179c2c174989"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\select.tsx": {
+    "mtime": 1776793409.3085659,
+    "hash": "6c4416d77c676afb5acc184624cddcf1"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\separator.tsx": {
+    "mtime": 1776793409.3126402,
+    "hash": "981488d95a2e21d07ed8acfd3963d7e9"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\sheet.tsx": {
+    "mtime": 1776793409.3178077,
+    "hash": "53c755284f12811724709721db821ade"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\sidebar.tsx": {
+    "mtime": 1776793409.360376,
+    "hash": "b189d5e4b86e7780e3230147f98566cd"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\skeleton.tsx": {
+    "mtime": 1776793409.3634655,
+    "hash": "cbb09a6a9e8a6f87d3bbe20567e22c6e"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\slider.tsx": {
+    "mtime": 1776793409.3655965,
+    "hash": "8e6a6d24014e419c5bdf45bc9ce31c09"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\sonner.tsx": {
+    "mtime": 1776793409.370052,
+    "hash": "289b1a8d68ededefef9007703a48c9a7"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\spinner.tsx": {
+    "mtime": 1776793409.3724997,
+    "hash": "950317316cd2d2c4e49a050348c837cd"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\switch.tsx": {
+    "mtime": 1776793409.3756962,
+    "hash": "881e0aadc25f61839d2e97dd646f3ae3"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\table.tsx": {
+    "mtime": 1776793409.3823352,
+    "hash": "254225709b5cae78c9a128cb102a1628"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\tabs.tsx": {
+    "mtime": 1776793409.3869238,
+    "hash": "c40b57c831b57166ae18690a41e5d5b3"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\textarea.tsx": {
+    "mtime": 1776793409.3904223,
+    "hash": "16e5d792f0aed75752e902fa141a1f18"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\toggle-group.tsx": {
+    "mtime": 1776793409.394485,
+    "hash": "eca6403da6851e05e1ee2ecbd8140518"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\toggle.tsx": {
+    "mtime": 1776793409.398056,
+    "hash": "4867c8649c704e273d66ab406d20a5e5"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\components\\ui\\tooltip.tsx": {
+    "mtime": 1776793409.4025805,
+    "hash": "e39d1875f274764eca8782374c3872cb"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\hooks\\use-mobile.ts": {
+    "mtime": 1776793409.490504,
+    "hash": "654e2ca2e9fddc27eb7e3954900dc48e"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\hooks\\useAuth.tsx": {
+    "mtime": 1778028553.2257776,
+    "hash": "f1801871e81b39cf9859c39e1b1e5682"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\hooks\\useGraphRAGStream.ts": {
+    "mtime": 1778028553.2777815,
+    "hash": "03549513a3f264491b095dea25932412"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\hooks\\useOnboarding.ts": {
+    "mtime": 1776793409.4970915,
+    "hash": "c9e62c9cb348b696fe3276bc3aa313df"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\hooks\\useSimulation.ts": {
+    "mtime": 1778028552.3703716,
+    "hash": "958f3d3af3d0bc7f2e64aee51c55ae31"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\hooks\\useSimulations.ts": {
+    "mtime": 1776793409.5066385,
+    "hash": "7b40235a8787ec01fee221c833be39f5"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\hooks\\useTheme.tsx": {
+    "mtime": 1778028552.437359,
+    "hash": "f65090ce49d78c18387dcb1b65310303"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\lib\\api.ts": {
+    "mtime": 1776793409.515802,
+    "hash": "556d0562fad764554d4d2fd8fa85bf0d"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\lib\\apiClient.ts": {
+    "mtime": 1778296020.8838716,
+    "hash": "13e3e16903078f3bcbb92e1680fef729"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\lib\\contract.ts": {
+    "mtime": 1776793409.5280907,
+    "hash": "11d039c0363f72cbba69e8a2799f3ccd"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\lib\\supabase.ts": {
+    "mtime": 1777949065.6468031,
+    "hash": "47d97127fa4b4b28cca03042e8c862fb"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\lib\\utils.ts": {
+    "mtime": 1778028552.37701,
+    "hash": "44ab59b08e965a8e13c7b0e2f9bb33d2"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\About.tsx": {
+    "mtime": 1776793409.5453532,
+    "hash": "fca98ade2259240f4d15cdaf4da81857"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\AlphaControlRoom.tsx": {
+    "mtime": 1778028551.9723723,
+    "hash": "c00e5a7985d5ffd5378ae70a5d8d2816"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\ApiReference.tsx": {
+    "mtime": 1778028552.5474527,
+    "hash": "f7317437af950b4314201166129d3305"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\Benchmarks.tsx": {
+    "mtime": 1776793409.5600085,
+    "hash": "beb03640a06d26449d0af3031016aa18"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\CCPA.tsx": {
+    "mtime": 1778028552.42438,
+    "hash": "057878a92df266e6cf14a4b07c28cccd"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\Contact.tsx": {
+    "mtime": 1778028552.308695,
+    "hash": "d03f61f9116a740e991617ce4aec9586"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\CookiePolicy.tsx": {
+    "mtime": 1778028551.9692917,
+    "hash": "1f5f1f448034cd32e5f26b71298b2fc4"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\DAGDashboard.tsx": {
+    "mtime": 1778028553.1634402,
+    "hash": "de95d75ed22b004b50e3aba1132ccb44"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\Dashboard.tsx": {
+    "mtime": 1778028552.2104838,
+    "hash": "f0e36183af439020896b6cbc0c04c1d5"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\Docs.tsx": {
+    "mtime": 1778028552.4450414,
+    "hash": "f4d19ea4085a9313f9ef2ef26e43cbc3"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\DPA.tsx": {
+    "mtime": 1776793409.599087,
+    "hash": "0d651361277097a895398fa91cd0768f"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\ExperimentNotebook.tsx": {
+    "mtime": 1776793409.6126943,
+    "hash": "91bb8955dc19cd3da3703027cef021c2"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\index.ts": {
+    "mtime": 1776793409.6157527,
+    "hash": "12e1cb9a30f0099b9bc33231dae23c91"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\Pricing.tsx": {
+    "mtime": 1776793409.6263683,
+    "hash": "03e31353ac00727b8c8bd0a2020e2b48"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\Privacy.tsx": {
+    "mtime": 1776793409.631932,
+    "hash": "7b9ce4862bb7a7c291c1357f3a43db52"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\SignIn.tsx": {
+    "mtime": 1778028551.955878,
+    "hash": "0f02bb6d9743aa82d812d7aaa76a3924"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\SignUp.tsx": {
+    "mtime": 1778028552.4929,
+    "hash": "c4f5195dc7abaa492c52cbbe679b6740"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\Terms.tsx": {
+    "mtime": 1776793409.6511304,
+    "hash": "11f386339a4b90083f848e34167067fc"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\pages\\admin\\AdminAnalyticsPage.tsx": {
+    "mtime": 1778028551.916821,
+    "hash": "025a361e50f19e0da60711d26464f424"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\sections\\Footer.tsx": {
+    "mtime": 1776793409.682086,
+    "hash": "1927892b4dee9b23e3c46aaaafb0aaa3"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\sections\\Hero.tsx": {
+    "mtime": 1778028552.010299,
+    "hash": "4968ea2b83ad083cb1c14ef438f88d56"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\sections\\Pricing.tsx": {
+    "mtime": 1778028552.23662,
+    "hash": "eec6280b0f51afea0cabd3903e46a187"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\sections\\Stack.tsx": {
+    "mtime": 1778028553.1634402,
+    "hash": "342b6740857daf3eb8df4582beb70d2f"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\sections\\ValueDifferentiator.tsx": {
+    "mtime": 1778028553.1236556,
+    "hash": "4623602f7a3e72b5c1d8d0896051d099"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\sections\\WhoItsFor.tsx": {
+    "mtime": 1778028553.2446578,
+    "hash": "4de949f27149446e8591b60de69d14df"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\sections\\dashboard\\ConfigurationPanel.tsx": {
+    "mtime": 1776793409.6627731,
+    "hash": "3a46b32ea67635176cbd1b0a407aaa17"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\sections\\dashboard\\ResultsPanel.tsx": {
+    "mtime": 1776793409.6714432,
+    "hash": "4f57beacdcfe3145b54d0ba7cd6fe979"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\sections\\dashboard\\RunControlPanel.tsx": {
+    "mtime": 1778028552.42438,
+    "hash": "5191a71c9da10b832496c67026de4faa"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\types\\index.ts": {
+    "mtime": 1776793409.715688,
+    "hash": "614dd3afbebed791f562db429ee76dfe"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\types\\simulation.ts": {
+    "mtime": 1776793409.7192676,
+    "hash": "8a4b80c08d6db9b8bb3983459d70d8cf"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\src\\types\\simulations.ts": {
+    "mtime": 1776793409.7224123,
+    "hash": "812cfff92c486680f547d2af902b7d17"
+  },
+  "C:\\Users\\arche\\SimHPC\\scripts\\bootstrap_governance_secrets.py": {
+    "mtime": 1778188367.9141483,
+    "hash": "6c72a779e466ef4bbe74fd431fde6b99"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\rpc.sql": {
+    "mtime": 1778028553.1634402,
+    "hash": "394505345d54f67cb0454f31a0350deb"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\schema.sql": {
+    "mtime": 1778028553.2416348,
+    "hash": "8286d53f92f49cb4617e5267bab03c71"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\functions\\get-fleet-metrics\\index.ts": {
+    "mtime": 1778028552.33681,
+    "hash": "bebcebf5ac7640eb134581d2332856c8"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\functions\\platform-alerts\\index.ts": {
+    "mtime": 1778028552.0973196,
+    "hash": "e22b8913c2ebe0f2e33b3cc3362ae272"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\functions\\trigger-panic-shutdown\\index.ts": {
+    "mtime": 1776793410.034991,
+    "hash": "bcac7223929c9f65277e351f13e2ce5d"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\002_beta_schema_normalization.sql": {
+    "mtime": 1778028552.2621956,
+    "hash": "8fb9df99eeb0551f971bf051524bd0d9"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\003_profiles_table.sql": {
+    "mtime": 1775907259.6946092,
+    "hash": "1f08f23d944f8b8ee6725f614c0d338a"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\004_platform_alerts.sql": {
+    "mtime": 1775907259.6961186,
+    "hash": "a9829701cb82ba63ca28692641bef79d"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\005_engineer_notebook.sql": {
+    "mtime": 1775907259.6967225,
+    "hash": "d8f04505c7318823016d2797531e961b"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\006_engineer_notebook_entries.sql": {
+    "mtime": 1778028552.1795366,
+    "hash": "beffe91a498304478b0b805059919c16"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260406003000_sql_security_hardening.sql": {
+    "mtime": 1778028551.997733,
+    "hash": "be8907bc7f7c44ea233c9502b200e990"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260406040000_core_v2_schema.sql": {
+    "mtime": 1775907259.700255,
+    "hash": "b7fdfab6e62e7111d1036a56c4c13885"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260406040001_onboarding_fix.sql": {
+    "mtime": 1775907259.7012563,
+    "hash": "cd38316373446d78768bc951b89589a6"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260409000000_authority_alignment.sql": {
+    "mtime": 1778028553.300616,
+    "hash": "8f8c71fd21ad0e3f6af9a17007c2f30a"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260412000000_execution_kernel_vnext.sql": {
+    "mtime": 1776005308.8075027,
+    "hash": "b59362f87681c7e5bcef6011a4fd119e"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260420_add_audit_columns.sql": {
+    "mtime": 1776766101.7641382,
+    "hash": "902edcea3f5e97b84ef25e8332e813be"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260420_conformal_backbone.sql": {
+    "mtime": 1776767482.7070925,
+    "hash": "648d0b114f6ecdc6001dcec6e0d5bf6a"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260420_decrement_credits.sql": {
+    "mtime": 1776676874.768229,
+    "hash": "e798269c80be38a24edbd8ff0809ced6"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260420_execution_backbone.sql": {
+    "mtime": 1776766521.6491506,
+    "hash": "16ac5ffa4793a9aa887e754f95b3b884"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260420_feature_store.sql": {
+    "mtime": 1776766221.8684418,
+    "hash": "f2b42891ac544344c7524587a3d81674"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260420_gift_signup_bonus.sql": {
+    "mtime": 1778028552.38206,
+    "hash": "15acb786d8b9f7d1e72d19a0089bfb1c"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260420_lineage_backbone.sql": {
+    "mtime": 1776710755.5344968,
+    "hash": "fc9bc49b9724465983e9caf2f2c51d69"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260420_orchestrator_backbone.sql": {
+    "mtime": 1776766834.970432,
+    "hash": "f99ac2f36dd9b9e6dd56b109b6a34284"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260420_risk_engine_backbone.sql": {
+    "mtime": 1776766972.2711017,
+    "hash": "943968da3730a159b5597e0af7f666be"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260420_walk_forward_backtest.sql": {
+    "mtime": 1776765169.2388089,
+    "hash": "c7543588c5018c58a146cfd23cff3bb8"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260508_causal_consistency.sql": {
+    "mtime": 1778308045.4308195,
+    "hash": "04b091f69524544cd573a2ecfefd05c1"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260508_event_fabric.sql": {
+    "mtime": 1778307566.1005378,
+    "hash": "bd6e2a4a540d17b0d384bde770f1ac48"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260508_temporal_entity_graph.sql": {
+    "mtime": 1778308371.5170102,
+    "hash": "672ddcfdef8c58b113ed9ebf70bc6537"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\20260509_invariant_audit.sql": {
+    "mtime": 1778309172.8095155,
+    "hash": "f6a00737a95f277c648e2c76e9810541"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\heartbeat_history.sql": {
+    "mtime": 1775907259.7027614,
+    "hash": "a35486d84567aa29fe392cd1361ca831"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\onboarding_state.sql": {
+    "mtime": 1778028552.1845815,
+    "hash": "efce2c5617ed4da78d1a5bd61d5a3807"
+  },
+  "C:\\Users\\arche\\SimHPC\\supabase\\migrations\\onboarding_state_update.sql": {
+    "mtime": 1778028552.172483,
+    "hash": "99ab1f71f2888df6533ae9aa0ee87411"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\conftest.py": {
+    "mtime": 1778201250.0113907,
+    "hash": "b775de45578c7270084fe0d43bb0f139"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\fake_job_store.py": {
+    "mtime": 1776883765.0507839,
+    "hash": "764ce66f6bcf280ab5768d920a7e9026"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\test_async_queue_integration.py": {
+    "mtime": 1776883765.0547874,
+    "hash": "912645783d1984d9fed873f9ec431dfd"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\test_boot.py": {
+    "mtime": 1776883765.0557811,
+    "hash": "522731a0e9c756f95e6f9c9b64816e08"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\test_boot_failfast.py": {
+    "mtime": 1776883765.0567772,
+    "hash": "f6a6167b7618dbdd83a7a0591f50e2e4"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\test_dag.py": {
+    "mtime": 1776883765.0584764,
+    "hash": "0a3cdb4002466e8aea9bb8a604498ef7"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\test_dag_placeholder.py": {
+    "mtime": 1776883765.0589926,
+    "hash": "952f6873ddf7585f4aeb0278aea22e96"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\test_failure_paths.py": {
+    "mtime": 1776883765.0600035,
+    "hash": "adc41da66db0d395e4229e7b19e0f0cf"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\test_runtime_placeholder.py": {
+    "mtime": 1776883765.0610063,
+    "hash": "671f3c1c7987bad0d583fce638813d74"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\__init__.py": {
+    "mtime": 1776883765.0497856,
+    "hash": "b391feb4070d91d80843f8ff1c971a99"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\core\\extractor\\test_claim_extractor.py": {
+    "mtime": 1778196935.8819318,
+    "hash": "af779997c857b0a58d7ba67f01d576df"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\core\\physics\\test_physics_engine.py": {
+    "mtime": 1778197982.0448964,
+    "hash": "e365dc364ae85d250722e782f0fbf3f1"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\core\\world_model\\test_world_model.py": {
+    "mtime": 1778197982.0448964,
+    "hash": "b6449d257dd2ef0a472b4c9758f8338f"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\fakes\\fake_queue.py": {
+    "mtime": 1776883765.0527818,
+    "hash": "6cf137b040602eda6601a36183655d92"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\fakes\\fake_worker.py": {
+    "mtime": 1776883765.0537848,
+    "hash": "faefb3d59f8a555875b1c27455c3fa68"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\fakes\\__init__.py": {
+    "mtime": 1776883765.0517812,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\integration\\test_full_gameday.py": {
+    "mtime": 1778198911.6067805,
+    "hash": "933cb13f23c58106467efb159e8030e1"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\integration\\test_swarm_chaos.py": {
+    "mtime": 1778197982.0438974,
+    "hash": "227220e85a670ca35880b2cecc44db16"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\load\\distributed\\locustfile.py": {
+    "mtime": 1778200485.798648,
+    "hash": "1556496631888490e60f61431e171f2d"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\runtime\\test_fallback.py": {
+    "mtime": 1778196055.2740674,
+    "hash": "59c11ffcdb078f429a823a0a2a2d6f9f"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\runtime\\test_speculative_orchestrator.py": {
+    "mtime": 1778196935.8809354,
+    "hash": "d9ed41a8b9da5aa7a59acfab5d6d9bf7"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\trace\\test_trace_determinism.py": {
+    "mtime": 1776883765.0620053,
+    "hash": "da175bfa1b9c699e10a081c22e3dac58"
+  },
+  "C:\\Users\\arche\\SimHPC\\tools\\chaos_postmortem.py": {
+    "mtime": 1778194981.1359634,
+    "hash": "242c3dced7a46d0a01c8cdb30b0499e4"
+  },
+  "C:\\Users\\arche\\SimHPC\\tools\\chaos_test.py": {
+    "mtime": 1778192990.2717144,
+    "hash": "37e1a356ad46cb6ad78a4a5b0a796adc"
+  },
+  "C:\\Users\\arche\\SimHPC\\tools\\gameday_runner.py": {
+    "mtime": 1778195190.0018208,
+    "hash": "07e3498724856ded0ce0be44f3ce884f"
+  },
+  "C:\\Users\\arche\\SimHPC\\tools\\train_ppo.py": {
+    "mtime": 1778213225.740786,
+    "hash": "e53e7a736728cdc01b8ada9a81fc41a0"
+  },
+  "C:\\Users\\arche\\SimHPC\\completed.md": {
+    "mtime": 1778314197.2468581,
+    "hash": "d956c583414d0fd304a851ad7817598d"
+  },
+  "C:\\Users\\arche\\SimHPC\\COMPREHENSIVE_AUDIT.md": {
+    "mtime": 1778028553.3786592,
+    "hash": "1041919b260992e1e10daaee884d8747"
+  },
+  "C:\\Users\\arche\\SimHPC\\docker-compose.yml": {
+    "mtime": 1777887307.4579434,
+    "hash": "0e245bd2d80459c9b7e4fd00229826b1"
+  },
+  "C:\\Users\\arche\\SimHPC\\GUIDE.md": {
+    "mtime": 1776793410.100041,
+    "hash": "00e20a406cc275f35443858ff0c409cb"
+  },
+  "C:\\Users\\arche\\SimHPC\\INFISICAL_SECRETS_TEMPLATE.md": {
+    "mtime": 1778028553.268708,
+    "hash": "7c9c41fe5ea30212593ad768563c4313"
+  },
+  "C:\\Users\\arche\\SimHPC\\LOG.md": {
+    "mtime": 1778314154.1505544,
+    "hash": "84c91d34ca0f5e0e264c8be2d21c9e6a"
+  },
+  "C:\\Users\\arche\\SimHPC\\progress.md": {
+    "mtime": 1778049998.2160783,
+    "hash": "89f629708d68c8f5d329e10c945b0b8a"
+  },
+  "C:\\Users\\arche\\SimHPC\\requirements-dev.txt": {
+    "mtime": 1778025421.2789333,
+    "hash": "bcd6d74faf3cd6f44f5a5a6427e91373"
+  },
+  "C:\\Users\\arche\\SimHPC\\ROADMAP.md": {
+    "mtime": 1776793410.1116433,
+    "hash": "115fd98d6433add75d3b821e46f93974"
+  },
+  "C:\\Users\\arche\\SimHPC\\SYSTEM.md": {
+    "mtime": 1778028552.3311598,
+    "hash": "e09ca48a05871904186ae6846d619c37"
+  },
+  "C:\\Users\\arche\\SimHPC\\test_push.txt": {
+    "mtime": 1778271275.3008454,
+    "hash": "adb715fbf1ebadc24d072e53b1289976"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\requirements-dev.txt": {
+    "mtime": 1778028553.060319,
+    "hash": "a6ff5657664c60d42882c0c137c68238"
+  },
+  "C:\\Users\\arche\\SimHPC\\backend\\tools\\ci_manifest.yml": {
+    "mtime": 1776793408.7723205,
+    "hash": "6c10c69b3ec8558cee5a104accc3ab67"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\monitoring-stack.yaml": {
+    "mtime": 1778124373.4032526,
+    "hash": "de4ccdfa016c729a6ff58e9547ed3b87"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\chaos\\PLAYBOOK.md": {
+    "mtime": 1778193880.1667027,
+    "hash": "cc909dd0e013077a760b98882907ddcd"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\chaos\\experiments\\physics-engine-chaos.yaml": {
+    "mtime": 1778193790.2471015,
+    "hash": "efbc05f0eea8ccddad840d47f92a2584"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\chaos\\experiments\\pod-kill-swarm.yaml": {
+    "mtime": 1778193251.9015594,
+    "hash": "6293e5dfde98061902e8d9f200fa8529"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\chaos\\experiments\\rag-full-suite.yaml": {
+    "mtime": 1778193766.2898564,
+    "hash": "38be391faa4601b21b3ad551225b7610"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\chaos\\experiments\\world-model-stress.yaml": {
+    "mtime": 1778193773.0293448,
+    "hash": "e38579ecf307772423210c701aae01a5"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\chaos\\litmus-experiments\\hybrid-rag-physics.yaml": {
+    "mtime": 1778194853.1471288,
+    "hash": "26047dbc3de7a526e74dbac42815f298"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\grafana\\provisioning\\alerting\\jaeger-alerts.yml": {
+    "mtime": 1778208003.9575863,
+    "hash": "4020d42b69ca7e5911533b9568d411de"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\grafana\\provisioning\\alerting\\mute-timings.yml": {
+    "mtime": 1778202770.4052289,
+    "hash": "a9008c2cd3a9817c74f6af5902f1212f"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\grafana\\provisioning\\alerting\\notification-policies.yml": {
+    "mtime": 1778203359.037824,
+    "hash": "9c1fad86c9eac6b4ed4e6e0b60ea97f7"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\grafana\\provisioning\\dashboards\\simhpc-novelty.yml": {
+    "mtime": 1778273115.1516144,
+    "hash": "8d619028a5b7d49a144411fe15f0b9cb"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\grafana\\provisioning\\dashboards\\simhpc-rl.yaml": {
+    "mtime": 1778215097.7735925,
+    "hash": "cf903204839e1d0cd7a9233106ec4428"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\grafana\\provisioning\\notifiers\\contact-points.yml": {
+    "mtime": 1778202046.156205,
+    "hash": "fbe10f1c6489a66c4b9ff7db1a40edc4"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\grafana\\provisioning\\notifiers\\webhook-contact-point.yml": {
+    "mtime": 1778203325.874782,
+    "hash": "dcae34f3b8c851481ff5ad9f4484b16f"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\Chart.yaml": {
+    "mtime": 1778125171.11357,
+    "hash": "b1bdfcc32ba7af97215f51d512a6d322"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\README.md": {
+    "mtime": 1778122771.0342271,
+    "hash": "58deb1e72bfa154380c24951c05f91c8"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\values.yaml": {
+    "mtime": 1778125171.0059314,
+    "hash": "02d9dc35ac6d489cb3716131ace49b0e"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\templates\\configmap.yaml": {
+    "mtime": 1778122770.9966938,
+    "hash": "f89f70c6aab8febe722352454071f57a"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\templates\\custom-metrics-hpa.yaml": {
+    "mtime": 1778123983.4821098,
+    "hash": "e84e77bdc679794ca661687acb6a60bb"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\templates\\deployment.yaml": {
+    "mtime": 1778122770.9289913,
+    "hash": "096975311caa459630c1fc29a1fcf759"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\templates\\hpa-custom.yaml": {
+    "mtime": 1778124373.3900948,
+    "hash": "92eefce4db5652ef948ea8552ea41636"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\templates\\hpa.yaml": {
+    "mtime": 1778123983.4916396,
+    "hash": "3c0dd5013073d2cb72a03bb9c06b2d6a"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\templates\\ingress.yaml": {
+    "mtime": 1778122770.9396954,
+    "hash": "46929aee4a5b8abdcacf70d745788b18"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\templates\\jaeger.yaml": {
+    "mtime": 1778205842.3548696,
+    "hash": "82dc1decd591d67e4c0a7728ee70c0fa"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\templates\\NOTES.txt": {
+    "mtime": 1778122770.9006314,
+    "hash": "f70529efcc05c44a7797c72793c9b35d"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\templates\\prometheus-adapter.yaml": {
+    "mtime": 1778124373.3877418,
+    "hash": "a1db2ace43f700515968cde823d3dfc1"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\helm\\simhpc\\templates\\service.yaml": {
+    "mtime": 1778122771.0326996,
+    "hash": "afd143f2b07053a013b2270bebf4b316"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\load-testing\\locust-master-deployment.yaml": {
+    "mtime": 1778199155.6075938,
+    "hash": "bbded7b0a071aff87e457a9ac6453bce"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\load-testing\\locust-worker-deployment.yaml": {
+    "mtime": 1778199161.7194836,
+    "hash": "5f95a183589f8336b589879de9cf46e2"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\monitoring\\alerting-rules-jaeger.yml": {
+    "mtime": 1778207988.6395519,
+    "hash": "b786ce2074b5f7fc2bc472ef5fc21436"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\monitoring\\alerting-rules-loki.yml": {
+    "mtime": 1778275530.644382,
+    "hash": "8689a55c9c773085121ea293fe351486"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\monitoring\\alerting-rules-tracing.yml": {
+    "mtime": 1778296459.3964536,
+    "hash": "197031f5469e02815046c75ed6a89e41"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\monitoring\\alerting-rules.yml": {
+    "mtime": 1778200907.0497851,
+    "hash": "9623fad592d133c685c8ef5ccb520395"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\monitoring\\alertmanager-silences.yml": {
+    "mtime": 1778296728.2470105,
+    "hash": "58ac113152a99e0bda552e10ae9d14bf"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\monitoring\\alertmanager.yml": {
+    "mtime": 1778307586.1351528,
+    "hash": "ea6e0cd7ee424fe9638c5afc15f304ca"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\monitoring\\silences.yml": {
+    "mtime": 1778201706.221382,
+    "hash": "5b4152c41d7a20a61c409edeed1d403e"
+  },
+  "C:\\Users\\arche\\SimHPC\\deploy\\prometheus\\alerts.yml": {
+    "mtime": 1778200723.1445978,
+    "hash": "f3eed3d2ff70550af98b2b032a8bb691"
+  },
+  "C:\\Users\\arche\\SimHPC\\docs\\ALPHA_PILOT_GUIDE.txt": {
+    "mtime": 1778028553.1211169,
+    "hash": "e107fbcf7a1845a20e85ec1b8ea158ab"
+  },
+  "C:\\Users\\arche\\SimHPC\\docs\\github-push.md": {
+    "mtime": 1776793408.8500652,
+    "hash": "8b626e6425ac324274cf771d0cb6f693"
+  },
+  "C:\\Users\\arche\\SimHPC\\docs\\QUICK_START.md": {
+    "mtime": 1776793408.8540657,
+    "hash": "14374709581617766412bef10f09e223"
+  },
+  "C:\\Users\\arche\\SimHPC\\docs\\internal\\info.md": {
+    "mtime": 1776793408.8415139,
+    "hash": "d8857bc50dfd25f89eeae0300ea84345"
+  },
+  "C:\\Users\\arche\\SimHPC\\docs\\internal\\sdk\\SDK_GUIDE.md": {
+    "mtime": 1778028552.0352495,
+    "hash": "6ff19a130a37c116069e2cdf8716b6f2"
+  },
+  "C:\\Users\\arche\\SimHPC\\docs\\strategy\\observability_spec.md": {
+    "mtime": 1776922750.0618095,
+    "hash": "a474c6fb98d21b51a393ebb6f6a699dd"
+  },
+  "C:\\Users\\arche\\SimHPC\\docs\\strategy\\The Financials (Slide 10) Lean & Fo.md": {
+    "mtime": 1778028553.2267785,
+    "hash": "6ba31edca152520d997cabeb3d4b4581"
+  },
+  "C:\\Users\\arche\\SimHPC\\docs\\strategy\\build_baseline\\MFEM_BUILD.md": {
+    "mtime": 1776793408.8440259,
+    "hash": "f7e5b684d3fcfde70de6fe7d5fa28838"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\build_log_tsc.txt": {
+    "mtime": 1776793305.551757,
+    "hash": "98096a0a5c1de35c52fb2f943a6b43a6"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\build_output.txt": {
+    "mtime": 1776793305.590932,
+    "hash": "2f8324cc11617c6ab94e7204f1bc089c"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\index.html": {
+    "mtime": 1777931723.9304502,
+    "hash": "25d71ebc4c144c29ccf7896169cd737e"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\info.md": {
+    "mtime": 1776793409.743665,
+    "hash": "02769ee38886b5546562633cf5ba0e4c"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\README.md": {
+    "mtime": 1776793409.9692466,
+    "hash": "1f15b8ece377ba23e819ff7da83aa84d"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\public\\llms.txt": {
+    "mtime": 1776793304.789619,
+    "hash": "d0174ebb473b4d0f77c9446253f5b46e"
+  },
+  "C:\\Users\\arche\\SimHPC\\frontend\\public\\robots.txt": {
+    "mtime": 1776793304.7931454,
+    "hash": "715b7d1a1beb2f0326a7cc2a577d6d75"
+  },
+  "C:\\Users\\arche\\SimHPC\\README\\PROGRESS.md": {
+    "mtime": 1778298340.398195,
+    "hash": "1211215f388b78fa649c729bf67c8cb0"
+  },
+  "C:\\Users\\arche\\SimHPC\\skills\\antigravity\\SKILL.md": {
+    "mtime": 1776793410.0022604,
+    "hash": "e251d302a9496b81ccbafb0c0070f0cb"
+  },
+  "C:\\Users\\arche\\SimHPC\\skills\\backend\\BACKEND_SKILL.md": {
+    "mtime": 1776793410.00678,
+    "hash": "98cd6ad05c7acfcd175fc4ea8849c28d"
+  },
+  "C:\\Users\\arche\\SimHPC\\skills\\deployment\\DEPLOY_SKILLS.md": {
+    "mtime": 1778028553.0949624,
+    "hash": "f58edd5a4d40c4e4951bfb05f2bbe5cb"
+  },
+  "C:\\Users\\arche\\SimHPC\\skills\\frontend\\FRONTEND_SKILL.md": {
+    "mtime": 1776793410.0155754,
+    "hash": "f2ae56910cf6a82d1bce37db42fa28a8"
+  },
+  "C:\\Users\\arche\\SimHPC\\skills\\runpod\\SKILL.md": {
+    "mtime": 1776793410.0227873,
+    "hash": "b6085052443605cc29d5c059b4e4cbff"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\load\\distributed\\docker-compose.yml": {
+    "mtime": 1778199135.4096725,
+    "hash": "5033ae6c53cf6599eef762799b9312e0"
+  },
+  "C:\\Users\\arche\\SimHPC\\tests\\load\\prometheus\\locust-prometheus.yml": {
+    "mtime": 1778199648.6301157,
+    "hash": "897eca7ba9b78af9ddb39b054ec695ac"
+  },
+  "C:\\Users\\arche\\SimHPC\\docs\\assets\\mockups\\simhpc_control_room_mockup_1773699348142.png": {
+    "mtime": 1776793085.9744391,
+    "hash": "d36be87c8c7417530a384e22e59c2e91"
+  }
+}
