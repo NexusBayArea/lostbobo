@@ -1,0 +1,23 @@
+{
+  "version": "4",
+  "status": "{{ .Status }}",
+  "alerts": [
+    {{- range .Alerts }}
+    {
+      "status": "{{ .Status }}",
+      "labels": {{ .Labels | toJson }},
+      "annotations": {{ .Annotations | toJson }},
+      "startsAt": "{{ .StartsAt }}",
+      "endsAt": "{{ .EndsAt }}",
+      "generatorURL": "{{ .GeneratorURL }}",
+      "fingerprint": "{{ .Fingerprint }}"
+    }{{ if not (last .) }},{{ end }}
+    {{- end }}
+  ],
+  "groupLabels": {{ .GroupLabels | toJson }},
+  "commonLabels": {{ .CommonLabels | toJson }},
+  "commonAnnotations": {{ .CommonAnnotations | toJson }},
+  "externalURL": "{{ .ExternalURL }}",
+  "receiver": "{{ .Receiver }}",
+  "truncatedAlerts": {{ .TruncatedAlerts }}
+}

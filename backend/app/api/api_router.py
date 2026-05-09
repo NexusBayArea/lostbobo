@@ -17,6 +17,7 @@ from backend.app.api.routes.memory import router as memory_router
 from backend.app.api.routes.observational import router as observational_router
 from backend.app.api.routes.skills import router as skill_router
 from backend.app.api.swarm import swarm_router
+from backend.app.api.webhooks.alerts import router as webhook_router
 from backend.app.api.world_routes import router as world_router
 from backend.core.services.beam_orchestrator_service import router as orchestrator_router
 from backend.runtime.grid.api import router as grid_router
@@ -46,3 +47,4 @@ api_router.include_router(swarm_api_router, prefix="", tags=["SwarmAPI"])
 api_router.include_router(grid_router, prefix="", tags=["ExperimentGrid"])
 api_router.include_router(discovery_router, prefix="/api/v1", tags=["DiscoveryGraph"])
 api_router.include_router(ml_router, prefix="/api/v1/ml", tags=["ML"])
+api_router.include_router(webhook_router, prefix="/api/v1", tags=["AlertWebhooks"])

@@ -1,15 +1,11 @@
 global:
   resolve_timeout: 5m
 
-templates:
-  - '/etc/alertmanager/templates/*.tmpl'
-
 route:
   group_by: ['alertname', 'severity', 'category']
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 4h
-
   receiver: 'default'
 
   routes:
@@ -17,18 +13,11 @@ route:
         - severity = "critical"
         - category = "ml"
       receiver: 'ml-critical'
-      group_interval: 2m
 
     - matchers:
         - severity = "critical"
         - category =~ "compliance|security|audit"
       receiver: 'compliance-critical'
-      group_interval: 1m
-
-    - matchers:
-        - severity = "warning"
-        - category = "ml"
-      receiver: 'ml-warning'
 
     - matchers:
         - severity = "warning"
@@ -38,14 +27,18 @@ receivers:
   - name: 'default'
     webhook_configs:
       - url: 'https://hooks.simhpc.com/alerts/default'
+        send_resolved: true
 
   - name: 'ml-critical'
     webhook_configs:
       - url: 'https://hooks.simhpc.com/alerts/ml-critical'
         send_resolved: true
+        http_config:
+          basic_auth:
+            username: 'simhpc'
+            password_file: '/etc/alertmanager/ml-webhook-secret'
     email_configs:
       - to: 'ml-team@simhpc.com'
-        send_resolved: true
 
   - name: 'compliance-critical'
     webhook_configs:
@@ -53,15 +46,8 @@ receivers:
         send_resolved: true
     email_configs:
       - to: 'compliance@simhpc.com,isso@simhpc.com'
-        send_resolved: true
     pagerduty_configs:
-      - routing_key: '<your-pagerduty-integration-key>'
-        send_resolved: true
-
-  - name: 'ml-warning'
-    webhook_configs:
-      - url: 'https://hooks.simhpc.com/alerts/ml-warning'
-        send_resolved: true
+      - routing_key_file: '/etc/alertmanager/pagerduty-key'
 
   - name: 'team-warning'
     webhook_configs:
