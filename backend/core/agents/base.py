@@ -1,27 +1,15 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Any
 from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
-from backend.core.probability.prediction import Prediction
-
-
-class Observation(BaseModel):
-    timestamp: datetime
-    source: str
-    payload: dict[str, Any]
-    provenance: list[str] = Field(default_factory=list)
-
-
-class Action(BaseModel):
-    action_type: str
-    payload: dict[str, Any]
-    confidence: float = 1.0
-    predicted_impact: Prediction | None = None
+from backend.core.agents.contracts.actions import Action
+from backend.core.agents.contracts.forecasts import ForecastRequest, ForecastResponse
+from backend.core.agents.contracts.observations import Observation
+from backend.core.agents.contracts.reasoning import ReasoningTrace
 
 
 class EvaluationResult(BaseModel):
@@ -44,20 +32,20 @@ class BaseAgent(ABC):
 
     @abstractmethod
     async def observe(self, observation: Observation) -> None:
-        """Receive world state changes / events."""
+        """Receive standardized observations."""
 
     @abstractmethod
-    async def reason(self) -> dict[str, Any]:
-        """Internal reasoning step — returns structured thoughts."""
+    async def reason(self) -> list[ReasoningTrace]:
+        """Produce auditable reasoning trace."""
 
     @abstractmethod
-    async def forecast(self) -> Prediction:
-        """Produce a calibrated Prediction object."""
+    async def forecast(self, request: ForecastRequest | None = None) -> ForecastResponse:
+        """Return structured forecast using Prediction object."""
 
     @abstractmethod
     async def act(self) -> Action | None:
-        """Decide on and return an action (optional)."""
+        """Emit standardized actions (routed through runtime)."""
 
     @abstractmethod
-    async def evaluate(self, outcome: Any) -> EvaluationResult:
-        """Self-evaluate after outcome is known."""
+    async def evaluate(self, outcome: Any, ground_truth: Any | None = None) -> EvaluationResult:
+        """Self-evaluation using proper scoring rules."""
