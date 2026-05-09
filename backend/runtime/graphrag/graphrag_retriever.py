@@ -9,6 +9,8 @@ import time
 from dataclasses import dataclass
 
 from backend.app.core.supabase import get_supabase_client
+from backend.core.services.observability_service import observability
+from backend.core.services.tracing import tracer
 from backend.runtime.cache import get_redis
 
 log = logging.getLogger(__name__)
@@ -141,40 +143,54 @@ class GraphRAGRetriever:
         hops_val = hops or self.hops
         k = final_k or self.final_k
 
-        embedding = await self._embed(query)
-        seed_chunks = await self._vector_search(embedding, category)
+        obs = observability()
+        obs.increment("graphrag_retrievals_total", {"category": category or "general"})
 
-        if not seed_chunks:
-            log.warning("GraphRAG: no seed chunks for query='%s'", query[:60])
+        with tracer.start_as_current_span(
+            "graphrag.retrieve",
+            attributes={
+                "question_id": question_id,
+                "category": category or "all",
+                "hops": hops_val,
+            },
+        ):
+            embedding = await self._embed(query)
+            seed_chunks = await self._vector_search(embedding, category)
+
+            if not seed_chunks:
+                log.warning("GraphRAG: no seed chunks for query='%s'", query[:60])
+                return GraphRAGContext(
+                    question_id=question_id,
+                    query=query,
+                    chunks=[],
+                    entity_ids=[],
+                    edge_paths=[],
+                    retrieval_ms=(time.time() - t0) * 1000,
+                )
+
+            seed_entity_ids = await self._get_entity_ids_for_chunks([c["chunk_id"] for c in seed_chunks])
+            expanded_chunks, edge_paths = await self._graph_expand(
+                seed_entity_ids=seed_entity_ids,
+                seed_chunk_ids={c["chunk_id"] for c in seed_chunks},
+                hops=hops_val,
+            )
+
+            all_chunks = _merge_chunks(seed_chunks, expanded_chunks)
+            ranked = _rerank(all_chunks)[:k]
+
+            all_entity_ids = list({eid for c in ranked for eid in c.entity_ids})
+
+            obs.gauge("graphrag_hops_used", hops_val)
+            obs.gauge("graphrag_chunks_retrieved", len(ranked))
+
             return GraphRAGContext(
                 question_id=question_id,
                 query=query,
-                chunks=[],
-                entity_ids=[],
-                edge_paths=[],
-                retrieval_ms=(time.time() - t0) * 1000,
+                chunks=ranked,
+                entity_ids=all_entity_ids,
+                edge_paths=edge_paths,
+                retrieval_ms=round((time.time() - t0) * 1000, 1),
             )
-
-        seed_entity_ids = await self._get_entity_ids_for_chunks([c["chunk_id"] for c in seed_chunks])
-        expanded_chunks, edge_paths = await self._graph_expand(
-            seed_entity_ids=seed_entity_ids,
-            seed_chunk_ids={c["chunk_id"] for c in seed_chunks},
-            hops=hops_val,
-        )
-
-        all_chunks = _merge_chunks(seed_chunks, expanded_chunks)
-        ranked = _rerank(all_chunks)[:k]
-
-        all_entity_ids = list({eid for c in ranked for eid in c.entity_ids})
-
-        return GraphRAGContext(
-            question_id=question_id,
-            query=query,
-            chunks=ranked,
-            entity_ids=all_entity_ids,
-            edge_paths=edge_paths,
-            retrieval_ms=round((time.time() - t0) * 1000, 1),
-        )
 
     async def _embed(self, text: str) -> list[float]:
         cache_key = "embed:" + hashlib.sha256(text.encode()).hexdigest()[:16]
