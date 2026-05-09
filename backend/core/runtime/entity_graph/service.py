@@ -67,7 +67,54 @@ class EntityGraphService:
         edges = self._edges[: max_nodes * 2]
         return {
             "nodes": [n.model_dump() for n in nodes],
+            "nodes_map": {n.entity_id: n.model_dump() for n in nodes},
             "edges": [e.model_dump() for e in edges],
             "total_nodes": len(self._nodes),
             "total_edges": len(self._edges),
         }
+
+    async def get_world_state_graph(self) -> dict[str, Any]:
+        """Unified view: merges live WorldState + temporal Entity Graph."""
+        import time
+
+        from backend.core.services.observability_service import observability
+        from backend.core.tracing import trace_context
+
+        with trace_context("core_graph.world_state") as span:
+            obs = observability()
+            obs.increment("core_graph_requests_total")
+
+            state = await StateRegistryService.registry().get_current()
+            graph = await self.get_graph_snapshot(max_nodes=500)
+
+            # Merge WorldState entities into graph nodes
+            for key, ent in state.entities.items():
+                if key in graph["nodes_map"]:
+                    node = graph["nodes_map"][key]
+                    node.update(
+                        {
+                            "value": ent.value,
+                            "uncertainty": ent.uncertainty,
+                            "last_updated": ent.last_updated,
+                            "regime": state.regime,
+                        }
+                    )
+
+            result = {
+                "nodes": list(graph["nodes_map"].values()),
+                "edges": graph["edges"],
+                "state": {
+                    "timestamp": state.timestamp,
+                    "regime": state.regime,
+                    "entropy": sum(e.uncertainty for e in state.entities.values()),
+                    "total_entities": len(state.entities),
+                },
+                "generated_at": time.time(),
+            }
+
+            span.set_attribute("node_count", len(result["nodes"]))
+            return result
+
+    async def core_graph_snapshot(self) -> dict[str, Any]:
+        """Minimal high-performance snapshot optimized for UI consumption."""
+        return await self.get_world_state_graph()
