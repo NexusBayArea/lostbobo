@@ -60,4 +60,28 @@ class CommandBus:
 
             evt = SimHPCEvent.model_validate(payload["event"])
             return await StateRegistryService.registry().mutate(evt)
+        if cmd_type == "TEMPORAL_PROPAGATE":
+            from backend.core.runtime.temporal.engine import temporal_engine
+
+            return await temporal_engine().propagate(payload["state"], payload["event"])
+        if cmd_type == "ENTITY_GRAPH_ADD_EDGE":
+            from backend.core.runtime.entity_graph.schema import RelationshipEdge
+            from backend.core.runtime.entity_graph.service import EntityGraphService
+            from backend.core.runtime.event_fabric.schema import SimHPCEvent
+
+            edge = RelationshipEdge.model_validate(payload["edge"])
+            event = SimHPCEvent.model_validate(payload["event"])
+            return await EntityGraphService.graph().add_edge(edge, event)
+        if cmd_type == "ENTITY_GRAPH_TRAVERSE":
+            from backend.core.runtime.entity_graph.service import EntityGraphService
+
+            return await EntityGraphService.graph().traverse(
+                start_id=payload["start_id"],
+                max_hops=payload.get("max_hops", 3),
+            )
+        if cmd_type == "PLUGIN_REGISTERED":
+            from backend.core.services.observability_service import observability
+
+            observability().increment("plugins_registered_total")
+            return {"status": "registered", "plugin": payload.get("plugin_name")}
         raise ValueError(f"Unknown command type: {cmd_type}")
