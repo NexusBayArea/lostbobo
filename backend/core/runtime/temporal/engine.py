@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class RegimeDetector:
-    def detect(self, state: "WorldState") -> str:
+    def detect(self, state: WorldState) -> str:
         if not state.entities:
             return "normal"
         uncertainties = [e.uncertainty for e in state.entities.values()]
@@ -34,10 +34,10 @@ class TemporalEngine:
         return cls._instance
 
     @classmethod
-    def temporal(cls) -> "TemporalEngine":
+    def temporal(cls) -> TemporalEngine:
         return cls()
 
-    async def propagate(self, state: "WorldState", event: "SimHPCEvent") -> "WorldState":
+    async def propagate(self, state: WorldState, event: SimHPCEvent) -> WorldState:
         from backend.core.services.observability_service import observability
         from backend.core.services.tracing import tracer
 
@@ -76,9 +76,7 @@ class TemporalEngine:
             )
             return new_state
 
-    async def _propagate_uncertainty(
-        self, state: "WorldState", event: "SimHPCEvent"
-    ) -> "WorldState":
+    async def _propagate_uncertainty(self, state: WorldState, event: SimHPCEvent) -> WorldState:
         from backend.core.world_model.service import world_model_service
 
         try:

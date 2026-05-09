@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 from collections.abc import Callable
 from typing import TYPE_CHECKING
 
@@ -22,7 +21,7 @@ class InvariantRegistry:
         return cls._instance
 
     @classmethod
-    def invariants(cls) -> "InvariantRegistry":
+    def invariants(cls) -> InvariantRegistry:
         return cls()
 
     def _register_core_invariants(self) -> None:
@@ -38,9 +37,10 @@ class InvariantRegistry:
     def register(self, invariant: Callable) -> None:
         self._invariants.append(invariant)
 
-    async def enforce(self, state: "WorldState", event: "SimHPCEvent") -> bool:
+    async def enforce(self, state: WorldState, event: SimHPCEvent) -> bool:
         from backend.core.runtime.event_fabric.log import EventLogService
-        from backend.core.runtime.event_fabric.schema import EventPriority, SimHPCEvent as Evt
+        from backend.core.runtime.event_fabric.schema import EventPriority
+        from backend.core.runtime.event_fabric.schema import SimHPCEvent as Evt
         from backend.core.services.observability_service import observability
 
         violations: list[str] = []
@@ -67,47 +67,31 @@ class InvariantRegistry:
             return False
         return True
 
-    async def _conservation_of_probability(
-        self, state: "WorldState", event: "SimHPCEvent"
-    ) -> bool:
+    async def _conservation_of_probability(self, state: WorldState, event: SimHPCEvent) -> bool:
         return True
 
-    async def _causal_consistency(
-        self, state: "WorldState", event: "SimHPCEvent"
-    ) -> bool:
+    async def _causal_consistency(self, state: WorldState, event: SimHPCEvent) -> bool:
         return event.vector_clock is not None
 
-    async def _trace_id_preservation(
-        self, state: "WorldState", event: "SimHPCEvent"
-    ) -> bool:
+    async def _trace_id_preservation(self, state: WorldState, event: SimHPCEvent) -> bool:
         payload = event.payload or {}
         return "trace_id" in payload or "traceparent" in payload
 
-    async def _supabase_consistency(
-        self, state: "WorldState", event: "SimHPCEvent"
-    ) -> bool:
+    async def _supabase_consistency(self, state: WorldState, event: SimHPCEvent) -> bool:
         return True
 
-    async def _provenance_integrity(
-        self, state: "WorldState", event: "SimHPCEvent"
-    ) -> bool:
+    async def _provenance_integrity(self, state: WorldState, event: SimHPCEvent) -> bool:
         return bool(event.provenance_hash)
 
-    async def _uncertainty_bounds(
-        self, state: "WorldState", event: "SimHPCEvent"
-    ) -> bool:
+    async def _uncertainty_bounds(self, state: WorldState, event: SimHPCEvent) -> bool:
         for ent in state.entities.values():
             if not (0.0 <= ent.uncertainty <= 1.0):
                 return False
         return True
 
-    async def _entity_key_uniqueness(
-        self, state: "WorldState", event: "SimHPCEvent"
-    ) -> bool:
+    async def _entity_key_uniqueness(self, state: WorldState, event: SimHPCEvent) -> bool:
         keys = list(state.entities.keys())
         return len(keys) == len(set(keys))
 
-    async def _temporal_monotonicity(
-        self, state: "WorldState", event: "SimHPCEvent"
-    ) -> bool:
+    async def _temporal_monotonicity(self, state: WorldState, event: SimHPCEvent) -> bool:
         return event.timestamp >= state.timestamp
