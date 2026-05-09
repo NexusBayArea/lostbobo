@@ -162,7 +162,7 @@ class ExampleConstructor:
 
         param_lines = []
         for k, v in list(params.items())[:10]:
-            if isinstance(v, (int, float)):
+            if isinstance(v, int | float):
                 param_lines.append(f"  - **{k}:** {v:.6g} (nominal)")
 
         completion = (
@@ -252,7 +252,7 @@ class ExampleConstructor:
         if len(sensitivity) < 2 or not params:
             return None
 
-        param_list = "\n".join(f"  - {k}: {v:.6g}" for k, v in list(params.items())[:8] if isinstance(v, (int, float)))
+        param_list = "\n".join(            f"  - {k}: {v:.6g}" for k, v in list(params.items())[:8] if isinstance(v, int | float))
 
         user_prompt = (
             f"I ran a sensitivity analysis on my {domain} simulation. "
