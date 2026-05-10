@@ -68,7 +68,7 @@ class ProbabilityEngine:
 
         combined = self._bmc.aggregate(agent_predictions)
 
-        uncertainty = self._compute_regime_uncertainty(
+        uncertainty, breakdown = self._compute_regime_uncertainty(
             combined.get("probability", 0.5),
             combined.get("disagreement", 0.0),
             regime,
@@ -93,10 +93,11 @@ class ProbabilityEngine:
             ]
             + [Provenance(source="bmc_ensemble", weight=1.0)],
             metadata={
-                "engine_version": "v2_regime_bmc",
-                "disagreement": combined.get("disagreement", 0.0),
+                "engine_version": "v2_simplified_uncertainty",
+                "disagreement": breakdown["disagreement"],
                 "graph_hops": graph_context.get("hop_count", 0),
-                "signal_count": len(decayed_signals),
+                "regime": regime,
+                "uncertainty_breakdown": breakdown,
             },
         )
 
@@ -125,17 +126,27 @@ class ProbabilityEngine:
         disagreement: float,
         regime: str,
         graph_context: dict[str, Any],
-    ) -> float:
-        base = 0.15
-        regime_multiplier = {"normal": 1.0, "panic": 1.8, "disruption": 2.2}.get(
-            regime, 1.5
+    ) -> tuple[float, dict[str, Any]]:
+        base = 0.12
+        disagreement_factor = disagreement * 0.45
+        graph_hops = graph_context.get("hop_count", 0)
+        complexity_factor = min(0.18, graph_hops * 0.04)
+        regime_multiplier = {"normal": 1.0, "panic": 1.65, "disruption": 2.1}.get(
+            regime, 1.4
         )
-        disagreement_factor = disagreement * 0.6
-        graph_factor = min(0.25, graph_context.get("hop_count", 0) * 0.03)
 
-        return min(
-            0.65, (base + disagreement_factor + graph_factor) * regime_multiplier
-        )
+        uncertainty = (
+            base + disagreement_factor + complexity_factor
+        ) * regime_multiplier
+        uncertainty = max(0.15, min(0.68, uncertainty))
+
+        breakdown = {
+            "base": base,
+            "disagreement": disagreement_factor,
+            "complexity": complexity_factor,
+            "regime_mult": regime_multiplier,
+        }
+        return uncertainty, breakdown
 
 
 probability_engine = ProbabilityEngine()
