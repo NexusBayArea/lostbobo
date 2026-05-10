@@ -681,3 +681,12 @@
 - **dynamic_pack()** wrapper: selection + pack + outcome recording in one call.
 - **Performance summary:** `get_performance_summary()` exposes per-heuristic metrics for observability.
 - **Git:** Committed and pushed to main.
+
+### ML Intelligence Layer — Hardware Moat Prediction and Anomaly Detection
+- **HardwareMLModels** (`backend/core/hardware/ml_integration.py`): Singleton ML orchestration — demand forecasting, anomaly detection, packing efficiency prediction, RL policy suggestions.
+- **predict_demand():** Horizon-aware demand per pool class (shared/dedicated/isolated).
+- **detect_anomalies():** GPU temp (>85C) and utilization (>95%) threshold detection on node telemetry.
+- **predict_packing_efficiency():** Utilization + fit score for bin packing quality.
+- **suggest_scheduling_action():** State-driven recommendations — PROVISION_ISOLATED, EXPAND_WARM_POOL, OPTIMIZE_PACKING, MAINTAIN.
+- **proactively_provision_isolated():** Defense-tier warm pool expansion on predicted demand.
+- **Git:** Committed and pushed to main.
