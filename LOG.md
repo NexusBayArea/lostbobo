@@ -650,3 +650,14 @@
 - **API Routes** (`backend/app/api/hardware.py`): `/api/v1/hardware/schedule`, `/providers`, `/sla/{tenant_id}`, `/sla/tiers`, `/sla/breach`, `/sla/credits/{tenant}`, `/reservations/{tenant}`, `/reservations`, `/cost/arbitrage`, `/capacity`. Registered in `api_router.py`.
 - **Observability:** `hardware_scheduling_total`, `sla_breaches_total`, `itar_scheduling_attempts`, `capacity_utilization_pct` metrics via existing observability layer.
 - **Git:** Committed and pushed to main.
+
+## May 9, 2026 [07:00 PM]
+
+### Governed Execution Reserve — Warm Pools Layer
+- **WarmPoolManager** (`backend/core/hardware/pools.py`): Governed execution reserve layer with `ExecutionCapacity` model (6 pool classes: shared/dedicated/isolated/low_cost/realtime/high_memory). Full reserve/release lifecycle — `WARM_IDLE | RESERVED | RUNNING | DRAINING`. SLA-aware warm slot lookup with ITAR enforcement.
+- **EconomicsEngine** (`backend/core/hardware/economics.py`): Margin and cost optimization — `NodeEconomics` with retail/wholesale/margin per GPU-hour. Total platform margin aggregation by provider. Spot savings calculator.
+- **CapacityForecaster** (`backend/core/hardware/forecasting.py`): Demand prediction across horizons (15m/1h/4h/24h) using queued jobs and active simulation counts. `DemandSnapshot` recording for historical pattern learning.
+- **PlacementEngine** (`backend/core/hardware/placement.py`): Policy-driven selection — `LOWEST_COST`, `LOWEST_LATENCY`, `ISOLATED`, `HIGH_UTILIZATION`, `ENERGY_EFFICIENT`. Defense tier auto-routes to isolated policy. Ranked candidate scoring.
+- **AttestationService** (`backend/core/hardware/attestation.py`): Immutable execution proof with TTL-based expiration. `ATTESTED | EXPIRED | REVOKED` status lifecycle. Verification against `hardware_attestations` table.
+- **Integration:** All modules wired through `backend/core/hardware/__init__.py` for consistent imports.
+- **Git:** Committed and pushed to main.
