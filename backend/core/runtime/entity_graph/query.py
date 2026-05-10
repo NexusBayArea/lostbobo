@@ -99,17 +99,17 @@ class AdvancedGraphQueryEngine:
         return {"nodes": [], "query_summary": {"message": "Global pattern queries not yet implemented"}}
 
     # Convenience methods
-    async def find_causal_paths(self, source_id: str, target_id: str, max_hops: int = 8) -> List[Dict]:
+    async def find_causal_paths(self, source_id: str, target_id: str, max_hops: int = 8) -> list[dict[str, Any]]:
         """Find all paths between two entities."""
         return []
 
-    async def compute_pagerank(self, entity_id: Optional[str] = None, top_k: int = 50) -> List[Dict]:
+    async def compute_pagerank(self, entity_id: str | None = None, top_k: int = 50) -> list[dict[str, Any]]:
         """Compute and return PageRank influence scores."""
         from backend.core.runtime.entity_graph.pagerank import GraphPageRank
 
         results = await GraphPageRank.rank().compute(entity_id=entity_id, max_nodes=800)
         return results[:top_k]
 
-    async def rank_influence(self, entity_id: str, top_k: int = 20) -> List[Dict]:
+    async def rank_influence(self, entity_id: str, top_k: int = 20) -> list[dict[str, Any]]:
         """PageRank-style influence ranking."""
         return await self.compute_pagerank(entity_id=entity_id, top_k=top_k)
