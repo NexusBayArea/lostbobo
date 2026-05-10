@@ -103,13 +103,30 @@ class AdvancedGraphQueryEngine:
         """Find all paths between two entities."""
         return []
 
-    async def compute_pagerank(self, entity_id: str | None = None, top_k: int = 50) -> list[dict[str, Any]]:
+    async def compute_pagerank(self, entity_id: Optional[str] = None, top_k: int = 50) -> List[Dict[str, Any]]:
         """Compute and return PageRank influence scores."""
         from backend.core.runtime.entity_graph.pagerank import GraphPageRank
 
         results = await GraphPageRank.rank().compute(entity_id=entity_id, max_nodes=800)
         return results[:top_k]
 
-    async def rank_influence(self, entity_id: str, top_k: int = 20) -> list[dict[str, Any]]:
+    async def compute_temporal_pagerank(
+        self,
+        variant: str = "decayed",
+        entity_id: Optional[str] = None,
+        time_window_days: int = 30,
+        top_k: int = 50,
+    ) -> List[Dict[str, Any]]:
+        """Compute any temporal PageRank variant."""
+        from backend.core.runtime.entity_graph.temporal_pagerank import TemporalPageRank
+
+        return await TemporalPageRank.rank().compute(
+            variant=variant,
+            start_entity_id=entity_id,
+            time_window_days=time_window_days,
+            top_k=top_k,
+        )
+
+    async def rank_influence(self, entity_id: str, top_k: int = 20) -> List[Dict[str, Any]]:
         """PageRank-style influence ranking."""
         return await self.compute_pagerank(entity_id=entity_id, top_k=top_k)
