@@ -82,6 +82,7 @@ class ObservabilityService:
         self._metrics["simhpc_anomaly_detected_total"] = Counter(
             "simhpc_anomaly_detected_total", "Anomalies", ["type", "severity"]
         )
+        self._metrics["anomaly_scans_total"] = Counter("anomaly_scans_total", "Total anomaly scans run")
 
         self._metrics["build_info"] = Info("simhpc_build_info", "Build info")
         self._metrics["build_info"].info({"version": "0.5.0", "kernel": "true"})
