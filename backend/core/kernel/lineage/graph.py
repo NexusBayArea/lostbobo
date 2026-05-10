@@ -1,4 +1,6 @@
 # backend/core/kernel/lineage/graph.py
+from __future__ import annotations
+
 from typing import Any
 
 from backend.core.kernel.lineage.events import LineageEvent
