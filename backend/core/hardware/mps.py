@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from dataclasses import dataclass
-from typing import Dict, Optional
 
 from backend.core.hardware.isolation import IsolationConfig
 from backend.core.hardware.pools import ExecutionCapacity
@@ -15,14 +14,14 @@ from backend.core.tracing import trace_context
 class MPSConfig:
     active_thread_percentage: int = 95
     max_threads_per_process: int = 64
-    memory_limit_mb: Optional[int] = None
+    memory_limit_mb: int | None = None
 
 
 class MPSManager:
     """CUDA MPS daemon management and optimization."""
 
     _instance = None
-    _daemons: Dict[str, str] = {}  # capacity_id → status
+    _daemons: dict[str, str] = {}  # capacity_id → status
 
     def __new__(cls):
         if cls._instance is None:
@@ -30,7 +29,7 @@ class MPSManager:
         return cls._instance
 
     @classmethod
-    def manager(cls) -> "MPSManager":
+    def manager(cls) -> MPSManager:
         return cls()
 
     async def start_daemon(self, capacity: ExecutionCapacity, config: IsolationConfig) -> bool:
@@ -43,7 +42,7 @@ class MPSManager:
                 env["CUDA_MPS_LOG_DIRECTORY"] = f"/var/log/nvidia-mps-{gpu_id}"
                 env["CUDA_MPS_ACTIVE_THREAD_PERCENTAGE"] = str(int(config.compute_limit * 100))
 
-                proc = await asyncio.create_subprocess_exec(
+                await asyncio.create_subprocess_exec(
                     "nvidia-cuda-mps-control",
                     "-d",
                     env=env,
