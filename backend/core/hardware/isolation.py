@@ -1,11 +1,11 @@
-"""GPU isolation manager for secure multi-tenant GPU sharing."""
-
 from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
+
+from backend.core.hardware.mps import MPSManager
 
 logger = logging.getLogger(__name__)
 
@@ -121,11 +121,13 @@ class GPUIsolationManager:
         return success
 
     async def _enforce_isolation_technique(self, capacity: Any, config: IsolationConfig) -> bool:
+        """Route to the correct isolation technique."""
+        if config.level == GPUIsolationLevel.MPS:
+            return await MPSManager.manager().start_daemon(capacity, config)
+
         match config.level:
             case GPUIsolationLevel.MIG:
                 return await self._apply_mig_partition(capacity, config)
-            case GPUIsolationLevel.MPS:
-                return await self._apply_cuda_mps(capacity, config)
             case GPUIsolationLevel.CONTAINER:
                 return await self._apply_container_isolation(capacity, config)
             case _:
@@ -140,17 +142,6 @@ class GPUIsolationManager:
             return True
         except Exception as e:
             logger.warning(f"MIG partition failed: {e}")
-            return False
-
-    async def _apply_cuda_mps(self, capacity: Any, config: IsolationConfig) -> bool:
-        try:
-            logger.info(
-                f"CUDA MPS on {getattr(capacity, 'id', 'unknown')}: "
-                f"compute={config.compute_limit}, mem={config.memory_limit_gb}GB"
-            )
-            return True
-        except Exception as e:
-            logger.warning(f"CUDA MPS failed: {e}")
             return False
 
     async def _apply_container_isolation(self, capacity: Any, config: IsolationConfig) -> bool:
@@ -183,3 +174,4 @@ class GPUIsolationManager:
 
 def get_isolation_manager() -> GPUIsolationManager:
     return GPUIsolationManager.manager()
+
