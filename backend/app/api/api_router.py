@@ -7,8 +7,8 @@ from backend.app.api.auth import router as auth_router
 from backend.app.api.dag import router as dag_router
 from backend.app.api.endpoints.simulations import router as simulations_router
 from backend.app.api.graph_viz import router as graph_viz_router
-from backend.app.api.hardware import router as hardware_router
 from backend.app.api.graphrag import router as graphrag_router
+from backend.app.api.hardware import router as hardware_router
 from backend.app.api.ml import router as ml_router
 from backend.app.api.reports import router as reports_router
 from backend.app.api.routes import certificates, onboarding

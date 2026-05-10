@@ -79,7 +79,7 @@ class AdaptiveRegimeDetector:
         values = [
             getattr(e, "prediction", e).value
             if hasattr(e, "prediction")
-            else (e if isinstance(e, (int, float)) else 0.0)
+            else (e if isinstance(e, int | float) else 0.0)
             for e in state.entities.values()
         ]
 

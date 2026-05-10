@@ -50,7 +50,7 @@ class RegimeAwareDecayEngine:
         regime: str = "normal",
     ) -> tuple[Any, float]:
         """Apply regime-aware exponential decay."""
-        if not isinstance(value, (int, float)):
+        if not isinstance(value, int | float):
             return value, uncertainty
 
         age = current_time - last_updated
