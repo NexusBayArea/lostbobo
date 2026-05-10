@@ -640,7 +640,7 @@
 - **SSE Integration:** Enabled live world-state updates through /api/v1/world-state/stream utilizing Supabase realtime.
 - **Core Runtime:** Temporal engine integrated with runtime-enforced invariants (Formalizer) and full observability dashboards in Grafana.
 
-## May 9, 2026 [06:30 PM]
+## May 9, 2026 [05:45 PM]
 
 ### Hardware Moat Layer — Production Compute Governance
 - **Provider Abstraction** (`backend/hardware/providers.py`): Multi-provider layer decoupling SimHPC from any single GPU cloud. RunPod A40 fleet (current) + CoreWeave H100 clusters (next tier) via `ProviderInterface`. `HardwareProviderRegistry` with parallel health checks via `asyncio.gather`.
@@ -651,7 +651,7 @@
 - **Observability:** `hardware_scheduling_total`, `sla_breaches_total`, `itar_scheduling_attempts`, `capacity_utilization_pct` metrics via existing observability layer.
 - **Git:** Committed and pushed to main.
 
-## May 9, 2026 [07:00 PM]
+## May 9, 2026 [06:08 PM]
 
 ### Governed Execution Reserve — Warm Pools Layer
 - **WarmPoolManager** (`backend/core/hardware/pools.py`): Governed execution reserve layer with `ExecutionCapacity` model (6 pool classes: shared/dedicated/isolated/low_cost/realtime/high_memory). Full reserve/release lifecycle — `WARM_IDLE | RESERVED | RUNNING | DRAINING`. SLA-aware warm slot lookup with ITAR enforcement.
@@ -660,6 +660,8 @@
 - **PlacementEngine** (`backend/core/hardware/placement.py`): Policy-driven selection — `LOWEST_COST`, `LOWEST_LATENCY`, `ISOLATED`, `HIGH_UTILIZATION`, `ENERGY_EFFICIENT`. Defense tier auto-routes to isolated policy. Ranked candidate scoring.
 - **AttestationService** (`backend/core/hardware/attestation.py`): Immutable execution proof with TTL-based expiration. `ATTESTED | EXPIRED | REVOKED` status lifecycle. Verification against `hardware_attestations` table.
 - **Integration:** All modules wired through `backend/core/hardware/__init__.py` for consistent imports.
+
+## May 9, 2026 [06:10 PM]
 
 ### GPU Bin Packing — Hardware Moat Optimization Primitive
 - **GPUBinPacker** (`backend/core/hardware/bin_packing.py`): First-fit decreasing bin packing with `GPUBin` model. Fractional GPU support — multiple lightweight workloads (agent swarms, Monte Carlo, inference) share a single GPU. SLA-aware packing: Defense → isolated bins only, Enterprise → dedicated. ITAR isolation enforcement during bin selection. Economic optimization via lowest-cost viable bin ranking.
@@ -682,6 +684,8 @@
 - **Performance summary:** `get_performance_summary()` exposes per-heuristic metrics for observability.
 - **Git:** Committed and pushed to main.
 
+## May 9, 2026 [06:13 PM]
+
 ### ML Intelligence Layer — Hardware Moat Prediction and Anomaly Detection
 - **HardwareMLModels** (`backend/core/hardware/ml_integration.py`): Singleton ML orchestration — demand forecasting, anomaly detection, packing efficiency prediction, RL policy suggestions.
 - **predict_demand():** Horizon-aware demand per pool class (shared/dedicated/isolated).
@@ -691,6 +695,8 @@
 - **proactively_provision_isolated():** Defense-tier warm pool expansion on predicted demand.
 - **Git:** Committed and pushed to main.
 
+## May 9, 2026 [06:15 PM]
+
 ### Federated Learning Engine — Secure Multi-Party Learning Orchestration
 - **FederatedLearningEngine** (`backend/core/runtime/federated/engine.py`): Global + local `TemporalGNN` models per participant. `local_train()` trains on private subgraph only, returns delta with regime awareness. `aggregate()` weighted FedAvg with confidence + disruption downweighting.
 - **Versioned global model:** `ModelRegistry.register_version()` on every aggregation round.
@@ -698,6 +704,8 @@
 - **Event publishing:** `federated.model_aggregated` event on every aggregation for audit trail.
 - **Metrics:** `federated_local_train_total`, `federated_aggregations_total`, `federated_rounds_total`.
 - **Git:** Committed and pushed to main.
+
+## May 9, 2026 [06:17 PM]
 
 ### Homomorphic Encryption — Privacy-Preserving Core Primitive
 - **HomomorphicEngine** (`backend/core/runtime/homomorphic/engine.py`): Paillier additive HE with 2048-bit keys. `encrypt_graph_snapshot()` encrypts Entity Graph node values, uncertainties, and edge weights. `homomorphic_aggregate()` performs encrypted sum/avg/max/min without full decryption.

@@ -1,0 +1,14 @@
+{
+  "name": "prediction_market",
+  "version": "0.1.0",
+  "description": "Real-time prediction market forecasting with multi-signal ingestion, ensemble calibration, and tournament evaluation",
+  "permissions": [
+    "event.subscribe",
+    "event.emit",
+    "state.read",
+    "forecast.write",
+    "graph.read",
+    "agent.register"
+  ],
+  "entrypoint": "plugins.prediction_market.__init__.get_plugin"
+}
