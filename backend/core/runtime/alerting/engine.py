@@ -25,6 +25,12 @@ class Alert:
     recommended_action: str
     channel: list[str] = field(default_factory=list)
     group_key: str | None = None
+    status: str = "ACTIVE"
+    acknowledged_at: datetime | None = None
+    acknowledged_by: str | None = None
+    notes: str | None = None
+    resolved_at: datetime | None = None
+    resolution_reason: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
@@ -76,6 +82,18 @@ class AlertFatigueGuard:
         recent = [t for t in self._alert_history[pattern_key] if datetime.now(UTC) - t < timedelta(hours=2)]
         return len(recent)
 
+    def record_positive_feedback(self, alert: Alert) -> None:
+        key = f"{alert.source}:{alert.entity_id[:8] if alert.entity_id else 'unknown'}"
+        self._user_feedback[key] = max(0, self._user_feedback.get(key, 0) - 1)
+
+    def record_resolution_feedback(self, alert: Alert) -> None:
+        if not alert.resolved_at or not alert.acknowledged_at:
+            return
+        resolution_time = (alert.resolved_at - alert.acknowledged_at).total_seconds() / 60
+        key = f"{alert.source}:{alert.entity_id[:8] if alert.entity_id else 'unknown'}"
+        if resolution_time < 10:
+            self._user_feedback[key] = self._user_feedback.get(key, 0) + 2
+
 
 class RealTimeAlertingSystem:
     _instance: RealTimeAlertingSystem | None = None
@@ -85,11 +103,15 @@ class RealTimeAlertingSystem:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._supabase = None
+            cls._instance._alert_store: dict[str, Alert] = {}
         return cls._instance
 
     @classmethod
     def alerts(cls) -> RealTimeAlertingSystem:
         return cls()
+
+    def _store_alert(self, alert: Alert) -> None:
+        self._alert_store[alert.id] = alert
 
     def _compute_dynamic_severity(self, anomaly: AnomalyEvent) -> str:
         try:
@@ -152,6 +174,7 @@ class RealTimeAlertingSystem:
         )
 
         guard.record_alert(alert)
+        self._store_alert(alert)
 
         try:
             from backend.core.services.observability_service import observability
@@ -259,17 +282,108 @@ class RealTimeAlertingSystem:
         except Exception as e:
             logger.warning(f"PagerDuty notification failed: {e}")
 
-    async def resolve(self, entity_id: str, anomaly_type: str) -> bool:
-        dedup_key = f"{entity_id}:{anomaly_type}"
-        if dedup_key in self._active_alerts:
-            del self._active_alerts[dedup_key]
-            return True
-        return False
-
     def get_active_count(self) -> int:
         now = datetime.now(UTC)
         self._active_alerts = {k: v for k, v in self._active_alerts.items() if now - v < timedelta(hours=1)}
         return len(self._active_alerts)
+
+    async def acknowledge(
+        self,
+        alert_id: str,
+        user: str,
+        notes: str | None = None,
+        escalate: bool = False,
+    ) -> bool:
+        guard = AlertFatigueGuard.guard()
+        stored = self._alert_store.get(alert_id)
+        if not stored:
+            return False
+
+        stored.status = "ESCALATED" if escalate else "ACKNOWLEDGED"
+        stored.acknowledged_at = datetime.now(UTC)
+        stored.acknowledged_by = user
+        stored.notes = notes
+        self._alert_store[alert_id] = stored
+
+        try:
+            from backend.core.services.observability_service import observability
+
+            observability().increment("alerts_acknowledged_total")
+        except Exception:
+            pass
+
+        try:
+            from backend.core.runtime.event_fabric.log import EventLogService
+            from backend.core.runtime.event_fabric.schema import SimHPCEvent
+
+            await EventLogService.event_log().publish(
+                SimHPCEvent(
+                    event_type="alert.acknowledged",
+                    source_plugin="kernel",
+                    confidence=stored.confidence,
+                    payload={
+                        "alert_id": alert_id,
+                        "user": user,
+                        "escalated": escalate,
+                        "notes": notes,
+                    },
+                )
+            )
+        except Exception:
+            pass
+
+        if not escalate:
+            guard.record_positive_feedback(stored)
+
+        return True
+
+    async def resolve(
+        self,
+        alert_id: str,
+        user: str,
+        resolution_reason: str,
+    ) -> bool:
+        stored = self._alert_store.get(alert_id)
+        if not stored:
+            return False
+
+        stored.status = "RESOLVED"
+        stored.resolved_at = datetime.now(UTC)
+        stored.resolution_reason = resolution_reason
+        self._alert_store[alert_id] = stored
+
+        try:
+            from backend.core.runtime.event_fabric.log import EventLogService
+            from backend.core.runtime.event_fabric.schema import SimHPCEvent
+
+            resolution_time = 0.0
+            if stored.resolved_at and stored.acknowledged_at:
+                resolution_time = (stored.resolved_at - stored.acknowledged_at).total_seconds() / 60
+
+            await EventLogService.event_log().publish(
+                SimHPCEvent(
+                    event_type="alert.resolved",
+                    source_plugin="kernel",
+                    confidence=stored.confidence,
+                    payload={
+                        "alert_id": alert_id,
+                        "user": user,
+                        "reason": resolution_reason,
+                        "resolution_time_minutes": resolution_time,
+                    },
+                )
+            )
+        except Exception:
+            pass
+
+        AlertFatigueGuard.guard().record_resolution_feedback(stored)
+        return True
+
+    def get_alert(self, alert_id: str) -> Alert | None:
+        return self._alert_store.get(alert_id)
+
+    def list_active_alerts(self) -> list[Alert]:
+        return [a for a in self._alert_store.values() if a.status in ("ACTIVE", "ACKNOWLEDGED")]
 
 
 def get_alerting_system() -> RealTimeAlertingSystem:

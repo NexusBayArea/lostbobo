@@ -102,6 +102,9 @@ class ObservabilityService:
         self._metrics["alert_frequency_per_pattern"] = Gauge(
             "alert_frequency_per_pattern", "Alert frequency per pattern", ["pattern"]
         )
+        self._metrics["alerts_acknowledged_total"] = Counter(
+            "alerts_acknowledged_total", "Alerts acknowledged by operators"
+        )
 
         self._metrics["build_info"] = Info("simhpc_build_info", "Build info")
         self._metrics["build_info"].info({"version": "0.5.0", "kernel": "true"})
