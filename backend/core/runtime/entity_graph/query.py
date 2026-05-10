@@ -103,7 +103,7 @@ class AdvancedGraphQueryEngine:
         """Find all paths between two entities."""
         return []
 
-    async def compute_pagerank(self, entity_id: Optional[str] = None, top_k: int = 50) -> List[Dict[str, Any]]:
+    async def compute_pagerank(self, entity_id: str | None = None, top_k: int = 50) -> list[dict[str, Any]]:
         """Compute and return PageRank influence scores."""
         from backend.core.runtime.entity_graph.pagerank import GraphPageRank
 
@@ -113,10 +113,10 @@ class AdvancedGraphQueryEngine:
     async def compute_temporal_pagerank(
         self,
         variant: str = "decayed",
-        entity_id: Optional[str] = None,
+        entity_id: str | None = None,
         time_window_days: int = 30,
         top_k: int = 50,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Compute any temporal PageRank variant."""
         from backend.core.runtime.entity_graph.temporal_pagerank import TemporalPageRank
 
@@ -127,6 +127,6 @@ class AdvancedGraphQueryEngine:
             top_k=top_k,
         )
 
-    async def rank_influence(self, entity_id: str, top_k: int = 20) -> List[Dict[str, Any]]:
+    async def rank_influence(self, entity_id: str, top_k: int = 20) -> list[dict[str, Any]]:
         """PageRank-style influence ranking."""
         return await self.compute_pagerank(entity_id=entity_id, top_k=top_k)
