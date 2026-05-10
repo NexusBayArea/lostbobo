@@ -353,19 +353,11 @@ class AnomalyDetectionSystem:
 
         anomalies.extend(await self.detect_economic_anomalies(recent_scores))
 
-        for anomaly in [a for a in anomalies if a.severity > 0.7]:
+        for anomaly in [a for a in anomalies if a.severity > 0.55]:
             try:
-                from backend.core.runtime.event_fabric.log import EventLogService
-                from backend.core.runtime.event_fabric.schema import SimHPCEvent
+                from backend.core.runtime.alerting.engine import RealTimeAlertingSystem
 
-                await EventLogService.event_log().publish(
-                    SimHPCEvent(
-                        event_type="anomaly.detected",
-                        source_plugin="kernel",
-                        confidence=anomaly.confidence,
-                        payload=anomaly.__dict__,
-                    )
-                )
+                await RealTimeAlertingSystem.alerts().trigger(anomaly)
             except Exception:
                 pass
 

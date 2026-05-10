@@ -93,6 +93,8 @@ class ObservabilityService:
             "anomaly_lstm_temporal", "LSTM temporal anomalies", ["node_id"]
         )
         self._metrics["ensemble_anomalies_total"] = Counter("ensemble_anomalies_total", "Total ensemble anomalies")
+        self._metrics["alerts_triggered_total"] = Counter("alerts_triggered_total", "Alerts triggered", ["severity"])
+        self._metrics["active_alerts"] = Gauge("active_alerts", "Currently active alerts")
 
         self._metrics["build_info"] = Info("simhpc_build_info", "Build info")
         self._metrics["build_info"].info({"version": "0.5.0", "kernel": "true"})
