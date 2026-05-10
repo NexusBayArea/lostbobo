@@ -639,3 +639,14 @@
 - **Backend Graph API:** Finalized get_graph_snapshot for real-time visualization, integrated with StateRegistryService.
 - **SSE Integration:** Enabled live world-state updates through /api/v1/world-state/stream utilizing Supabase realtime.
 - **Core Runtime:** Temporal engine integrated with runtime-enforced invariants (Formalizer) and full observability dashboards in Grafana.
+
+## May 9, 2026 [06:30 PM]
+
+### Hardware Moat Layer — Production Compute Governance
+- **Provider Abstraction** (`backend/hardware/providers.py`): Multi-provider layer decoupling SimHPC from any single GPU cloud. RunPod A40 fleet (current) + CoreWeave H100 clusters (next tier) via `ProviderInterface`. `HardwareProviderRegistry` with parallel health checks via `asyncio.gather`.
+- **SLA Contract Engine** (`backend/hardware/sla.py`): 5-tier SLA system (Free/Professional/Enterprise/Defense/Custom) with automatic breach detection and credit calculation. ITAR-isolated hardware enforcement for Defense tier. Monthly credit caps and compliance audit integration.
+- **SLA-Aware Scheduler** (`backend/hardware/scheduler.py`): Decision-tree routing — Defense → ITAR-isolated only (hard fail), Enterprise → dedicated with shared fallback + alert, Professional → cheapest shared, Free → best-effort spot. Writes `hardware_attestations` records linked to simulation certificates.
+- **Capacity Reservations** (`backend/hardware/reservations.py`): Pre-reserved GPU-hours with tiered discounts (15%/25%/40% for 1m/3m/1y). Wholesale cost multiplier (60%) for margin tracking. Platform-wide utilization dashboard for procurement leverage.
+- **API Routes** (`backend/app/api/hardware.py`): `/api/v1/hardware/schedule`, `/providers`, `/sla/{tenant_id}`, `/sla/tiers`, `/sla/breach`, `/sla/credits/{tenant}`, `/reservations/{tenant}`, `/reservations`, `/cost/arbitrage`, `/capacity`. Registered in `api_router.py`.
+- **Observability:** `hardware_scheduling_total`, `sla_breaches_total`, `itar_scheduling_attempts`, `capacity_utilization_pct` metrics via existing observability layer.
+- **Git:** Committed and pushed to main.
