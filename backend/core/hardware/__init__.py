@@ -9,7 +9,11 @@ from backend.core.hardware.economics import (
     ResourceEconomicsRuntime,
     get_economics_engine,
 )
-from backend.core.hardware.forecasting import DemandForecaster, get_capacity_forecaster
+from backend.core.hardware.forecasting import (
+    DemandForecaster,
+    PredictiveCapacityForecaster,
+    get_capacity_forecaster,
+)
 from backend.core.hardware.placement import PlacementEngine, PlacementPolicy
 from backend.hardware.providers import (
     GPUNode,
@@ -41,6 +45,9 @@ __all__ = [
     "IsolationLevel",
     "NodeEconomics",
     "NodeStatus",
+    "PlacementEngine",
+    "PlacementPolicy",
+    "PredictiveCapacityForecaster",
     "ProviderHealth",
     "ProviderInterface",
     "GPUNode",
@@ -53,8 +60,6 @@ __all__ = [
     "SchedulingResult",
     "get_scheduler",
     "SLATier",
-    "PlacementEngine",
-    "PlacementPolicy",
     "ResourceEconomicsRuntime",
     "get_economics_engine",
     "get_capacity_forecaster",

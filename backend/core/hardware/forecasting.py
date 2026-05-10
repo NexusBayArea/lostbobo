@@ -214,3 +214,121 @@ class DemandForecaster:
             "realtime": 0.80,
             "high_memory": 0.50,
         }
+
+
+class PredictiveCapacityForecaster:
+    _instance: PredictiveCapacityForecaster | None = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._forecaster = CapacityForecaster()
+        return cls._instance
+
+    @classmethod
+    def forecaster(cls) -> PredictiveCapacityForecaster:
+        return cls()
+
+    async def predict_capacity(
+        self,
+        horizon_minutes: int = 60,
+        scenarios: bool = True,
+    ) -> dict[str, Any]:
+        regime = "normal"
+        try:
+            from backend.core.runtime.state_registry.service import StateRegistryService
+
+            state = await StateRegistryService.registry().get_current()
+            regime = getattr(state, "regime", "normal")
+        except Exception:
+            pass
+
+        ml_base: dict[str, float] = {}
+        try:
+            from backend.core.hardware.ml_integration import get_hardware_ml_models
+
+            ml = get_hardware_ml_models()
+            ml_base = await ml.predict_demand(horizon_minutes)
+        except Exception:
+            pass
+
+        trend = await self._compute_trend_forecast(horizon_minutes)
+
+        regime_weight = {"normal": 0.4, "panic": 0.7, "disruption": 0.85}.get(regime, 0.55)
+
+        forecast: dict[str, dict[str, Any]] = {}
+        try:
+            from backend.core.hardware.pools import PoolClass
+
+            for pc in list(PoolClass):
+                key = pc.value
+                base_demand = 0.6 * ml_base.get(key, 0.5) + 0.4 * trend.get(key, 0.5)
+                uncertainty = await self._estimate_uncertainty(key, horizon_minutes)
+                predicted = min(1.0, base_demand * (1 + regime_weight))
+
+                forecast[key] = {
+                    "predicted_demand": round(predicted, 3),
+                    "lower_bound": round(max(0.0, base_demand - uncertainty), 3),
+                    "upper_bound": round(min(1.0, base_demand + uncertainty), 3),
+                    "confidence": round(max(0.1, 1.0 - uncertainty * 0.8), 3),
+                    "recommended_warm_reserve": int(base_demand * 4) if base_demand > 0.6 else 1,
+                }
+        except Exception:
+            for key in trend:
+                base_demand = trend[key]
+                uncertainty = await self._estimate_uncertainty(key, horizon_minutes)
+                predicted = min(1.0, base_demand * (1 + regime_weight))
+                forecast[key] = {
+                    "predicted_demand": round(predicted, 3),
+                    "lower_bound": round(max(0.0, base_demand - uncertainty), 3),
+                    "upper_bound": round(min(1.0, base_demand + uncertainty), 3),
+                    "confidence": round(max(0.1, 1.0 - uncertainty * 0.8), 3),
+                    "recommended_warm_reserve": int(base_demand * 4) if base_demand > 0.6 else 1,
+                }
+
+        scenarios_data: dict[str, Any] = {}
+        if scenarios:
+            scenarios_data = {
+                "normal": forecast,
+                "high_load": {
+                    k: {**v, "predicted_demand": round(min(1.0, v["predicted_demand"] * 1.45), 3)}
+                    for k, v in forecast.items()
+                },
+                "disruption": {
+                    k: {**v, "predicted_demand": round(min(1.0, v["predicted_demand"] * 1.9), 3)}
+                    for k, v in forecast.items()
+                },
+            }
+
+        result = {
+            "horizon_minutes": horizon_minutes,
+            "forecast": forecast,
+            "scenarios": scenarios_data,
+            "regime": regime,
+            "generated_at": datetime.now(UTC).isoformat(),
+        }
+
+        try:
+            from backend.core.services.observability_service import observability
+
+            obs = observability()
+            obs.gauge("predicted_isolated_demand", forecast.get("isolated", {}).get("predicted_demand", 0))
+        except Exception:
+            pass
+
+        return result
+
+    async def _compute_trend_forecast(self, horizon_minutes: int) -> dict[str, float]:
+        return {
+            "shared": 0.58,
+            "dedicated": 0.72,
+            "isolated": 0.48,
+            "low_cost": 0.65,
+            "realtime": 0.81,
+            "high_memory": 0.55,
+        }
+
+    async def _estimate_uncertainty(self, pool_class: str, horizon_minutes: int) -> float:
+        base = 0.12
+        horizon_factor = min(0.35, horizon_minutes / 240)
+        return base + horizon_factor
