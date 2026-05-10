@@ -666,3 +666,10 @@
 - **Fractional scheduling:** `pack_fractional()` assigns `gpu_fraction` (0.0–1.0) per workload, enabling mixed workloads on shared capacity.
 - **Utilization metrics:** `calculate_utilization()` returns total/used/wasted/optimized bin counts for capacity planning.
 - **Git:** Committed and pushed to main.
+
+### Advanced Bin Packing Heuristics — Multi-Objective GPU Scheduling
+- **BinPackingHeuristic enum:** `FIRST_FIT_DECREASING`, `BEST_FIT_DECREASING`, `WORST_FIT_DECREASING`, `SLA_AWARE_BEST_FIT`.
+- **PackingScore:** Multi-objective scoring — fit (40%), SLA compliance (30%), cost (20%), fragmentation penalty (10%).
+- **AdvancedGPUBinPacker:** All 4 heuristics with SLA-aware best fit as default. Defense → isolated bins only, Enterprise → dedicated.
+- **Fractional GPU:** Workload tracking via `gpu_fraction` in capacity metadata enables mixed workloads on shared capacity.
+- **Git:** Committed and pushed to main.
