@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -9,6 +10,8 @@ from enum import Enum
 from typing import Any
 
 from backend.app.core.supabase import get_supabase_client
+
+logger = logging.getLogger(__name__)
 
 
 class ForecastHorizon(str, Enum):
@@ -84,10 +87,7 @@ class CapacityForecaster:
             "predicted_at": datetime.now(UTC).isoformat(),
         }
 
-    def _mock_forecast(
-        self,
-        horizon: ForecastHorizon,
-    ) -> dict[str, Any]:
+    def _mock_forecast(self, horizon: ForecastHorizon) -> dict[str, Any]:
         return {
             "horizon": horizon.value,
             "forecasts": [],
@@ -138,3 +138,79 @@ def get_capacity_forecaster() -> CapacityForecaster:
     if _forecaster is None:
         _forecaster = CapacityForecaster()
     return _forecaster
+
+
+class DemandForecaster:
+    _instance: DemandForecaster | None = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._forecaster = CapacityForecaster()
+        return cls._instance
+
+    @classmethod
+    def forecaster(cls) -> DemandForecaster:
+        return cls()
+
+    async def predict_demand(
+        self,
+        horizon_minutes: int = 30,
+        pool_classes: Any = None,
+    ) -> dict[str, float]:
+        try:
+            from backend.core.hardware.pools import PoolClass as PoolClassType
+
+            regime = "normal"
+            try:
+                from backend.core.runtime.state_registry.service import StateRegistryService
+
+                state = await StateRegistryService.registry().get_current()
+                regime = getattr(state, "regime", "normal")
+            except Exception:
+                pass
+
+            ml_forecast: dict[str, float] = {}
+            try:
+                from backend.core.hardware.ml_integration import get_hardware_ml_models
+
+                ml = get_hardware_ml_models()
+                ml_forecast = await ml.predict_demand(horizon_minutes)
+            except Exception:
+                pass
+
+            stats_forecast = await self._statistical_baseline()
+
+            regime_multiplier = {"normal": 1.0, "panic": 1.45, "disruption": 1.85}.get(regime, 1.3)
+
+            combined: dict[str, float] = {}
+            targets = pool_classes or list(PoolClassType)
+            for pc in targets:
+                key = pc.value if hasattr(pc, "value") else str(pc)
+                ml_val = ml_forecast.get(key, 0.4)
+                stat_val = stats_forecast.get(key, 0.5)
+                final_demand = (0.65 * ml_val + 0.35 * stat_val) * regime_multiplier
+                combined[key] = max(0.0, min(1.0, final_demand))
+
+            try:
+                from backend.core.services.observability_service import observability
+
+                obs = observability()
+                obs.gauge("demand_forecast_isolated", combined.get("isolated", 0.0))
+                obs.gauge("demand_forecast_dedicated", combined.get("dedicated", 0.0))
+            except Exception:
+                pass
+
+            return combined
+        except Exception:
+            return {"shared": 0.55, "dedicated": 0.65, "isolated": 0.45}
+
+    async def _statistical_baseline(self) -> dict[str, float]:
+        return {
+            "shared": 0.55,
+            "dedicated": 0.65,
+            "isolated": 0.45,
+            "low_cost": 0.70,
+            "realtime": 0.80,
+            "high_memory": 0.50,
+        }

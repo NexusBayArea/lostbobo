@@ -146,8 +146,17 @@ class EconomicsEngine:
         latency_requirement_ms = request.metadata.get("latency_requirement_ms", 800)
         latency_penalty = max(0.0, (latency_requirement_ms - 800) / 5000)
         demand_bonus = 0.0
-        if predicted_demand and capacity.pool_class.value in predicted_demand:
-            demand_bonus = predicted_demand[capacity.pool_class.value] * 0.25
+        try:
+            from backend.core.hardware.forecasting import DemandForecaster
+
+            predicted = await DemandForecaster.forecaster().predict_demand(
+                horizon_minutes=30,
+                pool_classes=None,
+            )
+            if predicted and capacity.pool_class.value in predicted:
+                demand_bonus = predicted[capacity.pool_class.value] * 0.28
+        except Exception:
+            pass
         total_score = (
             margin * 0.45 + utilization_boost * 0.20 + sla_score * 0.25 + demand_bonus * 0.10 - latency_penalty * 0.05
         )
@@ -178,13 +187,12 @@ class EconomicsEngine:
         self,
         request: SchedulingRequest,
         candidates: list[ExecutionCapacity],
-        predicted_demand: dict[str, float] | None = None,
     ) -> ExecutionCapacity | None:
         if not candidates:
             return None
         scored: list[tuple[float, ExecutionCapacity]] = []
         for cap in candidates:
-            s = await self.score_capacity(cap, request, predicted_demand)
+            s = await self.score_capacity(cap, request)
             scored.append((s.total_score, cap))
         if not scored:
             return None
@@ -208,17 +216,15 @@ class ResourceEconomicsRuntime:
         self,
         capacity: ExecutionCapacity,
         request: SchedulingRequest,
-        predicted_demand: dict[str, float] | None = None,
     ) -> EconomicScore:
-        return self._engine.score_capacity(capacity, request, predicted_demand)
+        return self._engine.score_capacity(capacity, request)
 
     def optimize_allocation(
         self,
         request: SchedulingRequest,
         candidates: list[ExecutionCapacity],
-        predicted_demand: dict[str, float] | None = None,
     ) -> ExecutionCapacity | None:
-        return self._engine.optimize_allocation(request, candidates, predicted_demand)
+        return self._engine.optimize_allocation(request, candidates)
 
 
 _engine: EconomicsEngine | None = None

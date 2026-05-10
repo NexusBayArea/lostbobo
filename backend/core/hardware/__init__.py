@@ -9,6 +9,7 @@ from backend.core.hardware.economics import (
     ResourceEconomicsRuntime,
     get_economics_engine,
 )
+from backend.core.hardware.forecasting import DemandForecaster, get_capacity_forecaster
 from backend.core.hardware.placement import PlacementEngine, PlacementPolicy
 from backend.hardware.providers import (
     GPUNode,
@@ -34,6 +35,7 @@ from backend.hardware.sla import SLATier
 
 __all__ = [
     "CostModel",
+    "DemandForecaster",
     "EconomicScore",
     "GPUType",
     "IsolationLevel",
@@ -55,4 +57,5 @@ __all__ = [
     "PlacementPolicy",
     "ResourceEconomicsRuntime",
     "get_economics_engine",
+    "get_capacity_forecaster",
 ]
