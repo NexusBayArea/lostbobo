@@ -21,7 +21,7 @@ class MPSManager:
     """CUDA MPS daemon management and optimization."""
 
     _instance = None
-    _daemons: dict[str, str] = {}   # capacity_id → pid
+    _daemons: dict[str, str] = {}  # capacity_id → pid
 
     def __new__(cls):
         if cls._instance is None:
@@ -44,10 +44,11 @@ class MPSManager:
 
                 # Start daemon
                 await asyncio.create_subprocess_exec(
-                    "nvidia-cuda-mps-control", "-d",
+                    "nvidia-cuda-mps-control",
+                    "-d",
                     env=env,
                     stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
+                    stderr=asyncio.subprocess.PIPE,
                 )
                 await asyncio.sleep(0.8)
 

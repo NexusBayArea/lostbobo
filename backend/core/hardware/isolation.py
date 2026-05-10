@@ -174,4 +174,3 @@ class GPUIsolationManager:
 
 def get_isolation_manager() -> GPUIsolationManager:
     return GPUIsolationManager.manager()
-
