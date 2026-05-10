@@ -714,9 +714,16 @@
 - **Composable:** Works with Federated Learning (encrypted local updates) and zk-SNARKs (proofs over ciphertexts).
 - **Graceful fallback:** Stores plaintext when `phe` library unavailable.
 - **Git:** Committed and pushed to main.
-- **HomomorphicEngine** (`backend/core/runtime/homomorphic/engine.py`): Paillier additive HE with 2048-bit keys. `encrypt_graph_snapshot()` encrypts Entity Graph node values, uncertainties, and edge weights. `homomorphic_aggregate()` performs encrypted sum/avg/max/min without full decryption.
-- **EncryptedSnapshot:** Stored in `he_snapshots` Supabase table with ciphertexts per node/edge.
-- **Public key ring:** `get_public_key_ring()` exports public key safely for client-side encryption.
-- **Composable:** Works with Federated Learning (encrypted local updates) and zk-SNARKs (proofs over ciphertexts).
-- **Graceful fallback:** Stores plaintext when `phe` library unavailable.
+
+## May 9, 2026 [06:40 PM]
+
+### Prediction Market Plugin — Real-Time Forecasting Domain Specialization
+- **Plugin manifest** (`plugins/prediction_market/manifest.json`): Permissions — event.subscribe/emit, state.read, forecast.write, graph.read, agent.register.
+- **ForecastSignal model** (`forecasting/signals.py`): source, market_id, value, confidence, provenance, metadata per signal.
+- **Ingestors** (`ingestion/`): Polymarket + Kalshi API integration with mock fallbacks. News, Twitter, Weather ingestors for multi-source signals.
+- **ProbabilityEngine** (`forecasting/probability_engine.py`): Weighted ensemble with calibration + regime-aware uncertainty (panic/disruption multipliers). Integrates with TemporalEngine and StateRegistry.
+- **CalibrationAnalyzer** (`forecasting/calibration.py`): Brier score and calibration error per forecast. EnsembleBuilder for multi-signal merging.
+- **ScoringEngine + OutcomeTracker** (`evaluation/scoring.py`): Brier scoring, accuracy, direction correctness. `replay()` ranks historical forecasts against actual outcomes.
+- **Public feed API** (`api/routes.py`): `/api/v1/predictions/feeds/public`, `/leaderboard`, WebSocket `/stream`.
+- **Architecture:** All signals flow through Event Fabric → State Registry. Agents emit/receive via `emit()` / `observe()`. Regime-aware via TemporalEngine. Reuses core Prediction, Tournament, Calibration, and Replay primitives.
 - **Git:** Committed and pushed to main.

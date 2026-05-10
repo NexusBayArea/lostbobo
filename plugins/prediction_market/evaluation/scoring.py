@@ -9,7 +9,6 @@ from uuid import uuid4
 from pydantic import BaseModel
 
 
-
 class ForecastOutcome(BaseModel):
     outcome_id: str
     market_id: str

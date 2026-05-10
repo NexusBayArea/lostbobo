@@ -1,4 +1,5 @@
 """Prediction Market Plugin — real-time forecasting with multi-signal ingestion."""
+
 from __future__ import annotations
 
 from backend.plugins.base import BasePlugin

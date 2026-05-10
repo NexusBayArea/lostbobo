@@ -1,10 +1,15 @@
-"""Probability engine — weighted ensemble with calibration and regime awareness."""
+"""Advanced regime-aware probabilistic forecasting engine for prediction markets."""
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
-from backend.core.probability.prediction import Prediction
+from backend.core.agents.tournament import TournamentRuntime
+from backend.core.probability.calibration import CalibrationEngine
+from backend.core.probability.ensembles import BayesianModelCombination
+from backend.core.probability.prediction import Prediction, Provenance
+from backend.core.runtime.entity_graph.service import EntityGraphService
 from backend.core.runtime.state_registry.service import StateRegistryService
 from backend.core.runtime.temporal.engine import TemporalEngine
 from backend.plugins.prediction_market.forecasting.signals import ForecastSignal
@@ -14,77 +19,123 @@ class ProbabilityEngine:
     def __init__(self) -> None:
         self._temporal = TemporalEngine()
         self._state_registry = StateRegistryService.registry()
+        self._calibration = CalibrationEngine()
+        self._bmc = BayesianModelCombination()
+        self._tournament = TournamentRuntime()
 
     async def forecast(
         self,
         signals: list[ForecastSignal],
-        context: dict[str, Any] | None = None,
+        market_context: dict[str, Any],
     ) -> Prediction:
         if not signals:
             return Prediction(
                 value=0.5,
-                confidence=0.0,
-                uncertainty=1.0,
-                provenance=[],
-                metadata={"engine": "prediction_market_v1"},
+                confidence=0.3,
+                uncertainty=0.4,
+                provenance=[Provenance(source="fallback", weight=1.0)],
+                metadata={"regime": "unknown"},
             )
 
-        regime = "normal"
-        if context and "regime" in context:
-            regime = context["regime"]
-        elif self._state_registry:
-            try:
-                state = await self._state_registry.get_current()
-                regime = getattr(state, "regime", "normal")
-            except Exception:
-                pass
+        current_state = await self._state_registry.get_current()
+        regime = getattr(current_state, "regime", "normal")
 
-        weighted_sum = sum(s.value * s.confidence for s in signals)
-        total_weight = sum(s.confidence for s in signals)
-        probability = weighted_sum / total_weight if total_weight else 0.5
+        decayed_signals = self._apply_signal_decay(signals, current_state.timestamp)
 
-        uncertainty = self._compute_uncertainty(signals, regime)
+        graph_context: dict[str, Any] = {}
+        try:
+            graph_context = await EntityGraphService.graph().retrieve_context(
+                query=(
+                    market_context.get("title", "")
+                    + " "
+                    + market_context.get("description", "")
+                ),
+                category="prediction_market",
+            )
+        except Exception:
+            graph_context = {"hop_count": 0}
 
-        if regime == "panic":
-            uncertainty = min(1.0, uncertainty * 1.5)
-        elif regime == "disruption":
-            uncertainty = min(1.0, uncertainty * 2.0)
+        agent_predictions: list[dict[str, Any]] = []
+        for signal in decayed_signals:
+            agent_predictions.append(
+                {
+                    "prob": signal.value,
+                    "confidence": signal.confidence,
+                    "brier_weight": self._tournament.get_agent_weight(signal.source)
+                    or 1.0,
+                }
+            )
 
-        confidence = 1.0 - uncertainty
+        combined = self._bmc.aggregate(agent_predictions)
 
-        return Prediction(
-            value=probability,
-            confidence=confidence,
+        uncertainty = self._compute_regime_uncertainty(
+            combined.get("probability", 0.5),
+            combined.get("disagreement", 0.0),
+            regime,
+            graph_context,
+        )
+
+        calibrated_prob = self._calibration.calibrate(
+            combined.get("probability", 0.5), regime
+        )
+
+        final_prediction = Prediction(
+            value=calibrated_prob,
+            confidence=max(0.1, 1.0 - uncertainty),
             uncertainty=uncertainty,
-            provenance=[{"signal_id": s.id, "source": s.source} for s in signals],
+            provenance=[
+                Provenance(
+                    source=s.source,
+                    weight=s.confidence,
+                    metadata={"signal_id": s.id, "signal_type": s.signal_type},
+                )
+                for s in decayed_signals
+            ]
+            + [Provenance(source="bmc_ensemble", weight=1.0)],
             metadata={
-                "engine": "prediction_market_v1",
-                "regime": regime,
-                "signal_count": len(signals),
-                "total_weight": total_weight,
+                "engine_version": "v2_regime_bmc",
+                "disagreement": combined.get("disagreement", 0.0),
+                "graph_hops": graph_context.get("hop_count", 0),
+                "signal_count": len(decayed_signals),
             },
         )
 
-    def _compute_uncertainty(self, signals: list[ForecastSignal], regime: str) -> float:
-        if len(signals) <= 1:
-            base = 0.3
-        else:
-            values = [s.value for s in signals]
-            mean = sum(values) / len(values)
-            variance = sum((v - mean) ** 2 for v in values) / len(values)
-            std_dev = variance**0.5
-            disagreement = std_dev
+        self._tournament.record(
+            agent_name="probability_engine",
+            prediction=final_prediction.value,
+            outcome=None,
+        )
 
-            confidence_scores = [s.confidence for s in signals]
-            avg_confidence = sum(confidence_scores) / len(confidence_scores)
+        return final_prediction
 
-            disagreement_factor = disagreement * 0.7
-            confidence_factor = (1.0 - avg_confidence) * 0.3
-            base = disagreement_factor + confidence_factor
+    def _apply_signal_decay(
+        self,
+        signals: list[ForecastSignal],
+        now: datetime,
+    ) -> list[ForecastSignal]:
+        return [
+            s
+            for s in signals
+            if self._temporal.decay_factor(s.timestamp, now, half_life_hours=12) > 0.15
+        ]
 
-        if regime == "disruption":
-            base = min(1.0, base * 1.5)
-        elif regime == "panic":
-            base = min(1.0, base * 1.2)
+    def _compute_regime_uncertainty(
+        self,
+        prob: float,
+        disagreement: float,
+        regime: str,
+        graph_context: dict[str, Any],
+    ) -> float:
+        base = 0.15
+        regime_multiplier = {"normal": 1.0, "panic": 1.8, "disruption": 2.2}.get(
+            regime, 1.5
+        )
+        disagreement_factor = disagreement * 0.6
+        graph_factor = min(0.25, graph_context.get("hop_count", 0) * 0.03)
 
-        return min(1.0, max(0.0, base))
+        return min(
+            0.65, (base + disagreement_factor + graph_factor) * regime_multiplier
+        )
+
+
+probability_engine = ProbabilityEngine()
