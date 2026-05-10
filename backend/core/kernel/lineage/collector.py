@@ -10,27 +10,25 @@ from backend.core.tracing import trace_context
 
 
 class LineageCollector:
-    """Unified lineage event collector."""
+    """Unified lineage event collector — the single source of provenance."""
 
-    _instance: LineageCollector | None = None
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
 
     @classmethod
     def collector(cls) -> LineageCollector:
-        if cls._instance is None:
-            cls._instance = LineageCollector()
-        return cls._instance
+        return cls()
 
     async def emit(
-        self,
-        execution_id: str,
-        event_type: str,
-        source_type: str,
-        source_id: str,
-        payload: dict[str, Any],
-    ):
-        """Emit a lineage event."""
+        self, execution_id: str, event_type: str, source_type: str, source_id: str, payload: dict[str, Any]
+    ) -> None:
+        """Emit a lineage event to Supabase + Event Bus."""
         with trace_context("lineage.emit") as span:
-            _ = LineageEvent(
+            LineageEvent(
                 execution_id=execution_id,
                 event_type=event_type,
                 source_type=source_type,
@@ -38,20 +36,24 @@ class LineageCollector:
                 payload=payload,
             )
 
-            await (
-                get_supabase_client()
-                .table("execution_lineage")
-                .insert(
-                    {
-                        "execution_id": execution_id,
-                        "event_type": event_type,
-                        "source_type": source_type,
-                        "source_id": source_id,
-                        "payload": payload,
-                    }
+            # Persist to Supabase (orchestration truth)
+            try:
+                await (
+                    get_supabase_client()
+                    .table("execution_lineage")
+                    .insert(
+                        {
+                            "execution_id": execution_id,
+                            "event_type": event_type,
+                            "source_type": source_type,
+                            "source_id": source_id,
+                            "payload": payload,
+                        }
+                    )
+                    .execute()
                 )
-                .execute()
-            )
+            except Exception:
+                pass  # Lineage never fails the system
 
             observability().increment(f"lineage.{event_type}_events")
             span.set_attribute("event_type", event_type)

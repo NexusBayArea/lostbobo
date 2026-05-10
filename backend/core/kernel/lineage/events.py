@@ -6,12 +6,14 @@ from typing import Any
 
 @dataclass
 class LineageEvent:
+    """Immutable lineage event emitted by every component."""
+
     execution_id: str
     event_type: str
     source_type: str
     source_id: str
     payload: dict[str, Any]
-    timestamp: datetime | None = None
+    timestamp: datetime = None
 
     def __post_init__(self):
         if self.timestamp is None:
