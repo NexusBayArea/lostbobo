@@ -1,8 +1,7 @@
 from fastapi import APIRouter
-from typing import Optional
 
-from backend.core.runtime.provenance.service import ExecutionProvenanceService
 from backend.core.runtime.entity_graph.service import EntityGraphService
+from backend.core.runtime.provenance.service import ExecutionProvenanceService
 
 router = APIRouter(prefix="/graph", tags=["Visualization"])
 
@@ -20,7 +19,7 @@ async def get_world_state_graph():
 
 
 @router.get("/temporal-snapshot")
-async def get_temporal_snapshot(timestamp: Optional[str] = None):
+async def get_temporal_snapshot(timestamp: str | None = None):
     return await EntityGraphService.graph().get_temporal_snapshot(timestamp)
 
 
