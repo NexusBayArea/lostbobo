@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -23,7 +24,57 @@ class Alert:
     confidence: float
     recommended_action: str
     channel: list[str] = field(default_factory=list)
+    group_key: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+
+
+class AlertFatigueGuard:
+    _instance: AlertFatigueGuard | None = None
+    _alert_history: dict[str, list[datetime]] = defaultdict(list)
+    _suppression_rules: dict[str, timedelta] = {}
+    _user_feedback: dict[str, int] = {}
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    @classmethod
+    def guard(cls) -> AlertFatigueGuard:
+        return cls()
+
+    def should_suppress(self, anomaly: AnomalyEvent) -> bool:
+        pattern_key = f"{anomaly.anomaly_type}:{anomaly.entity_id[:8] if anomaly.entity_id else 'unknown'}"
+
+        cooldown = self._suppression_rules.get(pattern_key, timedelta(minutes=8))
+        if pattern_key in self._alert_history:
+            last = self._alert_history[pattern_key][-1]
+            if datetime.now(UTC) - last < cooldown:
+                return True
+
+        recent = [t for t in self._alert_history[pattern_key] if datetime.now(UTC) - t < timedelta(hours=2)]
+        if len(recent) >= 5:
+            self._user_feedback[pattern_key] = self._user_feedback.get(pattern_key, 0) + 1
+            return True
+
+        if anomaly.confidence < 0.65 and anomaly.severity < 0.75:
+            return True
+
+        if self._user_feedback.get(pattern_key, 0) >= 3:
+            self._suppression_rules[pattern_key] = timedelta(hours=4)
+            return True
+
+        return False
+
+    def record_alert(self, alert: Alert) -> None:
+        key = f"{alert.source}:{alert.entity_id[:8] if alert.entity_id else 'unknown'}"
+        self._alert_history[key].append(datetime.now(UTC))
+        if len(self._alert_history[key]) > 50:
+            self._alert_history[key] = self._alert_history[key][-50:]
+
+    def get_frequency(self, pattern_key: str) -> int:
+        recent = [t for t in self._alert_history[pattern_key] if datetime.now(UTC) - t < timedelta(hours=2)]
+        return len(recent)
 
 
 class RealTimeAlertingSystem:
@@ -40,34 +91,67 @@ class RealTimeAlertingSystem:
     def alerts(cls) -> RealTimeAlertingSystem:
         return cls()
 
-    async def trigger(self, anomaly: AnomalyEvent, source: str = "anomaly") -> Alert | None:
-        dedup_key = f"{anomaly.entity_id}:{anomaly.anomaly_type}"
+    def _compute_dynamic_severity(self, anomaly: AnomalyEvent) -> str:
+        try:
+            from backend.core.runtime.state_registry.service import StateRegistryService
 
+            state = await StateRegistryService.registry().get_current()
+            regime = getattr(state, "regime", "normal")
+        except Exception:
+            regime = "normal"
+
+        if anomaly.severity > 0.85:
+            return "CRITICAL"
+        if anomaly.severity > 0.6:
+            return "WARNING"
+
+        if regime == "normal" and anomaly.severity < 0.8:
+            return "INFO"
+        return "WARNING"
+
+    def _compute_group_key(self, anomaly: AnomalyEvent) -> str | None:
+        if "node" in anomaly.entity_id.lower():
+            return "hardware_cluster"
+        if "economic" in anomaly.anomaly_type.lower():
+            return "economics"
+        return None
+
+    async def trigger(self, anomaly: AnomalyEvent, source: str = "anomaly") -> Alert | None:
+        guard = AlertFatigueGuard.guard()
+
+        if guard.should_suppress(anomaly):
+            try:
+                from backend.core.services.observability_service import observability
+
+                observability().increment("alerts_suppressed_fatigue")
+            except Exception:
+                pass
+            return None
+
+        severity = self._compute_dynamic_severity(anomaly)
+
+        dedup_key = f"{anomaly.entity_id}:{anomaly.anomaly_type}"
         if dedup_key in self._active_alerts:
             if datetime.now(UTC) - self._active_alerts[dedup_key] < timedelta(minutes=5):
                 return None
 
         self._active_alerts[dedup_key] = datetime.now(UTC)
 
-        if anomaly.severity > 0.85:
-            severity = "CRITICAL"
-        elif anomaly.severity > 0.6:
-            severity = "WARNING"
-        else:
-            severity = "INFO"
-
         alert = Alert(
             id=f"alert_{int(datetime.now(UTC).timestamp())}",
             severity=severity,
-            title=f"{anomaly.anomaly_type.replace('_', ' ').title()} Detected",
+            title=f"{anomaly.anomaly_type.replace('_', ' ').title()}",
             description=anomaly.description,
             entity_id=anomaly.entity_id,
             source=source,
             confidence=anomaly.confidence,
             recommended_action=anomaly.recommended_action,
             channel=self._get_channels(severity),
+            group_key=self._compute_group_key(anomaly),
             metadata=anomaly.metadata,
         )
+
+        guard.record_alert(alert)
 
         try:
             from backend.core.services.observability_service import observability
@@ -75,6 +159,8 @@ class RealTimeAlertingSystem:
             obs = observability()
             obs.increment("alerts_triggered_total", {"severity": severity.lower()})
             obs.gauge("active_alerts", len(self._active_alerts))
+            pattern_key = f"{anomaly.anomaly_type}:{anomaly.entity_id[:8] if anomaly.entity_id else 'unknown'}"
+            obs.gauge("alert_frequency_per_pattern", guard.get_frequency(pattern_key), {"pattern": pattern_key})
         except Exception:
             pass
 
