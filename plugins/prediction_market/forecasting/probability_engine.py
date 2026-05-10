@@ -73,6 +73,7 @@ class ProbabilityEngine:
             combined.get("disagreement", 0.0),
             regime,
             graph_context,
+            decayed_signals,
         )
 
         calibrated_prob = self._calibration.calibrate(
@@ -93,9 +94,10 @@ class ProbabilityEngine:
             ]
             + [Provenance(source="bmc_ensemble", weight=1.0)],
             metadata={
-                "engine_version": "v2_simplified_uncertainty",
+                "engine_version": "v2_simplified_uncertainty_volatility",
                 "disagreement": breakdown["disagreement"],
                 "graph_hops": graph_context.get("hop_count", 0),
+                "volatility_factor": breakdown.get("volatility", 0.0),
                 "regime": regime,
                 "uncertainty_breakdown": breakdown,
             },
@@ -126,24 +128,37 @@ class ProbabilityEngine:
         disagreement: float,
         regime: str,
         graph_context: dict[str, Any],
+        signals: list[ForecastSignal] | None = None,
     ) -> tuple[float, dict[str, Any]]:
         base = 0.12
         disagreement_factor = disagreement * 0.45
         graph_hops = graph_context.get("hop_count", 0)
         complexity_factor = min(0.18, graph_hops * 0.04)
+
+        volatility_factor = 0.0
+        if signals and len(signals) >= 3:
+            values = [s.value for s in signals[-20:]]
+            if len(values) > 1:
+                try:
+                    import numpy
+
+                    volatility_factor = min(0.25, float(numpy.std(values)) * 1.8)
+                except Exception:
+                    pass
+
         regime_multiplier = {"normal": 1.0, "panic": 1.65, "disruption": 2.1}.get(
             regime, 1.4
         )
 
-        uncertainty = (
-            base + disagreement_factor + complexity_factor
-        ) * regime_multiplier
-        uncertainty = max(0.15, min(0.68, uncertainty))
+        total = base + disagreement_factor + complexity_factor + volatility_factor
+        uncertainty = total * regime_multiplier
+        uncertainty = max(0.15, min(0.72, uncertainty))
 
         breakdown = {
             "base": base,
             "disagreement": disagreement_factor,
             "complexity": complexity_factor,
+            "volatility": volatility_factor,
             "regime_mult": regime_multiplier,
         }
         return uncertainty, breakdown
