@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict
+from typing import Any
 
 import optuna
 import torch
+
 from backend.core.ml.registry import ModelRegistry
 from backend.core.runtime.temporal.lstm_regime import LSTMRegimeForecaster
 from backend.core.services.observability_service import observability
@@ -43,9 +44,9 @@ class LSTMHyperparameterOptimizer:
 
         return val_loss
 
-    def _train_and_evaluate(self, model: LSTMRegimeForecaster, params: Dict[str, Any]) -> float:
+    def _train_and_evaluate(self, model: LSTMRegimeForecaster, params: dict[str, Any]) -> float:
         """Single train + validation run."""
-        optimizer = torch.optim.AdamW(
+        torch.optim.AdamW(
             model.parameters(),
             lr=params["learning_rate"],
             weight_decay=params["weight_decay"],
@@ -54,7 +55,7 @@ class LSTMHyperparameterOptimizer:
         # Return best validation loss (mocked for now)
         return 0.042
 
-    async def optimize(self, n_trials: int = 50, timeout: int = 3600) -> Dict[str, Any]:
+    async def optimize(self, n_trials: int = 50, timeout: int = 3600) -> dict[str, Any]:
         """Run full hyperparameter search."""
         with trace_context("lstm.hyperparam.optimize"):
             obs = observability()
