@@ -76,8 +76,9 @@ class SLABreachAnalytics:
         avg_resolution = sum(resolution_times) / len(resolution_times) if resolution_times else 0.0
 
         root_causes = await self.get_top_root_causes()
-
         predicted_risk = await self._predict_future_risk()
+        risk_value = predicted_risk.get("value", 0.0) if isinstance(predicted_risk, dict) else predicted_risk
+        risk_confidence = predicted_risk.get("confidence", 0.0) if isinstance(predicted_risk, dict) else 0.0
 
         return {
             "total_breaches": len(breaches),
@@ -87,8 +88,10 @@ class SLABreachAnalytics:
             "compliance_trend": await self._compute_compliance_trend(breaches),
             "avg_resolution_minutes": round(avg_resolution, 2),
             "top_root_causes": root_causes[:5],
-            "predicted_breaches_next_7d": predicted_risk,
+            "predicted_breaches_next_7d": risk_value,
             "warm_pool_impact_pct": 8.5,
+            "predicted_breach_risk_7d": risk_value,
+            "risk_confidence": risk_confidence,
         }
 
     async def _compute_compliance_trend(self, breaches: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -111,23 +114,20 @@ class SLABreachAnalytics:
 
         return trend
 
-    async def _predict_future_risk(self) -> float:
+    async def _predict_future_risk(self) -> dict[str, Any]:
         try:
-            from backend.core.hardware.forecasting import DemandForecaster
+            from backend.core.hardware.sla.prediction import SLABreachPredictor
 
-            demand = await DemandForecaster.forecaster().predict_demand(horizon_minutes=60 * 24 * 7)
-            isolated_demand = demand.get("isolated", 0.5)
-            risk = min(0.95, 0.15 + (1.0 - isolated_demand) * 0.4 + 0.2)
-            return round(risk, 3)
+            return await SLABreachPredictor.predictor().predict_breach_risk(horizon_hours=168)
         except Exception:
-            return 0.25
+            return {"value": 0.25, "confidence": 0.5}
 
     async def get_top_root_causes(self) -> list[dict[str, Any]]:
         db = self._get_db()
         if db is None:
             return []
 
-        result = db.table("sla_breaches").select("root_cause").select("root_cause").execute().execute()
+        result = db.table("sla_breaches").select("root_cause").execute()
         causes: dict[str, int] = {}
         total = 0
         for row in result.data or []:

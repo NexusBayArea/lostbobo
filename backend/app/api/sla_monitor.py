@@ -69,6 +69,13 @@ async def get_root_causes() -> list[dict[str, Any]]:
     return await SLABreachAnalytics.analytics().get_top_root_causes()
 
 
+@router.get("/breach-risk")
+async def get_breach_risk(horizon_hours: int = 24) -> dict[str, Any]:
+    from backend.core.hardware.sla.prediction import SLABreachPredictor
+
+    return await SLABreachPredictor.predictor().predict_breach_risk(horizon_hours=horizon_hours)
+
+
 @router.get("/stream")
 async def sla_stream() -> StreamingResponse:
     async def event_generator():
