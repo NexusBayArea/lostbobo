@@ -86,6 +86,19 @@ class FractionalGPUScheduler:
         self._active_allocations.setdefault(capacity.id, []).append(allocation)
 
         try:
+            from backend.core.hardware.isolation import get_isolation_manager
+
+            im = get_isolation_manager()
+            success = await im.apply_isolation(capacity, allocation, request)
+            if not success:
+                self._active_allocations[capacity.id] = [
+                    a for a in self._active_allocations[capacity.id] if a.allocation_id != allocation.allocation_id
+                ]
+                return None
+        except Exception as e:
+            logger.warning(f"Isolation check skipped: {e}")
+
+        try:
             from backend.core.services.observability_service import observability
 
             obs = observability()
