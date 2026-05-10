@@ -36,20 +36,25 @@ class GraphPageRank:
                 return []
 
             # 2. Build NetworkX graph
-            G = nx.DiGraph()
+            g = nx.DiGraph()
 
             for node in graph_data["nodes"]:
-                G.add_node(node["id"], **node)
+                g.add_node(node["id"], **node)
 
             for edge in graph_data.get("edges", []):
                 weight = edge.get("weight", 1.0)
                 if temporal_weight and "timestamp" in edge:
                     # Recency bonus
                     weight *= 1.2
-                G.add_edge(edge["source_id"], edge["target_id"], weight=weight)
+                g.add_edge(edge["source_id"], edge["target_id"], weight=weight)
 
             # 3. Run PageRank
-            pagerank_scores = nx.pagerank(G, alpha=damping_factor, max_iter=iterations, tol=1e-6)
+            pagerank_scores = nx.pagerank(
+                g,
+                alpha=damping_factor,
+                max_iter=iterations,
+                tol=1e-6
+            )
 
             # 4. Enrich results
             results = []
