@@ -1,12 +1,30 @@
-"""Intelligent GPU bin packing for hardware moat optimization."""
+"""Advanced multi-heuristic GPU bin packing for hardware moat optimization."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any
 
 from backend.core.hardware.pools import ExecutionCapacity, PoolClass
 from backend.hardware.scheduler import SchedulingRequest
+from backend.hardware.sla import SLATier
+
+
+class BinPackingHeuristic(str, Enum):
+    FIRST_FIT_DECREASING = "first_fit_decreasing"
+    BEST_FIT_DECREASING = "best_fit_decreasing"
+    WORST_FIT_DECREASING = "worst_fit_decreasing"
+    SLA_AWARE_BEST_FIT = "sla_aware_best_fit"
+
+
+@dataclass
+class PackingScore:
+    fit_score: float
+    sla_compliance: float
+    cost_score: float
+    fragmentation_penalty: float
+    total: float
 
 
 @dataclass
@@ -22,50 +40,128 @@ class GPUBin:
     hourly_cost_usd: float
     metadata: dict[str, Any] = field(default_factory=dict)
 
-    def fractional_available(self) -> float:
-        used = sum(w.get("gpu_fraction", 0.0) for w in self.current_workloads)
-        return max(0.0, self.total_gpus - used)
 
-
-class GPUBinPacker:
+class AdvancedGPUBinPacker:
     def pack(
         self,
         request: SchedulingRequest,
         available_bins: list[ExecutionCapacity],
+        heuristic: BinPackingHeuristic = BinPackingHeuristic.SLA_AWARE_BEST_FIT,
     ) -> ExecutionCapacity | None:
-        bins = [self._to_bin(cap) for cap in available_bins]
-        sorted_bins = sorted(
-            bins,
-            key=lambda b: (
-                0 if self._meets_isolation(b, request) else 1,
-                -b.fractional_available() if request.gpu_count > 1 else 0,
-                0 if not b.current_workloads else 1,
-                b.hourly_cost_usd,
-            ),
-        )
-        for bin in sorted_bins:
-            if self._can_fit(bin, request):
-                return self._assign_to_bin(bin, request)
+        bins = [self._to_bin(cap) for cap in available_bins if self._can_fit(cap, request)]
+
+        if not bins:
+            return None
+
+        match heuristic:
+            case BinPackingHeuristic.FIRST_FIT_DECREASING:
+                return self._first_fit_decreasing(bins, request)
+            case BinPackingHeuristic.BEST_FIT_DECREASING:
+                return self._best_fit_decreasing(bins, request)
+            case BinPackingHeuristic.WORST_FIT_DECREASING:
+                return self._worst_fit_decreasing(bins, request)
+            case BinPackingHeuristic.SLA_AWARE_BEST_FIT:
+                return self._sla_aware_best_fit(bins, request)
+
+    def _sla_aware_best_fit(
+        self,
+        bins: list[GPUBin],
+        request: SchedulingRequest,
+    ) -> ExecutionCapacity | None:
+        best_score = float("inf")
+        best_bin: GPUBin | None = None
+
+        for bin in bins:
+            score = self._compute_packing_score(bin, request)
+            if score.total < best_score:
+                best_score = score.total
+                best_bin = bin
+
+        if best_bin:
+            return self._assign(best_bin, request)
         return None
 
-    def pack_fractional(
+    def _compute_packing_score(self, bin: GPUBin, request: SchedulingRequest) -> PackingScore:
+        remaining_gpus = bin.available_gpus - request.gpu_count
+        fit_score = remaining_gpus / bin.total_gpus if remaining_gpus >= 0 else 9999
+
+        sla_score = 1.0
+        if request.sla_tier == SLATier.DEFENSE and bin.isolation_level != "isolated":
+            sla_score = 0.0
+        elif request.sla_tier == SLATier.ENTERPRISE and bin.isolation_level not in ("dedicated", "isolated"):
+            sla_score = 0.5
+
+        cost_score = bin.hourly_cost_usd / request.gpu_count
+
+        frag_penalty = max(0.0, (remaining_gpus / bin.total_gpus) ** 2) if remaining_gpus > 0 else 0.0
+
+        total_score = fit_score * 0.4 + (1.0 - sla_score) * 0.3 + cost_score * 0.2 + frag_penalty * 0.1
+
+        return PackingScore(
+            fit_score=fit_score,
+            sla_compliance=sla_score,
+            cost_score=cost_score,
+            fragmentation_penalty=frag_penalty,
+            total=total_score,
+        )
+
+    def _first_fit_decreasing(
         self,
+        bins: list[GPUBin],
         request: SchedulingRequest,
-        available_bins: list[ExecutionCapacity],
-        gpu_fraction: float = 1.0,
-    ) -> tuple[ExecutionCapacity | None, float]:
-        bins = [self._to_bin(cap) for cap in available_bins]
-        for bin in bins:
-            if self._can_fit_fractional(bin, request, gpu_fraction):
-                return self._assign_fractional(bin, request, gpu_fraction), gpu_fraction
-        return None, 0.0
+    ) -> ExecutionCapacity | None:
+        sorted_bins = sorted(bins, key=lambda b: -b.available_gpus)
+        for bin in sorted_bins:
+            if bin.available_gpus >= request.gpu_count:
+                return self._assign(bin, request)
+        return None
+
+    def _best_fit_decreasing(
+        self,
+        bins: list[GPUBin],
+        request: SchedulingRequest,
+    ) -> ExecutionCapacity | None:
+        sorted_bins = sorted(bins, key=lambda b: -b.available_gpus)
+        best: GPUBin | None = None
+        best_remaining = float("inf")
+
+        for bin in sorted_bins:
+            remaining = bin.available_gpus - request.gpu_count
+            if remaining >= 0 and remaining < best_remaining:
+                best_remaining = remaining
+                best = bin
+
+        if best:
+            return self._assign(best, request)
+        return None
+
+    def _worst_fit_decreasing(
+        self,
+        bins: list[GPUBin],
+        request: SchedulingRequest,
+    ) -> ExecutionCapacity | None:
+        sorted_bins = sorted(bins, key=lambda b: -b.available_gpus)
+        best: GPUBin | None = None
+        best_remaining = -float("inf")
+
+        for bin in sorted_bins:
+            remaining = bin.available_gpus - request.gpu_count
+            if remaining >= 0 and remaining > best_remaining:
+                best_remaining = remaining
+                best = bin
+
+        if best:
+            return self._assign(best, request)
+        return None
 
     def _to_bin(self, capacity: ExecutionCapacity) -> GPUBin:
+        used = sum(w.get("gpu_fraction", 0.0) for w in capacity.metadata.get("workloads", []))
+        available = max(0.0, float(capacity.gpu_count) - used)
         return GPUBin(
             capacity_id=capacity.id,
             gpu_type=capacity.gpu_type,
             total_gpus=float(capacity.gpu_count),
-            available_gpus=float(capacity.gpu_count) * (1 - capacity.utilization_pct / 100),
+            available_gpus=available,
             vram_gb=capacity.metadata.get("vram_gb", 48),
             current_workloads=capacity.metadata.get("workloads", []),
             isolation_level=capacity.pool_class.value,
@@ -74,61 +170,32 @@ class GPUBinPacker:
             metadata=capacity.metadata,
         )
 
-    def _can_fit(self, bin: GPUBin, request: SchedulingRequest) -> bool:
-        if request.data_classification == "ITAR" and not bin.itar_eligible:
+    def _can_fit(self, capacity: ExecutionCapacity, request: SchedulingRequest) -> bool:
+        used = sum(w.get("gpu_fraction", 0.0) for w in capacity.metadata.get("workloads", []))
+        available = max(0.0, float(capacity.gpu_count) - used)
+        if request.data_classification == "ITAR" and not capacity.itar_eligible:
             return False
-        if request.gpu_count > bin.fractional_available():
-            return False
-        required_isolation = {
-            "defense": "isolated",
-            "enterprise": "dedicated",
-        }.get(request.sla_tier.value, "shared")
-        if required_isolation != "shared" and bin.isolation_level != required_isolation:
-            return False
-        return True
-
-    def _can_fit_fractional(self, bin: GPUBin, request: SchedulingRequest, fraction: float) -> bool:
-        required_gpus = request.gpu_count * fraction
-        if request.data_classification == "ITAR" and not bin.itar_eligible:
-            return False
-        if required_gpus > bin.fractional_available():
+        if request.gpu_count > available:
             return False
         required_isolation = {
             "defense": "isolated",
             "enterprise": "dedicated",
         }.get(request.sla_tier.value, "shared")
-        if required_isolation != "shared" and bin.isolation_level != required_isolation:
+        if required_isolation != "shared" and capacity.pool_class.value != required_isolation:
             return False
         return True
 
-    def _assign_to_bin(self, bin: GPUBin, request: SchedulingRequest) -> ExecutionCapacity:
-        return ExecutionCapacity(
-            id=bin.capacity_id,
-            pool_class=PoolClass(bin.isolation_level),
-            provider=bin.metadata.get("provider", "unknown"),
-            node_id=bin.metadata.get("node_id", ""),
-            gpu_type=bin.gpu_type,
-            gpu_count=request.gpu_count,
-            status="RUNNING",
-            itar_eligible=bin.itar_eligible,
-            utilization_pct=min(100.0, bin.available_gpus / bin.total_gpus * 100),
-            hourly_cost_usd=bin.hourly_cost_usd,
-            warm_since=bin.metadata.get("warm_since", ""),
-        )
-
-    def _assign_fractional(
-        self,
-        bin: GPUBin,
-        request: SchedulingRequest,
-        fraction: float,
-    ) -> ExecutionCapacity:
+    def _assign(self, bin: GPUBin, request: SchedulingRequest) -> ExecutionCapacity:
         workloads = list(bin.current_workloads)
         workloads.append(
             {
                 "run_id": request.run_id,
-                "gpu_fraction": fraction,
                 "gpu_count": request.gpu_count,
+                "gpu_fraction": request.gpu_count / bin.total_gpus,
             }
+        )
+        new_utilization = min(
+            100.0, (1 - bin.available_gpus / bin.total_gpus + request.gpu_count / bin.total_gpus) * 100
         )
         return ExecutionCapacity(
             id=bin.capacity_id,
@@ -139,9 +206,7 @@ class GPUBinPacker:
             gpu_count=request.gpu_count,
             status="RUNNING",
             itar_eligible=bin.itar_eligible,
-            utilization_pct=min(
-                100.0, (1 - bin.fractional_available() / bin.total_gpus + fraction / bin.total_gpus) * 100
-            ),
+            utilization_pct=new_utilization,
             hourly_cost_usd=bin.hourly_cost_usd,
             warm_since=bin.metadata.get("warm_since", ""),
             metadata={"workloads": workloads},
@@ -163,11 +228,11 @@ class GPUBinPacker:
         }
 
 
-_packer: GPUBinPacker | None = None
+_packer: AdvancedGPUBinPacker | None = None
 
 
-def get_gpu_bin_packer() -> GPUBinPacker:
+def get_advanced_gpu_bin_packer() -> AdvancedGPUBinPacker:
     global _packer
     if _packer is None:
-        _packer = GPUBinPacker()
+        _packer = AdvancedGPUBinPacker()
     return _packer
