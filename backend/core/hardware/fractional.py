@@ -1,12 +1,12 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from typing import Dict, List, Optional
+
 import uuid
+from dataclasses import dataclass
 from datetime import datetime
 
+from backend.core.hardware.isolation import GPUIsolationManager
 from backend.core.hardware.pools import ExecutionCapacity
 from backend.core.hardware.scheduler import SchedulingRequest
-from backend.core.hardware.isolation import GPUIsolationManager
 from backend.core.services.observability_service import observability
 
 
@@ -26,7 +26,7 @@ class FractionalGPUScheduler:
     """Fractional GPU allocator with isolation enforcement."""
 
     _instance = None
-    _active_allocations: Dict[str, List[FractionalAllocation]] = {}
+    _active_allocations: dict[str, list[FractionalAllocation]] = {}
 
     def __new__(cls):
         if cls._instance is None:
@@ -34,14 +34,14 @@ class FractionalGPUScheduler:
         return cls._instance
 
     @classmethod
-    def scheduler(cls) -> "FractionalGPUScheduler":
+    def scheduler(cls) -> FractionalGPUScheduler:
         return cls()
 
     async def allocate(
         self,
         request: SchedulingRequest,
         capacity: ExecutionCapacity,
-    ) -> Optional[FractionalAllocation]:
+    ) -> FractionalAllocation | None:
         """Create fractional allocation and enforce isolation."""
         if request.gpu_count >= 1.0:
             return None  # Full GPU - use classic path
@@ -74,7 +74,7 @@ class FractionalGPUScheduler:
 
         return allocation
 
-    def _get_current_usage(self, capacity_id: str) -> Dict[str, float]:
+    def _get_current_usage(self, capacity_id: str) -> dict[str, float]:
         allocs = self._active_allocations.get(capacity_id, [])
         return {
             "gpu": sum(a.gpu_fraction for a in allocs),

@@ -1,11 +1,11 @@
 # backend/core/hardware/bin_packing.py
 from __future__ import annotations
-from typing import List, Optional
+
 from dataclasses import dataclass
 
+from backend.core.hardware.fractional import FractionalGPUScheduler
 from backend.core.hardware.pools import ExecutionCapacity, PoolClass
 from backend.core.hardware.scheduler import SchedulingRequest
-from backend.core.hardware.fractional import FractionalGPUScheduler
 from backend.core.services.observability_service import observability
 from backend.core.tracing import trace_context
 
@@ -23,8 +23,8 @@ class AdvancedGPUBinPacker:
     async def pack(
         self,
         request: SchedulingRequest,
-        available_bins: List[ExecutionCapacity],
-    ) -> Optional[ExecutionCapacity]:
+        available_bins: list[ExecutionCapacity],
+    ) -> ExecutionCapacity | None:
         with trace_context("bin_packing.pack") as span:
             observability().increment("bin_packing_attempts_total")
 
@@ -56,6 +56,6 @@ class AdvancedGPUBinPacker:
     def _can_fit(self, capacity: ExecutionCapacity, request: SchedulingRequest) -> bool:
         if request.gpu_count > (capacity.gpu_count * (1.0 - capacity.utilization_pct / 100)):
             return False
-        if getattr(request, 'requires_itar', False) and not capacity.itar_eligible:
+        if getattr(request, "requires_itar", False) and not capacity.itar_eligible:
             return False
         return True
