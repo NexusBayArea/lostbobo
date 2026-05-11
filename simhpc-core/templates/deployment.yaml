@@ -14,49 +14,28 @@ spec:
       labels:
         app: simhpc-core
     spec:
-      nodeSelector:
-        {{- toYaml .Values.gpu.nodeSelector | nindent 8 }}
-      tolerations:
-        {{- toYaml .Values.gpu.tolerations | nindent 8 }}
-
       containers:
         - name: simhpc-core
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8000
-
           resources:
             requests:
-              {{- if .Values.gpu.enabled }}
-              nvidia.com/gpu: "{{ .Values.gpu.count }}"
-              {{- end }}
               cpu: "2"
               memory: "4Gi"
             limits:
-              {{- if .Values.gpu.enabled }}
-              nvidia.com/gpu: "{{ .Values.gpu.count }}"
-              {{- end }}
               cpu: "8"
               memory: "16Gi"
-
           envFrom:
             - configMapRef:
                 name: simhpc-core-config
-
-          {{- if .Values.gpu.mps.enabled }}
-          env:
-            - name: CUDA_MPS_ACTIVE_THREAD_PERCENTAGE
-              value: "{{ .Values.gpu.mps.activeThreadPercentage }}"
-          {{- end }}
-
           readinessProbe:
             httpGet:
               path: /health
               port: 8000
             initialDelaySeconds: 15
             periodSeconds: 5
-
           livenessProbe:
             httpGet:
               path: /health
