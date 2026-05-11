@@ -225,3 +225,46 @@ cortex:
       "sla:compliance:overall": 365d
       "sla:breach:rate:1h": 365d
       "kernel:executions:success_rate:5m": 180d
+
+# Plugin Security Configuration
+pluginSecurity:
+  # Container escape prevention
+  container:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
+
+  # Runtime isolation (gvisor for high-risk, kata for maximum)
+  runtimeClass: ""
+  # "" = default runc, "gvisor" = user-space kernel, "kata" = lightweight VM
+
+  # Side-channel mitigation
+  sideChannel:
+    mitigation: "jitter"  # "standard", "jitter", "constant_time", "dedicated"
+    timingJitterMs: 5.0
+    requiresDedicatedCpu: false
+    maxTimingVarianceMs: 50.0
+
+  # CPU pinning for high-security plugins
+  cpuPinning:
+    enabled: false
+    dedicatedCores: []
+
+  # Memory limits
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "2"
+      memory: "1Gi"
+
+  # tmpfs for temporary storage (no disk persistence)
+  tmpfs:
+    enabled: true
+    sizeLimit: "100Mi"
