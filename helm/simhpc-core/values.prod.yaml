@@ -1,0 +1,15 @@
+replicaCount: 3
+
+image:
+  tag: "20260510-prod"
+
+kata:
+  enabled: true
+
+monitoring:
+  thanos:
+    enabled: true
+  falco:
+    enabled: true
+  sysdig:
+    enabled: true
