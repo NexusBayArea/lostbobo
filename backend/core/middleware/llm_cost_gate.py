@@ -4,8 +4,8 @@ LLM Cost Gate — Hard budget enforcement
 """
 
 from dataclasses import dataclass
-from backend.app.core.supabase import get_supabase_client
 
+from backend.app.core.supabase import get_supabase_client
 
 MODEL_PRICING = {
     "claude-sonnet-4-6": {"input": 3.00, "output": 15.00},
