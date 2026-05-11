@@ -15,6 +15,9 @@ spec:
         app: simhpc-core
       annotations:
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
         - name: simhpc-core

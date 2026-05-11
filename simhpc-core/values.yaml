@@ -79,3 +79,19 @@ karpenter:
       labels:
         simhpc/workload: gpu
         nvidia.com/gpu: "true"
+
+# GPU Monitoring
+monitoring:
+  gpu:
+    enabled: true
+    dcgm:
+      enabled: true
+      scrapeInterval: 15s
+    prometheus:
+      scrapeInterval: 15s
+
+# GPU Cost Optimization
+costOptimization:
+  spotPriority: true
+  spotThreshold: 0.4
+  minSpotSavings: 0.6
