@@ -137,3 +137,24 @@
 - Karpenter EC2NodeClass supports GPU instance families: g4dn, g5, p3, p4d, p5
 - Cost optimization includes spot-first scheduling (60-75% savings)
 - All pre-commit hooks pass (green)
+
+## 2026-05-10 20:38:44 PST
+
+### Actions Taken
+
+1. **Added Production Karpenter NodePools**
+   - File: `simhpc-core/templates/karpenter-nodepools.yaml`
+   - Created 3 NodePools: gpu-general (spot-first, weight 100), gpu-high-mem (weight 80), gpu-isolated (defense, weight 60)
+   - Supports instance families: g4dn, g5, p3, p4d, p5, g6
+
+2. **Updated values.prod.yaml**
+   - Added full Karpenter configuration with all 3 node pools
+   - Added monitoring.gpu.enabled section
+   - Added costOptimization section with spot settings
+
+### Notes
+
+- NodePool gpu-general: max 40 nodes, spot + on-demand, consolidation after 60s
+- NodePool gpu-high-mem: max 12 nodes, on-demand preferred, large memory instances
+- NodePool gpu-isolated: max 8 nodes, on-demand only, MIG support, no consolidation
+- All pre-commit hooks pass (green)
