@@ -5,9 +5,8 @@ Supabase Auth with login, refresh, logout, and protected routes.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
-from typing import Optional
 
 from backend.app.core.supabase import get_supabase_client
 
@@ -32,7 +31,9 @@ class AuthResponse(BaseModel):
     user: dict
 
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> dict:
     """Verify Bearer token."""
     token = credentials.credentials
     sb = get_supabase_client()
@@ -46,12 +47,12 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
             "email": user.user.email,
             "role": getattr(user.user, "role", None),
         }
-    except Exception:
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
 
 
 @router.post("/login")
@@ -68,8 +69,8 @@ async def login(request: LoginRequest):
             expires_in=response.session.expires_in,
             user={"id": response.user.id, "email": response.user.email},
         )
-    except Exception:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid credentials") from e
 
 
 @router.post("/refresh")
@@ -87,8 +88,8 @@ async def refresh_token(request: RefreshRequest):
             expires_in=response.session.expires_in,
             user={"id": response.user.id, "email": response.user.email},
         )
-    except Exception:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid refresh token") from e
 
 
 @router.post("/logout")
@@ -109,5 +110,5 @@ async def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
 
 # Protected route example
 @router.get("/me")
-async def get_current_user_info(user: dict = Depends(get_current_user)):
-    return {"user": user}
+async def get_current_user_info(request: Depends = Depends(get_current_user)):
+    return {"user": request}
