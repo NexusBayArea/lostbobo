@@ -96,6 +96,13 @@ async def get_rl_policy_inspection():
     }
 
 
+@router.post("/rl/snapshot/{snapshot_id}/restore")
+async def restore_rl_snapshot(snapshot_id: str):
+    from backend.core.runtime.adaptation.rl_snapshot import rl_snapshot_manager
+
+    return await rl_snapshot_manager.restore_snapshot(snapshot_id)
+
+
 @router.get("/snapshot")
 async def core_graph_snapshot() -> dict[str, Any]:
     """Lightweight snapshot for dashboard polling."""
