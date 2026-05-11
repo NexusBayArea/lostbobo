@@ -1,0 +1,97 @@
+{
+  "title": "SimHPC — Full GPU + MIG + Kata + WorldState",
+  "uid": "simhpc-full-monitoring-v6",
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "panels": [
+    {
+      "title": "VirtioFS Cache Hit Rate (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+      "targets": [
+        {
+          "expr": "100 * (rate(virtiofs_cache_hits_total[5m]) / (rate(virtiofs_cache_hits_total[5m]) + rate(virtiofs_cache_misses_total[5m])))",
+          "legendFormat": "Cache Hit Rate"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 70 },
+              { "color": "green", "value": 85 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "VirtioFS Throughput",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "rate(virtiofs_read_bytes_total[5m])", "legendFormat": "Read" },
+        { "expr": "rate(virtiofs_write_bytes_total[5m])", "legendFormat": "Write" }
+      ]
+    },
+    {
+      "title": "Kata VM Cold Start Latency",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 },
+      "targets": [{ "expr": "kata_pod_start_duration_seconds" }]
+    },
+    {
+      "title": "WorldState Overview",
+      "type": "row",
+      "gridPos": { "x": 0, "y": 8, "w": 24, "h": 1 }
+    },
+    {
+      "title": "Current Regime",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 9, "w": 4, "h": 4 },
+      "targets": [{ "expr": "state_regime" }],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" } } }
+    },
+    {
+      "title": "Global Entropy",
+      "type": "stat",
+      "gridPos": { "x": 4, "y": 9, "w": 4, "h": 4 },
+      "targets": [{ "expr": "state_entropy" }]
+    },
+    {
+      "title": "Active Entities",
+      "type": "stat",
+      "gridPos": { "x": 8, "y": 9, "w": 4, "h": 4 },
+      "targets": [{ "expr": "count(state_entities)" }]
+    },
+    {
+      "title": "Causal Chain Length",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 9, "w": 4, "h": 4 },
+      "targets": [{ "expr": "causal_chain_length" }]
+    },
+    {
+      "title": "Predicted Anomalies (5m)",
+      "type": "stat",
+      "gridPos": { "x": 16, "y": 9, "w": 4, "h": 4 },
+      "targets": [{ "expr": "predicted_anomalies_5m" }],
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" } } }
+    },
+    {
+      "title": "Live Entity Graph",
+      "type": "graph",
+      "gridPos": { "x": 0, "y": 13, "w": 24, "h": 14 },
+      "targets": [{ "expr": "entity_graph_nodes" }]
+    },
+    {
+      "title": "Causal Event Stream (Live)",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 27, "w": 24, "h": 9 },
+      "targets": [{ "expr": "causal_events_last_5m" }]
+    }
+  ]
+}

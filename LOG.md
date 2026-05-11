@@ -262,32 +262,32 @@
 ### Actions Taken
 
 1. **Created WorldState Dashboard + Core Graph API**
-   - Created backend/app/api/core_graph.py with endpoints: /world-state-graph, /world-state/stream, /anomalies
-   - Created frontend/src/components/WorldStateDashboard.tsx with ReactFlow graph, regime/entropy display, event stream, anomaly panel
+    - Created backend/app/api/core_graph.py with endpoints: /world-state-graph, /world-state/stream, /anomalies
+    - Created frontend/src/components/WorldStateDashboard.tsx with ReactFlow graph, regime/entropy display, event stream, anomaly panel
 
 2. **Created Causal Anomaly Detector**
-   - Created backend/core/runtime/anomaly/detector.py
-   - Singleton detector with 5 detection types: causal_break, regime_shift, uncertainty_spike, probability_mass_violation, temporal_monotonicity
-   - Runs detection pass every 5 seconds, emits runtime.anomaly.detected events
+    - Created backend/core/runtime/anomaly/detector.py
+    - Singleton detector with 5 detection types: causal_break, regime_shift, uncertainty_spike, probability_mass_violation, temporal_monotonicity
+    - Runs detection pass every 5 seconds, emits runtime.anomaly.detected events
 
 3. **Created Database Migration for Causal Anomalies**
-   - Created deploy/supabase/migrations/20260510_causal_anomalies.sql
-   - Table runtime_causal_anomalies with indexes and RLS policies
+    - Created deploy/supabase/migrations/20260510_causal_anomalies.sql
+    - Table runtime_causal_anomalies with indexes and RLS policies
 
 4. **Created ML Anomaly Prediction Layer**
-   - Created backend/core/runtime/anomaly/ml_predictor.py
-   - MLAnomalyPredictor singleton with LSTM + Isolation Forest ensemble
-   - 12-dimensional feature vector for temporal and feature-based predictions
-   - Predicts anomalies 5-60 minutes in advance with probability scores
+    - Created backend/core/runtime/anomaly/ml_predictor.py
+    - MLAnomalyPredictor singleton with LSTM + Isolation Forest ensemble
+    - 12-dimensional feature vector for temporal and feature-based predictions
+    - Predicts anomalies 5-60 minutes in advance with probability scores
 
 5. **Integrated ML Predictions into Detector**
-   - Updated detector.py with _run_ml_predictions() method
-   - ML predictions run alongside rule-based detection every cycle
-   - Predicted anomalies emitted with severity based on probability threshold
+    - Updated detector.py with _run_ml_predictions() method
+    - ML predictions run alongside rule-based detection every cycle
+    - Predicted anomalies emitted with severity based on probability threshold
 
 6. **Fixed Ruff Linting Errors**
-   - Fixed N806: changed X to x and X_scaled to x_scaled for lowercase variable names
-   - All pre-commit hooks now pass (green)
+    - Fixed N806: changed X to x and X_scaled to x_scaled for lowercase variable names
+    - All pre-commit hooks now pass (green)
 
 ### Notes
 
@@ -295,4 +295,34 @@
 - CausalAnomalyDetector extends existing AnomalyDetectionSystem with causal-specific logic
 - ML predictor uses rolling window of 300 feature vectors for temporal patterns
 - Ensemble probability combines LSTM temporal + Isolation Forest feature-based scores
+- All pre-commit hooks pass (green)
+
+## 2026-05-11 03:15:00 PST
+
+### Actions Taken
+
+1. **Implemented VirtioFS Optimizations for SimHPC Plugins**
+    - Updated simhpc-core/values.kata.yaml with requested VirtioFS settings: cache=always, writeback=true, queue_size=1024, multi_queue=true
+    - Added noatime and nodiratime mount options for VirtioFS volumes
+    - Created simhpc-core/templates/plugin-deployment.yaml for VirtioFS-based plugin deployments
+    - Updated simhpc-core/values.yaml with plugin configuration section
+    - Modified simhpc-core/templates/deployment.yaml to use kata-optimized runtime when Kata is enabled
+    - Added VirtioFS cache hit rate monitoring panel to Grafana dashboard
+    - Created deploy/grafana/dashboards/virtiofs/virtiofs-cache.json dashboard
+    - Created deploy/grafana/provisioning/dashboards/simhpc-virtiofs.yml provisioning file
+    - Added Prometheus alert rule for low VirtioFS cache hit rate detection
+    - Formatted all code with ruff and committed changes
+
+2. **Verified and Pushed Changes**
+    - Ran uv run ruff format . to ensure code consistency
+    - Verified no files were incorrectly ignored by .gitignore
+    - Committed all VirtioFS optimization changes with descriptive message
+    - Successfully pushed to origin/main
+
+### Notes
+
+- All requested VirtioFS settings have been applied: cache=always, writeback=true, queue_size=1024, multi_queue=true
+- Plugin code is mounted read-only with noatime + nodiratime options as requested
+- Comprehensive monitoring includes Grafana dashboard and Prometheus alerting for cache hit rate tracking
+- Validation commands provided for checking current VirtioFS settings and monitoring live cache hit rate
 - All pre-commit hooks pass (green)
