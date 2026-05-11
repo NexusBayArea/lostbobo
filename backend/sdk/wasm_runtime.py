@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Any
 
 log = logging.getLogger(__name__)
 
@@ -84,8 +83,6 @@ class WasmSandbox:
         log.info("WASM plugin logged message")
 
     def _serialize_payload(self, payload: dict) -> int:
-        import json
-
         return 0
 
     def _read_result(self, ptr: int) -> dict:

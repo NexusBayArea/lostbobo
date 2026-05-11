@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 
 @dataclass
-class eBPFPolicy:
+class EbpfPolicy:
     plugin_id: str
     allowed_syscalls: list[str] = field(default_factory=list)
     allowed_network: bool = False
@@ -18,7 +18,7 @@ class eBPFPolicy:
     allowed_endpoints: list[str] = field(default_factory=list)
 
 
-class eBPFEnforcer:
+class EbpfEnforcer:
     """Attaches eBPF programs to plugin processes/pods."""
 
     def __init__(self):
@@ -39,7 +39,7 @@ class eBPFEnforcer:
             log.error("eBPF initialization failed: %s", e)
             return False
 
-    def attach_to_plugin(self, plugin_id: str, pid: int, policy: eBPFPolicy) -> bool:
+    def attach_to_plugin(self, plugin_id: str, pid: int, policy: EbpfPolicy) -> bool:
         """Load and attach eBPF program to a running plugin process."""
         if not self._bpf_module and not self._initialize_bpf():
             log.warning("Cannot attach eBPF to %s - bcc not available", plugin_id)
@@ -87,11 +87,11 @@ int trace_syscall(struct pt_regs *ctx) {{
     def is_attached(self, plugin_id: str) -> bool:
         return plugin_id in self.programs
 
-    def get_policy(self, plugin_id: str) -> eBPFPolicy | None:
+    def get_policy(self, plugin_id: str) -> EbpfPolicy | None:
         if plugin_id in self.programs:
             return self.programs[plugin_id].get("policy")
         return None
 
 
-def create_ebpf_enforcer() -> eBPFEnforcer:
-    return eBPFEnforcer()
+def create_ebpf_enforcer() -> EbpfEnforcer:
+    return EbpfEnforcer()
