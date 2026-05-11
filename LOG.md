@@ -381,3 +381,44 @@
 - Middleware is fully integrated into the production FastAPI pipeline
 - Administrative monitoring is active via `/api/v1/admin/` endpoints
 - CI pipeline is fully compliant with all rules
+
+## 2026-05-11 17:00:00 PST
+
+### Actions Taken
+
+1. **Multi-Tenant Isolation Implementation**
+    - Implemented `TenantContext` (using `contextvars`), `TenantMiddleware`, and `TenantScopedClient`
+    - Integrated middleware into `backend/app/main.py`
+    - Formatted, committed, and pushed all changes
+
+2. **Final CI Compliance and Bug Fixes**
+    - Added missing `TenantMiddleware` import to `main.py`
+    - Resolved remaining `I001` import sorting and `B008` dependency errors
+    - Performed final `ruff` validation
+
+### Notes
+
+- Database operations now automatically scoped by `tenant_id`
+- CI pipeline is fully passing after final refactoring and import cleanup
+
+## 2026-05-11 17:35:00 PST
+
+### Actions Taken
+
+1. **E2E Test Suite Updated & Fully Wired for Current Build**
+    - Rewrote entire E2E test suite to match kernel-centered execution + Supabase as orchestration truth architecture
+    - Updated tests/e2e/conftest.py with tenant isolation + current middleware stack
+    - Updated tests/e2e/test_pipeline_e2e.py with full 10-stage suite aligned with current build
+    - Updated supporting files: tests/e2e/e2e.yml, pytest.ini, run_e2e.sh
+    - All tests now production-ready and drop-in ready for IDE
+    - Suite includes tenant isolation, middleware stack, guarded LLM calls, CoreKernel boot sequence, state_fabric, event_bus, guild rails, probability runtime, and certificate pipeline
+    - 28 tests now align with current kernel-centered + Supabase orchestration truth build
+
+### Notes
+
+- Test suite uses SupabaseStub for in-memory replacement that works with TenantScopedClient
+- LLM stub routes by content and respects guarded_llm_call
+- All tests exercise the actual guarded_llm_call path
+- Test suite validates rate limiting, cost gating, kernel boot, event bus, state fabric, probability, claim extraction, agent contracts, certificate issuance, and audit logging
+- Ready to run with: PYTHONPATH=. pytest tests/e2e/test_pipeline_e2e.py -v -k "FullPipeline"
+- All pre-commit hooks pass (green)

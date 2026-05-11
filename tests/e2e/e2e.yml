@@ -1,0 +1,32 @@
+# E2E Test Configuration
+test_suite: "simhpc-e2e"
+version: "1.0.0"
+kernel_centered: true
+supabase_orchestration: true
+tenant_isolation: true
+
+# Test identifiers
+test_tenant_id: "e2e-tenant-001"
+test_run_id: "e2e-run-001"
+test_trace_id: "e2e-trace-001"
+test_sla_tier: "enterprise"
+test_domain: "structural"
+test_solver: "MFEM"
+
+# Pipeline settings
+stages: 10
+timeout_seconds: 300
+retry_attempts: 3
+
+# Middleware configuration
+rate_limiting:
+  enabled: true
+  default_tier: "enterprise"
+
+llm_cost_gate:
+  enabled: true
+  budget_check: true
+
+# Environment
+environment: "test"
+log_level: "INFO"
