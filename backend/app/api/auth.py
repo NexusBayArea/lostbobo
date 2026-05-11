@@ -1,39 +1,19 @@
-"""Full Supabase Auth Integration."""
-
-from __future__ import annotations
-
-import logging
-import os
-from datetime import UTC, datetime, timedelta
-from typing import Annotated
+"""
+backend/app/api/auth.py
+───────────────────────
+Supabase Auth with login, refresh, logout, and protected routes.
+"""
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
+from typing import Optional
 
 from backend.app.core.supabase import get_supabase_client
 
-log = logging.getLogger(__name__)
+router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
-_JWT_SECRET = os.environ.get("JWT_SECRET", "")
-_JWT_EXPIRY_HOURS = int(os.environ.get("JWT_EXPIRY_HOURS", "8"))
-_ENV = os.environ.get("SIMHPC_ENV", "production").lower()
-
-if _ENV != "test" and not _JWT_SECRET:
-    raise OSError(
-        "JWT_SECRET environment variable is not set. "
-        'Generate one with: python -c "import secrets; print(secrets.token_hex(32))"'
-    )
-
-router = APIRouter(prefix="/api/auth", tags=["auth"])
-_bearer = HTTPBearer(auto_error=False)
-
-
-class AuthUser(BaseModel):
-    id: str
-    email: str
-    role: str = "user"
-    tenant_id: str = "public"
+security = HTTPBearer()
 
 
 class LoginRequest(BaseModel):
@@ -41,125 +21,93 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class LoginResponse(BaseModel):
-    token: str
-    user: AuthUser
+class RefreshRequest(BaseModel):
+    refresh_token: str
 
 
-def _create_token(user: AuthUser) -> str:
-    import jwt
-
-    payload = {
-        "sub": user.id,
-        "email": user.email,
-        "role": user.role,
-        "tenant_id": user.tenant_id,
-        "exp": datetime.now(UTC) + timedelta(hours=_JWT_EXPIRY_HOURS),
-        "iat": datetime.now(UTC),
-    }
-    return jwt.encode(payload, _JWT_SECRET, algorithm="HS256")
+class AuthResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    expires_in: int
+    user: dict
 
 
-def _decode_token(token: str) -> dict:
-    import jwt
-    from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
+    """Verify Bearer token."""
+    token = credentials.credentials
+    sb = get_supabase_client()
+    if not sb:
+        raise HTTPException(status_code=500, detail="Auth service unavailable")
 
     try:
-        return jwt.decode(token, _JWT_SECRET, algorithms=["HS256"])
-    except ExpiredSignatureError as err:
+        user = sb.auth.get_user(token)
+        return {
+            "user_id": user.user.id,
+            "email": user.user.email,
+            "role": getattr(user.user, "role", None),
+        }
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token expired — please sign in again",
-        ) from err
-    except InvalidTokenError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"Invalid token: {exc}",
-        ) from exc
-
-
-async def get_current_user(
-    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
-) -> AuthUser:
-    if not credentials:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization header missing",
+            detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    claims = _decode_token(credentials.credentials)
-    return AuthUser(
-        id=claims["sub"],
-        email=claims["email"],
-        role=claims.get("role", "user"),
-        tenant_id=claims.get("tenant_id", "public"),
-    )
 
-
-_ROLE_RANK = {"viewer": 0, "user": 1, "admin": 2}
-
-
-def require_role(minimum_role: str):
-    async def _check() -> AuthUser:
-        user = await get_current_user(None)
-        user_rank = _ROLE_RANK.get(user.role, 0)
-        required_rank = _ROLE_RANK.get(minimum_role, 99)
-        if user_rank < required_rank:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Role '{minimum_role}' required, you have '{user.role}'",
-            )
-        return user
-
-    return _check
-
-
-@router.post("/login", response_model=LoginResponse)
-async def login(body: LoginRequest) -> LoginResponse:
-    user = await _verify_credentials(body.email, body.password)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
-        )
-    token = _create_token(user)
-    log.info("Login: user=%s tenant=%s role=%s", user.email, user.tenant_id, user.role)
-    return LoginResponse(token=token, user=user)
-
-
-@router.get("/me", response_model=AuthUser)
-async def me() -> AuthUser:
-    return await get_current_user(None)
-
-
-@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout() -> None:
-    user = await get_current_user(None)
-    log.info("Logout: user=%s", user.email)
-
-
-async def _verify_credentials(email: str, password: str) -> AuthUser | None:
-    """Real Supabase auth call."""
+@router.post("/login")
+async def login(request: LoginRequest):
     sb = get_supabase_client()
-    if sb is None:
-        log.warning("Supabase client is None — test mode?")
-        return None
+    if not sb:
+        raise HTTPException(status_code=500, detail="Auth service unavailable")
 
     try:
-        resp = sb.auth.sign_in_with_password({"email": email, "password": password})
-
-        if resp.user is None:
-            return None
-
-        user_metadata = resp.user.user_metadata or {}
-
-        return AuthUser(
-            id=resp.user.id,
-            email=resp.user.email or email,
-            role=user_metadata.get("role", "user"),
-            tenant_id=user_metadata.get("tenant_id", "public"),
+        response = sb.auth.sign_in_with_password({"email": request.email, "password": request.password})
+        return AuthResponse(
+            access_token=response.session.access_token,
+            refresh_token=response.session.refresh_token,
+            expires_in=response.session.expires_in,
+            user={"id": response.user.id, "email": response.user.email},
         )
-    except Exception as exc:
-        log.error(f"Supabase auth failed for {email}: {exc}")
-        return None
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+
+@router.post("/refresh")
+async def refresh_token(request: RefreshRequest):
+    """Refresh access token."""
+    sb = get_supabase_client()
+    if not sb:
+        raise HTTPException(status_code=500, detail="Auth service unavailable")
+
+    try:
+        response = sb.auth.refresh_session(request.refresh_token)
+        return AuthResponse(
+            access_token=response.session.access_token,
+            refresh_token=response.session.refresh_token,
+            expires_in=response.session.expires_in,
+            user={"id": response.user.id, "email": response.user.email},
+        )
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+
+@router.post("/logout")
+async def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Logout - revoke current session."""
+    token = credentials.credentials
+    sb = get_supabase_client()
+    if not sb:
+        raise HTTPException(status_code=500, detail="Auth service unavailable")
+
+    try:
+        sb.auth.sign_out(token)
+        return {"status": "success", "message": "Logged out successfully"}
+    except Exception:
+        # Still return success to avoid leaking info
+        return {"status": "success", "message": "Logged out"}
+
+
+# Protected route example
+@router.get("/me")
+async def get_current_user_info(user: dict = Depends(get_current_user)):
+    return {"user": user}
