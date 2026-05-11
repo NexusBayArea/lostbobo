@@ -1,0 +1,30 @@
+{{- if .Values.vpa.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: simhpc-core
+  labels:
+    app: simhpc-core
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: simhpc-core
+
+  updatePolicy:
+    updateMode: {{ .Values.vpa.updateMode | quote }}
+
+  resourcePolicy:
+    containerPolicies:
+      - containerName: simhpc-core
+        minAllowed:
+          cpu: {{ .Values.vpa.minAllowed.cpu }}
+          memory: {{ .Values.vpa.minAllowed.memory }}
+        maxAllowed:
+          cpu: {{ .Values.vpa.maxAllowed.cpu }}
+          memory: {{ .Values.vpa.maxAllowed.memory }}
+        controlledResources:
+          - cpu
+          - memory
+        controlledValues: RequestsAndLimits
+{{- end }}
