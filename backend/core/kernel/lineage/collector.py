@@ -3,20 +3,21 @@ from __future__ import annotations
 
 from typing import Any
 
-from backend.app.core.supabase import get_supabase_client
 from backend.core.kernel.lineage.events import LineageEvent
+from backend.core.kernel.lineage.storage import ProvenanceStorage
 from backend.core.services.observability_service import observability
 from backend.core.tracing import trace_context
 
 
 class LineageCollector:
-    """Unified lineage event collector — the single source of provenance."""
+    """Unified lineage collector — now uses the new ProvenanceStorage layer."""
 
     _instance = None
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
+            cls._instance._storage = ProvenanceStorage.storage()
         return cls._instance
 
     @classmethod
@@ -24,11 +25,16 @@ class LineageCollector:
         return cls()
 
     async def emit(
-        self, execution_id: str, event_type: str, source_type: str, source_id: str, payload: dict[str, Any]
+        self,
+        execution_id: str,
+        event_type: str,
+        source_type: str,
+        source_id: str,
+        payload: dict[str, Any],
     ) -> None:
-        """Emit a lineage event to Supabase + Event Bus."""
+        """Emit lineage event and update provenance graph."""
         with trace_context("lineage.emit") as span:
-            LineageEvent(
+            event = LineageEvent(
                 execution_id=execution_id,
                 event_type=event_type,
                 source_type=source_type,
@@ -36,24 +42,8 @@ class LineageCollector:
                 payload=payload,
             )
 
-            # Persist to Supabase (orchestration truth)
-            try:
-                await (
-                    get_supabase_client()
-                    .table("execution_lineage")
-                    .insert(
-                        {
-                            "execution_id": execution_id,
-                            "event_type": event_type,
-                            "source_type": source_type,
-                            "source_id": source_id,
-                            "payload": payload,
-                        }
-                    )
-                    .execute()
-                )
-            except Exception:
-                pass  # Lineage never fails the system
+            # Store in new provenance storage layer
+            await self._storage.store_event(event)
 
             observability().increment(f"lineage.{event_type}_events")
             span.set_attribute("event_type", event_type)
