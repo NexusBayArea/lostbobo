@@ -4,7 +4,7 @@ Fully updated for current kernel-centered build + tenant isolation
 """
 
 import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
+from unittest.mock import patch, MagicMock
 
 from tests.e2e.conftest import (
     TEST_TENANT_ID,

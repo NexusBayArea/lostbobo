@@ -3,14 +3,10 @@ tests/e2e/conftest.py
 Updated for tenant isolation + current middleware stack
 """
 
-import asyncio
-import json
-import uuid
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
-import pytest_asyncio
 
 # ── Stable test identifiers ───────────────────────────────────────────────────
 TEST_TENANT_ID = "e2e-tenant-001"
