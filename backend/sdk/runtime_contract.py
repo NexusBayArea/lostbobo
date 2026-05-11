@@ -31,15 +31,14 @@ class PluginRuntimeContract(ABC):
         """Request a forecast from the temporal probabilistic engine."""
 
     @abstractmethod
-    async def mutate(
-        self,
-        entity_key: str,
-        attribute: str,
-        value: Any,
-        uncertainty: dict | None = None,
-        confidence: float = 0.85,
-    ) -> bool:
-        """Mutate world state through StateRegistry (canonical path)."""
+    @property
+    def world(self) -> WorldService:
+        """Canonical WorldService — use self.runtime.world everywhere."""
+        if not hasattr(self, "_world_service"):
+            from backend.sdk.world_service import WorldServiceImpl
+
+            self._world_service = WorldServiceImpl(self.plugin_id, self._kernel)
+        return self._world_service
 
 
 class DefaultRuntimeContract(PluginRuntimeContract):
