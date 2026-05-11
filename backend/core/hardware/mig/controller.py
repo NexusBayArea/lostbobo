@@ -2,11 +2,10 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Dict, List
 
 from backend.core.hardware.forecasting import PredictiveCapacityForecaster
-from backend.core.tracing import trace_context
 from backend.core.services.observability_service import observability
+from backend.core.tracing import trace_context
 
 
 class MIGProfileController:
@@ -66,7 +65,7 @@ class MIGProfileController:
                 observability().increment("mig_reconcile_failures")
                 span.set_attribute("error", str(e))
 
-    async def _get_current_state(self) -> Dict:
+    async def _get_current_state(self) -> dict:
         """Get current system state."""
         try:
             from backend.core.runtime.state_registry.service import StateRegistryService
@@ -75,7 +74,7 @@ class MIGProfileController:
         except Exception:
             return {"regime": "normal"}
 
-    def _decide_best_profile(self, demand: Dict, regime: str) -> str:
+    def _decide_best_profile(self, demand: dict, regime: str) -> str:
         """Decide optimal MIG profile based on current demand and regime."""
         if regime in ("panic", "disruption") or demand.get("isolated", 0) > 0.7:
             return "all-1g.5gb"
@@ -88,7 +87,7 @@ class MIGProfileController:
 
         return "mixed"
 
-    async def _get_mig_capable_nodes(self) -> List[str]:
+    async def _get_mig_capable_nodes(self) -> list[str]:
         """Return list of nodes with MIG capability."""
         try:
             k8s = await self._get_k8s_client()

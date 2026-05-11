@@ -1,0 +1,108 @@
+# {{- if .Values.karpenter.enabled }}
+---
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: gpu-general
+spec:
+  template:
+    spec:
+      nodeClassRef:
+        name: simhpc-gpu
+      requirements:
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values: ["g4dn", "g5", "p3", "p4d", "p5", "g6"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot", "on-demand"]
+        - key: nvidia.com/gpu
+          operator: Exists
+      labels:
+        simhpc/workload: gpu-general
+        nvidia.com/gpu: "true"
+      taints:
+        - key: nvidia.com/gpu
+          value: "true"
+          effect: NoSchedule
+  limits:
+    cpu: "400"
+    memory: 1600Gi
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 60s
+    expireAfter: 168h
+  weight: 100
+
+---
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: gpu-high-mem
+spec:
+  template:
+    spec:
+      nodeClassRef:
+        name: simhpc-gpu
+      requirements:
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values: ["p4d", "p4de", "p5"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand", "spot"]
+        - key: nvidia.com/gpu
+          operator: Exists
+      labels:
+        simhpc/workload: gpu-high-mem
+        nvidia.com/gpu: "true"
+      taints:
+        - key: nvidia.com/gpu
+          value: "true"
+          effect: NoSchedule
+  limits:
+    cpu: "200"
+    memory: 3200Gi
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 10m
+    expireAfter: 336h
+  weight: 80
+
+---
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: gpu-isolated
+spec:
+  template:
+    spec:
+      nodeClassRef:
+        name: simhpc-gpu
+      requirements:
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values: ["p4d", "p5"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+        - key: nvidia.com/mig.config
+          operator: Exists
+      labels:
+        simhpc/workload: gpu-isolated
+        nvidia.com/mig: "true"
+      taints:
+        - key: nvidia.com/gpu
+          value: "true"
+          effect: NoSchedule
+        - key: simhpc/isolation
+          value: "defense"
+          effect: NoSchedule
+  limits:
+    cpu: "100"
+    memory: 800Gi
+  disruption:
+    consolidationPolicy: Never
+    expireAfter: Never
+  weight: 60
+{{- end }}

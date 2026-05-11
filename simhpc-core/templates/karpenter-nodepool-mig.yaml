@@ -1,0 +1,38 @@
+# {{- if .Values.karpenter.enabled }}
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: gpu-mig-isolated
+spec:
+  template:
+    spec:
+      nodeClassRef:
+        name: simhpc-gpu-mig
+      requirements:
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values: ["p4d", "p5"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+        - key: nvidia.com/mig.config
+          operator: Exists
+      labels:
+        simhpc/workload: gpu-isolated
+        nvidia.com/mig: "true"
+        simhpc/isolation: "defense"
+      taints:
+        - key: nvidia.com/gpu
+          value: "true"
+          effect: NoSchedule
+        - key: simhpc/isolation
+          value: "defense"
+          effect: NoSchedule
+  limits:
+    cpu: "128"
+    memory: 1024Gi
+  disruption:
+    consolidationPolicy: Never
+    expireAfter: Never
+  weight: 60
+{{- end }}

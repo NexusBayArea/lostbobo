@@ -1,0 +1,37 @@
+# {{- if .Values.mig.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: simhpc-mig-alerts
+  namespace: monitoring
+spec:
+  groups:
+    - name: mig-health
+      rules:
+        - alert: MIGHighUtilization
+          expr: DCGM_FI_DEV_GPU_UTIL{instance=~".*mig.*"} > 85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "MIG Instance High Utilization"
+            description: "{{ $labels.instance }} MIG GPU at {{ $value }}% utilization"
+
+        - alert: MIGMemoryPressure
+          expr: DCGM_FI_DEV_MEM_COPY_UTIL{instance=~".*mig.*"} > 90
+          for: 3m
+          labels:
+            severity: critical
+          annotations:
+            summary: "MIG Memory Pressure"
+            description: "{{ $labels.instance }} MIG memory usage critical"
+
+        - alert: MIGControllerFailed
+          expr: kube_job_status_failed{job_name=~"simhpc-mig-controller.*"} > 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "MIG Controller Job Failed"
+            description: "Automated MIG profile switching failed"
+{{- end }}
