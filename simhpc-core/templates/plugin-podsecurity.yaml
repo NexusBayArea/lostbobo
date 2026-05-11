@@ -1,0 +1,21 @@
+# Pod Security Standards for SimHPC Plugins
+apiVersion: policy/v1
+kind: PodSecurity
+metadata:
+  name: simhpc-plugin-restricted
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  volumes:
+    - configMap
+    - emptyDir
+    - secret
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsNonRoot: true
+  seccompProfile: RuntimeDefault
+  supplementalGroups:
+    rule: RunAsAny
+  fsGroup:
+    rule: RunAsAny
