@@ -116,3 +116,13 @@ costOptimization:
   spotPriority: true
   spotThreshold: 0.4
   minSpotSavings: 0.6
+
+# MIG (Multi-Instance GPU) Configuration
+mig:
+  enabled: true
+  defaultProfile: "mixed"
+  controller:
+    enabled: true
+    schedule: "*/5 * * * *"
+  monitoring:
+    enabled: true
