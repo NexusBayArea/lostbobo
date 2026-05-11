@@ -306,6 +306,9 @@ class CausalAnomalyDetector:
                 )
                 await self._emit_anomaly(anomaly)
                 self._recent_anomalies.append(anomaly)
+
+                if pred.probability > 0.85:
+                    await self._trigger_auto_quarantine(anomaly)
         except Exception as e:
             log.warning("ML prediction failed: %s", e)
 
@@ -327,6 +330,8 @@ class CausalAnomalyDetector:
 
             reward = rl_adaptation_engine.compute_reward(anomaly_dicts, 0.0)
             await rl_adaptation_engine.update(state, rl_action, reward, state)
+
+            await rl_adaptation_engine.apply_action(rl_action, anomaly_dicts)
 
             self._recent_rl_action = rl_action
             self._recent_rl_reward = reward

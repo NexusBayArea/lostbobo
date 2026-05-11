@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import random
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -223,6 +224,65 @@ class RLAdaptationEngine:
 
     def get_last_reward(self) -> float:
         return self._last_reward
+
+    async def apply_action(self, action: RLAction, anomalies: list[dict]):
+        """Apply RL action - trigger quarantine or chaos if needed."""
+        if action.quarantine and self.rng.random() < 0.15:
+            await self._trigger_quarantine(action)
+        if action.chaos_inject:
+            await self._trigger_controlled_chaos()
+
+    async def _trigger_quarantine(self, action: RLAction):
+        """Trigger auto-quarantine for plugins."""
+        try:
+            log.warning("RL-triggered quarantine initiated: isolation=%s", action.isolation_mode)
+
+            try:
+                from backend.core.runtime.event_fabric.log import EventLogService
+
+                event = {
+                    "event_type": "runtime.quarantine_triggered",
+                    "source_plugin": "rl_adaptation_engine",
+                    "payload": {
+                        "isolation_mode": action.isolation_mode,
+                        "detection_threshold": action.detection_threshold,
+                    },
+                    "confidence": 0.9,
+                }
+                await EventLogService().publish(event)
+            except Exception:
+                pass
+        except Exception as e:
+            log.warning("Quarantine trigger failed: %s", e)
+
+    async def _trigger_controlled_chaos(self):
+        """Inject controlled chaos for robustness training."""
+        try:
+            chaos_types = ["delay_event", "drop_event", "increase_uncertainty"]
+            chaos_type = self.rng.choice(chaos_types) if hasattr(self, "rng") else "increase_uncertainty"
+
+            log.info("RL-triggered chaos injection: %s", chaos_type)
+
+            try:
+                from backend.core.runtime.event_fabric.log import EventLogService
+
+                event = {
+                    "event_type": "runtime.chaos_injected",
+                    "source_plugin": "rl_adaptation_engine",
+                    "payload": {"type": chaos_type},
+                    "confidence": 0.9,
+                }
+                await EventLogService().publish(event)
+            except Exception:
+                pass
+        except Exception as e:
+            log.warning("Chaos injection failed: %s", e)
+
+    @property
+    def rng(self) -> random.Random:
+        if not hasattr(self, "_rng"):
+            self._rng = random.Random(time.time())
+        return self._rng
 
 
 rl_adaptation_engine = RLAdaptationEngine()
