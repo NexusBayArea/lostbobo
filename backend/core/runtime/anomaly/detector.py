@@ -95,6 +95,8 @@ class CausalAnomalyDetector:
             self._recent_anomalies = self._recent_anomalies[-100:]
 
             await self._run_ml_predictions()
+
+            await self._run_rl_adaptation(state, anomalies)
         except Exception as e:
             log.error("Detection pass error: %s", e)
 
@@ -306,6 +308,30 @@ class CausalAnomalyDetector:
                 self._recent_anomalies.append(anomaly)
         except Exception as e:
             log.warning("ML prediction failed: %s", e)
+
+    async def _run_rl_adaptation(self, state: dict, anomalies: list[CausalAnomaly]):
+        """Run RL adaptation to select optimal runtime actions."""
+        try:
+            from backend.core.runtime.adaptation.rl_engine import rl_adaptation_engine
+
+            anomaly_dicts = [a.__dict__ for a in anomalies]
+            rl_action = rl_adaptation_engine.select_action(state, anomaly_dicts)
+
+            log.info(
+                "RL action: isolation=%s threshold=%.2f quarantine=%s scale=%.2f",
+                rl_action.isolation_mode,
+                rl_action.detection_threshold,
+                rl_action.quarantine,
+                rl_action.resource_scale,
+            )
+
+            reward = rl_adaptation_engine.compute_reward(anomaly_dicts, 0.0)
+            await rl_adaptation_engine.update(state, rl_action, reward, state)
+
+            self._recent_rl_action = rl_action
+            self._recent_rl_reward = reward
+        except Exception as e:
+            log.warning("RL adaptation failed: %s", e)
 
 
 anomaly_detector = CausalAnomalyDetector()

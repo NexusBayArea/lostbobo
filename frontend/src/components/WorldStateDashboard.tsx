@@ -197,7 +197,7 @@ const WorldStateDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="w-1/3 border border-red-500/30 rounded-xl p-4 overflow-auto">
+        <div className="w-1/4 border border-red-500/30 rounded-xl p-4 overflow-auto">
           <h2 className="text-red-400 text-lg font-semibold mb-2">Causal Anomalies (Live)</h2>
           <div className="space-y-2">
             {anomalies.map((a) => (
@@ -207,6 +207,16 @@ const WorldStateDashboard: React.FC = () => {
                 <span className="text-gray-400 text-xs">{a.affected_entity_keys?.slice(0, 2).join(', ') || 'global'}</span>
               </div>
             )) || <div className="text-gray-500 text-sm">No anomalies detected</div>}
+          </div>
+        </div>
+
+        <div className="w-1/4 border border-violet-500/30 rounded-xl p-4">
+          <h2 className="text-violet-400 text-lg font-semibold mb-2">RL Adaptation Engine</h2>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>Last Action: <span className="font-mono">{worldState?.last_rl_action?.isolation_mode || 'none'}</span></div>
+            <div>Policy Reward: <span className="font-semibold text-violet-400">{worldState?.rl_reward?.toFixed(3) || '0.000'}</span></div>
+            <div>Detection Threshold: <span className="font-mono">{worldState?.last_rl_action?.detection_threshold?.toFixed(2) || '0.50'}</span></div>
+            <div>Resource Scale: <span className="font-mono">{worldState?.last_rl_action?.resource_scale?.toFixed(2) || '1.00'}</span></div>
           </div>
         </div>
       </div>
