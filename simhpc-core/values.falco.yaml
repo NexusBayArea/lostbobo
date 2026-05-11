@@ -1,0 +1,52 @@
+# values.falco.yaml
+falco:
+  enabled: false
+  driver:
+    kind: ebpf
+  falcoctl:
+    enabled: true
+
+  customRules:
+    simhpc-plugins.yaml: |
+      - rule: Plugin_Unusual_Syscall
+        desc: Plugin attempted blocked syscall
+        condition: evt.type in (execve, open, connect, socket, ptrace) and container.image.repository contains "simhpc-plugin"
+        output: "Plugin security violation (plugin=%plugin_id syscall=%evt.type command=%proc.cmdline)"
+        priority: WARNING
+        tags: [simhpc, plugin, security]
+
+      - rule: Plugin_High_CPU_Spike
+        desc: Plugin exceeded CPU limit
+        condition: container.image.repository contains "simhpc-plugin" and evt.type = sched_switch and proc.cpu > 85
+        output: "Plugin high CPU (plugin=%plugin_id cpu=%proc.cpu command=%proc.cmdline)"
+        priority: WARNING
+
+      - rule: Plugin_Suspicious_Network
+        desc: Plugin made unexpected network connection
+        condition: evt.type = connect and container.image.repository contains "simhpc-plugin" and not fd.sip in (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16)
+        output: "Plugin unexpected outbound connection (plugin=%plugin_id dest=%fd.sip:%fd.sport)"
+        priority: CRITICAL
+
+      - rule: Plugin_Memory_Anomaly
+        desc: Plugin memory usage anomaly
+        condition: container.image.repository contains "simhpc-plugin" and container.memory.usage > 450MB
+        output: "Plugin memory anomaly (plugin=%plugin_id memory=%container.memory.usage)"
+        priority: WARNING
+
+      - rule: Kernel_Dispatch_Anomaly
+        desc: Suspicious kernel dispatch from plugin
+        condition: proc.name contains "python" and (evt.type = write and fd.name contains "kernel_dispatches") and proc.args contains "permission_denied"
+        output: "Plugin permission abuse attempt (plugin=%proc.name)"
+        priority: CRITICAL
+
+      - rule: WASM_Trap_Detected
+        desc: WASM execution trapped
+        condition: evt.type = ptrace and proc.cmdline contains "wasmtime"
+        output: "WASM trap detected - possible security incident"
+        priority: WARNING
+
+      - rule: Plugin_Unexpected_File_Write
+        desc: Plugin tried to write outside allowed paths
+        condition: evt.type in (open, openat, creat) and evt.is_open_write=true and container.image.repository contains "simhpc-plugin" and not fd.name startswith "/tmp/plugin-cache"
+        output: "Plugin unauthorized file write (path=%fd.name)"
+        priority: ERROR

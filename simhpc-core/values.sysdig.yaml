@@ -1,0 +1,40 @@
+# values.sysdig.yaml
+sysdig:
+  secure:
+    enabled: false
+    clusterName: "simhpc-production"
+
+    agent:
+      image:
+        registry: quay.io
+        repository: sysdig/agent
+        tag: latest
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "1Gi"
+        limits:
+          cpu: "2"
+          memory: "4Gi"
+
+    features:
+      runtimeDetection: true
+      imageScanning: true
+      kubernetesAudit: true
+      posture: true
+      forensics: true
+
+    customPolicies:
+      - name: simhpc-plugin-security
+        description: "Hardened rules for all SimHPC plugins"
+        rules:
+          - "Plugin_Unexpected_Network"
+          - "Plugin_Memory_Anomaly"
+          - "Plugin_Suspicious_Syscall"
+          - "Plugin_WASM_Trap"
+
+    prometheus:
+      enabled: true
+    grafana:
+      dashboards:
+        enabled: true
