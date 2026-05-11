@@ -19,6 +19,9 @@ spec:
         prometheus.io/port: "8000"
         prometheus.io/path: "/metrics"
     spec:
+      {{- if .Values.kata.enabled }}
+      runtimeClassName: kata-optimized
+      {{- end }}
       containers:
         - name: simhpc-core
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

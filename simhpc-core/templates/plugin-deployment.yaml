@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "simhpc-core.fullname" . }}-plugin
+  labels:
+    {{- include "simhpc-core.labels" . | nindent 4 }}
+    app.kubernetes.io/component: plugin
+spec:
+  replicas: {{ .Values.plugin.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "simhpc-core.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: plugin
+  template:
+    metadata:
+      labels:
+        {{- include "simhpc-core.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: plugin
+      annotations:
+        {{- if .Values.plugin.prometheusScrape.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.plugin.metricsPort }}"
+        prometheus.io/path: "/metrics"
+        {{- end }}
+        {{- with .Values.plugin.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.plugin.runtimeClassName }}
+      runtimeClassName: {{ .Values.plugin.runtimeClassName }}
+      {{- end }}
+      {{- if .Values.plugin.securityContext }}
+      securityContext:
+        {{- toYaml .Values.plugin.securityContext | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "simhpc-core.serviceAccountName" . }}
+      {{- if .Values.plugin.affinity }}
+      affinity:
+        {{- toYaml .Values.plugin.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.plugin.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.plugin.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.plugin.tolerations }}
+      tolerations:
+        {{- toYaml .Values.plugin.tolerations | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: plugin
+          image: "{{ .Values.plugin.image.repository }}:{{ .Values.plugin.image.tag | default .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.plugin.image.pullPolicy | default .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.plugin.service.port }}
+              protocol: TCP
+          {{- if .Values.plugin.resources }}
+          resources:
+            {{- toYaml .Values.plugin.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.plugin.env }}
+          env:
+            {{- toYaml .Values.plugin.env | nindent 12 }}
+          {{- end }}
+          {{- if .Values.plugin.envFrom }}
+          envFrom:
+            {{- toYaml .Values.plugin.envFrom | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: plugin-code
+              mountPath: {{ .Values.plugin.mountPath | default "/app" }}
+              readOnly: {{ .Values.plugin.readOnly | default true }}
+              mountOptions:
+                - noatime
+                - nodiratime
+                - cache=always
+                - writeback
+            - name: tmp
+              mountPath: /tmp
+          {{- if .Values.plugin.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.plugin.livenessProbe | nindent 12 }}
+          {{- else if .Values.plugin.livenessProbeHttpGet }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.plugin.livenessProbeHttpGet.path }}
+              port: {{ .Values.plugin.livenessProbeHttpGet.port }}
+            initialDelaySeconds: {{ .Values.plugin.livenessProbe.initialDelaySeconds | default 30 }}
+            periodSeconds: {{ .Values.plugin.livenessProbe.periodSeconds | default 10 }}
+            timeoutSeconds: {{ .Values.plugin.livenessProbe.timeoutSeconds | default 5 }}
+            failureThreshold: {{ .Values.plugin.livenessProbe.failureThreshold | default 3 }}
+          {{- end }}
+          {{- if .Values.plugin.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.plugin.readinessProbe | nindent 12 }}
+          {{- else if .Values.plugin.readinessProbeHttpGet }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.plugin.readinessProbeHttpGet.path }}
+              port: {{ .Values.plugin.readinessProbeHttpGet.port }}
+            initialDelaySeconds: {{ .Values.plugin.readinessProbe.initialDelaySeconds | default 15 }}
+            periodSeconds: {{ .Values.plugin.readinessProbe.periodSeconds | default 5 }}
+            timeoutSeconds: {{ .Values.plugin.readinessProbe.timeoutSeconds | default 5 }}
+            failureThreshold: {{ .Values.plugin.readinessProbe.failureThreshold | default 3 }}
+          {{- end }}
+      volumes:
+        - name: plugin-code
+          virtiofs:
+            path: {{ .Values.plugin.hostPath | default "/host/path/to/plugin/code" }}
+            mountOptions:
+              - noatime
+              - nodiratime
+              - cache=always
+              - writeback
+        - name: tmp
+          emptyDir:
+            medium: Memory
+      {{- if .Values.plugin.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.plugin.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- with .Values.plugin.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      {{- with .Values.plugin.schedulerName }}
+      schedulerName: {{ . }}
+      {{- end }}

@@ -19,6 +19,16 @@ kata:
       virtio:
         fs: "virtiofs"
         net: "virtio-net-pci"
+        fs:
+          driver: "virtiofs"
+          cache: "always"
+          writeback: true
+          queue_size: 1024
+          multi_queue: true
+          thread_pool_size: 8
+          xattr: true
+          noatime: true
+          nodiratime: true
 
     agent:
       debug: false

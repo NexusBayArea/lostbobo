@@ -114,3 +114,14 @@ groups:
         annotations:
           summary: "Frequent MIG Profile Switching"
           description: "MIG profile changes may indicate unstable demand."
+
+  - name: simhpc-virtiofs-alerts
+    rules:
+      - alert: VirtioFSLowCacheHitRate
+        expr: 100 * (rate(virtiofs_cache_hits_total[5m]) / (rate(virtiofs_cache_hits_total[5m]) + rate(virtiofs_cache_misses_total[5m]))) < 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "VirtioFS Cache Hit Rate Below 85%"
+          description: "Current hit rate is {{ $value | humanize }}% — consider increasing queue_size or thread_pool_size"

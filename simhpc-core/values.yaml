@@ -95,3 +95,54 @@ costOptimization:
   spotPriority: true
   spotThreshold: 0.4
   minSpotSavings: 0.6
+
+# Plugin Configuration with VirtioFS Optimizations
+plugin:
+  enabled: true
+  replicaCount: 1
+  runtimeClassName: kata-optimized
+  image:
+    repository: ghcr.io/simhpc/your-plugin
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  service:
+    port: 8080
+  hostPath: "/host/path/to/plugin/code"
+  mountPath: "/app"
+  readOnly: true
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+  env:
+    - name: PLUGIN_ENV
+      value: "production"
+  envFrom:
+    - configMapRef:
+        name: plugin-config
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /ready
+      port: 8080
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  prometheusScrape:
+    enabled: true
+    port: 9090
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+    prometheus.io/path: "/metrics"
