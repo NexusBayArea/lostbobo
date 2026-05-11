@@ -4,6 +4,8 @@ backend/app/api/auth.py
 Supabase Auth with login, refresh, logout, and protected routes.
 """
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
@@ -32,7 +34,7 @@ class AuthResponse(BaseModel):
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
 ) -> dict:
     """Verify Bearer token."""
     token = credentials.credentials
@@ -93,7 +95,9 @@ async def refresh_token(request: RefreshRequest):
 
 
 @router.post("/logout")
-async def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
+async def logout(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+):
     """Logout - revoke current session."""
     token = credentials.credentials
     sb = get_supabase_client()
@@ -110,5 +114,7 @@ async def logout(credentials: HTTPAuthorizationCredentials = Depends(security)):
 
 # Protected route example
 @router.get("/me")
-async def get_current_user_info(user: dict = Depends(get_current_user)):
+async def get_current_user_info(
+    user: Annotated[dict, Depends(get_current_user)],
+):
     return {"user": user}
