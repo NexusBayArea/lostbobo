@@ -1,59 +1,78 @@
 {
-  "title": "SimHPC — NVIDIA MIG Monitoring",
-  "uid": "simhpc-mig-v2",
+  "title": "SimHPC — Full GPU + MIG Monitoring",
+  "uid": "simhpc-gpu-mig-v3",
   "time": { "from": "now-6h", "to": "now" },
   "panels": [
     {
-      "title": "Overall MIG Health",
+      "title": "Overall Cluster GPU Health",
       "type": "stat",
       "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
-      "targets": [{ "expr": "count(DCGM_FI_DEV_GPU_UTIL{instance=~\".*mig.*\"})" }]
+      "targets": [{ "expr": "count(DCGM_FI_DEV_GPU_UTIL)" }]
     },
     {
-      "title": "MIG GPU Utilization (%)",
-      "type": "timeseries",
-      "gridPos": { "x": 6, "y": 0, "w": 12, "h": 8 },
-      "targets": [
-        { "expr": "DCGM_FI_DEV_GPU_UTIL{instance=~\".*mig.*\"}", "legendFormat": "{{ instance }} - {{ profile }}" }
-      ],
-      "options": { "legend": { "displayMode": "table", "placement": "right" } }
+      "title": "Active MIG Instances",
+      "type": "stat",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [{ "expr": "count(DCGM_FI_DEV_MIG_PROFILE)" }]
     },
     {
-      "title": "MIG Memory Utilization (%)",
+      "title": "Average GPU Utilization",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "targets": [{ "expr": "avg(DCGM_FI_DEV_GPU_UTIL)" }]
+    },
+    {
+      "title": "MIG Profile Switches (24h)",
+      "type": "stat",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "targets": [{ "expr": "increase(mig_profile_switches_total[24h])" }]
+    },
+    {
+      "title": "GPU Utilization by Instance",
       "type": "timeseries",
-      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 8 },
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 9 },
       "targets": [
-        { "expr": "DCGM_FI_DEV_MEM_COPY_UTIL{instance=~\".*mig.*\"}", "legendFormat": "{{ instance }}" }
+        { "expr": "DCGM_FI_DEV_GPU_UTIL", "legendFormat": "{{ instance }} {{ profile }}" }
       ]
     },
     {
-      "title": "Active MIG Instances by Profile",
-      "type": "barchart",
-      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "title": "GPU Memory Utilization (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 9 },
+      "targets": [
+        { "expr": "DCGM_FI_DEV_MEM_COPY_UTIL", "legendFormat": "{{ instance }}" }
+      ]
+    },
+    {
+      "title": "MIG Profile Distribution",
+      "type": "piechart",
+      "gridPos": { "x": 0, "y": 13, "w": 8, "h": 9 },
       "targets": [
         { "expr": "sum by (profile) (DCGM_FI_DEV_MIG_PROFILE)", "legendFormat": "{{ profile }}" }
       ]
     },
     {
-      "title": "MIG Profile Switches (Last 24h)",
+      "title": "Fractional GPU Allocation",
       "type": "timeseries",
-      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "gridPos": { "x": 8, "y": 13, "w": 8, "h": 9 },
       "targets": [
-        { "expr": "increase(mig_profile_switches_total[24h])", "legendFormat": "Profile Switches" }
+        { "expr": "simhpc_fractional_gpu_utilization", "legendFormat": "Fractional Usage" }
       ]
     },
     {
-      "title": "MIG Isolation Effectiveness",
-      "type": "stat",
-      "gridPos": { "x": 0, "y": 16, "w": 8, "h": 6 },
-      "targets": [{ "expr": "100 - (sum(DCGM_FI_DEV_GPU_UTIL{instance=~\".*mig.*\"} * 0.01))" }]
+      "title": "MPS Active Clients",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 13, "w": 8, "h": 9 },
+      "targets": [
+        { "expr": "mps_active_clients", "legendFormat": "Active MPS Clients" }
+      ]
     },
     {
-      "title": "Top MIG Nodes by Utilization",
+      "title": "Top 10 Hot MIG Nodes",
       "type": "table",
-      "gridPos": { "x": 8, "y": 16, "w": 16, "h": 6 },
+      "gridPos": { "x": 0, "y": 22, "w": 24, "h": 8 },
       "targets": [
-        { "expr": "topk(10, DCGM_FI_DEV_GPU_UTIL{instance=~\".*mig.*\"})", "legendFormat": "{{ instance }}" }
+        { "expr": "topk(10, DCGM_FI_DEV_GPU_UTIL{instance=~\".*mig.*\"})" }
       ]
     }
   ]

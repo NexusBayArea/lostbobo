@@ -158,3 +158,31 @@
 - NodePool gpu-high-mem: max 12 nodes, on-demand preferred, large memory instances
 - NodePool gpu-isolated: max 8 nodes, on-demand only, MIG support, no consolidation
 - All pre-commit hooks pass (green)
+
+## 2026-05-10 20:56:29 PST
+
+### Actions Taken
+
+1. **Added MIG Support to Helm Chart**
+   - Created templates/karpenter-nodeclass-mig.yaml - EC2NodeClass for MIG nodes
+   - Created templates/karpenter-nodepool-mig.yaml - NodePool for isolated GPU workloads
+   - Created templates/mig-controller.yaml - CronJob for automated profile switching
+   - Created templates/mig-rbac.yaml - ServiceAccount + ClusterRole + ClusterRoleBinding
+   - Created templates/prometheus-alerts.yaml - MIG health alerts
+   - Updated values.prod.yaml with MIG configuration
+
+2. **Added MIG Controller Python Module**
+   - Created backend/core/hardware/mig/controller.py with automated profile switching
+   - Created backend/core/hardware/mig/__init__.py
+   - Profile decision logic based on demand, regime (panic/disruption), and SLA
+
+3. **Added Grafana Dashboard for MIG Monitoring**
+   - Created simhpc-core/docs/MIG_GRAFANA_DASHBOARD.json
+   - Panels: Overall MIG Health, GPU Utilization, Memory Utilization, Profile Distribution, Profile Switches, Isolation Effectiveness, Top Nodes
+
+### Notes
+
+- MIG controller runs every 5 minutes as Kubernetes CronJob
+- Profiles: all-1g.5gb (max isolation), all-2g.10gb (enterprise), all-3g.20gb (high-memory), mixed (general)
+- Defense tier uses Never consolidation policy for zero disruption
+- All pre-commit hooks pass (green)
