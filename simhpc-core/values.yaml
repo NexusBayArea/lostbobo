@@ -49,3 +49,33 @@ env:
   SUPABASE_URL: ""
   SUPABASE_SERVICE_KEY: ""
   EVENT_BUS_MAX_QUEUE_DEPTH: "1000"
+
+# Cluster Autoscaler Integration
+clusterAutoscaler:
+  enabled: true
+  nodeGroups:
+    - gpu-general
+    - gpu-high-mem
+  scaleUp:
+    unneededTime: 2m
+    utilizationThreshold: 0.7
+  scaleDown:
+    unneededTime: 10m
+    utilizationThreshold: 0.5
+
+# Karpenter Configuration
+karpenter:
+  enabled: false
+  nodePools:
+    - name: gpu-general
+      instanceFamily: ["g4dn", "g5", "p3", "p4d", "p5"]
+      minSize: 2
+      maxSize: 20
+      gpuCount: 1
+      taints:
+        - key: nvidia.com/gpu
+          value: "true"
+          effect: NoSchedule
+      labels:
+        simhpc/workload: gpu
+        nvidia.com/gpu: "true"

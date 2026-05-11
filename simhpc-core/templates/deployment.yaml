@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         app: simhpc-core
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
     spec:
       containers:
         - name: simhpc-core
@@ -22,11 +24,11 @@ spec:
             - containerPort: 8000
           resources:
             requests:
-              cpu: "2"
-              memory: "4Gi"
-            limits:
-              cpu: "8"
+              cpu: "4"
               memory: "16Gi"
+            limits:
+              cpu: "12"
+              memory: "48Gi"
           envFrom:
             - configMapRef:
                 name: simhpc-core-config

@@ -50,3 +50,65 @@
 - LineageVisualizer already exists at `frontend/src/components/LineageVisualizer.tsx`
 - Backend API `/lineage/executions` already implemented in `backend/app/api/lineage.py`
 - Pre-commit hooks ran successfully after ruff fixes
+
+## 2026-05-10 20:01:00 PST
+
+### Actions Taken
+
+1. **Created Helm Chart for SimHPC Core**
+   - Created `simhpc-core/` directory with Chart.yaml (v0.9.1)
+   - Created values.yaml with GPU configuration (fractional, MPS, nodeSelector, tolerations)
+   - Created templates: deployment.yaml, service.yaml, configmap.yaml, secret.yaml, job-migration.yaml, ingress.yaml
+   - Created .helmignore
+
+2. **Fixed Pre-commit Issues**
+   - Added .tsx and .ts to .gitattributes for LF line endings
+   - Fixed YAML template parsing by simplifying deployment.yaml
+   - Added trailing newlines to all helm files
+
+### Notes
+
+- Helm chart supports GPU scheduling: fractional GPU, MPS, node selector, tolerations
+- Chart version: 0.9.1, app version: 2026.05
+- Log.md remains in .gitignore - not pushed
+
+## 2026-05-10 20:05:23 PST
+
+### Actions Taken
+
+1. **Added Production Values File**
+   - File: `simhpc-core/values.prod.yaml`
+   - Production settings: replicaCount: 3, HPA, PDB, securityContext
+   - TLS configuration for ingress
+   - Higher resource limits and queue depth
+   - Infisical integration for secrets management
+
+### Notes
+
+- HPA configured: min 3, max 12 replicas, 70% CPU target
+- PDB: minAvailable 2 for zero-downtime updates
+- Security: runAsNonRoot, runAsUser 1000, fsGroup 1000
+- All pre-commit hooks pass (green)
+
+## 2026-05-10 20:25:23 PST
+
+### Actions Taken
+
+1. **Added HPA Template**
+   - File: `simhpc-core/templates/hpa.yaml`
+   - HorizontalPodAutoscaler with CPU/memory metrics
+   - Scale up: 100% in 15s, Scale down: 10% in 60s
+   - Configurable via values.yaml hpa section
+
+2. **Added VPA Template**
+   - File: `simhpc-core/templates/vpa.yaml`
+   - VerticalPodAutoscaler for CPU/memory recommendations
+   - Supports recommendation-only mode or auto-updates
+   - Configurable min/max allowed resources
+
+### Notes
+
+- VPA requires CRDs: kubectl apply -f https://github.com/kubernetes/autoscaler/releases/download/vertical-pod-autoscaler-1.0.0/crd.yaml
+- HPA and VPA work together: HPA handles replica count, VPA handles resource requests
+- GPU resources (nvidia.com/gpu) are not managed by VPA
+- All pre-commit hooks pass (green)
