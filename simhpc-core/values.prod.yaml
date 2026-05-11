@@ -126,3 +126,29 @@ mig:
     schedule: "*/5 * * * *"
   monitoring:
     enabled: true
+
+# Prometheus Federation
+prometheus:
+  federation:
+    enabled: true
+    match:
+      - '{job="simhpc-core"}'
+      - '{job="nvidia-dcgm-exporter"}'
+    central_prometheus_url: "https://central-prometheus.yourdomain.com"
+
+# Thanos Configuration
+thanos:
+  enabled: false
+  s3:
+    accessKey: ""
+    secretKey: ""
+    bucket: "simhpc-thanos"
+  sidecar:
+    enabled: false
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+      limits:
+        cpu: "2"
+        memory: "4Gi"
