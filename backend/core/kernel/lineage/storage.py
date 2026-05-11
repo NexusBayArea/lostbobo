@@ -1,6 +1,8 @@
 # backend/core/kernel/lineage/storage.py
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Any
 
 from backend.app.core.supabase import get_supabase_client
@@ -95,3 +97,22 @@ class ProvenanceStorage:
         )
 
         return {"nodes": nodes.data or [], "edges": edges.data or []}
+
+    async def create_snapshot(self, execution_id: str) -> str:
+        """Create a signed snapshot for audit/replay."""
+        graph = await self.get_provenance_graph(execution_id)
+
+        canonical = json.dumps(
+            {"nodes": graph["nodes"], "edges": graph["edges"]},
+            sort_keys=True,
+        )
+
+        snapshot = {
+            "execution_id": execution_id,
+            "nodes": graph["nodes"],
+            "edges": graph["edges"],
+            "integrity_hash": hashlib.sha256(canonical.encode()).hexdigest(),
+        }
+
+        result = await get_supabase_client().table("provenance_snapshots").insert(snapshot).execute()
+        return result.data[0]["snapshot_id"]
