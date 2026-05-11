@@ -1,0 +1,51 @@
+replicaCount: 1
+
+image:
+  repository: your-registry/simhpc-core
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  port: 8000
+
+# GPU Scheduling (Fractional + MPS + Isolation)
+gpu:
+  enabled: true
+  count: 1.0
+  fractional:
+    enabled: true
+  mps:
+    enabled: true
+    activeThreadPercentage: 95
+  nodeSelector:
+    nvidia.com/gpu: "true"
+  tolerations:
+    - key: nvidia.com/gpu
+      operator: Exists
+      effect: NoSchedule
+  resources:
+    requests:
+      nvidia.com/gpu: "1"
+    limits:
+      nvidia.com/gpu: "1"
+
+ingress:
+  enabled: true
+  className: nginx
+  host: simhpc.yourdomain.com
+
+supabase:
+  url: ""
+  key: ""
+
+infisical:
+  token: ""
+  projectId: ""
+
+env:
+  INFISICAL_TOKEN: ""
+  INFISICAL_PROJECT_ID: ""
+  SUPABASE_URL: ""
+  SUPABASE_SERVICE_KEY: ""
+  EVENT_BUS_MAX_QUEUE_DEPTH: "1000"

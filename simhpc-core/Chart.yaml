@@ -1,0 +1,13 @@
+apiVersion: v2
+name: simhpc-core
+description: SimHPC Core Engine (Kernel + Lineage + Provenance + GPU Moat)
+version: 0.9.1
+appVersion: "2026.05"
+type: application
+keywords:
+  - simhpc
+  - simulation
+  - provenance
+  - gpu-fractional
+maintainers:
+  - name: SimHPC Team

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: simhpc-core-config
+data:
+  INFISICAL_PROJECT_ID: {{ .Values.infisical.projectId | quote }}
+  SUPABASE_URL: {{ .Values.supabase.url | quote }}
