@@ -147,7 +147,7 @@ const WorldStateDashboard: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="col-span-3 bg-gray-900 border-gray-800 border-violet-500/30">
           <CardHeader className="p-3">
             <CardTitle className="text-xs text-violet-400 font-medium">RL Policy Health</CardTitle>
