@@ -1,0 +1,60 @@
+{
+  "title": "SimHPC — NVIDIA MIG Monitoring",
+  "uid": "simhpc-mig-v2",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "title": "Overall MIG Health",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [{ "expr": "count(DCGM_FI_DEV_GPU_UTIL{instance=~\".*mig.*\"})" }]
+    },
+    {
+      "title": "MIG GPU Utilization (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 6, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "DCGM_FI_DEV_GPU_UTIL{instance=~\".*mig.*\"}", "legendFormat": "{{ instance }} - {{ profile }}" }
+      ],
+      "options": { "legend": { "displayMode": "table", "placement": "right" } }
+    },
+    {
+      "title": "MIG Memory Utilization (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 8 },
+      "targets": [
+        { "expr": "DCGM_FI_DEV_MEM_COPY_UTIL{instance=~\".*mig.*\"}", "legendFormat": "{{ instance }}" }
+      ]
+    },
+    {
+      "title": "Active MIG Instances by Profile",
+      "type": "barchart",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "sum by (profile) (DCGM_FI_DEV_MIG_PROFILE)", "legendFormat": "{{ profile }}" }
+      ]
+    },
+    {
+      "title": "MIG Profile Switches (Last 24h)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "increase(mig_profile_switches_total[24h])", "legendFormat": "Profile Switches" }
+      ]
+    },
+    {
+      "title": "MIG Isolation Effectiveness",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 16, "w": 8, "h": 6 },
+      "targets": [{ "expr": "100 - (sum(DCGM_FI_DEV_GPU_UTIL{instance=~\".*mig.*\"} * 0.01))" }]
+    },
+    {
+      "title": "Top MIG Nodes by Utilization",
+      "type": "table",
+      "gridPos": { "x": 8, "y": 16, "w": 16, "h": 6 },
+      "targets": [
+        { "expr": "topk(10, DCGM_FI_DEV_GPU_UTIL{instance=~\".*mig.*\"})", "legendFormat": "{{ instance }}" }
+      ]
+    }
+  ]
+}
