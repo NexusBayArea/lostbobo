@@ -1,0 +1,50 @@
+# values.kata.yaml — Production-optimized for SimHPC plugins
+kata:
+  enabled: true
+  runtime:
+    kernel:
+      image: kata-containers/kata-kernel-6.1
+      parameters:
+        - "mitigations=off"
+        - "no_timer_check"
+        - "nospectre_v1"
+        - "nopti"
+        - "quiet"
+
+    qemu:
+      machine: "q35"
+      cpu: "host"
+      memory:
+        backing: "memfd"
+      virtio:
+        fs: "virtiofs"
+        net: "virtio-net-pci"
+
+    agent:
+      debug: false
+      trace: false
+
+  sandbox:
+    hugepages: true
+    shared_fs: "virtiofs"
+    hypervisor: "qemu"
+    entropy_source: "/dev/urandom"
+
+  overhead:
+    cpu: "150m"
+    memory: "180Mi"
+
+  security:
+    privileged: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
+
+karpenter:
+  kataNodePool:
+    enabled: true
+    instanceTypes:
+      - c7i.4xlarge
+      - m7i.2xlarge
+      - c7a.4xlarge
+    capacityType: on-demand

@@ -1,0 +1,72 @@
+{
+  "title": "SimHPC — Runtime Security + Kata + Spectre Monitoring",
+  "uid": "simhpc-runtime-security-v5",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "title": "Runtime Isolation Overview",
+      "type": "row",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }
+    },
+    {
+      "title": "Active Plugins (Kata)",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "expr": "count(kubernetes_pod_info{runtime_class=\"kata-optimized\"})" }]
+    },
+    {
+      "title": "Spectre Mitigation Status",
+      "type": "stat",
+      "gridPos": { "x": 6, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "expr": "sum(kata_spectre_mitigations_enabled)" }]
+    },
+    {
+      "title": "Speculative Execution Events (1h)",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "expr": "increase(falco_speculative_execution_events_total[1h])" }]
+    },
+    {
+      "title": "Timing Anomalies (last 30m)",
+      "type": "stat",
+      "gridPos": { "x": 18, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "expr": "increase(sysdig_timing_anomaly_total[30m])" }]
+    },
+    {
+      "title": "Branch Misprediction Rate",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 5, "w": 12, "h": 9 },
+      "targets": [{ "expr": "rate(cpu_branch_mispredictions_total[5m])" }]
+    },
+    {
+      "title": "Kata VM Cold Start Latency (ms)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 5, "w": 12, "h": 9 },
+      "targets": [{ "expr": "kata_pod_start_duration_seconds" }]
+    },
+    {
+      "title": "Top Violating Plugins (Security Events)",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 14, "w": 24, "h": 8 },
+      "targets": [{ "expr": "topk(10, sum by (plugin_id) (falco_events_total{priority=\"CRITICAL\"}))" }]
+    },
+    {
+      "title": "Side-Channel Mitigation Effectiveness (%)",
+      "type": "gauge",
+      "gridPos": { "x": 0, "y": 22, "w": 8, "h": 8 },
+      "targets": [{ "expr": "100 - (sum(rate(timing_side_channel_events_total[1h])) / sum(rate(plugin_executions_total[1h])) * 100)" }]
+    },
+    {
+      "title": "eBPF Blocked Syscalls",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 22, "w": 8, "h": 8 },
+      "targets": [{ "expr": "ebpf_syscalls_blocked_total" }]
+    },
+    {
+      "title": "Kata Resource Overhead (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 22, "w": 8, "h": 8 },
+      "targets": [{ "expr": "kata_overhead_cpu_percent" }]
+    }
+  ]
+}
