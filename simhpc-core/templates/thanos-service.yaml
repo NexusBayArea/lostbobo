@@ -1,0 +1,17 @@
+# {{- if .Values.thanos.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: thanos-sidecar
+  namespace: monitoring
+spec:
+  selector:
+    app: thanos-sidecar
+  ports:
+    - name: http
+      port: 10902
+      targetPort: 10902
+    - name: grpc
+      port: 10901
+      targetPort: 10901
+{{- end }}

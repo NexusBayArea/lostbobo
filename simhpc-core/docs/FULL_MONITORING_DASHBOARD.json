@@ -1,0 +1,93 @@
+{
+  "title": "SimHPC — Full GPU + MIG + Lineage Monitoring",
+  "uid": "simhpc-full-monitoring-v4",
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "panels": [
+    {
+      "title": "Cluster Health Overview",
+      "type": "row",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 1 }
+    },
+    {
+      "title": "Active GPUs",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "expr": "count(DCGM_FI_DEV_GPU_UTIL)" }]
+    },
+    {
+      "title": "Active MIG Instances",
+      "type": "stat",
+      "gridPos": { "x": 6, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "expr": "count(DCGM_FI_DEV_MIG_PROFILE)" }]
+    },
+    {
+      "title": "SLA Compliance",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "expr": "sla:compliance:overall" }]
+    },
+    {
+      "title": "Lineage Events / 5m",
+      "type": "stat",
+      "gridPos": { "x": 18, "y": 1, "w": 6, "h": 4 },
+      "targets": [{ "expr": "lineage:events:rate5m" }]
+    },
+    {
+      "title": "GPU Utilization (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 5, "w": 12, "h": 9 },
+      "targets": [
+        { "expr": "gpu:utilization:by_instance", "legendFormat": "{{ instance }}" }
+      ]
+    },
+    {
+      "title": "MIG Memory Utilization (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 5, "w": 12, "h": 9 },
+      "targets": [
+        { "expr": "mig:memory:utilization:avg", "legendFormat": "MIG Memory" }
+      ]
+    },
+    {
+      "title": "MIG Profile Distribution",
+      "type": "piechart",
+      "gridPos": { "x": 0, "y": 14, "w": 8, "h": 9 },
+      "targets": [
+        { "expr": "mig:profile:distribution", "legendFormat": "{{ profile }}" }
+      ]
+    },
+    {
+      "title": "Fractional GPU Allocation",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 14, "w": 8, "h": 9 },
+      "targets": [{ "expr": "simhpc_fractional_gpu_utilization" }]
+    },
+    {
+      "title": "MPS Active Clients",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 14, "w": 8, "h": 9 },
+      "targets": [{ "expr": "mps:clients:active:avg" }]
+    },
+    {
+      "title": "Top 10 Hot MIG Nodes",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 23, "w": 24, "h": 8 },
+      "targets": [
+        { "expr": "topk(10, DCGM_FI_DEV_GPU_UTIL{instance=~\".*mig.*\"})" }
+      ]
+    },
+    {
+      "title": "MIG Profile Switches (24h)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 31, "w": 12, "h": 8 },
+      "targets": [{ "expr": "increase(mig_profile_switches_total[24h])" }]
+    },
+    {
+      "title": "SLA Breach Rate (Last Hour)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 31, "w": 12, "h": 8 },
+      "targets": [{ "expr": "sla:breach:rate:1h" }]
+    }
+  ]
+}

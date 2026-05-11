@@ -1,0 +1,67 @@
+# Thanos Query Optimization for SimHPC
+# Optimized query patterns for high-cardinality GPU/MIG metrics + lineage events
+
+# Query Frontend Configuration
+queryFrontend:
+  queryRange:
+    # Split long-range queries by this interval
+    splitQueriesByInterval: 24h
+    # Align ranges to this value
+    alignRange: true
+    # Max retries on failure
+    maxRetries: 5
+
+  # Caching
+  cache:
+    enabled: true
+    type: memcached
+    memcached:
+      addresses: ["memcached.monitoring.svc.cluster.local:11211"]
+      # Cache TTL
+      expiration: 1h
+
+# Store Gateway Sharding
+storeGateway:
+  sharding:
+    enabled: true
+    ring:
+      kvstore:
+        store: memberlist
+
+# Querier Partial Response
+querier:
+  query:
+    # "warn" for graceful degradation, "abort" for strict
+    partialResponseStrategy: "warn"
+    # Max series per query
+    maxResolution: 0
+    # Timeout
+    timeout: 60s
+
+# Compactor Downsampling
+compactor:
+  retention:
+    raw: 90d
+    "5m": 365d    # 5-minute resolution for 1 year
+    "1h": 730d    # hourly resolution for 2 years
+  compaction:
+    interval: 30m
+    consistencyDelay: 30m
+
+# Limits
+limits:
+  max_series_per_query: 100000
+  max_samples_per_query: 50000000
+
+# Optimized Query Patterns (for reference)
+# GPU Utilization (fast historical)
+# gpu:utilization:avg{job="simhpc-core"}[1h:5m]
+
+# MIG Profile Efficiency
+# sum by (profile) (rate(DCGM_FI_DEV_GPU_UTIL{instance=~".*mig.*"}[5m:5m]))
+
+# Lineage Event Rate
+# lineage:events:rate5m
+
+# Top Hot Nodes
+# topk(10, gpu:utilization:max)

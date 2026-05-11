@@ -1,0 +1,32 @@
+# {{- if .Values.thanos.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thanos-sidecar
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thanos-sidecar
+  template:
+    metadata:
+      labels:
+        app: thanos-sidecar
+    spec:
+      containers:
+        - name: thanos-sidecar
+          image: quay.io/thanos/thanos:v0.36.1
+          args:
+            - "sidecar"
+            - "--prometheus.url=http://prometheus-operated.monitoring.svc.cluster.local:9090"
+            - "--http-address=0.0.0.0:10902"
+            - "--grpc-address=0.0.0.0:10901"
+          ports:
+            - containerPort: 10901
+              name: grpc
+            - containerPort: 10902
+              name: http
+          resources:
+            {{- toYaml .Values.thanos.sidecar.resources | nindent 12 }}
+{{- end }}
