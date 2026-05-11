@@ -152,3 +152,46 @@ thanos:
       limits:
         cpu: "2"
         memory: "4Gi"
+
+# Cortex Long-Term Storage
+cortex:
+  enabled: false
+  tenant: "simhpc"
+  distributor:
+    replicas: 2
+  ingester:
+    replicas: 3
+    persistence:
+      enabled: true
+      size: 50Gi
+  storeGateway:
+    replicas: 2
+  compactor:
+    replicas: 1
+    persistence:
+      enabled: true
+      size: 100Gi
+  querier:
+    replicas: 3
+  queryFrontend:
+    replicas: 2
+  storage:
+    backend: s3
+    s3:
+      bucket: "simhpc-cortex"
+      endpoint: "s3.us-east-1.amazonaws.com"
+      region: "us-east-1"
+      accessKey: ""
+      secretKey: ""
+  retention:
+    default: 90d
+    metrics:
+      "DCGM_FI_DEV_GPU_UTIL": 45d
+      "DCGM_FI_DEV_MEM_COPY_UTIL": 45d
+      "mig:utilization:avg": 45d
+      "simhpc_fractional_gpu_utilization": 60d
+      "mps_active_clients": 60d
+      "lineage:events:rate5m": 30d
+      "sla:compliance:overall": 365d
+      "sla:breach:rate:1h": 365d
+      "kernel:executions:success_rate:5m": 180d
