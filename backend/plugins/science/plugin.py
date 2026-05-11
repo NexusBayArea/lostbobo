@@ -3,25 +3,28 @@ from __future__ import annotations
 from backend.core.sdk.base_plugin import (
     BasePlugin,
 )
-from backend.plugins.materials.manifest import (
+from backend.plugins.science.manifest import (
     manifest,
 )
 
 
 class Plugin(BasePlugin):
+
     manifest = manifest
 
     async def register(self, kernel) -> None:
+
         kernel.capabilities.register(
-            "materials.predict",
-            self.predict,
+            "science.reason",
+            self.reason,
         )
 
-    async def predict(
+    async def reason(
         self,
         payload: dict,
     ):
+
         return {
-            "plugin": "materials",
+            "plugin": "science",
             "payload": payload,
         }

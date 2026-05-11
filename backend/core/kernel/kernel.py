@@ -31,3 +31,8 @@ class SimHPCKernel:
         await self.plugin_loader.load_plugins()
 
         self.logger.info("Kernel boot complete.")
+
+    async def shutdown(self) -> None:
+        self.logger.info("Shutting down SimHPC Kernel...")
+        # Placeholder for cleanup logic
+        self.logger.info("Kernel shutdown complete.")

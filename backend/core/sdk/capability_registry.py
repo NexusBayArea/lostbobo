@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
+from collections.abc import Callable
 from typing import Any
 
-CapabilityHandler = Callable[[dict], Awaitable[Any]]
+CapabilityHandler = Callable[[dict], Any]
 
 
 class CapabilityRegistry:
