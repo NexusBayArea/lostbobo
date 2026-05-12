@@ -23,7 +23,7 @@ class ProbabilisticMergeEngine:
                 continue
 
             existing = merged[key]
-            if isinstance(existing, (int, float)) and isinstance(value, (int, float)):
+            if isinstance(existing, int | float) and isinstance(value, int | float):
                 w = confidence
                 blended = existing * (1 - w) + value * w
                 old_conf = base_unc.confidence if base_unc else 1.0

@@ -93,7 +93,7 @@ class WorldStateFabric:
         merged_state = dict(snapshot.state)
         new_uncertainty = dict(snapshot.uncertainty)
         for key, value in diff.changes.items():
-            if key in merged_state and isinstance(value, (int, float)) and isinstance(merged_state[key], (int, float)):
+            if key in merged_state and isinstance(value, int | float) and isinstance(merged_state[key], int | float):
                 old_val = merged_state[key]
                 blended = old_val * (1 - confidence) + value * confidence
                 old_unc = new_uncertainty.get(key, UncertaintyEnvelope())
