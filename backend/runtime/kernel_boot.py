@@ -81,6 +81,74 @@ async def boot(kernel) -> None:
     await register_document_capabilities(kernel)
     log.info("Document capabilities registered (generate_pdf, generate_certificate, ingest_pdf)")
 
+    _register_observability_capabilities(kernel)
+    log.info("Observability capabilities registered (dag_state, list_executions)")
+
+    await _register_memory_recall(kernel)
+    log.info("Memory recall capability registered")
+
     log.info("Built-in capabilities registered")
+
+
+def _register_observability_capabilities(kernel):
+    async def dag_state(payload: dict) -> dict:
+        dag_id = payload.get("dag_id", "")
+        rec = await kernel.memory_fabric.retrieve_by_id(dag_id)
+        if rec is None:
+            return {"nodes": [], "edges": []}
+        dag_nodes = getattr(rec, "dag_nodes", []) or []
+        dag_edges = getattr(rec, "dag_edges", []) or []
+        return {
+            "nodes": [
+                {
+                    "id": n.node_id if hasattr(n, "node_id") else str(i),
+                    "label": getattr(n, "capability", ""),
+                    "status": getattr(n, "state", "unknown"),
+                }
+                for i, n in enumerate(dag_nodes)
+            ],
+            "edges": [
+                {"source": e.source if hasattr(e, "source") else "", "target": e.target if hasattr(e, "target") else ""}
+                for e in dag_edges
+            ],
+        }
+
+    async def list_executions(payload: dict) -> dict:
+        tenant_id = payload.get("tenant_id", "default")
+        records = await kernel.memory_fabric.retrieve_by_type(tenant_id=tenant_id, memory_type="execution")
+        return {
+            "executions": [
+                {
+                    "id": r.memory_id,
+                    "plugin": r.plugin_name,
+                    "timestamp": r.timestamp,
+                    "status": getattr(r, "execution_state", {}).get("status", "unknown")
+                    if hasattr(r, "execution_state")
+                    else "unknown",
+                }
+                for r in records
+            ]
+        }
+
+    kernel.capabilities.register("observability.dag_state", dag_state)
+    kernel.capabilities.register("observability.list_executions", list_executions)
+
+
+async def _register_memory_recall(kernel):
+    async def recall_handler(payload: dict) -> dict:
+        tenant_id = payload["tenant_id"]
+        mem_type = payload.get("memory_type")
+        limit = payload.get("limit", 50)
+        filters = payload.get("filters", {})
+
+        records = await kernel.memory_fabric.retrieve_by_type(
+            tenant_id=tenant_id, memory_type=mem_type, filter_dict=filters
+        )
+        return {
+            "records": [r.model_dump() for r in records[:limit]],
+            "total": len(records),
+        }
+
+    kernel.capabilities.register("memory.recall", recall_handler)
 
     log.info("Kernel boot complete")

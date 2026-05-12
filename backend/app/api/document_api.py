@@ -53,6 +53,19 @@ async def ingest_pdf(file: UploadFile = File(...), kernel=KernelDep):  # noqa: B
     return {"status": "success", "chunks_created": count}
 
 
+@router.post("/download")
+async def download_generated_pdf(report_spec: dict, kernel=KernelDep):
+    try:
+        pdf_bytes = await kernel.capabilities.invoke("document.generate_pdf", report_spec)
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": "attachment; filename=report.pdf"},
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+
+
 @router.post("/certificate/download")
 async def download_certificate(req: CertificateRequest, kernel=KernelDep):
     pdf_bytes = await kernel.capabilities.invoke(

@@ -7,6 +7,7 @@ from backend.app.api.auth import router as auth_router
 from backend.app.api.capability_invoke import router as capability_router
 from backend.app.api.dag import router as dag_router
 from backend.app.api.document_api import router as document_router
+from backend.app.api.observability_dag import router as dag_observability_router
 from backend.app.api.rag_edge import router as rag_edge_router
 from backend.app.api.reports import router as reports_router
 from backend.app.api.routes import certificates, onboarding
@@ -47,6 +48,7 @@ api_router.include_router(grid_router, prefix="", tags=["ExperimentGrid"])
 api_router.include_router(discovery_router, prefix="/api/v1", tags=["DiscoveryGraph"])
 api_router.include_router(webhook_router, prefix="/api/v1", tags=["AlertWebhooks"])
 api_router.include_router(world_state_router, prefix="/api/v1", tags=["WorldState"])
+api_router.include_router(dag_observability_router, tags=["Observability"])
 api_router.include_router(rag_edge_router, tags=["RAG"])
 api_router.include_router(document_router, tags=["Document"])
 api_router.include_router(capability_router, tags=["Capability"])
