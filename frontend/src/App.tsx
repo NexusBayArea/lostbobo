@@ -29,16 +29,7 @@ import { CookieConsent } from '@/components/CookieConsent';
 import { PageLayout } from '@/components/PageLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
-function HomePage() {
-  return (
-    <PageLayout>
-      <Hero />
-      <Stack />
-      <ValueDifferentiator />
-      <WhoItsFor />
-    </PageLayout>
-  );
-}
+const HomePage = lazy(() => import('@/pages/HomePage').then(module => ({ default: module.default })));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-background text-foreground">

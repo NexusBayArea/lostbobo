@@ -7,34 +7,34 @@
     <!-- ═══════════════════════════════════════════════════
          CORE SEO
     ═══════════════════════════════════════════════════ -->
-    <title>SimHPC — GPU-Accelerated FEM Simulation with Quantified Confidence</title>
+    <title>SimHPC — Deterministic GPU-Accelerated Engineering Simulation Kernel</title>
     <meta
       name="description"
-      content="SimHPC is a robustness analysis platform for engineering R&D teams. Run GPU-accelerated parameter sweeps, Latin Hypercube and Sobol GSA, and get AI-generated interpretation reports — all in the cloud."
+      content="SimHPC is a distributed compute operating system for engineering simulation. It runs deterministic, replayable FEM/ODE workloads on GPU clusters with a built-in trust fabric (Clawpassport) that verifies every plugin, agent, and simulation result."
     />
     <meta
       name="keywords"
-      content="MFEM simulation cloud, GPU finite element analysis, thermal simulation platform, structural analysis SaaS, robustness analysis, Sobol sensitivity analysis, MFEM, SUNDIALS, engineering simulation AI, HPC cloud platform"
+      content="engineering simulation kernel, GPU finite element analysis, deterministic simulation platform, FEM cloud, SUNDIALS, MFEM, robustness analysis, Sobol sensitivity, Clawpassport, A2A protocol, agent trust fabric, HPC cloud"
     />
     <meta name="author" content="SimHPC" />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <link rel="canonical" href="https://simhpc.com/" />
 
     <!-- ═══════════════════════════════════════════════════
-         OPEN GRAPH (Social + GEO crawlers read this)
+         OPEN GRAPH
     ═══════════════════════════════════════════════════ -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="SimHPC" />
     <meta property="og:url" content="https://simhpc.com/" />
-    <meta property="og:title" content="SimHPC — Robustness Analysis Platform for R&D Teams" />
+    <meta property="og:title" content="SimHPC — Deterministic GPU-Accelerated Engineering Simulation Kernel" />
     <meta
       property="og:description"
-      content="Run GPU-accelerated robustness analysis in the cloud. Latin Hypercube, Monte Carlo, and Sobol GSA with AI-generated engineering reports. Built for R&D teams who need fast, auditable simulation workflows."
+      content="A distributed compute OS for engineering R&D. Deterministic, replayable simulation workloads with a built-in zero-trust plugin fabric. GPU-accelerated MFEM + SUNDIALS, AI-generated reports, and tamper-proof PDF certificates."
     />
     <meta property="og:image" content="https://simhpc.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="SimHPC platform — GPU-accelerated engineering simulation dashboard" />
+    <meta property="og:image:alt" content="SimHPC Kernel — deterministic engineering simulation operating system" />
     <meta property="og:locale" content="en_US" />
 
     <!-- ═══════════════════════════════════════════════════
@@ -42,20 +42,19 @@
     ═══════════════════════════════════════════════════ -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@simhpc" />
-    <meta name="twitter:title" content="SimHPC — Robustness Analysis Platform for R&D Teams" />
+    <meta name="twitter:title" content="SimHPC — Deterministic Engineering Simulation Kernel" />
     <meta
       name="twitter:description"
-      content="GPU-accelerated robustness analysis with Latin Hypercube, Sobol GSA, and AI-generated engineering reports. Built for R&D teams."
+      content="GPU-accelerated MFEM + SUNDIALS on immutable A40 containers. Plugin ecosystem secured by Clawpassport zero-trust fabric. Deterministic, replayable, auditable."
     />
     <meta name="twitter:image" content="https://simhpc.com/og-image.png" />
-    <meta name="twitter:image:alt" content="SimHPC simulation dashboard" />
+    <meta name="twitter:image:alt" content="SimHPC kernel dashboard" />
 
     <!-- ═══════════════════════════════════════════════════
          AEO — JSON-LD STRUCTURED DATA
-         Targets: Google, Bing, ChatGPT, Perplexity, Claude
     ═══════════════════════════════════════════════════ -->
 
-    <!-- 1. SoftwareApplication schema -->
+    <!-- 1. SoftwareApplication -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -63,7 +62,7 @@
       "name": "SimHPC",
       "url": "https://simhpc.com",
       "applicationCategory": "EngineeringApplication",
-      "operatingSystem": "Web",
+      "operatingSystem": "Linux (Docker), RunPod, Kubernetes",
       "offers": [
         {
           "@type": "Offer",
@@ -80,22 +79,24 @@
         {
           "@type": "Offer",
           "name": "Enterprise",
-          "description": "Unlimited runs, Sobol GSA, API access, unlimited mesh nodes."
+          "description": "Unlimited runs, Sobol GSA, API access, unlimited mesh nodes, dedicated GPU pods."
         }
       ],
-      "description": "SimHPC is a robustness analysis platform for engineering R&D teams. It runs GPU-accelerated parameter sweeps using Latin Hypercube Sampling, Monte Carlo, ±5%/±10% perturbation, and Sobol global sensitivity analysis on MFEM + SUNDIALS finite element simulations. AI-generated engineering interpretation reports are produced by Mercury AI (Inception Labs) and numerically cross-checked against deterministic solver outputs.",
+      "description": "SimHPC is a distributed compute operating system for engineering simulation. It combines a deterministic kernel scheduler with a zero-trust plugin fabric (Clawpassport) to execute MFEM + SUNDIALS workloads on immutable GPU containers. Every simulation is replayable, every agent interaction is verified, and every result can be cryptographically certified.",
       "featureList": [
-        "GPU-accelerated FEM simulation (MFEM + SUNDIALS)",
-        "Robustness analysis with Latin Hypercube and Sobol GSA",
-        "AI-generated engineering interpretation reports (Mercury AI)",
-        "PDF export with Unicode engineering symbols",
-        "Real-time simulation telemetry via WebSocket",
-        "Multi-tier access control (Free / Professional / Enterprise)",
-        "Demo magic-link access for alpha pilots",
-        "RunPod GPU autoscaling with cost tracking"
+        "Deterministic kernel scheduler with fairness, budgets, and GPU isolation",
+        "Immutable A40 GPU containers with compiled MFEM + SUNDIALS",
+        "Clawpassport zero-trust plugin identity and A2A handshake protocol",
+        "Behavioural trust engine with runtime telemetry scoring",
+        "Robustness analysis with Latin Hypercube, Monte Carlo, and Sobol GSA",
+        "Canonical DAG IR with portable, replayable execution graphs",
+        "World State Fabric with causal ordering and probabilistic merge",
+        "PDF report and certificate generation with SHA-256 verification stamp",
+        "Real-time telemetry via WebSocket + SSE with tenant isolation",
+        "Plugin SDK with capability registry and sandboxed execution"
       ],
       "screenshot": "https://simhpc.com/og-image.png",
-      "softwareVersion": "2.1.0",
+      "softwareVersion": "1.0.0",
       "creator": {
         "@type": "Organization",
         "name": "SimHPC",
@@ -104,7 +105,7 @@
     }
     </script>
 
-    <!-- 2. Organization schema -->
+    <!-- 2. Organization -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -118,11 +119,11 @@
         "contactType": "technical support",
         "availableLanguage": "English"
       },
-      "description": "SimHPC builds cloud-based GPU-accelerated simulation infrastructure for engineering R&D teams. The platform integrates high-order finite element solvers with AI-powered analysis to accelerate design validation."
+      "description": "SimHPC builds a distributed, deterministic compute operating system for engineering simulation. The platform combines a kernel scheduler, zero-trust plugin fabric, and immutable GPU runtimes to deliver reproducible, auditable scientific computing."
     }
     </script>
 
-    <!-- 3. FAQPage schema (AEO — answers questions directly in search/AI results) -->
+    <!-- 3. FAQPage -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -133,47 +134,47 @@
           "name": "What is SimHPC?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "SimHPC is a robustness analysis platform for engineering R&D teams. It runs GPU-accelerated parameter sweeps and sensitivity analysis on structural and thermal finite element simulations, using MFEM and SUNDIALS solvers, and generates AI-powered interpretation reports via Mercury AI."
+            "text": "SimHPC is a distributed compute operating system for engineering simulation. It provides a deterministic kernel scheduler, immutable GPU execution containers (MFEM + SUNDIALS), and a zero-trust plugin fabric (Clawpassport) that verifies every plugin, agent, and simulation result."
           }
         },
         {
           "@type": "Question",
-          "name": "What simulation solvers does SimHPC use?",
+          "name": "What makes SimHPC different from cloud simulation tools?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "SimHPC uses MFEM for high-order finite element discretization and SUNDIALS (specifically CVODE and ARKODE) for adaptive time integration. These are deterministic physics solvers; AI is used only for interpreting results, never for the physics."
+            "text": "SimHPC is not a SaaS wrapper around a solver. It is a full execution kernel with a deterministic scheduler, portable DAG intermediate representation, world state fabric, and built-in trust verification. Every simulation is replayable, and every inter-plugin communication is authenticated via the A2A handshake protocol."
           }
         },
         {
           "@type": "Question",
-          "name": "What is robustness analysis in SimHPC?",
+          "name": "What is Clawpassport?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Robustness analysis in SimHPC runs multiple simulation variations using parameter perturbation methods including ±5%, ±10%, Latin Hypercube Sampling, Monte Carlo, and Sobol global sensitivity analysis (GSA). It computes confidence intervals, variance, and ranks parameters by their influence on simulation outputs."
+            "text": "Clawpassport is an open-source trust protocol for AI agent and plugin ecosystems. It combines cryptographic identity verification with runtime behavioural telemetry to produce dynamic trust scores. Plugins that behave anomalously have their trust decayed automatically, even if their cryptographic credentials are valid."
           }
         },
         {
           "@type": "Question",
-          "name": "How does SimHPC generate engineering reports?",
+          "name": "How are simulations kept deterministic and replayable?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "SimHPC uses Mercury AI (by Inception Labs) to generate structured engineering interpretation reports from simulation output data. Reports include simulation summaries, key output metrics, sensitivity rankings, uncertainty assessments, and suggested next steps. All AI output is cross-checked against deterministic solver results for numerical consistency."
+            "text": "SimHPC pins every dependency (GPU driver, CUDA version, solver version, random seed) into immutable Docker images. Every execution is hashed into a replay manifest that includes the environment fingerprint, DAG hash, world snapshot hash, and seed. Replay reconstructs identical results."
           }
         },
         {
           "@type": "Question",
-          "name": "What GPU infrastructure does SimHPC run on?",
+          "name": "Can external developers build plugins?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "SimHPC runs on RunPod GPU pods (NVIDIA A40 and RTX 3090) with an autoscaler that spins pods up when jobs are queued and terminates them after idle timeout to minimize cost."
+            "text": "Yes. The Plugin SDK provides a frozen ABI, capability registry, and sandboxed execution environment. Plugins carry a signed Clawpassport, declare capabilities, and communicate solely through the kernel-mediated A2A protocol. No plugin can access the kernel directly."
           }
         },
         {
           "@type": "Question",
-          "name": "Is SimHPC suitable for enterprise R&D teams?",
+          "name": "What GPU infrastructure does SimHPC use?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. SimHPC's Enterprise tier offers unlimited simulation runs, Sobol global sensitivity analysis, API access, and unlimited mesh nodes. It is designed for R&D teams that need repeatable, auditable simulation workflows with structured metadata and reproducibility controls."
+            "text": "SimHPC runs on NVIDIA A40 GPUs via RunPod, using immutable Docker images with compiled MFEM and SUNDIALS libraries. The kernel scheduler manages GPU allocation with fairness, budget enforcement, and preemption."
           }
         }
       ]
@@ -182,24 +183,19 @@
 
     <!-- ═══════════════════════════════════════════════════
          GEO — MACHINE-READABLE PRODUCT SIGNAL
-         Helps AI crawlers (GPTBot, PerplexityBot, ClaudeBot)
-         understand the product without hallucinating.
     ═══════════════════════════════════════════════════ -->
-    <meta name="product-category" content="Engineering Simulation Software" />
-    <meta name="product-subcategory" content="Finite Element Analysis, Robustness Analysis, Sensitivity Analysis" />
-    <meta name="technology-stack" content="MFEM, SUNDIALS, Mercury AI, RunPod, Supabase, Redis, FastAPI, React, Vite" />
-    <meta name="deployment" content="Cloud SaaS — Vercel frontend, RunPod GPU backend" />
-    <meta name="audience" content="Mechanical engineers, structural engineers, thermal engineers, R&D teams, simulation engineers" />
-    <meta name="use-case" content="FEM simulation, thermal analysis, structural analysis, robustness analysis, parameter sweeps, Sobol GSA, AI engineering reports" />
+    <meta name="product-category" content="Engineering Simulation Kernel" />
+    <meta name="product-subcategory" content="Distributed Compute OS, Deterministic FEM Solver, Agent Trust Fabric" />
+    <meta name="technology-stack" content="MFEM, SUNDIALS, PyTorch, CUDA 12.4, Supabase, Infisical, RunPod, FastAPI, React, Vite, Docker" />
+    <meta name="deployment" content="Immutable Docker containers on RunPod GPU pods + CPU orchestration plane" />
+    <meta name="audience" content="Mechanical engineers, structural engineers, thermal engineers, R&D teams, simulation engineers, AI agent developers" />
+    <meta name="use-case" content="Deterministic FEM simulation, robustness analysis, Sobol GSA, plugin-based agent orchestration, AI engineering reports, tamper-proof certificates" />
 
     <!-- ═══════════════════════════════════════════════════
          PERFORMANCE — RESOURCE HINTS
     ═══════════════════════════════════════════════════ -->
-    <!-- Supabase (auth + realtime) -->
     <link rel="preconnect" href="https://ldzztrnghaaonparyggz.supabase.co" />
-    <!-- SimHPC API -->
     <link rel="preconnect" href="https://api.simhpc.com" />
-    <!-- Stripe — dns-prefetch only (loaded lazily) -->
     <link rel="dns-prefetch" href="https://js.stripe.com" />
     <link rel="dns-prefetch" href="https://api.stripe.com" />
 
@@ -212,19 +208,6 @@
     <link rel="manifest" href="/site.webmanifest" crossorigin="use-credentials" />
     <meta name="theme-color" content="#0f172a" />
     <meta name="msapplication-TileColor" content="#0f172a" />
-
-    <!-- ═══════════════════════════════════════════════════
-         STRIPE — loaded async, only when needed
-         Move Stripe init to your checkout component.
-         Remove the blocking <script> from head entirely.
-    ═══════════════════════════════════════════════════ -->
-    <!-- DO NOT put <script src="https://js.stripe.com/v3/"></script> here.
-         Load Stripe lazily in your payment component instead:
-
-         const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PK);
-
-         Install: npm install @stripe/stripe-js
-    -->
   </head>
   <body>
     <div id="root"></div>
