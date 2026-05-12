@@ -97,4 +97,10 @@ class SimHPCKernel:
                 pass
             self.logger.info("Execution dispatcher stopped")
 
+        if hasattr(self, "trust_telemetry"):
+            pass
+
+        await self.plugin_loader.shutdown()
+        self.logger.info("Plugin sandboxes stopped")
+
         self.logger.info("Kernel shutdown complete.")

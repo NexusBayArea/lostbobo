@@ -4,6 +4,7 @@ from backend.api.routes.governance import router as governance_router
 from backend.app.api.admin.observability import router as observability_router
 from backend.app.api.agent_routes import router as agent_router
 from backend.app.api.auth import router as auth_router
+from backend.app.api.capability_invoke import router as capability_router
 from backend.app.api.dag import router as dag_router
 from backend.app.api.endpoints.simulations import router as simulations_router
 from backend.app.api.graph_viz import router as graph_viz_router
@@ -53,5 +54,6 @@ api_router.include_router(ml_router, prefix="/api/v1/ml", tags=["ML"])
 api_router.include_router(webhook_router, prefix="/api/v1", tags=["AlertWebhooks"])
 api_router.include_router(world_state_router, prefix="/api/v1", tags=["WorldState"])
 api_router.include_router(graph_viz_router, prefix="/api/v1", tags=["Visualization"])
+api_router.include_router(capability_router, tags=["Capability"])
 api_router.include_router(hardware_router, prefix="/api/v1", tags=["Hardware"])
 api_router.include_router(sla_monitor_router, prefix="/sla", tags=["SLAMonitoring"])
