@@ -11,8 +11,6 @@ class DAGRegistry:
             "plugin": plugin_name,
         }
 
-    async def execute(self, node_type: str, payload: dict):
-        if node_type not in self._nodes:
-            raise ValueError(f"DAG node '{node_type}' not found")
-        node = self._nodes[node_type]
-        return await node["executor"](payload)
+    def get_executor(self, node_type: str):
+        entry = self._nodes.get(node_type)
+        return entry["executor"] if entry else None
