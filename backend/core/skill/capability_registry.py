@@ -45,8 +45,8 @@ class CapabilityRegistry:
 
         try:
             result = await asyncio.wait_for(cap_def.handler(payload), timeout=cap_def.timeout_seconds)
-        except TimeoutError:
-            raise TimeoutError(f"Capability {capability} timed out after {cap_def.timeout_seconds}s")
+        except TimeoutError as e:
+            raise TimeoutError(f"Capability {capability} timed out after {cap_def.timeout_seconds}s") from e
         return result
 
     def get_capability(self, name: str) -> CapabilityDefinition | None:
