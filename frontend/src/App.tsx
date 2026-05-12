@@ -30,6 +30,7 @@ import { PageLayout } from '@/components/PageLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 const HomePage = lazy(() => import('@/pages/HomePage').then(module => ({ default: module.default })));
+const ObservabilityPage = lazy(() => import('@/pages/ObservabilityPage'));
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
@@ -62,6 +63,7 @@ function App() {
               <Route path="/dpa" element={<DPA />} />
               <Route path="/cookies" element={<CookiePolicy />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/observability" element={<ProtectedRoute><ObservabilityPage /></ProtectedRoute>} />
               <Route path="/dashboard/notebook" element={<ProtectedRoute><ExperimentNotebook /></ProtectedRoute>} />
               <Route path="/dashboard/alpha" element={<ProtectedRoute><AlphaControlRoom /></ProtectedRoute>} />
               <Route path="/admin/analytics" element={<ProtectedRoute requireAdmin><AdminAnalyticsPage /></ProtectedRoute>} />
