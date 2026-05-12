@@ -3,16 +3,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Activity, Brain, Cpu, DollarSign, Zap, AlertTriangle, FileText } from 'lucide-react';
+import { Activity, Brain, DollarSign, Zap, AlertTriangle, FileText } from 'lucide-react';
 import WorldStateDashboard from './WorldStateDashboard';
 import RLTrainingDashboard from './RLTrainingDashboard';
-import { useSSE } from '@/hooks/useSSE';
 import DAGExecutionViewer from './kernel-views/DAGExecutionViewer';
 import EventStreamViewer from './kernel-views/EventStreamViewer';
 import SimulationViewer from './kernel-views/SimulationViewer';
 import SchedulerDashboard from './kernel-views/SchedulerDashboard';
 import ReplayConsole from './kernel-views/ReplayConsole';
 import CapabilityGraphExplorer from './kernel-views/CapabilityGraphExplorer';
+import { useSSE } from '@/hooks/useSSE';
 
 interface RecentLog {
   timestamp: string;
@@ -27,7 +27,6 @@ const ObservabilityHub: React.FC = () => {
   const [regime, setRegime] = useState('normal');
   const [anomalies, setAnomalies] = useState(2);
   const [llmSpend, setLlmSpend] = useState(12.4);
-  const [rateLimitHits, setRateLimitHits] = useState(47);
   const [recentLogs, setRecentLogs] = useState<RecentLog[]>([]);
   const [logRate, setLogRate] = useState(8.4);
 
@@ -52,7 +51,6 @@ const ObservabilityHub: React.FC = () => {
       setRegime(liveMetrics.regime || regime);
       setAnomalies(liveMetrics.anomalies || anomalies);
       setLlmSpend(liveMetrics.llm_spend_usd || llmSpend);
-      setRateLimitHits(liveMetrics.rate_limit_hits || rateLimitHits);
       setLogRate(liveMetrics.log_rate || logRate);
     }
   }, [liveMetrics]);
@@ -64,7 +62,6 @@ const ObservabilityHub: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Sidebar */}
       <div className="w-64 border-r p-4 flex flex-col gap-6">
         <div className="flex items-center gap-2">
           <Zap className="h-6 w-6 text-primary" />
@@ -75,15 +72,17 @@ const ObservabilityHub: React.FC = () => {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <div className="text-muted-foreground">Kernel</div>
-              <Badge variant={kernelHealth.booted ? "default" : "destructive"}>Healthy</Badge>
+              <Badge variant={kernelHealth.booted ? 'default' : 'destructive'}>Healthy</Badge>
             </div>
             <div>
               <div className="text-muted-foreground">Regime</div>
-              <Badge variant="outline" className="capitalize">{regime}</Badge>
+              <Badge variant="outline" className="capitalize">
+                {regime}
+              </Badge>
             </div>
             <div>
               <div className="text-muted-foreground">Anomalies</div>
-              <Badge variant={anomalies > 0 ? "destructive" : "secondary"}>{anomalies}</Badge>
+              <Badge variant={anomalies > 0 ? 'destructive' : 'secondary'}>{anomalies}</Badge>
             </div>
             <div>
               <div className="text-muted-foreground">LLM Spend (24h)</div>
@@ -109,7 +108,6 @@ const ObservabilityHub: React.FC = () => {
         </nav>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 overflow-auto p-6">
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="grid w-full grid-cols-11">
