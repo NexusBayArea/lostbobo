@@ -63,7 +63,6 @@ class EventLogService:
                 raise RuntimeError(f"Causal violation: {event.event_id}")
 
             sealed = event.seal()
-            sealed.provenance_hash = seal_result(sealed.model_dump())
 
             if self._supabase:
                 try:

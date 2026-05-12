@@ -9,7 +9,7 @@ import uuid
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from backend.core.runtime.event_fabric.vector_clock import VectorClock
 
@@ -21,7 +21,7 @@ class EventPriority(str, Enum):
 
 
 class SimHPCEvent(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
+    model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
     event_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     event_type: str = Field(...)
@@ -38,6 +38,13 @@ class SimHPCEvent(BaseModel):
     @classmethod
     def clamp_confidence(cls, v: float) -> float:
         return float(max(0.0, min(1.0, v)))
+
+    @model_validator(mode="before")
+    @classmethod
+    def coerce_vector_clock(cls, data: Any) -> Any:
+        if isinstance(data, dict) and isinstance(data.get("vector_clock"), dict):
+            data["vector_clock"] = VectorClock(data["vector_clock"])
+        return data
 
     def seal(self) -> SimHPCEvent:
         self.vector_clock.increment(self.source_plugin)

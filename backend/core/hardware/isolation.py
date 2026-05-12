@@ -3,11 +3,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import TYPE_CHECKING
 
-from backend.core.hardware.fractional import FractionalAllocation
 from backend.core.hardware.mps import MPSManager
+
+if TYPE_CHECKING:
+    from backend.core.hardware.fractional import FractionalAllocation
 from backend.core.hardware.pools import ExecutionCapacity, PoolClass
-from backend.core.hardware.scheduler import SchedulingRequest
+from backend.hardware.scheduler import SchedulingRequest
 from backend.core.runtime.alerting.engine import RealTimeAlertingSystem
 from backend.core.runtime.anomaly.engine import AnomalyEvent
 from backend.core.services.observability_service import observability
@@ -125,3 +128,11 @@ class GPUIsolationManager:
     async def release(self, allocation_id: str):
         if allocation_id in self._active_configs:
             del self._active_configs[allocation_id]
+
+
+GPUIsolationConfig = IsolationConfig
+GPUIsolationLevel = IsolationLevel
+
+
+def get_isolation_manager() -> GPUIsolationManager:
+    return GPUIsolationManager.manager()

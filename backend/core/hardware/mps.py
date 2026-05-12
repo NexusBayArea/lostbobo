@@ -4,8 +4,12 @@ import asyncio
 import os
 from dataclasses import dataclass
 
-from backend.core.hardware.isolation import IsolationConfig
+from typing import TYPE_CHECKING
+
 from backend.core.hardware.pools import ExecutionCapacity
+
+if TYPE_CHECKING:
+    from backend.core.hardware.isolation import IsolationConfig
 from backend.core.services.observability_service import observability
 from backend.core.tracing import trace_context
 

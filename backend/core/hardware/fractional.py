@@ -3,10 +3,13 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from backend.core.hardware.isolation import GPUIsolationManager
 from backend.core.hardware.pools import ExecutionCapacity
-from backend.core.hardware.scheduler import SchedulingRequest
+
+if TYPE_CHECKING:
+    from backend.core.hardware.isolation import GPUIsolationManager
+from backend.hardware.scheduler import SchedulingRequest
 from backend.core.services.observability_service import observability
 
 
@@ -65,6 +68,8 @@ class FractionalGPUScheduler:
         )
 
         # Enforce isolation
+        from backend.core.hardware.isolation import GPUIsolationManager
+
         success = await GPUIsolationManager.manager().apply_isolation(capacity, allocation, request)
         if not success:
             return None
@@ -87,4 +92,10 @@ class FractionalGPUScheduler:
             self._active_allocations[cap_id] = [a for a in allocs if a.allocation_id != allocation_id]
             if not self._active_allocations[cap_id]:
                 del self._active_allocations[cap_id]
+                from backend.core.hardware.isolation import GPUIsolationManager
+
                 await GPUIsolationManager.manager().release(allocation_id)
+
+
+def get_fractional_scheduler() -> FractionalGPUScheduler:
+    return FractionalGPUScheduler.scheduler()

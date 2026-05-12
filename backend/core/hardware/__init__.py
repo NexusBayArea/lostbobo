@@ -32,11 +32,7 @@ from backend.hardware.reservations import (
     ReservationType,
     get_reservation_system,
 )
-from backend.hardware.scheduler import (
-    SchedulingRequest,
-    SchedulingResult,
-    get_scheduler,
-)
+from backend.hardware.scheduler import SchedulingRequest, get_scheduler
 from backend.hardware.sla import SLATier
 
 __all__ = [
@@ -62,7 +58,6 @@ __all__ = [
     "ReservationType",
     "get_reservation_system",
     "SchedulingRequest",
-    "SchedulingResult",
     "get_scheduler",
     "SLATier",
     "ResourceEconomicsRuntime",

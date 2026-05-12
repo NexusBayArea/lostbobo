@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from backend.core.hardware.fractional import FractionalGPUScheduler
 from backend.core.hardware.pools import ExecutionCapacity, PoolClass
-from backend.core.hardware.scheduler import SchedulingRequest
+from backend.hardware.scheduler import SchedulingRequest
 from backend.core.services.observability_service import observability
 from backend.core.tracing import trace_context
 
