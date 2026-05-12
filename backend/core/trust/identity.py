@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import secrets
 from typing import Any
 
 from cryptography.exceptions import InvalidSignature
@@ -89,3 +90,27 @@ class IdentityVerifier:
         import json
 
         return json.dumps(data, sort_keys=True, separators=(",", ":"))
+
+
+class TrustVerifier:
+    def __init__(self, kernel):
+        self._kernel = kernel
+        self._inner = IdentityVerifier()
+        self._challenges: dict[str, str] = {}
+
+    def verify_request(self, payload: dict, public_key_pem: str) -> bool:
+        return self._inner.verify({**payload, "public_key": public_key_pem})
+
+    def verify_passport(self, passport: PluginPassport) -> bool:
+        return self._inner.verify_passport(passport)
+
+    def generate_challenge(self, plugin_id: str) -> str:
+        challenge = secrets.token_hex(32)
+        self._challenges[plugin_id] = challenge
+        return challenge
+
+    def verify_challenge_response(self, plugin_id: str, response: str) -> bool:
+        expected = self._challenges.pop(plugin_id, None)
+        if expected is None:
+            return False
+        return response == expected

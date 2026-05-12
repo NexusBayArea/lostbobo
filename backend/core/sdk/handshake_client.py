@@ -12,7 +12,7 @@ async def request_session(
     tenant_id: str = "system",
 ) -> str | None:
     envelope = ProtocolEnvelope(
-        protocol="handshake",
+        protocol="a2a_handshake",
         action="request",
         target=target_plugin,
         tenant_id=tenant_id,
@@ -22,7 +22,7 @@ async def request_session(
             "action": "request",
             "source_plugin_id": source_plugin,
             "target_plugin_id": target_plugin,
-            "requested_capabilities": requested_capabilities,
+            "capabilities": requested_capabilities,
         },
     )
     response: ProtocolResponse = await kernel_bus.dispatch(envelope)
@@ -33,7 +33,7 @@ async def request_session(
 
 async def validate_session(kernel_bus, session_token: str) -> dict | None:
     envelope = ProtocolEnvelope(
-        protocol="handshake",
+        protocol="a2a_handshake",
         action="validate",
         target="kernel",
         tenant_id="system",
@@ -49,7 +49,7 @@ async def validate_session(kernel_bus, session_token: str) -> dict | None:
 
 async def revoke_session(kernel_bus, session_token: str) -> bool:
     envelope = ProtocolEnvelope(
-        protocol="handshake",
+        protocol="a2a_handshake",
         action="revoke",
         target="kernel",
         tenant_id="system",

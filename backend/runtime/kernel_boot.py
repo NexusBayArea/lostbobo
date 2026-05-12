@@ -9,6 +9,7 @@ import logging
 
 from backend.core.health import HealthProbe
 from backend.core.protocol.bus.protocol_bus import KernelProtocolBus
+from backend.core.protocol.contracts.plugin_message_protocol import PluginMessageProtocol
 from backend.core.runtime_manifest import RuntimeManifest
 from backend.core.trust.handshake import HandshakeProtocol, SessionManager
 from backend.core.trust.identity import IdentityVerifier, TrustStore
@@ -49,14 +50,12 @@ async def boot(kernel) -> None:
 
     log.info("Trust subsystem initialized")
 
-    kernel.handshake_protocol = HandshakeProtocol(
-        trust_store=kernel.trust_store,
-        identity_verifier=kernel.identity_verifier,
-        session_manager=kernel.session_manager,
-    )
+    kernel.handshake_protocol = HandshakeProtocol(kernel)
+    kernel.plugin_message_protocol = PluginMessageProtocol(kernel)
 
     protocol_registry: dict[str, object] = {
-        "handshake": kernel.handshake_protocol,
+        "a2a_handshake": kernel.handshake_protocol,
+        "plugin_message": kernel.plugin_message_protocol,
     }
 
     kernel.protocol_bus = KernelProtocolBus(
@@ -66,7 +65,7 @@ async def boot(kernel) -> None:
         },
     )
 
-    log.info("Protocol bus initialized with handshake protocol")
+    log.info("Protocol bus initialized with a2a_handshake and plugin_message protocols")
 
     log.info("Built-in capabilities registered")
 

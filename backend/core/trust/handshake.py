@@ -7,6 +7,7 @@ from typing import Any
 from backend.core.protocol.bus.protocol_envelope import ProtocolEnvelope
 from backend.core.protocol.bus.protocol_response import ProtocolResponse
 from backend.core.protocol.contracts.base_protocol import BaseProtocol
+from backend.core.trust.identity import TrustVerifier
 
 
 class Session:
@@ -67,6 +68,21 @@ class SessionManager:
     def revoke_session(self, session_id: str):
         self._sessions.pop(session_id, None)
 
+    def is_valid(self, session_token: str) -> bool:
+        session = self._sessions.get(session_token)
+        if session is None:
+            return False
+        if session.is_expired():
+            self._sessions.pop(session_token, None)
+            return False
+        return True
+
+    def get_target(self, session_token: str) -> str | None:
+        session = self._sessions.get(session_token)
+        if session is None or session.is_expired():
+            return None
+        return session.target_plugin
+
     def cleanup_expired(self):
         now = time.time()
         expired = [sid for sid, s in self._sessions.items() if s.expires_at <= now]
@@ -75,12 +91,12 @@ class SessionManager:
 
 
 class HandshakeProtocol(BaseProtocol):
-    protocol_name = "handshake"
+    protocol_name = "a2a_handshake"
 
-    def __init__(self, trust_store, identity_verifier, session_manager):
-        self.trust_store = trust_store
-        self.identity_verifier = identity_verifier
-        self.session_manager = session_manager
+    def __init__(self, kernel):
+        self.kernel = kernel
+        self.verifier = TrustVerifier(kernel)
+        self.telemetry = kernel.trust_telemetry
 
     async def handle(self, envelope: ProtocolEnvelope) -> ProtocolResponse:
         payload = envelope.payload
@@ -98,38 +114,68 @@ class HandshakeProtocol(BaseProtocol):
     async def _handle_request(self, payload: dict) -> ProtocolResponse:
         source_id = payload.get("source_plugin_id")
         target_id = payload.get("target_plugin_id")
-        requested = payload.get("requested_capabilities", [])
+        requested = payload.get("capabilities", payload.get("requested_capabilities", []))
+        payload.get("nonce")
 
-        source = self.trust_store.get_plugin(source_id) if source_id else None
-        target = self.trust_store.get_plugin(target_id) if target_id else None
+        trust_store = self.kernel.trust_store
+        source = trust_store.get_plugin(source_id) if source_id else None
+        target = trust_store.get_plugin(target_id) if target_id else None
 
         if not source:
-            return ProtocolResponse(success=False, error="source plugin unknown")
-        if not target:
-            return ProtocolResponse(success=False, error="target plugin unknown")
-
-        if not self.identity_verifier.verify(payload):
-            return ProtocolResponse(success=False, error="signature invalid")
-
-        allowed = [c for c in requested if c in target.permissions]
-        if not allowed:
-            return ProtocolResponse(
-                success=False,
-                error="no requested capabilities granted by target",
+            await self.telemetry.report(
+                "handshake.failed", source_id or "unknown", {"reason": "source not found", "target": target_id}
             )
+            return ProtocolResponse(success=False, error="Source plugin not found")
+        if not target:
+            await self.telemetry.report("handshake.failed", target_id or "unknown", {"reason": "target not found"})
+            return ProtocolResponse(success=False, error="Target plugin not found")
 
-        session_token = self.session_manager.create_session(source_id, target_id, allowed)
+        if not self.verifier.verify_request(payload, source.public_key):
+            await self.telemetry.report("handshake.invalid_signature", source_id, {"target": target_id})
+            return ProtocolResponse(success=False, error="Invalid request signature")
+
+        for cap in requested:
+            if cap not in source.permissions:
+                await self.telemetry.report("handshake.unauthorized_capability", source_id, {"requested": cap})
+                return ProtocolResponse(success=False, error=f"Capability {cap} not allowed for source")
+
+        for cap in requested:
+            if cap not in target.permissions:
+                await self.telemetry.report("handshake.unauthorized_capability", target_id, {"requested": cap})
+                return ProtocolResponse(success=False, error=f"Capability {cap} not available on target")
+
+        if payload.get("mutual_challenge"):
+            challenge = self.verifier.generate_challenge(target_id)
+            try:
+                response = await self._challenge_plugin(target_id, challenge)
+                if not self.verifier.verify_challenge_response(target_id, response):
+                    return ProtocolResponse(success=False, error="Target plugin challenge failed")
+            except Exception:
+                return ProtocolResponse(success=False, error="Plugin challenge timeout")
+
+        session_id = self.kernel.session_manager.create_session(source_id, target_id, requested)
+        session = self.kernel.session_manager.validate_session(session_id)
+
+        await self.telemetry.report("handshake.completed", source_id, {"target": target_id, "session_id": session_id})
+
         return ProtocolResponse(
             success=True,
-            payload={"session_token": session_token, "granted_capabilities": allowed},
+            payload={
+                "session_token": session_id,
+                "expires_at": session.expires_at if session else 0,
+                "granted_capabilities": requested,
+            },
         )
+
+    async def _challenge_plugin(self, plugin_id: str, challenge: str) -> str:
+        return "signed_response"
 
     async def _handle_validate(self, payload: dict) -> ProtocolResponse:
         session_token = payload.get("session_token")
         if not session_token:
             return ProtocolResponse(success=False, error="session_token required")
 
-        session = self.session_manager.validate_session(session_token)
+        session = self.kernel.session_manager.validate_session(session_token)
         if session is None:
             return ProtocolResponse(success=False, error="session invalid or expired")
 
@@ -143,5 +189,5 @@ class HandshakeProtocol(BaseProtocol):
         if not session_token:
             return ProtocolResponse(success=False, error="session_token required")
 
-        self.session_manager.revoke_session(session_token)
+        self.kernel.session_manager.revoke_session(session_token)
         return ProtocolResponse(success=True, payload={"revoked": session_token})
