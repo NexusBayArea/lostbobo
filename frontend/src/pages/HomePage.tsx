@@ -40,16 +40,15 @@ function ParticleBackground() {
     resize();
     window.addEventListener('resize', resize);
 
-    // Increased from 80 → 120 (+50%)
     const count = 120;
     for (let i = 0; i < count; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,       // slightly faster
+        vx: (Math.random() - 0.5) * 0.5,
         vy: (Math.random() - 0.5) * 0.5,
-        radius: Math.random() * 2.2 + 0.8,      // larger particles
-        alpha: Math.random() * 0.45 + 0.15,     // brighter
+        radius: Math.random() * 2.2 + 0.8,
+        alpha: Math.random() * 0.45 + 0.15,
       });
     }
 
@@ -70,18 +69,17 @@ function ParticleBackground() {
         ctx.fill();
       });
 
-      // Draw connections — increased visibility
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 150) {   // longer connection range (was 120)
+          if (dist < 150) {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            // increased opacity from 0.06 to 0.10
-            ctx.strokeStyle = `rgba(34, 211, 238, ${0.10 * (1 - dist / 150)})`;
+            // Increased opacity from 0.10 to 0.20
+            ctx.strokeStyle = `rgba(34, 211, 238, ${0.20 * (1 - dist / 150)})`;
             ctx.stroke();
           }
         }
@@ -163,7 +161,7 @@ export default function HomePage() {
         <section className="max-w-6xl mx-auto px-6 pb-24" style={{ zIndex: 1, position: 'relative' }}>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { icon: Cpu, title: 'Control Plane', desc: 'Deterministic scheduler, protocol bus, memory fabric, event store, and RAG engine running on CPU nodes. Lightweight models (Gemma 2B, Qwen 3B) handle routing, compression, and reasoning — so the GPU never wastes cycles on orchestration.' },
+              { icon: Cpu, title: 'Control Plane', desc: 'Deterministic scheduler, protocol bus, memory fabric, event store, and RAG engine running on CPU nodes. Lightweight models handle routing, compression, and reasoning — so the GPU never wastes cycles on orchestration.' },
               { icon: Zap, title: 'GPU Simulation Plane', desc: 'MFEM + SUNDIALS compiled directly into immutable A40 containers. Stateless workers pull jobs from the kernel queue, run physics, stream telemetry, and return results. No REST. No blocking. No domain logic in the core.' },
               { icon: Shield, title: 'Trust Fabric', desc: 'Clawpassport identity, A2A handshake protocol, runtime behavioural scoring, and Agentwall policy enforcement. Every plugin and agent is verified before it can talk to anything else — cryptographic trust plus live telemetry.' },
             ].map((p) => (
