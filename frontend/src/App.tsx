@@ -7,7 +7,7 @@ import { Stack } from '@/sections/Stack';
 import { ValueDifferentiator } from '@/sections/ValueDifferentiator';
 import { WhoItsFor } from '@/sections/WhoItsFor';
 
-const Dashboard = lazy(() => import('@/pages/Dashboard').then(module => ({ default: module.Dashboard })));
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const ExperimentNotebook = lazy(() => import('@/pages/ExperimentNotebook'));
 const AlphaControlRoom = lazy(() => import('@/pages/AlphaControlRoom').then(module => ({ default: module.AlphaControlRoom })));
 const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage').then(module => ({ default: module.AdminAnalyticsPage })));
