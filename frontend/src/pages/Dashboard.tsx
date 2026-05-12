@@ -17,9 +17,9 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { JobProgress } from '@/components/JobProgress';
 import { NotebookNavButton } from '@/components/NotebookNavButton';
 import { cn } from '@/lib/utils';
-import { ConfigurationPanel, type Parameter } from '@/sections/dashboard/ConfigurationPanel';
-import { RunControlPanel } from '@/sections/dashboard/RunControlPanel';
-import { ResultsPanel } from '@/sections/dashboard/ResultsPanel';
+import { ConfigurationPanel, type Parameter } from '@/pages/alpha-disabled/sections/dashboard/ConfigurationPanel';
+import { RunControlPanel } from '@/pages/alpha-disabled/sections/dashboard/RunControlPanel';
+import { ResultsPanel } from '@/pages/alpha-disabled/sections/dashboard/ResultsPanel';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
