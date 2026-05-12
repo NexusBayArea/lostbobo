@@ -4,6 +4,10 @@ from pydantic import BaseModel
 
 
 class SchedulerDispatchContract(BaseModel):
+    """
+    FROZEN scheduling request v1.0.0.
+    """
+
     execution_id: str
     dag_id: str
     priority: int
