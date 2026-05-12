@@ -438,7 +438,7 @@ export function Dashboard() {
                 numRuns={numRuns}
                 samplingMethod={samplingMethod}
                 activeParams={parameters.filter(p => p.perturbable).length}
-                userBalance={usage?.remaining ?? 0}
+                remainingRuns={usage?.remaining ?? 0}
               />
 
               {isRunning && (
