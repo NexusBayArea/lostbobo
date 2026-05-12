@@ -6,12 +6,14 @@ from typing import Any
 
 from backend.core.determinism.seeds.deterministic_seed_manager import DeterministicSeedManager
 from backend.core.hardware.isolation import GPUIsolationManager
+from backend.runtime.gpu_worker.jit_loader import RuntimeLoader
 from backend.runtime.gpu_worker.telemetry import TelemetryAgent
 from backend.runtime.scientific.simulation_executor import ScientificSimulationExecutor
 
 gpu_manager = GPUIsolationManager()
 seed_manager = DeterministicSeedManager()
 sci_executor = ScientificSimulationExecutor()
+jit_loader = RuntimeLoader()
 
 SIMULATION_CAPABILITIES = frozenset(
     {
@@ -29,6 +31,13 @@ async def execute_job(job: dict[str, Any], agent: TelemetryAgent) -> dict[str, A
 
     seed = seed_manager.derive_seed(execution_id)
     seed_manager.apply_seed(seed)
+
+    required_libs = job.get("required_libraries", [])
+    try:
+        jit_loader.load(required_libs)
+    except ImportError as e:
+        await agent.emit(execution_id, "job.failed", {"error": str(e)})
+        raise
 
     await agent.emit(execution_id, "job.started", {"capability": capability})
 

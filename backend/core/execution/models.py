@@ -34,6 +34,7 @@ class ExecutionRequest(BaseModel):
     priority: ExecutionPriority = ExecutionPriority.SIMULATION
     timeout_seconds: int = 3600
     checkpoint_enabled: bool = True
+    required_libraries: list[str] = Field(default_factory=list)
 
 
 class ExecutionFuture(BaseModel):
