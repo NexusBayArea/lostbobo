@@ -71,6 +71,11 @@ async def boot(kernel) -> None:
 
     log.info("Protocol bus initialized with a2a_handshake and plugin_message protocols")
 
+    from backend.core.memory.capabilities.rag_capabilities import register_rag_capabilities
+
+    await register_rag_capabilities(kernel)
+    log.info("RAG capabilities registered (retrieve, rerank, compress, graphrag, streaming_rag)")
+
     log.info("Built-in capabilities registered")
 
     log.info("Kernel boot complete")

@@ -11,6 +11,7 @@ from backend.app.api.graph_viz import router as graph_viz_router
 from backend.app.api.graphrag import router as graphrag_router
 from backend.app.api.hardware import router as hardware_router
 from backend.app.api.ml import router as ml_router
+from backend.app.api.rag_edge import router as rag_edge_router
 from backend.app.api.reports import router as reports_router
 from backend.app.api.routes import certificates, onboarding
 from backend.app.api.routes.alpha import router as alpha_router
@@ -54,6 +55,7 @@ api_router.include_router(ml_router, prefix="/api/v1/ml", tags=["ML"])
 api_router.include_router(webhook_router, prefix="/api/v1", tags=["AlertWebhooks"])
 api_router.include_router(world_state_router, prefix="/api/v1", tags=["WorldState"])
 api_router.include_router(graph_viz_router, prefix="/api/v1", tags=["Visualization"])
+api_router.include_router(rag_edge_router, tags=["RAG"])
 api_router.include_router(capability_router, tags=["Capability"])
 api_router.include_router(hardware_router, prefix="/api/v1", tags=["Hardware"])
 api_router.include_router(sla_monitor_router, prefix="/sla", tags=["SLAMonitoring"])
