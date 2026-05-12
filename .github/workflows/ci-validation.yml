@@ -36,8 +36,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --extra dev
 
-      - name: Smoke test CI runner
-        run: python -c "import tools.run_ci; print('[SMOKE] run_ci.py imports OK')"
+      - name: Run pre-commit checks
+        run: pip install pre-commit && pre-commit run --all-files --show-diff-on-failure
 
-      - name: Run Full CI
-        run: bash ci.sh
+      - name: Run CI script
+        run: bash ../ci.sh
