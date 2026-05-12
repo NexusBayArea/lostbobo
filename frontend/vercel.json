@@ -1,4 +1,15 @@
 {
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "font-src 'self' *.vercel.com *.gstatic.com vercel.live *.public.blob.vercel-storage.com;"
+        }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/api(/.*)?", "destination": "/api/[...path]" },
     { "source": "/(.*)", "destination": "/index.html" }

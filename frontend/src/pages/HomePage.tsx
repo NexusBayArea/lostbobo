@@ -156,8 +156,8 @@ export default function HomePage() {
                 </Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <Link to="/observability">
-                  <Activity className="mr-2 h-4 w-4" /> Kernel Observatory
+                <Link to="/signup">
+                  <Activity className="mr-2 h-4 w-4" /> Get Started — Free
                 </Link>
               </Button>
             </motion.div>
