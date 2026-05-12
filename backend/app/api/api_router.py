@@ -6,11 +6,7 @@ from backend.app.api.agent_routes import router as agent_router
 from backend.app.api.auth import router as auth_router
 from backend.app.api.capability_invoke import router as capability_router
 from backend.app.api.dag import router as dag_router
-from backend.app.api.endpoints.simulations import router as simulations_router
-from backend.app.api.graph_viz import router as graph_viz_router
-from backend.app.api.graphrag import router as graphrag_router
-from backend.app.api.hardware import router as hardware_router
-from backend.app.api.ml import router as ml_router
+from backend.app.api.document_api import router as document_router
 from backend.app.api.rag_edge import router as rag_edge_router
 from backend.app.api.reports import router as reports_router
 from backend.app.api.routes import certificates, onboarding
@@ -33,12 +29,10 @@ api_router = APIRouter()
 api_router.include_router(auth_router, prefix="/api", tags=["Auth"])
 api_router.include_router(dag_router, prefix="", tags=["DAG"])
 api_router.include_router(observability_router, prefix="/admin", tags=["Admin"])
-api_router.include_router(simulations_router, prefix="/simulations", tags=["Simulations"])
 api_router.include_router(onboarding.router, prefix="/onboarding", tags=["Onboarding"])
 api_router.include_router(certificates.router, prefix="/certificates", tags=["Verification"])
 api_router.include_router(alpha_router, prefix="/alpha", tags=["Alpha"])
 api_router.include_router(reports_router, prefix="/reports", tags=["Reports"])
-api_router.include_router(graphrag_router, prefix="/graphrag", tags=["GraphRAG"])
 api_router.include_router(sla_monitor_router, prefix="/sla", tags=["SLAMonitoring"])
 api_router.include_router(memory_router, prefix="/memory", tags=["Memory"])
 api_router.include_router(agent_router, prefix="/agents", tags=["Agents"])
@@ -51,11 +45,9 @@ api_router.include_router(governance_router, prefix="/governance", tags=["Govern
 api_router.include_router(swarm_api_router, prefix="", tags=["SwarmAPI"])
 api_router.include_router(grid_router, prefix="", tags=["ExperimentGrid"])
 api_router.include_router(discovery_router, prefix="/api/v1", tags=["DiscoveryGraph"])
-api_router.include_router(ml_router, prefix="/api/v1/ml", tags=["ML"])
 api_router.include_router(webhook_router, prefix="/api/v1", tags=["AlertWebhooks"])
 api_router.include_router(world_state_router, prefix="/api/v1", tags=["WorldState"])
-api_router.include_router(graph_viz_router, prefix="/api/v1", tags=["Visualization"])
 api_router.include_router(rag_edge_router, tags=["RAG"])
+api_router.include_router(document_router, tags=["Document"])
 api_router.include_router(capability_router, tags=["Capability"])
-api_router.include_router(hardware_router, prefix="/api/v1", tags=["Hardware"])
 api_router.include_router(sla_monitor_router, prefix="/sla", tags=["SLAMonitoring"])

@@ -76,6 +76,11 @@ async def boot(kernel) -> None:
     await register_rag_capabilities(kernel)
     log.info("RAG capabilities registered (retrieve, rerank, compress, graphrag, streaming_rag)")
 
+    from backend.core.document.capabilities import register_document_capabilities
+
+    await register_document_capabilities(kernel)
+    log.info("Document capabilities registered (generate_pdf, generate_certificate, ingest_pdf)")
+
     log.info("Built-in capabilities registered")
 
     log.info("Kernel boot complete")
