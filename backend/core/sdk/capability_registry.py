@@ -32,5 +32,15 @@ class CapabilityRegistry:
 
         return await handler(payload)
 
+    def validate(
+        self,
+        capabilities: list[str],
+        allowed_permissions: list[str],
+    ) -> list[str]:
+        invalid = [c for c in capabilities if c not in allowed_permissions]
+        if invalid:
+            raise ValueError(f"Capabilities {invalid} not declared in passport permissions")
+        return capabilities
+
     def list_capabilities(self) -> list[str]:
         return list(self._handlers.keys())

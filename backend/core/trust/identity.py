@@ -10,6 +10,10 @@ from cryptography.hazmat.primitives.asymmetric import padding, rsa, utils
 from backend.core.sdk.abi.plugin_manifest import PluginPassport
 
 
+class TrustError(Exception):
+    """Raised when a plugin trust check fails (signature, revocation, capability)."""
+
+
 class TrustStore:
     def __init__(self):
         self._plugins: dict[str, PluginPassport] = {}

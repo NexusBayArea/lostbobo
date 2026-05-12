@@ -8,6 +8,7 @@ from __future__ import annotations
 import logging
 
 from backend.core.health import HealthProbe
+from backend.core.protocol.bus.protocol_bus import KernelProtocolBus
 from backend.core.runtime_manifest import RuntimeManifest
 from backend.core.trust.handshake import HandshakeProtocol, SessionManager
 from backend.core.trust.identity import IdentityVerifier, TrustStore
@@ -54,7 +55,18 @@ async def boot(kernel) -> None:
         session_manager=kernel.session_manager,
     )
 
-    log.info("Handshake protocol ready")
+    protocol_registry: dict[str, object] = {
+        "handshake": kernel.handshake_protocol,
+    }
+
+    kernel.protocol_bus = KernelProtocolBus(
+        registry=protocol_registry,
+        kernel_services={
+            "simulation_executor": getattr(kernel, "simulation_executor", None),
+        },
+    )
+
+    log.info("Protocol bus initialized with handshake protocol")
 
     log.info("Built-in capabilities registered")
 
