@@ -21,12 +21,16 @@ class DAGRuntime:
         self.lineage = DAGLineage(kernel.lineage_syscalls)
         self.replay_recorder = DAGReplayRecorder()
         self.replayer = DAGReplayer(self.replay_recorder, self.dag_registry)
-
+from typing import Dict, Any, Optional
+...
     async def execute(self, dag: DAGIR, global_inputs: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        inputs = global_inputs or {}
+        global_inputs = global_inputs or {}
         run_id = str(uuid.uuid4())
         await self.lineage.record_graph_start(dag.dag_id, run_id)
-
+...
+    async def _execute_node(self, dag: DAGIR, node_id: str, outputs: dict, run_id: str, global_inputs: dict):
+        # ... logic that uses inputs ...
+        inputs = global_inputs.copy()
         if dag.replay and dag.replay.replay_hash:
             try:
                 return await self.replayer.replay(dag, run_id)
