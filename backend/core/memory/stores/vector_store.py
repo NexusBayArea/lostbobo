@@ -13,7 +13,7 @@ class VectorStore:
             return []
         query = np.array(query_embedding)
         scores = []
-        for emb, mid, mem in self.records:
+        for emb, _mid, mem in self.records:
             # cosine similarity
             norm_q = np.linalg.norm(query)
             norm_emb = np.linalg.norm(emb)
