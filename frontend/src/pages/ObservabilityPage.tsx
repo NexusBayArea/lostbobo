@@ -12,7 +12,6 @@ import { ObservabilityHub } from '@/components/ObservabilityHub';
 const ObservabilityPage: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
-      {/* Breadcrumbs */}
       <div className="border-b px-6 py-3 bg-background">
         <Breadcrumb>
           <BreadcrumbList>
@@ -21,13 +20,11 @@ const ObservabilityPage: React.FC = () => {
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Observability</BreadcrumbPage>
+              <BreadcrumbPage>Kernel Observatory</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-
-      {/* Full-screen Hub */}
       <div className="flex-1 overflow-hidden">
         <ObservabilityHub />
       </div>

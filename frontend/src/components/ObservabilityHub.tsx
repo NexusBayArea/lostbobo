@@ -3,25 +3,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useSSE } from '@/hooks/useSSE';
 import {
   Activity,
   Brain,
+  Cpu,
   DollarSign,
+  Shield,
   Zap,
   AlertTriangle,
+  Clock,
   FileText,
   ExternalLink,
   RefreshCcw,
+  GitBranch,
+  Workflow,
+  Layers,
+  Server,
+  Terminal,
+  Radio,
 } from 'lucide-react';
-import WorldStateDashboard from './WorldStateDashboard';
-import RLTrainingDashboard from './RLTrainingDashboard';
-import DAGExecutionViewer from './kernel-views/DAGExecutionViewer';
-import EventStreamViewer from './kernel-views/EventStreamViewer';
-import SimulationViewer from './kernel-views/SimulationViewer';
-import SchedulerDashboard from './kernel-views/SchedulerDashboard';
-import ReplayConsole from './kernel-views/ReplayConsole';
-import CapabilityGraphExplorer from './kernel-views/CapabilityGraphExplorer';
-import { useSSE } from '@/hooks/useSSE';
 
 interface RecentLog {
   timestamp: string;
@@ -36,7 +37,6 @@ const ObservabilityHub: React.FC = () => {
   const [regime, setRegime] = useState('normal');
   const [anomalies, setAnomalies] = useState(2);
   const [llmSpend, setLlmSpend] = useState(12.4);
-  const [rateLimitHits, setRateLimitHits] = useState(47);
   const [recentLogs, setRecentLogs] = useState<RecentLog[]>([]);
   const [logRate, setLogRate] = useState(8.4);
 
@@ -46,10 +46,7 @@ const ObservabilityHub: React.FC = () => {
     connected,
     isReconnecting,
     reconnect,
-  } = useSSE('/api/v1/observability/stream', {
-    onError: (err) => console.error('SSE error:', err),
-    onConnect: () => console.log('SSE connected'),
-  });
+  } = useSSE('/api/v1/observability/stream');
 
   useEffect(() => {
     const fetchRecentLogs = async () => {
@@ -71,95 +68,118 @@ const ObservabilityHub: React.FC = () => {
       setRegime(liveMetrics.regime || regime);
       setAnomalies(liveMetrics.anomalies ?? anomalies);
       setLlmSpend(liveMetrics.llm_spend_usd ?? llmSpend);
-      setRateLimitHits(liveMetrics.rate_limit_hits ?? rateLimitHits);
       setLogRate(liveMetrics.log_rate ?? logRate);
     }
   }, [liveMetrics]);
 
-  const openCorrelatedLogs = (filter: string) => {
-    const lokiUrl = `/grafana/explore?schemaVersion=1&panes=%7B%22logs%22:%7B%22datasource%22:%22loki%22,%22queries%22:[%7B%22refId%22:%22A%22,%22expr%22:%22${encodeURIComponent(filter)}%22%7D]%7D%7D`;
-    window.open(lokiUrl, '_blank');
-  };
+  const kernelViews = [
+    {
+      id: 'dag',
+      icon: Workflow,
+      label: 'DAG Execution',
+      description: 'Live execution graph with node states, timing, and retries. Watch every DAG node run in real-time.',
+      status: 'active',
+    },
+    {
+      id: 'events',
+      icon: Radio,
+      label: 'Event Stream',
+      description: 'Real-time kernel event feed. See every protocol message, state change, and trust evaluation.',
+      status: 'active',
+    },
+    {
+      id: 'simulation',
+      icon: Layers,
+      label: 'Simulation Viewer',
+      description: 'Branching timelines, probabilistic states, and Monte Carlo convergence monitoring.',
+      status: 'active',
+    },
+    {
+      id: 'scheduler',
+      icon: Server,
+      label: 'Scheduler Dashboard',
+      description: 'Queue depth, GPU allocation heatmap, tenant fairness metrics, and preemption events.',
+      status: 'active',
+    },
+    {
+      id: 'replay',
+      icon: RefreshCcw,
+      label: 'Replay Console',
+      description: 'Deterministic re-run of any past execution. Verify outputs with hash comparison.',
+      status: 'active',
+    },
+    {
+      id: 'capabilities',
+      icon: GitBranch,
+      label: 'Capability Graph',
+      description: 'Plugin dependency graph. See which plugins offer which capabilities and how they connect.',
+      status: 'active',
+    },
+  ];
 
   return (
     <div className="flex h-screen bg-background">
-      <div className="w-64 border-r p-4 flex flex-col gap-6">
+      {/* Sidebar */}
+      <div className="w-64 border-r border-border p-4 flex flex-col gap-6">
         <div className="flex items-center gap-2">
-          <Zap className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-bold">SimHPC Observatory</h1>
+          <Zap className="h-6 w-6 text-cyan-400" />
+          <h1 className="text-2xl font-bold text-foreground">Kernel Observatory</h1>
         </div>
 
-        <Card className="p-4">
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <div className="text-muted-foreground">Kernel</div>
-              <Badge variant={kernelHealth.booted ? 'default' : 'destructive'}>Healthy</Badge>
+        <Card>
+          <CardContent className="p-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="text-muted-foreground">Kernel</div>
+                <Badge variant={kernelHealth.booted ? "default" : "destructive"}>Healthy</Badge>
+              </div>
+              <div>
+                <div className="text-muted-foreground">Regime</div>
+                <Badge variant="outline" className="capitalize">{regime}</Badge>
+              </div>
+              <div>
+                <div className="text-muted-foreground">Anomalies</div>
+                <Badge variant={anomalies > 0 ? "destructive" : "secondary"}>{anomalies}</Badge>
+              </div>
+              <div>
+                <div className="text-muted-foreground">LLM Spend (24h)</div>
+                <div className="font-mono text-lg">${llmSpend}</div>
+              </div>
             </div>
-            <div>
-              <div className="text-muted-foreground">Regime</div>
-              <Badge variant="outline" className="capitalize">
-                {regime}
-              </Badge>
-            </div>
-            <div>
-              <div className="text-muted-foreground">Anomalies</div>
-              <Badge variant={anomalies > 0 ? 'destructive' : 'secondary'}>{anomalies}</Badge>
-            </div>
-            <div>
-              <div className="text-muted-foreground">LLM Spend (24h)</div>
-              <div className="font-mono text-lg">${llmSpend}</div>
-            </div>
-          </div>
+          </CardContent>
         </Card>
 
         <nav className="flex flex-col gap-2">
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="#dag-execution">⚙️ DAG Execution</a>
-          </Button>
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="#event-stream">📡 Event Stream</a>
-          </Button>
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="#simulation">🌿 Simulation</a>
-          </Button>
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="#scheduler">📊 Scheduler</a>
-          </Button>
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="#replay">↩️ Replay Console</a>
-          </Button>
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="#capabilities">🧩 Capability Graph</a>
-          </Button>
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="#world-state">🌍 World State</a>
-          </Button>
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="#rl-training">🧠 RL Training</a>
-          </Button>
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="#hardware">🖥️ GPU/MIG</a>
-          </Button>
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="#otel">📈 OTel Metrics</a>
-          </Button>
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="#master-dashboard">📊 Master Dashboard</a>
-          </Button>
-          <Button variant="ghost" className="justify-start" asChild>
-            <a href="http://localhost:16686" target="_blank" rel="noopener noreferrer">
-              🔍 Jaeger Tracing
+          {kernelViews.map((view) => (
+            <Button
+              key={view.id}
+              variant="ghost"
+              className="justify-start"
+              asChild
+            >
+              <a href={`#${view.id}`}>
+                <view.icon className="h-4 w-4 mr-2" />
+                {view.label}
+              </a>
+            </Button>
+          ))}
+        </nav>
+
+        <div className="mt-auto">
+          <Button variant="outline" size="sm" className="w-full" asChild>
+            <a href="/dashboard" target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-3 w-3 mr-1" />
+              Back to Dashboard
             </a>
           </Button>
-        </nav>
+        </div>
       </div>
 
+      {/* Main Content */}
       <div className="flex-1 overflow-auto p-6">
         {sseError && (
           <div className="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 p-3 rounded-lg mb-4 flex items-center gap-3">
-            <span>
-              {sseError} {!connected && '(offline)'}
-            </span>
+            <span>{sseError} {!connected && '(offline)'}</span>
             <Button variant="outline" size="sm" onClick={reconnect} disabled={isReconnecting}>
               <RefreshCcw className={`h-4 w-4 mr-1 ${isReconnecting ? 'animate-spin' : ''}`} />
               {isReconnecting ? 'Reconnecting...' : 'Retry'}
@@ -168,7 +188,7 @@ const ObservabilityHub: React.FC = () => {
         )}
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-12">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="dag">DAG</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
@@ -176,169 +196,118 @@ const ObservabilityHub: React.FC = () => {
             <TabsTrigger value="scheduler">Scheduler</TabsTrigger>
             <TabsTrigger value="replay">Replay</TabsTrigger>
             <TabsTrigger value="capabilities">Capabilities</TabsTrigger>
-            <TabsTrigger value="world-state">World State</TabsTrigger>
-            <TabsTrigger value="rl">RL</TabsTrigger>
             <TabsTrigger value="logs">Logs</TabsTrigger>
-            <TabsTrigger value="grafana">Grafana</TabsTrigger>
-            <TabsTrigger value="master">Master</TabsTrigger>
           </TabsList>
 
+          {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-4 w-4" /> Kernel Health
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex justify-between items-end">
-                  <div className="text-4xl font-bold text-green-500">Healthy</div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openCorrelatedLogs('{service_name="simhpc-core"} | trace_id%3D*')}
-                  >
-                    View Logs
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="col-span-2">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Recent Logs
-                    <Badge variant="outline" className="ml-auto">
-                      {logRate.toFixed(1)} logs/sec
-                    </Badge>
+                  <CardTitle className="flex items-center gap-2 text-sm">
+                    <Activity className="h-4 w-4 text-green-500" />
+                    Kernel Health
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3 max-h-64 overflow-auto text-sm">
-                    {recentLogs.map((log, i) => (
-                      <div key={i} className="flex items-start gap-3 border-l-4 border-l-blue-500 pl-3">
-                        <Badge
-                          variant={
-                            log.level === 'ERROR' ? 'destructive' : log.level === 'WARN' ? 'secondary' : 'default'
-                          }
-                        >
-                          {log.level}
-                        </Badge>
-                        <div className="flex-1">
-                          <div className="font-mono text-xs text-muted-foreground">{log.timestamp}</div>
-                          <div className="line-clamp-2">{log.message}</div>
-                          {log.trace_id && (
-                            <Button
-                              variant="link"
-                              size="sm"
-                              className="h-auto p-0 text-xs text-blue-500"
-                              onClick={() => openCorrelatedLogs(`{trace_id="${log.trace_id}"}`)}
-                            >
-                              Trace {log.trace_id.slice(0, 8)}…
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <div className="text-4xl font-bold text-green-500">Healthy</div>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4" /> Anomalies
+                  <CardTitle className="flex items-center gap-2 text-sm">
+                    <Brain className="h-4 w-4 text-blue-500" />
+                    Regime
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-4xl font-bold capitalize">{regime}</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-sm">
+                    <AlertTriangle className="h-4 w-4 text-orange-500" />
+                    Anomalies
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-4xl font-bold text-orange-500">{anomalies}</div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-4 w-full"
-                    onClick={() => openCorrelatedLogs('{level="ERROR"} | anomalies')}
-                  >
-                    View Correlated Logs
-                  </Button>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4" /> LLM Spend (24h)
+                  <CardTitle className="flex items-center gap-2 text-sm">
+                    <DollarSign className="h-4 w-4 text-yellow-500" />
+                    LLM Spend (24h)
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-4xl font-bold">${llmSpend}</div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-4 w-full"
-                    onClick={() => openCorrelatedLogs('{service_name="simhpc-core"} | llm')}
-                  >
-                    LLM Logs
-                  </Button>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Recent Logs */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Recent Logs
+                  <Badge variant="outline" className="ml-auto">{logRate.toFixed(1)} logs/sec</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 max-h-64 overflow-auto text-sm">
+                  {recentLogs.map((log, i) => (
+                    <div key={i} className="flex items-start gap-3 border-l-4 border-l-blue-500 pl-3">
+                      <Badge variant={log.level === 'ERROR' ? 'destructive' : log.level === 'WARN' ? 'secondary' : 'default'}>
+                        {log.level}
+                      </Badge>
+                      <div className="flex-1">
+                        <div className="font-mono text-xs text-muted-foreground">{log.timestamp}</div>
+                        <div className="line-clamp-2">{log.message}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
-          <TabsContent value="dag">
-            <DAGExecutionViewer />
-          </TabsContent>
-          <TabsContent value="events">
-            <EventStreamViewer />
-          </TabsContent>
-          <TabsContent value="simulation">
-            <SimulationViewer />
-          </TabsContent>
-          <TabsContent value="scheduler">
-            <SchedulerDashboard />
-          </TabsContent>
-          <TabsContent value="replay">
-            <ReplayConsole />
-          </TabsContent>
-          <TabsContent value="capabilities">
-            <CapabilityGraphExplorer />
-          </TabsContent>
-          <TabsContent value="world-state">
-            <WorldStateDashboard />
-          </TabsContent>
-          <TabsContent value="rl">
-            <RLTrainingDashboard />
-          </TabsContent>
+          {/* Kernel Views */}
+          {kernelViews.map((view) => (
+            <TabsContent key={view.id} value={view.id}>
+              <div className="h-full p-4">
+                <div className="flex items-center gap-3 mb-4">
+                  <view.icon className="h-6 w-6 text-cyan-400" />
+                  <h2 className="text-xl font-bold">{view.label}</h2>
+                  <Badge variant="outline" className="ml-2">Live</Badge>
+                </div>
+                <p className="text-muted-foreground mb-4">{view.description}</p>
+                <div className="border-2 border-dashed border-border rounded-xl h-[500px] flex items-center justify-center bg-muted/20">
+                  <div className="text-center">
+                    <view.icon className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                    <p className="text-muted-foreground text-sm">
+                      {view.label} visualization will render here.
+                    </p>
+                    <p className="text-muted-foreground text-xs mt-1">
+                      Connected to kernel event stream &bull; Awaiting data...
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+          ))}
 
-          <TabsContent value="grafana">
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-semibold mb-4">Full Grafana + Thanos Instance</h2>
-              <Button asChild size="lg">
-                <a href="/grafana" target="_blank" rel="noopener noreferrer">
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Open Grafana → All Dashboards
-                </a>
-              </Button>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="master">
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Aggregated Observability Dashboard</h2>
+          {/* Logs Tab */}
+          <TabsContent value="logs">
+            <div className="h-full">
+              <h2 className="text-xl font-bold mb-4">Structured Logs (Loki)</h2>
               <iframe
-                src="/grafana/d/simhpc-master-observability?orgId=1&refresh=10s"
-                className="w-full h-[800px] border rounded-xl"
-                title="Master Observability Dashboard"
-              />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="otel">
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold">OpenTelemetry Metrics</h2>
-              <iframe
-                src="/grafana/d/otel-metrics?orgId=1&refresh=10s"
-                className="w-full h-[800px] border rounded-xl"
-                title="OTel Metrics Dashboard"
+                src="/grafana/explore?schemaVersion=1&panes=%7B%22logs%22:%7B%22datasource%22:%22loki%22,%22queries%22:[%7B%22refId%22:%22A%22,%22expr%22:%22%7Bservice_name%3D%5C%22simhpc-core%5C%22%7D%22%7D]%7D%7D"
+                className="w-full h-[calc(100vh-120px)] border rounded-xl"
+                title="Loki Logs"
               />
             </div>
           </TabsContent>
@@ -348,4 +317,4 @@ const ObservabilityHub: React.FC = () => {
   );
 };
 
-export default ObservabilityHub;
+export { ObservabilityHub };
