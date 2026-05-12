@@ -66,6 +66,17 @@ class MemoryContract(BaseModel):
     ttl_seconds: int | None = None
 
 
+# Plugin Passport
+class PluginPassport(BaseModel):
+    plugin_id: str
+    publisher: str
+    version: str
+    public_key: str
+    permissions: list[str]  # declared capability permissions
+    signature: str  # signature of the manifest body
+    trust_anchor: str | None = None
+
+
 # Plugin Manifest
 class PluginManifest(BaseModel):
     name: str
@@ -80,3 +91,4 @@ class PluginManifest(BaseModel):
     lineage_enabled: bool = True
     governance_required: bool = True
     deterministic: bool = True
+    passport: PluginPassport | None = None

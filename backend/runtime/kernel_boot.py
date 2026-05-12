@@ -9,6 +9,9 @@ import logging
 
 from backend.core.health import HealthProbe
 from backend.core.runtime_manifest import RuntimeManifest
+from backend.core.trust.handshake import HandshakeProtocol, SessionManager
+from backend.core.trust.identity import IdentityVerifier, TrustStore
+from backend.core.trust.telemetry_hook import TrustTelemetry
 from backend.core.workers.registration import WorkerCapabilities, register_worker
 
 log = logging.getLogger("simhpc.kernel_boot")
@@ -37,6 +40,21 @@ async def boot(kernel) -> None:
         "runtime.manifest",
         lambda p: manifest.model_dump(),
     )
+
+    kernel.trust_store = TrustStore()
+    kernel.identity_verifier = IdentityVerifier()
+    kernel.session_manager = SessionManager()
+    kernel.trust_telemetry = TrustTelemetry()
+
+    log.info("Trust subsystem initialized")
+
+    kernel.handshake_protocol = HandshakeProtocol(
+        trust_store=kernel.trust_store,
+        identity_verifier=kernel.identity_verifier,
+        session_manager=kernel.session_manager,
+    )
+
+    log.info("Handshake protocol ready")
 
     log.info("Built-in capabilities registered")
 
