@@ -6,7 +6,7 @@ from pydantic import BaseModel
 class ProtocolContext(BaseModel):
     tenant_id: str
     trace_id: str
-    replay_id: Optional[str] = None
-    dag_id: Optional[str] = None
-    node_id: Optional[str] = None
-    plugin_name: Optional[str] = None
+    replay_id: str | None = None
+    dag_id: str | None = None
+    node_id: str | None = None
+    plugin_name: str | None = None
