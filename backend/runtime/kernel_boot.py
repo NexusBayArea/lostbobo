@@ -7,14 +7,19 @@ from __future__ import annotations
 
 import logging
 
+from backend.core.auth.policy_engine import get_policy_engine
 from backend.core.health import HealthProbe
 from backend.core.protocol.bus.protocol_bus import KernelProtocolBus
 from backend.core.protocol.contracts.plugin_message_protocol import PluginMessageProtocol
 from backend.core.runtime_manifest import RuntimeManifest
 from backend.core.trust.behavioral_engine import BehavioralTrustEvaluator
-from backend.core.trust.handshake import HandshakeProtocol, SessionManager
+from backend.core.trust.capability_advertisement import CapabilityAdvertisementManager
+from backend.core.trust.handshake import A2AHandshakeProtocol, SessionManager
 from backend.core.trust.identity import IdentityVerifier, TrustStore
+from backend.core.trust.message_contracts import MessageContractEnforcer
+from backend.core.trust.plugin_verification import PluginVerificationPipeline
 from backend.core.trust.telemetry_hook import TrustTelemetry
+from backend.core.trust.trust_decay import TrustDecayEngine
 from backend.core.trust.trust_graph import TrustGraphAnalyzer
 from backend.core.workers.registration import WorkerCapabilities, register_worker
 
@@ -45,16 +50,23 @@ async def boot(kernel) -> None:
         lambda p: manifest.model_dump(),
     )
 
+    # --- Trust Subsystem ---
     kernel.trust_store = TrustStore()
     kernel.identity_verifier = IdentityVerifier()
     kernel.session_manager = SessionManager()
     kernel.trust_telemetry = TrustTelemetry()
-    kernel.trust_evaluator = BehavioralTrustEvaluator()
+    kernel.trust_evaluator = BehavioralTrustEvaluator(
+        anomaly_detector=kernel.anomaly_detector,
+        event_log=kernel.event_store,
+        telemetry=kernel.trust_telemetry,
+    )
     kernel.trust_graph = TrustGraphAnalyzer()
+    kernel.trust_decay = TrustDecayEngine()
 
-    log.info("Trust subsystem initialized (behavioral engine + trust graph)")
+    log.info("Trust subsystem initialized (behavioral engine + trust graph + decay)")
 
-    kernel.handshake_protocol = HandshakeProtocol(kernel)
+    # --- A2A Handshake Protocol ---
+    kernel.handshake_protocol = A2AHandshakeProtocol(kernel)
     kernel.plugin_message_protocol = PluginMessageProtocol(kernel)
 
     protocol_registry: dict[str, object] = {
@@ -71,6 +83,25 @@ async def boot(kernel) -> None:
 
     log.info("Protocol bus initialized with a2a_handshake and plugin_message protocols")
 
+    # --- Trust Capabilities ---
+    kernel.capabilities.register(
+        "trust.verify_plugin",
+        PluginVerificationPipeline(kernel).verify,
+    )
+
+    cap_ad_mgr = CapabilityAdvertisementManager(kernel.capabilities)
+    kernel.capabilities.register(
+        "trust.advertise_capability",
+        cap_ad_mgr.advertise,
+    )
+
+    # --- Message Contract Enforcement Middleware ---
+    kernel.protocol_bus.add_middleware(MessageContractEnforcer(cap_ad_mgr))
+
+    # --- Policy Engine (trust-aware) ---
+    kernel.policy_engine = get_policy_engine()
+
+    # --- Built-in Capabilities ---
     from backend.core.memory.capabilities.rag_capabilities import register_rag_capabilities
 
     await register_rag_capabilities(kernel)

@@ -69,6 +69,48 @@ class PolicyEngine:
         allowed_actions = role_map.get(ctx.roles[0] if ctx.roles else Role.viewer, set())
         return action in allowed_actions
 
+    def is_capability_allowed(self, plugin_id: str, capability: str) -> bool:
+        """Check if a capability is permitted for the given plugin in the trust zone."""
+        from backend.core.sdk.abi.plugin_manifest import PluginPermission
+
+        allowed_map: dict[str, set[str]] = {
+            Role.admin.value: {c.value for c in PluginPermission},
+            Role.analyst.value: {
+                "dag.execute",
+                "memory.read",
+                "storage.read",
+                "network.egress",
+                "kernel.events",
+            },
+            Role.viewer.value: {
+                "memory.read",
+                "storage.read",
+                "kernel.events",
+            },
+            Role.plugin_dev.value: {
+                "dag.execute",
+                "memory.read",
+                "memory.write",
+                "storage.read",
+                "storage.write",
+                "network.egress",
+                "kernel.events",
+                "lineage.write",
+            },
+        }
+
+        plugin = getattr(self, "_trust_store", None)
+        if plugin is None:
+            if hasattr(self, "_kernel") and hasattr(self._kernel, "trust_store"):
+                plugin = self._kernel.trust_store.get_plugin(plugin_id)
+
+        if plugin and plugin.permissions:
+            return capability in plugin.permissions
+
+        ctx_roles = getattr(self, "_default_roles", [Role.viewer])
+        allowed = allowed_map.get(ctx_roles[0].value, set())
+        return capability in allowed
+
 
 # Singleton
 _policy_engine: PolicyEngine | None = None

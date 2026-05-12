@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 from pydantic import BaseModel
 
 from backend.core.runtime.anomaly.detector import CausalAnomalyDetector
@@ -21,12 +23,16 @@ class TrustScoreBreakdown(BaseModel):
 class BehavioralTrustEvaluator:
     def __init__(
         self,
-        anomaly_detector: CausalAnomalyDetector | None = None,
         event_log: EventLogService | None = None,
+        anomaly_detector: CausalAnomalyDetector | None = None,
+        graph_store: object = None,
+        world_fabric: object = None,
         telemetry: TrustTelemetry | None = None,
     ):
         self.anomaly_detector = anomaly_detector or CausalAnomalyDetector()
         self.event_log = event_log or EventLogService.event_log()
+        self.graph_store = graph_store
+        self.world_fabric = world_fabric
         self.telemetry = telemetry or TrustTelemetry()
 
         self.W_ANOMALY = 0.4
@@ -40,6 +46,7 @@ class BehavioralTrustEvaluator:
         target_id: str | None = None,
         identity_ok: bool = True,
         capabilities_ok: bool = True,
+        profile_data: dict | None = None,
     ) -> TrustScoreBreakdown:
         anomaly_score = await self._compute_anomaly_score(source_id)
         network_dev = await self._compute_network_deviation(source_id)
@@ -72,6 +79,19 @@ class BehavioralTrustEvaluator:
         await self.telemetry.report("trust.evaluated", source_id, result.model_dump())
 
         return result
+
+    async def update_trust(
+        self, plugin_id: str, anomaly_count: int = 0, last_score: float = 0.5, last_eval_time: float | None = None
+    ) -> float:
+        """Apply time-based decay and anomaly penalty to a trust score."""
+        import math
+
+        now = time.time()
+        last_eval = last_eval_time or now
+        hours_passed = (now - last_eval) / 3600
+        score = last_score * math.exp(-0.02 * hours_passed)
+        score -= anomaly_count * 0.05
+        return max(0.0, min(1.0, score))
 
     async def _compute_anomaly_score(self, plugin_id: str) -> float:
         if not hasattr(self.anomaly_detector, "_recent_anomalies"):
