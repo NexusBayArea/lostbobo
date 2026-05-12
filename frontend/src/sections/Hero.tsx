@@ -1,10 +1,23 @@
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Loader2, Zap, Shield, Activity } from 'lucide-react';
-import { AnimatedMesh } from '@/components/AnimatedMesh';
-import { ConfidenceGraph } from '@/components/ConfidenceGraph';
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import {
+  Shield,
+  Zap,
+  Cpu,
+  Activity,
+  Box,
+  GitBranch,
+  BarChart3,
+  ArrowRight,
+  Code2,
+  Layers,
+  Play,
+  Loader2,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export function Hero() {
   const [isDemoLoading, setIsDemoLoading] = useState(false);
@@ -29,172 +42,167 @@ export function Hero() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-background dark:bg-slate-900">
-      {/* Animated Mesh Background */}
-      <div className="absolute inset-0 opacity-60">
-        <AnimatedMesh />
-      </div>
+    <div className="min-h-screen bg-slate-950 text-white selection:bg-cyan-500/30 pt-16">
 
-      {/* Gradient Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-blue-50/30 dark:to-blue-900/10 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-tl from-purple-50/20 dark:from-purple-900/5 via-transparent to-transparent pointer-events-none" />
-
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[72px]">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[calc(100vh-72px)] py-16">
-          {/* Left Column - Text */}
-          <div className="space-y-8">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm font-medium">
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                Now with AI-assisted reporting
+      {/* ── Hero ─────────────────────────────────────────── */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/20 via-slate-950 to-purple-900/10 pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto px-6 pt-28 pb-20 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Badge className="mb-6 text-xs font-mono tracking-widest border-cyan-500/30 text-cyan-400 bg-cyan-500/10">
+              KERNEL v1 · DISTRIBUTED COMPUTE OS
+            </Badge>
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
+              The Engineering<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">
+                Simulation Operating System
               </span>
-            </motion.div>
+            </h1>
+            <p className="mt-6 text-lg text-slate-400 max-w-2xl mx-auto">
+              Not a SaaS. Not a notebook. A deterministic, replayable, GPU‑accelerated
+              execution platform for scientific computing — with a trust fabric that
+              verifies every plugin, every simulation, and every agent interaction.
+            </p>
+          </motion.div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.1]"
-            >
-              GPU-Accelerated
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                {' '}FEM Simulation
-              </span>
-              <br />
-              <span className="text-3xl sm:text-4xl lg:text-5xl">
-                with Quantified Confidence
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed"
-            >
-              AI-assisted, GPU-accelerated finite element simulation with integrated
-              robustness analysis and structured technical reporting — built for
-              engineering teams that need answers they can trust.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="flex flex-col sm:flex-row gap-4"
-            >
-              <Link
-                to="/signup"
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 text-base font-medium text-white bg-slate-900 dark:bg-white dark:text-slate-900 rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all hover:scale-[1.02] hover:shadow-lg"
-              >
-                Run a Simulation
-                <ArrowRight className="w-5 h-5" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-10 flex flex-wrap justify-center gap-4"
+          >
+            <Button size="lg" asChild className="bg-cyan-600 hover:bg-cyan-700">
+              <Link to="/dashboard">
+                <Cpu className="mr-2 h-4 w-4" /> Launch Dashboard
               </Link>
-              <button
+            </Button>
+            <Button
+                variant="outline"
+                size="lg"
                 onClick={handleDemoClick}
                 disabled={isDemoLoading}
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 text-base font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hover:scale-[1.02] disabled:opacity-70"
-              >
-                {isDemoLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <Play className="w-5 h-5" />
-                )}
-                Explore Live Demo
-              </button>
-            </motion.div>
-
-            {/* Trust Badges */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="flex flex-wrap items-center gap-6 pt-4"
+                className="border-slate-700 hover:bg-slate-800"
             >
-              <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                <Zap className="w-5 h-5 text-blue-500" />
-                100x faster than CPU solvers
-              </div>
-              <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                <Shield className="w-5 h-5 text-green-500" />
-                Deterministic, verifiable results
-              </div>
-              <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                <Activity className="w-5 h-5 text-purple-500" />
-                Robust sensitivity analysis
-              </div>
-            </motion.div>
-          </div>
-
-          {/* Right Column - Visual */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="relative"
-          >
-            <div className="relative bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-2xl">
-              {/* Confidence Graph */}
-              <div className="mb-6">
-                <ConfidenceGraph />
-              </div>
-
-              {/* Stats Cards */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-slate-50 dark:bg-slate-800/80 rounded-xl p-4 text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">2.1M</div>
-                  <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Mesh Elements</div>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-800/80 rounded-xl p-4 text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">48.2s</div>
-                  <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Convergence</div>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-800/80 rounded-xl p-4 text-center">
-                  <div className="text-2xl sm:text-3xl font-bold text-green-600 dark:text-green-400">±3.1%</div>
-                  <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Confidence</div>
-                </div>
-              </div>
-
-              {/* AI Report Preview */}
-              <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                  <span className="text-xs font-medium text-blue-600 dark:text-blue-400">AI Report Generated</span>
-                </div>
-                <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
-                  "Model output indicates peak temperature is primarily driven by boundary heat flux variation.
-                  System stability is sensitive to cooling efficiency..."
-                </p>
-              </div>
-            </div>
-
-            {/* Floating Elements */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg"
-            >
-              <span className="text-white font-bold text-lg">MFEM</span>
-            </motion.div>
-
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-              className="absolute -bottom-4 -left-4 w-24 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg"
-            >
-              <span className="text-white font-bold">SUNDIALS</span>
-            </motion.div>
+              {isDemoLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="mr-2 h-4 w-4" />
+              )}
+              Kernel Observatory
+            </Button>
           </motion.div>
         </div>
-      </div>
+      </section>
 
-      {/* Bottom Gradient Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white dark:from-slate-900 to-transparent pointer-events-none" />
-    </section>
+      {/* ── Three Pillars ────────────────────────────────── */}
+      <section className="max-w-6xl mx-auto px-6 pb-24">
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            {
+              icon: Cpu,
+              title: 'Control Plane',
+              desc: 'Deterministic scheduler, protocol bus, memory fabric, event store, and RAG engine running on CPU nodes. Lightweight models (Gemma 2B, Qwen 3B) handle routing, compression, and reasoning — so the GPU never wastes cycles on orchestration.',
+            },
+            {
+              icon: Zap,
+              title: 'GPU Simulation Plane',
+              desc: 'MFEM + SUNDIALS compiled directly into immutable A40 containers. Stateless workers pull jobs from the kernel queue, run physics, stream telemetry, and return results. No REST. No blocking. No domain logic in the core.',
+            },
+            {
+              icon: Shield,
+              title: 'Trust Fabric',
+              desc: 'Clawpassport identity, A2A handshake protocol, runtime behavioural scoring, and Agentwall policy enforcement. Every plugin and agent is verified before it can talk to anything else — cryptographic trust plus live telemetry.',
+            },
+          ].map((p) => (
+            <div
+              key={p.title}
+              className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 hover:border-cyan-800/40 transition-colors"
+            >
+              <p.icon className="h-8 w-8 text-cyan-400 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">{p.title}</h3>
+              <p className="text-sm text-slate-400 leading-relaxed">{p.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── What’s New (since Alpha) ─────────────────────── */}
+      <section className="border-t border-slate-800/50 bg-slate-900/30">
+        <div className="max-w-6xl mx-auto px-6 py-20">
+          <h2 className="text-2xl font-bold mb-10 flex items-center gap-3">
+            <Box className="h-6 w-6 text-cyan-400" />
+            From Alpha to Kernel v1
+          </h2>
+          <div className="grid md:grid-cols-2 gap-6 text-sm">
+            {[
+              'Frozen Plugin ABI with capability registry & skill registry',
+              'Canonical DAG IR – portable, serialisable, orchestrator‑agnostic',
+              'Kernel Scheduler with fairness, budgets, preemption, GPU isolation',
+              'World State Fabric with causal ordering & probabilistic merge',
+              'Memory Fabric (episodic, semantic, execution, causal) with RAG built‑in',
+              'Internal Protocol Bus – no REST between kernel services',
+              'Deterministic Execution Layer with replay manifests & audit certificates',
+              'Clawpassport OSS – plugin identity, handshake, & behavioural trust engine',
+              'WebSocket + SSE telemetry with full tenant isolation',
+              'MFEM & SUNDIALS compiled into immutable A40 Docker images',
+              'Robustness analysis plugin (LHS, Sobol, percentage) with async execution queue',
+              'PDF Report & Certificate generation with SHA‑256 proof stamp',
+            ].map((item) => (
+              <div key={item} className="flex items-start gap-3">
+                <GitBranch className="h-4 w-4 text-cyan-500 mt-0.5 shrink-0" />
+                <span className="text-slate-300">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── For Engineers & AI Builders ──────────────────── */}
+      <section className="max-w-6xl mx-auto px-6 pb-24 grid md:grid-cols-2 gap-12">
+        <div>
+          <BarChart3 className="h-8 w-8 text-blue-400 mb-4" />
+          <h3 className="text-xl font-semibold mb-3">Built for R&D Teams</h3>
+          <p className="text-slate-400 text-sm leading-relaxed">
+            Run GPU‑accelerated parameter sweeps with Latin Hypercube, Monte Carlo,
+            and Sobol GSA. Receive AI‑generated engineering interpretation reports
+            (Mercury AI) and download tamper‑proof PDF certificates that prove your
+            simulation results haven’t been altered.
+          </p>
+        </div>
+        <div>
+          <Code2 className="h-8 w-8 text-purple-400 mb-4" />
+          <h3 className="text-xl font-semibold mb-3">Plugin Ecosystem (Coming)</h3>
+          <p className="text-slate-400 text-sm leading-relaxed">
+            Build domain‑specific plugins (battery chemistry, weather, EV power‑train)
+            that run on the SimHPC kernel. Your plugins carry a Clawpassport,
+            register capabilities, and communicate securely via the A2A protocol.
+            Zero‑trust by default. Open‑source core.
+          </p>
+        </div>
+      </section>
+
+      {/* ── CTA ──────────────────────────────────────────── */}
+      <section className="border-t border-slate-800/50">
+        <div className="max-w-4xl mx-auto px-6 py-20 text-center">
+          <Layers className="h-10 w-10 text-cyan-400 mx-auto mb-6" />
+          <h2 className="text-2xl font-bold mb-4">
+            Ready to run on distributed cloud GPUs?
+          </h2>
+          <p className="text-slate-400 mb-8 max-w-xl mx-auto">
+            SimHPC deploys as immutable Docker containers — local, RunPod, or future
+            Kubernetes clusters. Every run is deterministic, replayable, and verified.
+          </p>
+          <Button size="lg" asChild className="bg-cyan-600 hover:bg-cyan-700">
+            <Link to="/dashboard">
+              <ArrowRight className="mr-2 h-4 w-4" /> Try It Now
+            </Link>
+          </Button>
+        </div>
+      </section>
+    </div>
   );
 }
