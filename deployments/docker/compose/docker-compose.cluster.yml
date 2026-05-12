@@ -1,6 +1,17 @@
 version: "3.9"
 
 services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - simhpc-net
+
   kernel:
     build:
       context: ../../../
@@ -9,6 +20,7 @@ services:
       - "8000:8000"
     environment:
       INFISICAL_TOKEN: ${INFISICAL_TOKEN}
+      OLLAMA_ENDPOINT: http://ollama:11434
       SIMHPC_RUNTIME: kernel
     healthcheck:
       test: ["CMD", "python3", "deployments/runtime/health/health_probe.py"]
@@ -16,6 +28,7 @@ services:
       timeout: 5s
       retries: 3
     depends_on:
+      - ollama
       - postgres
     networks:
       - simhpc-net
@@ -64,6 +77,9 @@ services:
       - "5432:5432"
     networks:
       - simhpc-net
+
+volumes:
+  ollama_data:
 
 networks:
   simhpc-net:
