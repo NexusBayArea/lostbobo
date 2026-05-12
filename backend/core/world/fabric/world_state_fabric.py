@@ -5,6 +5,7 @@ from backend.core.world.fabric.causality import CausalityResolver
 from backend.core.world.fabric.event_log import WorldEvent
 from backend.core.world.fabric.immutable_store import AbstractWorldStore, InMemoryWorldStore
 from backend.core.world.fabric.probabilistic_merge import ProbabilisticMergeEngine
+from backend.core.world.fabric.replay_checkpoint import ReplayCheckpoint
 from backend.core.world.fabric.state_diff import StateDiff
 from backend.core.world.fabric.temporal_branch import TemporalBranch
 from backend.core.world.fabric.uncertainty import UncertaintyEnvelope
