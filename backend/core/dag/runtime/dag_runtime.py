@@ -22,7 +22,8 @@ class DAGRuntime:
         self.replay_recorder = DAGReplayRecorder()
         self.replayer = DAGReplayer(self.replay_recorder, self.dag_registry)
 
-    async def execute(self, dag: DAGIR, global_inputs: dict[str, Any] = {}) -> dict[str, Any]:
+    async def execute(self, dag: DAGIR, global_inputs: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        inputs = global_inputs or {}
         run_id = str(uuid.uuid4())
         await self.lineage.record_graph_start(dag.dag_id, run_id)
 
