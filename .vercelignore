@@ -1,4 +1,4 @@
-# Ignore all Python-related files and the backend folder to prevent Vercel 
+# Ignore all Python-related files and the backend folder to prevent Vercel
 # from attempting a Python build.
 backend/
 *.py

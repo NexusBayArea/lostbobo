@@ -54,7 +54,7 @@ class ApiClient {
     try {
       const response = await fetch(url, config);
       const contentType = response.headers.get('content-type');
-      
+
       if (contentType?.includes('application/pdf')) {
         return await response.blob() as any;
       }
@@ -146,7 +146,7 @@ class ApiClient {
   async getFleetMetrics(token?: string): Promise<any> {
     return this.request<any>('/admin/fleet/metrics', { headers: token ? { Authorization: `Bearer ${token}` } : {} }, false);
   }
-  
+
   getUrl(endpoint: string): string {
     const cleanEndpoint = endpoint.replace(/^\/api\/v1/, '');
     return `${API_BASE_URL}${cleanEndpoint.startsWith('/') ? '' : '/'}${cleanEndpoint}`;
