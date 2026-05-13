@@ -50,6 +50,7 @@ export function Dashboard() {
   const [currentStatus, setCurrentStatus] = useState<'pending' | 'running' | 'completed' | 'failed' | 'queued' | 'processing'>('queued');
   const [progress, setProgress] = useState(0);
   const [usage, setUsage] = useState<{ used: number; limit: number; remaining: number } | null>(null);
+  const [backendOnline, setBackendOnline] = useState(true);
 
   if (loading) {
     return (
@@ -58,6 +59,39 @@ export function Dashboard() {
       </div>
     );
   }
+
+  const invokeCapability = async (capability: string, payload: any) => {
+    const token = getToken();
+    const base = import.meta.env.VITE_API_URL || '';
+    const url = `${base}/api/v1/capability/invoke`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ capability, payload }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || err.message || 'Capability invocation failed');
+    }
+    return res.json();
+  };
+
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        await invokeCapability('engineering.robustness.status', { batch_id: 'ping' });
+        setBackendOnline(true);
+      } catch (error) {
+        console.error('Backend unreachable:', error);
+        setBackendOnline(false);
+      }
+    };
+    checkConnection();
+  }, []);
+
   useEffect(() => {
     const fetchUsage = async () => {
       try {
@@ -69,25 +103,6 @@ export function Dashboard() {
     };
     if (user) fetchUsage();
   }, [user]);
-  // Robustness Config State
-  const [robustnessEnabled, setRobustnessEnabled] = useState(true);
-  const [numRuns, setNumRuns] = useState(15);
-  const [samplingMethod, setSamplingMethod] = useState('±10%');
-  const [parameters, setParameters] = useState(DEFAULT_PARAMETERS);
-  const [timeout, setTimeoutVal] = useState(300);
-  const [seed, setSeed] = useState<number | undefined>(undefined);
-  // Invoke a kernel capability via the generic edge adapter
-  const invokeCapability = async (capability: string, payload: any) => {
-    try {
-      const data = await api.post<any>('/capability/invoke', {
-        capability,
-        payload
-      }, true);
-      return data;
-    } catch (err: any) {
-      throw new Error(err.message || 'Capability invocation failed');
-    }
-  };
   const startPolling = async (batchId: string) => {
     try {
       const poll = async () => {
