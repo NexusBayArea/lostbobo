@@ -1,0 +1,27 @@
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "headers": [
+    {
+      "source": "/auth/callback",
+      "headers": [
+        {
+          "key": "X-Vercel-Deployment-Protection",
+          "value": "disabled"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://ldzztrnghaaonparyggz.supabase.co https://vercel.live https://*.vercel.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://*.public.blob.vercel-storage.com https://*.vercel.com https://vercel.live; connect-src 'self' https://ldzztrnghaaonparyggz.supabase.co https://api.simhpc.com wss://ldzztrnghaaonparyggz.supabase.co; img-src 'self' https: data:; frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://ldzztrnghaaonparyggz.supabase.co https://vercel.live;"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

@@ -1,0 +1,21 @@
+# Ignore all Python-related files and the backend folder to prevent Vercel 
+# from attempting a Python build.
+backend/
+*.py
+*.pyc
+__pycache__/
+.venv/
+.venv_old/
+app/
+tests/
+Makefile
+pyproject.toml
+uv.lock
+*.lock
+ci/
+ci.sh
+Dockerfile.a40
+run_api.py
+run.py
+runpod_deploy.json
+requirements*.txt
