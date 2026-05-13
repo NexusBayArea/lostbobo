@@ -8,6 +8,7 @@ import { ValueDifferentiator } from '@/sections/ValueDifferentiator';
 import { WhoItsFor } from '@/sections/WhoItsFor';
 
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const DAGDashboard = lazy(() => import('@/pages/DAGDashboard'));
 const ExperimentNotebook = lazy(() => import('@/pages/ExperimentNotebook'));
 const AlphaControlRoom = lazy(() => import('@/pages/AlphaControlRoom').then(module => ({ default: module.AlphaControlRoom })));
 const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage').then(module => ({ default: module.AdminAnalyticsPage })));
@@ -63,6 +64,7 @@ function App() {
               <Route path="/dpa" element={<DPA />} />
               <Route path="/cookies" element={<CookiePolicy />} />
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/dashboard/dag" element={<ProtectedRoute><DAGDashboard /></ProtectedRoute>} />
               <Route path="/observability" element={<ProtectedRoute><ObservabilityPage /></ProtectedRoute>} />
               <Route path="/dashboard/notebook" element={<ProtectedRoute><ExperimentNotebook /></ProtectedRoute>} />
               <Route path="/dashboard/alpha" element={<ProtectedRoute><AlphaControlRoom /></ProtectedRoute>} />
