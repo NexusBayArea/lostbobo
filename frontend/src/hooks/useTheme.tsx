@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { APP_CONFIG } from './useAppConfig';
 
 type Theme = 'light' | 'dark';
 
@@ -22,7 +23,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         return 'dark';
       }
     }
-    return 'light';
+    return APP_CONFIG.theme;
   });
 
   useEffect(() => {
