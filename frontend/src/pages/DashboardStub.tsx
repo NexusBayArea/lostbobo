@@ -11,4 +11,5 @@ const DashboardStub = () => {
   }, 'Mission Control is currently unavailable in this environment.');
 };
 
+export const Dashboard = DashboardStub;
 export default DashboardStub;
