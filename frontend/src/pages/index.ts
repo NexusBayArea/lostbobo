@@ -1,5 +1,5 @@
 export * from './Benchmarks';
-export * from './Dashboard';
+export * from '@/pages/Dashboard';
 export * from './Pricing';
 export * from './Privacy';
 export * from './SignIn';
