@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from backend.core.hardware.isolation import GPUIsolationManager
@@ -10,10 +11,18 @@ from backend.core.scheduler.preemption_engine import PreemptionEngine
 from backend.core.scheduler.queue_manager import QueueManager
 from backend.core.scheduler.replay_scheduler import ReplayScheduler
 from backend.core.scheduler.resource_graph import ResourceGraph
-from backend.core.scheduler.scheduler_models import SchedulingDecision, Workload
+from backend.core.scheduler.scheduler_models import (
+    ResourceRequest,
+    SchedulingDecision,
+    Workload,
+    WorkloadPriority,
+    WorkloadType,
+)
 from backend.core.scheduler.sla_engine import SLAEngine
 from backend.core.scheduler.speculative_engine import SpeculativeExecutionEngine
 from backend.core.scheduler.thermal_engine import ThermalEngine
+
+logger = logging.getLogger(__name__)
 
 
 class KernelScheduler:
@@ -30,6 +39,7 @@ class KernelScheduler:
         self.arbitration = ArbitrationEngine(fairness=self.fairness, budgets=self.budgets, thermal=self.thermal)
         self.gpu_manager = gpu_manager
         self.active_workloads: dict[str, Workload] = {}
+        self.capability_registry = None
 
     async def schedule(self, workload: Workload) -> dict[str, Any]:
         if not await self.arbitration.evaluate(workload):
@@ -98,3 +108,59 @@ class KernelScheduler:
             result = await self.schedule(next_wl[1])
             if result["status"] != SchedulingDecision.ACCEPTED:
                 await self.queues.enqueue(next_wl[0], next_wl[1])
+
+    async def schedule_capability(
+        self,
+        capability: str,
+        payload: dict[str, Any],
+        *,
+        tenant_id: str = "default",
+        priority: WorkloadPriority = WorkloadPriority.NORMAL,
+    ) -> Any:
+        entry = None
+        if self.capability_registry:
+            entry = self.capability_registry.get_entry(capability)
+
+        gpu_profile = getattr(entry, "required_gpu_profile", None)
+        estimated_memory = getattr(entry, "estimated_memory_mb", 256) if entry else 256
+
+        if gpu_profile and str(gpu_profile.value) not in ("none", ""):
+            gpu_fraction = {
+                "shared-small": 0.25,
+                "shared-medium": 0.50,
+                "shared-large": 0.75,
+                "dedicated-single": 1.0,
+            }.get(gpu_profile.value, 0.0)
+        else:
+            gpu_fraction = 0.0
+
+        workload = Workload(
+            tenant_id=tenant_id,
+            plugin_name=entry.plugin_name if entry else "unknown",
+            workload_type=WorkloadType.INFERENCE,
+            priority=priority,
+            resources=ResourceRequest(
+                cpu_cores=1.0,
+                memory_mb=estimated_memory,
+                gpu_fraction=gpu_fraction,
+                max_runtime_seconds=getattr(entry, "timeout_seconds", 300) if entry else 300,
+            ),
+        )
+
+        decision = await self.schedule(workload)
+
+        if decision["status"] == SchedulingDecision.REJECTED:
+            raise RuntimeError(f"Capability '{capability}' rejected: {decision.get('reason')}")
+
+        if decision["status"] == SchedulingDecision.QUEUED:
+            raise RuntimeError(f"Capability '{capability}' queued (no resources available)")
+
+        if self.capability_registry:
+            result = await self.capability_registry.invoke(
+                capability=capability,
+                payload=payload,
+                tenant_id=tenant_id,
+            )
+            return result
+
+        return {"status": "accepted", "decision": decision}

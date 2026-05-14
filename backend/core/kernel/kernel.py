@@ -51,6 +51,7 @@ class SimHPCKernel:
         from backend.core.scheduler.kernel_scheduler import KernelScheduler
 
         self.scheduler = KernelScheduler(gpu_manager=GPUIsolationManager.manager())
+        self.scheduler.capability_registry = self.capabilities
         self.logger.info("KernelScheduler initialized")
 
         self.execution_queue = KernelExecutionQueue()
