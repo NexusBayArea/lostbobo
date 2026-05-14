@@ -49,15 +49,19 @@ class ForecastingPlugin(BasePlugin):
 
         if model == "weather":
             from plugins.forecasting.models.weather.model import WeatherModel
+
             result = await WeatherModel().predict(model_payload)
         elif model == "ev":
             from plugins.forecasting.models.ev.model import EVModel
+
             result = await EVModel().predict(model_payload)
         elif model == "market":
             from plugins.forecasting.models.market.model import MarketModel
+
             result = await MarketModel().predict(model_payload)
         elif model == "wildfire":
             from plugins.forecasting.models.wildfire.model import WildfireModel
+
             result = await WildfireModel().predict(model_payload)
         else:
             raise ValueError(f"Unknown forecast model: {model}")
@@ -71,21 +75,31 @@ class ForecastingPlugin(BasePlugin):
     async def calibrate(self, payload: dict[str, Any]) -> dict[str, Any]:
         model = payload.get("model")
         calibration_data = payload.get("data")
-        return {"model": model, "calibrated": True, "samples": len(calibration_data or [])}
+        return {
+            "model": model,
+            "calibrated": True,
+            "samples": len(calibration_data or []),
+        }
 
     async def generate_prompt(self, payload: dict[str, Any]) -> str:
         domain = payload.get("domain")
         template_name = payload.get("template", "default")
-        prompt_path = Path(__file__).parent / "prompts" / f"{domain}_{template_name}.txt"
+        prompt_path = (
+            Path(__file__).parent / "prompts" / f"{domain}_{template_name}.txt"
+        )
         if prompt_path.exists():
             return prompt_path.read_text()
-        raise ValueError(f"Prompt not found for domain={domain}, template={template_name}")
+        raise ValueError(
+            f"Prompt not found for domain={domain}, template={template_name}"
+        )
 
     async def capacity(self, payload: dict[str, Any]) -> dict[str, Any]:
         from plugins.forecasting.forecasting import get_capacity_forecaster
+
         forecaster = get_capacity_forecaster()
         horizon = payload.get("horizon", "15m")
         from plugins.forecasting.forecasting import ForecastHorizon
+
         return await forecaster.predict_demand(ForecastHorizon(horizon))
 
 
