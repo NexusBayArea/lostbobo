@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-from backend.core.runtime.forecast import ProbabilisticForecastModel, ForecastResult
 from backend.core.sdk.abi.plugin_manifest import PluginManifest
 from backend.core.sdk.base_plugin import BasePlugin
 
