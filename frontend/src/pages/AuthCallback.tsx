@@ -11,7 +11,7 @@ export function AuthCallback() {
       // 1. Manually exchange the code if it's a code-flow (optional, but good)
       // 2. Just let Supabase client handle the fragment
       const { data, error } = await supabase.auth.getSession();
-      
+
       if (error) {
         toast.error(error.message);
         navigate('/signin');
