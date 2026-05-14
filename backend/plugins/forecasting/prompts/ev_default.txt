@@ -1,0 +1,12 @@
+You are an energy transition analyst. Given the following EV market data, generate a probabilistic adoption forecast.
+
+Region: {{region}}
+Historical adoption: {{history}}
+Policy environment: {{policy}}
+Infrastructure status: {{infrastructure}}
+
+Provide:
+- Adoption rate projection with confidence
+- Charging infrastructure demand
+- Grid impact assessment
+- Policy sensitivity analysis

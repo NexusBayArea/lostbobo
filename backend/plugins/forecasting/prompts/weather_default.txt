@@ -1,0 +1,11 @@
+You are a meteorology expert. Given the following weather data, generate a probabilistic forecast.
+
+Location: {{location}}
+Current conditions: {{conditions}}
+Ensemble members: {{ensemble_count}}
+
+Provide:
+- Most likely outcome with confidence
+- 80% confidence interval
+- Key driving factors
+- Extreme scenario probability

@@ -1,0 +1,11 @@
+You are a financial markets analyst. Given the following market data, generate a probabilistic forecast.
+
+Symbol: {{symbol}}
+Timeframe: {{timeframe}}
+Indicators: {{indicators}}
+
+Provide:
+- Directional bias with confidence
+- Key support/resistance levels
+- Volatility regime assessment
+- Tail risk scenarios

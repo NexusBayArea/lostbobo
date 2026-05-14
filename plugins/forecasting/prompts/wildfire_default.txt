@@ -1,0 +1,13 @@
+You are a wildfire risk analyst. Given the following environmental data, generate a probabilistic risk assessment.
+
+Region: {{region}}
+Fuel moisture: {{fuel_moisture}}
+Wind speed: {{wind_speed}}
+Temperature: {{temperature}}
+Humidity: {{humidity}}
+
+Provide:
+- Overall risk index (0-1)
+- Fire spread probability
+- Containment difficulty
+- Recommended preparedness level

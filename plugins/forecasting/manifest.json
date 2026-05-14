@@ -1,0 +1,46 @@
+{
+  "name": "forecasting",
+  "version": "1.0.0",
+  "description": "Domain-specific forecasting models (weather, EV, market, wildfire, capacity).",
+  "sdk_version_min": "1.0.0",
+  "capabilities": [
+    "forecast.generate",
+    "forecast.calibrate",
+    "forecast.generate_prompt",
+    "forecast.capacity"
+  ],
+  "dag_nodes": [],
+  "isolation_tier": "kata",
+  "resource_quota": {
+    "cpu_cores": 4.0,
+    "memory_mb": 8192,
+    "gpu_profile": "shared-small",
+    "execution_timeout_seconds": 1800
+  },
+  "permissions": {
+    "syscalls": [
+      {"name": "memory.read"},
+      {"name": "memory.write"},
+      {"name": "state.read"},
+      {"name": "lineage.record"},
+      {"name": "event.emit"}
+    ],
+    "network_egress": [
+      {"host": "api.weather.gov", "port": 443, "protocol": "https"},
+      {"host": "*.eia.gov", "port": 443, "protocol": "https"}
+    ],
+    "secrets": [
+      {"secret_path": "/plugins/forecasting/weather-api-key", "readonly": true}
+    ]
+  },
+  "memory_contract": {
+    "tiers": ["episodic", "semantic"],
+    "namespaces": ["forecasting.*"],
+    "ttl_seconds": 86400
+  },
+  "lineage_contract": {
+    "record_inputs": true,
+    "record_outputs": true,
+    "replay_supported": false
+  }
+}
