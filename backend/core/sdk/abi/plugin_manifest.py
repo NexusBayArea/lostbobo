@@ -1,8 +1,10 @@
 from __future__ import annotations
+
 from enum import Enum
-from typing import Dict, Optional, Any, List
-from pydantic import BaseModel, Field, field_validator
+from typing import Any
+
 from packaging.version import Version
+from pydantic import BaseModel, Field, field_validator
 
 
 class IsolationTier(str, Enum):
@@ -29,7 +31,7 @@ class ResourceQuota(BaseModel):
     cpu_cores: float = Field(default=1.0, ge=0.1, le=64.0)
     memory_mb: int = Field(default=512, ge=64, le=1048576)
     gpu_profile: GPUProfile = Field(default=GPUProfile.NONE)
-    gpu_memory_mb: Optional[int] = Field(default=None, ge=128)
+    gpu_memory_mb: int | None = Field(default=None, ge=128)
     storage_mb: int = Field(default=1024, ge=0)
     max_concurrent_executions: int = Field(default=10, ge=1)
     execution_timeout_seconds: int = Field(default=3600, ge=1)
@@ -59,7 +61,7 @@ class PluginPassport(BaseModel):
 
 class SyscallPermission(BaseModel):
     name: str
-    args_constraints: Optional[Dict[str, Any]] = None
+    args_constraints: dict[str, Any] | None = None
 
 
 class NetworkEgressRule(BaseModel):
@@ -74,42 +76,42 @@ class SecretScope(BaseModel):
 
 
 class PluginPermissions(BaseModel):
-    syscalls: List[SyscallPermission] = Field(default_factory=list)
-    network_egress: List[NetworkEgressRule] = Field(default_factory=list)
-    secrets: List[SecretScope] = Field(default_factory=list)
-    capabilities_delegate: List[str] = Field(default_factory=list)
+    syscalls: list[SyscallPermission] = Field(default_factory=list)
+    network_egress: list[NetworkEgressRule] = Field(default_factory=list)
+    secrets: list[SecretScope] = Field(default_factory=list)
+    capabilities_delegate: list[str] = Field(default_factory=list)
 
 
 class DAGNodeDeclaration(BaseModel):
     node_type: str
     version: str = "1.0.0"
-    input_schema: Dict[str, Any] = Field(default_factory=dict)
-    output_schema: Dict[str, Any] = Field(default_factory=dict)
+    input_schema: dict[str, Any] = Field(default_factory=dict)
+    output_schema: dict[str, Any] = Field(default_factory=dict)
     deterministic: bool = True
     idempotent: bool = True
     max_retries: int = 0
     timeout_seconds: int = 300
-    required_capabilities: List[str] = Field(default_factory=list)
+    required_capabilities: list[str] = Field(default_factory=list)
 
 
 class EventSubscription(BaseModel):
     event_type: str
-    filter_expression: Optional[str] = None
+    filter_expression: str | None = None
     priority: int = 0
 
 
 class EventEmission(BaseModel):
     event_type: str
     schema_version: str = "1.0.0"
-    payload_schema: Dict[str, Any] = Field(default_factory=dict)
+    payload_schema: dict[str, Any] = Field(default_factory=dict)
 
 
 class MemoryAccessContract(BaseModel):
-    tiers: List[str] = Field(default_factory=list)
-    namespaces: List[str] = Field(default_factory=list)
+    tiers: list[str] = Field(default_factory=list)
+    namespaces: list[str] = Field(default_factory=list)
     read_only: bool = False
-    ttl_seconds: Optional[int] = None
-    confidence_threshold: Optional[float] = Field(default=None, ge=0.0, le=1.0)
+    ttl_seconds: int | None = None
+    confidence_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
 class LineageContract(BaseModel):
@@ -127,31 +129,31 @@ class PluginManifest(BaseModel):
 
     author: str = ""
     author_email: str = ""
-    signature: Optional[str] = None
-    public_key_fingerprint: Optional[str] = None
+    signature: str | None = None
+    public_key_fingerprint: str | None = None
 
     sdk_version_min: str = "1.0.0"
-    sdk_version_max: Optional[str] = None
+    sdk_version_max: str | None = None
 
-    capabilities: List[str] = Field(default_factory=list)
-    dag_nodes: List[DAGNodeDeclaration] = Field(default_factory=list)
+    capabilities: list[str] = Field(default_factory=list)
+    dag_nodes: list[DAGNodeDeclaration] = Field(default_factory=list)
 
     isolation_tier: IsolationTier = IsolationTier.PROCESS
     resource_quota: ResourceQuota = Field(default_factory=ResourceQuota)
     permissions: PluginPermissions = Field(default_factory=PluginPermissions)
 
-    subscribes_to: List[EventSubscription] = Field(default_factory=list)
-    emits: List[EventEmission] = Field(default_factory=list)
+    subscribes_to: list[EventSubscription] = Field(default_factory=list)
+    emits: list[EventEmission] = Field(default_factory=list)
 
     memory_contract: MemoryAccessContract = Field(default_factory=MemoryAccessContract)
     lineage_contract: LineageContract = Field(default_factory=LineageContract)
 
     auto_start: bool = False
     restart_policy: str = "never"
-    health_check_endpoint: Optional[str] = None
+    health_check_endpoint: str | None = None
 
-    depends_on_plugins: List[str] = Field(default_factory=list)
-    depends_on_capabilities: List[str] = Field(default_factory=list)
+    depends_on_plugins: list[str] = Field(default_factory=list)
+    depends_on_capabilities: list[str] = Field(default_factory=list)
 
     @field_validator("version")
     @classmethod

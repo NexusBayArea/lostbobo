@@ -3,16 +3,14 @@ from __future__ import annotations
 import importlib
 import json
 from pathlib import Path
-from typing import Dict, Optional
-from collections.abc import Awaitable, Callable
 
-from backend.core.sdk.abi.plugin_manifest import PluginManifest
 from backend.core.sdk.abi.lifecycle import PluginState
 from backend.core.sdk.abi.permissions import PermissionSet, Syscall
-from backend.core.sdk.runtime.plugin_context import PluginContext
+from backend.core.sdk.abi.plugin_manifest import PluginManifest
 from backend.core.sdk.registries.capability_registry import CapabilityRegistry
 from backend.core.sdk.registries.dag_registry import DAGNodeRegistry
 from backend.core.sdk.registries.plugin_registry import PluginRegistry
+from backend.core.sdk.runtime.plugin_context import PluginContext
 
 
 class PluginBootstrapper:
@@ -25,7 +23,7 @@ class PluginBootstrapper:
         self.capability_registry = capability_registry
         self.dag_registry = dag_registry
         self.plugin_registry = plugin_registry
-        self.contexts: Dict[str, PluginContext] = {}
+        self.contexts: dict[str, PluginContext] = {}
 
     async def discover_and_load(self, plugins_path: str | None = None) -> list[PluginContext]:
         if plugins_path is None:
@@ -76,10 +74,8 @@ class PluginBootstrapper:
 
         return ctx
 
-    def _validate_sdk_compatibility(self, manifest: PluginManifest) -> None:
-        from backend.core.sdk import SDK_VERSION
-
-        sdk = SDK_VERSION
+    def _validate_sdk_compatibility(self, manifest: PluginManifest) -> None:  # noqa: ARG002
+        pass
 
     async def _discover_manifests(self, plugins_path: str) -> list[PluginManifest]:
         manifests = []

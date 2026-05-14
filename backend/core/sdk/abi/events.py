@@ -1,23 +1,25 @@
 from __future__ import annotations
+
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Dict, Any, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
-from datetime import datetime, timezone
 
 
 class Event(BaseModel):
     event_type: str
     source: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    payload: Dict[str, Any] = Field(default_factory=dict)
-    correlation_id: Optional[str] = None
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    payload: dict[str, Any] = Field(default_factory=dict)
+    correlation_id: str | None = None
     tenant_id: str = "system"
 
 
 class EventFilter(BaseModel):
-    event_type: Optional[str] = None
-    source: Optional[str] = None
-    correlation_id: Optional[str] = None
+    event_type: str | None = None
+    source: str | None = None
+    correlation_id: str | None = None
 
 
 class EventDeliveryGuarantee(str, Enum):

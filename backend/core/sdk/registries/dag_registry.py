@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from collections.abc import Awaitable
+from typing import Any
 
 
-class DAGNodeAlreadyRegistered(Exception):
+class DAGNodeAlreadyRegisteredError(Exception):
     pass
 
 
-class DAGNodeNotFound(Exception):
+class DAGNodeNotFoundError(Exception):
     pass
 
 
@@ -22,8 +22,8 @@ class DAGNodeEntry:
     executor: NodeExecutor
     plugin_name: str
     version: str = "1.0.0"
-    input_schema: Dict[str, Any] = field(default_factory=dict)
-    output_schema: Dict[str, Any] = field(default_factory=dict)
+    input_schema: dict[str, Any] = field(default_factory=dict)
+    output_schema: dict[str, Any] = field(default_factory=dict)
     deterministic: bool = True
     idempotent: bool = True
     max_retries: int = 0
@@ -32,7 +32,7 @@ class DAGNodeEntry:
 
 class DAGNodeRegistry:
     def __init__(self):
-        self._nodes: Dict[str, DAGNodeEntry] = {}
+        self._nodes: dict[str, DAGNodeEntry] = {}
 
     def register_node(
         self,
@@ -40,15 +40,15 @@ class DAGNodeRegistry:
         executor: NodeExecutor,
         plugin_name: str,
         version: str = "1.0.0",
-        input_schema: Dict | None = None,
-        output_schema: Dict | None = None,
+        input_schema: dict | None = None,
+        output_schema: dict | None = None,
         deterministic: bool = True,
         idempotent: bool = True,
         max_retries: int = 0,
         timeout_seconds: int = 300,
     ) -> None:
         if node_type in self._nodes:
-            raise DAGNodeAlreadyRegistered(
+            raise DAGNodeAlreadyRegisteredError(
                 f"DAG node '{node_type}' already registered by '{self._nodes[node_type].plugin_name}'"
             )
         self._nodes[node_type] = DAGNodeEntry(
@@ -70,14 +70,14 @@ class DAGNodeRegistry:
     def get_node(self, node_type: str) -> DAGNodeEntry:
         entry = self._nodes.get(node_type)
         if not entry:
-            raise DAGNodeNotFound(f"DAG node '{node_type}' not registered")
+            raise DAGNodeNotFoundError(f"DAG node '{node_type}' not registered")
         return entry
 
-    def get_executor(self, node_type: str) -> Optional[NodeExecutor]:
+    def get_executor(self, node_type: str) -> NodeExecutor | None:
         entry = self._nodes.get(node_type)
         return entry.executor if entry else None
 
-    async def execute_node(self, node_type: str, inputs: Dict[str, Any]) -> Any:
+    async def execute_node(self, node_type: str, inputs: dict[str, Any]) -> Any:
         entry = self.get_node(node_type)
         return await entry.executor(inputs)
 

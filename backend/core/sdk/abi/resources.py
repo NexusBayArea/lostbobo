@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional
+
 from pydantic import BaseModel, Field
 
 from backend.core.sdk.abi.plugin_manifest import GPUProfile
@@ -14,7 +14,7 @@ class GPUAllocation(BaseModel):
 
 class CPUAllocation(BaseModel):
     cores: float = Field(default=1.0, ge=0.1)
-    numa_node: Optional[int] = None
+    numa_node: int | None = None
 
 
 class MemoryAllocation(BaseModel):
@@ -31,5 +31,5 @@ class StorageAllocation(BaseModel):
 class ResourceAllocation(BaseModel):
     cpu: CPUAllocation = Field(default_factory=CPUAllocation)
     memory: MemoryAllocation = Field(default_factory=MemoryAllocation)
-    gpu: Optional[GPUAllocation] = None
+    gpu: GPUAllocation | None = None
     storage: StorageAllocation = Field(default_factory=StorageAllocation)

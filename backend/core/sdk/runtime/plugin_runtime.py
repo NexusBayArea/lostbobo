@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from backend.core.sdk.runtime.plugin_context import PluginContext
 from backend.core.sdk.registries.capability_registry import CapabilityRegistry
 from backend.core.sdk.registries.dag_registry import DAGNodeRegistry
 from backend.core.sdk.registries.plugin_registry import PluginRegistry
+from backend.core.sdk.runtime.plugin_context import PluginContext
 
 
 class PluginRuntime:

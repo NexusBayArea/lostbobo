@@ -1,11 +1,10 @@
 from __future__ import annotations
-from typing import Dict
+
 from dataclasses import dataclass, field
 
 from backend.core.sdk.abi.plugin_manifest import IsolationTier
 
-
-ISOLATION_REQUIREMENTS: Dict[IsolationTier, list[str]] = {
+ISOLATION_REQUIREMENTS: dict[IsolationTier, list[str]] = {
     IsolationTier.PROCESS: ["inprocess"],
     IsolationTier.THREAD: ["threadsafe"],
     IsolationTier.CONTAINER: ["container_runtime"],
@@ -24,7 +23,7 @@ class IsolationEnforcement:
     permitted_capabilities: list[str] = field(default_factory=list)
 
     @classmethod
-    def for_tier(cls, tier: IsolationTier) -> "IsolationEnforcement":
+    def for_tier(cls, tier: IsolationTier) -> IsolationEnforcement:
         base = cls(tier=tier)
         if tier == IsolationTier.PROCESS:
             base.requires_sandbox = False

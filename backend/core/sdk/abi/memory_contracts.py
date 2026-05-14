@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional, List
+
 from pydantic import BaseModel, Field
 
 
@@ -9,13 +9,13 @@ class MemoryAccessPolicy(BaseModel):
     read_allowed: bool = False
     write_allowed: bool = False
     evict_allowed: bool = False
-    ttl_seconds: Optional[int] = None
-    confidence_threshold: Optional[float] = Field(default=None, ge=0.0, le=1.0)
+    ttl_seconds: int | None = None
+    confidence_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
 
 
 class MemoryFabricAccess(BaseModel):
-    policies: List[MemoryAccessPolicy] = Field(default_factory=list)
-    default_ttl_seconds: Optional[int] = None
+    policies: list[MemoryAccessPolicy] = Field(default_factory=list)
+    default_ttl_seconds: int | None = None
     max_namespaces: int = 10
 
 
@@ -28,5 +28,5 @@ class MemoryKey(BaseModel):
 class MemoryEntry(BaseModel):
     key: MemoryKey
     value: bytes
-    ttl_seconds: Optional[int] = None
+    ttl_seconds: int | None = None
     plugin_source: str = ""

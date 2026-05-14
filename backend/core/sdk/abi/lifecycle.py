@@ -1,8 +1,9 @@
 from __future__ import annotations
-from enum import Enum
-from typing import Optional, Dict, Any
+
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from enum import Enum
+from typing import Any
 
 
 class PluginState(str, Enum):
@@ -16,7 +17,7 @@ class PluginState(str, Enum):
     FAILED = "failed"
 
 
-VALID_TRANSITIONS: Dict[PluginState, set[PluginState]] = {
+VALID_TRANSITIONS: dict[PluginState, set[PluginState]] = {
     PluginState.REGISTERED: {PluginState.INITIALIZING, PluginState.TERMINATED},
     PluginState.INITIALIZING: {PluginState.RUNNING, PluginState.FAILED},
     PluginState.RUNNING: {PluginState.PAUSED, PluginState.DEGRADED, PluginState.TERMINATING, PluginState.FAILED},
@@ -31,12 +32,12 @@ VALID_TRANSITIONS: Dict[PluginState, set[PluginState]] = {
 @dataclass
 class LifecycleEvent:
     state: PluginState
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    reason: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
+    reason: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
-class InvalidLifecycleTransition(Exception):
+class InvalidLifecycleTransitionError(Exception):
     pass
 
 
@@ -53,10 +54,10 @@ class LifecycleManager:
         self,
         target: PluginState,
         reason: str | None = None,
-        metadata: Dict | None = None,
+        metadata: dict | None = None,
     ) -> LifecycleEvent:
         if not self.can_transition(target):
-            raise InvalidLifecycleTransition(
+            raise InvalidLifecycleTransitionError(
                 f"Cannot transition {self.plugin_name} from {self.current_state} to {target}"
             )
         self.current_state = target

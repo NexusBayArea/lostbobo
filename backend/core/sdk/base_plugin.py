@@ -17,10 +17,13 @@ class BasePlugin(ABC):
         return True
 
     async def shutdown(self) -> None:
-        pass
+        """Override to clean up resources on shutdown."""
+        return None
 
     async def pre_boot(self, context: PluginContext) -> None:
-        pass
+        """Override to run logic before plugin registration."""
+        return None
 
     async def post_boot(self, context: PluginContext) -> None:
-        pass
+        """Override to run logic after plugin registration."""
+        return None

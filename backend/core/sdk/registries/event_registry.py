@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, List, Optional
-from dataclasses import dataclass, field
-from collections.abc import Awaitable
+from collections.abc import Awaitable, Callable
+from dataclasses import dataclass
+from typing import Any
 
 EventHandler = Callable[[dict], Awaitable[None]]
 
 
-class EventAlreadyRegistered(Exception):
+class EventAlreadyRegisteredError(Exception):
     pass
 
 
-class EventNotRegistered(Exception):
+class EventNotRegisteredError(Exception):
     pass
 
 
@@ -20,20 +20,20 @@ class EventHandlerEntry:
     event_type: str
     handler: EventHandler
     plugin_name: str
-    filter_expression: Optional[str] = None
+    filter_expression: str | None = None
     priority: int = 0
 
 
 class EventRegistry:
     def __init__(self):
-        self._handlers: Dict[str, List[EventHandlerEntry]] = {}
+        self._handlers: dict[str, list[EventHandlerEntry]] = {}
 
     def subscribe(
         self,
         event_type: str,
         handler: EventHandler,
         plugin_name: str,
-        filter_expression: Optional[str] = None,
+        filter_expression: str | None = None,
         priority: int = 0,
     ) -> None:
         if event_type not in self._handlers:
@@ -53,15 +53,15 @@ class EventRegistry:
         handlers = self._handlers.get(event_type, [])
         self._handlers[event_type] = [h for h in handlers if h.plugin_name != plugin_name]
 
-    def get_handlers(self, event_type: str) -> List[EventHandlerEntry]:
+    def get_handlers(self, event_type: str) -> list[EventHandlerEntry]:
         return self._handlers.get(event_type, [])
 
-    async def dispatch(self, event_type: str, payload: Dict[str, Any]) -> None:
+    async def dispatch(self, event_type: str, payload: dict[str, Any]) -> None:
         handlers = self.get_handlers(event_type)
         for entry in handlers:
             await entry.handler(payload)
 
-    def list_subscribed_events(self, plugin_name: str) -> List[str]:
+    def list_subscribed_events(self, plugin_name: str) -> list[str]:
         return [
             event_type
             for event_type, handlers in self._handlers.items()
@@ -70,5 +70,5 @@ class EventRegistry:
         ]
 
     @property
-    def registered_events(self) -> List[str]:
+    def registered_events(self) -> list[str]:
         return list(self._handlers.keys())

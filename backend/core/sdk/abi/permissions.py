@@ -1,7 +1,8 @@
 from __future__ import annotations
-from enum import Enum
-from typing import Set, Dict, Any
+
 from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any
 
 
 class Syscall(str, Enum):
@@ -29,13 +30,13 @@ class Syscall(str, Enum):
 
 @dataclass(frozen=True)
 class PermissionSet:
-    allowed_syscalls: Set[Syscall] = field(default_factory=set)
-    syscall_constraints: Dict[Syscall, Dict[str, Any]] = field(default_factory=dict)
+    allowed_syscalls: set[Syscall] = field(default_factory=set)
+    syscall_constraints: dict[Syscall, dict[str, Any]] = field(default_factory=dict)
     network_rules: list = field(default_factory=list)
     secret_scopes: list = field(default_factory=list)
-    delegated_capabilities: Set[str] = field(default_factory=set)
+    delegated_capabilities: set[str] = field(default_factory=set)
 
-    def check_syscall(self, syscall: Syscall, args: Dict[str, Any] | None = None) -> bool:
+    def check_syscall(self, syscall: Syscall, args: dict[str, Any] | None = None) -> bool:
         if syscall not in self.allowed_syscalls:
             return False
         if syscall in self.syscall_constraints:
@@ -45,7 +46,7 @@ class PermissionSet:
         return True
 
     @staticmethod
-    def _validate_constraints(args: Dict, constraints: Dict) -> bool:
+    def _validate_constraints(args: dict, constraints: dict) -> bool:
         for key, allowed in constraints.items():
             if key in args and args[key] != allowed:
                 return False

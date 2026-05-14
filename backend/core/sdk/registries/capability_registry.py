@@ -1,20 +1,20 @@
 from __future__ import annotations
 
+import asyncio
 from collections import defaultdict
 from collections.abc import Awaitable, Callable
-from typing import Any, Dict, Optional
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-import asyncio
+from datetime import UTC, datetime
+from typing import Any
 
 CapabilityHandler = Callable[[dict], Awaitable[Any]]
 
 
-class CapabilityAlreadyRegistered(Exception):
+class CapabilityAlreadyRegisteredError(Exception):
     pass
 
 
-class CapabilityNotFound(Exception):
+class CapabilityNotFoundError(Exception):
     pass
 
 
@@ -31,14 +31,14 @@ class CapabilityEntry:
     deterministic: bool = False
     timeout_seconds: int = 300
     invocation_count: int = 0
-    last_invoked: Optional[datetime] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    last_invoked: datetime | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class CapabilityRegistry:
     def __init__(self):
-        self._handlers: Dict[str, CapabilityEntry] = {}
-        self._graph: Dict[str, set[str]] = defaultdict(set)
+        self._handlers: dict[str, CapabilityEntry] = {}
+        self._graph: dict[str, set[str]] = defaultdict(set)
         self._lock = asyncio.Lock()
 
     def register(
@@ -49,10 +49,10 @@ class CapabilityRegistry:
         version: str = "1.0.0",
         deterministic: bool = False,
         timeout_seconds: int = 300,
-        metadata: Dict | None = None,
+        metadata: dict | None = None,
     ) -> None:
         if capability in self._handlers:
-            raise CapabilityAlreadyRegistered(
+            raise CapabilityAlreadyRegisteredError(
                 f"Capability '{capability}' already registered by '{self._handlers[capability].plugin_name}'"
             )
         self._handlers[capability] = CapabilityEntry(
@@ -74,13 +74,13 @@ class CapabilityRegistry:
     async def invoke(
         self,
         capability: str,
-        payload: Dict[str, Any],
-        timeout_seconds: Optional[int] = None,
-        caller_plugin: Optional[str] = None,
+        payload: dict[str, Any],
+        timeout_seconds: int | None = None,
+        caller_plugin: str | None = None,
     ) -> Any:
         entry = self._handlers.get(capability)
         if not entry:
-            raise CapabilityNotFound(f"Capability '{capability}' not registered")
+            raise CapabilityNotFoundError(f"Capability '{capability}' not registered")
 
         effective_timeout = timeout_seconds or entry.timeout_seconds
 
@@ -90,18 +90,18 @@ class CapabilityRegistry:
                 timeout=effective_timeout,
             )
             entry.invocation_count += 1
-            entry.last_invoked = datetime.now(timezone.utc)
+            entry.last_invoked = datetime.now(UTC)
             return result
-        except asyncio.TimeoutError:
-            raise CapabilityTimeoutError(f"Capability '{capability}' timed out after {effective_timeout}s")
+        except TimeoutError:
+            raise CapabilityTimeoutError(f"Capability '{capability}' timed out after {effective_timeout}s") from None
 
-    def get_entry(self, capability: str) -> Optional[CapabilityEntry]:
+    def get_entry(self, capability: str) -> CapabilityEntry | None:
         return self._handlers.get(capability)
 
     def add_dependency(self, source: str, target: str) -> None:
         self._graph[source].add(target)
 
-    def capability_graph(self) -> Dict[str, set[str]]:
+    def capability_graph(self) -> dict[str, set[str]]:
         return dict(self._graph)
 
     @property

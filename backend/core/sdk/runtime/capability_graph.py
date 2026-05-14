@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from typing import Dict, Set, List, Optional
 from collections import defaultdict
 
 
 class CapabilityGraph:
     def __init__(self):
-        self._edges: Dict[str, Set[str]] = defaultdict(set)
-        self._reverse_edges: Dict[str, Set[str]] = defaultdict(set)
+        self._edges: dict[str, set[str]] = defaultdict(set)
+        self._reverse_edges: dict[str, set[str]] = defaultdict(set)
 
     def add_dependency(self, source: str, target: str) -> None:
         self._edges[source].add(target)
@@ -25,15 +24,15 @@ class CapabilityGraph:
         self._edges.pop(plugin_name, None)
         self._reverse_edges.pop(plugin_name, None)
 
-    def dependencies_of(self, plugin: str) -> Set[str]:
+    def dependencies_of(self, plugin: str) -> set[str]:
         return self._edges.get(plugin, set()).copy()
 
-    def dependents_of(self, plugin: str) -> Set[str]:
+    def dependents_of(self, plugin: str) -> set[str]:
         return self._reverse_edges.get(plugin, set()).copy()
 
     def has_cycle(self) -> bool:
-        visited: Set[str] = set()
-        recursion_stack: Set[str] = set()
+        visited: set[str] = set()
+        recursion_stack: set[str] = set()
 
         def dfs(node: str) -> bool:
             visited.add(node)
@@ -53,11 +52,11 @@ class CapabilityGraph:
                     return True
         return False
 
-    def topological_sort(self) -> List[str]:
+    def topological_sort(self) -> list[str]:
         if self.has_cycle():
             raise ValueError("Cannot topological sort: graph contains a cycle")
 
-        in_degree: Dict[str, int] = defaultdict(int)
+        in_degree: dict[str, int] = defaultdict(int)
         for node, deps in self._edges.items():
             if node not in in_degree:
                 in_degree[node] = 0
@@ -78,7 +77,7 @@ class CapabilityGraph:
         return result
 
     @property
-    def nodes(self) -> List[str]:
+    def nodes(self) -> list[str]:
         return list(set(list(self._edges.keys()) + list(self._reverse_edges.keys())))
 
     @property
