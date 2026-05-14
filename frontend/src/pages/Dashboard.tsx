@@ -440,7 +440,7 @@ export function Dashboard() {
                 numRuns={numRuns}
                 samplingMethod={samplingMethod}
                 activeParams={parameters.filter(p => p.perturbable).length}
-                remainingRuns={usage?.remaining ?? 0}
+                userBalance={usage?.remaining ?? 0}
               />
               {isRunning && (
                 <motion.div
