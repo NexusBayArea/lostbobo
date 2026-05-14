@@ -13,33 +13,51 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        plugin: [gpu-monitor, lineage-collector, provenance-storage]
+        plugin-dir:
+          - backend/plugins/engineering
+          - backend/plugins/forecasting
+          - backend/plugins/materials
+          - backend/plugins/physics
+          - backend/plugins/quantum
+          - backend/plugins/science
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check if plugin has Cargo.toml (WASM build)
+        id: check
+        run: |
+          if [ -f "${{ matrix.plugin-dir }}/Cargo.toml" ]; then
+            echo "has_cargo=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_cargo=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Set up Rust
+        if: steps.check.outputs.has_cargo == 'true'
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-wasip2
 
       - name: Build Swivel-enhanced WASM
+        if: steps.check.outputs.has_cargo == 'true'
         run: |
-          cd backend/plugins/${{ matrix.plugin }}
+          cd ${{ matrix.plugin-dir }}
           cargo build --target wasm32-wasip2 --release --features swivel
 
       - name: Build Kata container image
+        if: steps.check.outputs.has_cargo == 'true'
         uses: docker/build-push-action@v6
         with:
-          context: ./backend/plugins/${{ matrix.plugin }}
-          file: ./backend/plugins/${{ matrix.plugin }}/Dockerfile.kata
+          context: ${{ matrix.plugin-dir }}
+          file: ${{ matrix.plugin-dir }}/Dockerfile.kata
           push: false
-          tags: ghcr.io/simhpc/plugin-${{ matrix.plugin }}:sha-${{ github.sha }}
+          tags: ghcr.io/simhpc/plugin-$(basename ${{ matrix.plugin-dir }}):sha-${{ github.sha }}
           build-args: |
             RUNTIME_CLASS=kata-optimized
 
       - name: Run security scan
         run: |
-          echo "Plugin security scan completed for ${{ matrix.plugin }}"
+          echo "Plugin security scan completed for $(basename ${{ matrix.plugin-dir }})"
 
   audit:
     runs-on: ubuntu-24.04
