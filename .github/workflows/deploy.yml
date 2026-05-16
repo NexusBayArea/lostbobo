@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          dockerfile: services/${{ matrix.service }}/Dockerfile
+          file: services/${{ matrix.service }}/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository_owner }}/simhpc-${{ matrix.service }}:${{ env.RUNTIME_VERSION }}
