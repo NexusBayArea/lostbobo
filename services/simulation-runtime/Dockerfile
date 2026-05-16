@@ -7,10 +7,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY services/simulation-runtime/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY services/simulation-runtime/ .
+COPY services/proto/ services/proto/
 
 EXPOSE 50053
 
