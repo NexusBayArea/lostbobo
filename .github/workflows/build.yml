@@ -76,23 +76,33 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: production
 
     steps:
+      - name: Check secrets presence
+        id: check_secrets
+        run: |
+          if [ -z "$HOST" ] || [ -z "$SSH_KEY" ]; then
+            echo "VPS secrets not configured – skipping deploy."
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          HOST: ${{ secrets.DROP_PUBLIC_IPV4 }}
+          SSH_KEY: ${{ secrets.DROP_SSH_KEY }}
+
       - name: Deploy to VPS
+        if: steps.check_secrets.outputs.skip == 'false'
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER || 'root' }}
-          key: ${{ secrets.VPS_SSH_KEY }}
+          host: ${{ secrets.DROP_PUBLIC_IPV4 }}
+          username: ${{ secrets.DROP_LOG_IN || 'root' }}
+          key: ${{ secrets.DROP_SSH_KEY }}
           script: |
-            export INFISICAL_CLIENT_ID="${{ secrets.INFISICAL_CLIENT_ID }}"
-            export INFISICAL_CLIENT_SECRET="${{ secrets.INFISICAL_CLIENT_SECRET }}"
-            export INFISICAL_PROJECT_ID="${{ secrets.INFISICAL_PROJECT_ID }}"
-            export INFISICAL_ENV="production"
-            cd /mnt/simhpc_vps/simhpc-gamma
+            cd ~/simhpc-gamma
             git pull origin main
             docker compose -f deployment/docker-compose.yml pull
             docker compose -f deployment/docker-compose.yml up -d --remove-orphans
-            bash deployment/scripts/validate-cpu.sh
+            bash deployment/scripts/health-check.sh
