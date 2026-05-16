@@ -44,8 +44,6 @@ else
     echo "WARNING: Could not obtain auth token. Skipping authenticated checks."
 fi
 
-check "Ollama unavailable" sh -c '! curl -s http://localhost:11434/api/tags --max-time 2 > /dev/null 2>&1'
-
 if [ "$FAILED" -eq 0 ]; then
     echo ""
     echo "=== All checks passed ==="

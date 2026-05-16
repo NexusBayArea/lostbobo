@@ -1,5 +1,5 @@
 probes:
-  kernel:
+  gateway:
     liveness:
       httpGet:
         path: /health
@@ -31,35 +31,20 @@ probes:
       initialDelaySeconds: 30
       periodSeconds: 10
 
-  gpu-worker:
+  module-runtime:
     liveness:
       exec:
         command:
           - python
           - -c
-          - "import grpc; ch = grpc.insecure_channel('localhost:50053'); grpc.channel_ready_future(ch).result(timeout=5)"
-      initialDelaySeconds: 60
+          - "import grpc; ch = grpc.insecure_channel('localhost:50052'); grpc.channel_ready_future(ch).result(timeout=5)"
+      initialDelaySeconds: 30
       periodSeconds: 30
     readiness:
       exec:
         command:
           - python
           - -c
-          - "import grpc; ch = grpc.insecure_channel('localhost:50053'); grpc.channel_ready_future(ch).result(timeout=2)"
-      initialDelaySeconds: 30
+          - "import grpc; ch = grpc.insecure_channel('localhost:50052'); grpc.channel_ready_future(ch).result(timeout=2)"
+      initialDelaySeconds: 15
       periodSeconds: 10
-
-  redis:
-    liveness:
-      tcpSocket:
-        port: 6379
-      initialDelaySeconds: 5
-      periodSeconds: 10
-
-  ollama:
-    liveness:
-      httpGet:
-        path: /api/tags
-        port: 11434
-      initialDelaySeconds: 120
-      periodSeconds: 30

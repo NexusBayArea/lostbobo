@@ -5,7 +5,7 @@ global:
 scrape_configs:
   - job_name: "gateway"
     static_configs:
-      - targets: ["gateway-service:8080"]
+      - targets: ["gateway:8080"]
     metrics_path: "/metrics"
 
   - job_name: "rag-service"
@@ -16,9 +16,4 @@ scrape_configs:
   - job_name: "module-runtime"
     static_configs:
       - targets: ["module-runtime:50052"]
-    metrics_path: "/metrics"
-
-  - job_name: "worker-service"
-    static_configs:
-      - targets: ["worker-service:8000"]
     metrics_path: "/metrics"

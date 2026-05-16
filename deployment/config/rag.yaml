@@ -3,11 +3,11 @@ rag_service:
   port: 50051
   log_level: "INFO"
 
-ollama:
-  host: "http://ollama:11434"
-  embedding_model: "nomic-embed-text:v2-moe"
-  generation_model: "gemma:2b"
-  timeout_seconds: 60
+deepseek:
+  model: "deepseek-chat"
+  embedding_model: "text-embedding-ada-002"
+  base_url: "https://api.deepseek.com/v1"
+  timeout_seconds: 120
 
 vector_store:
   provider: "supabase"
@@ -23,4 +23,4 @@ graph_rag:
 agentic_rag:
   enabled: true
   max_steps: 3
-  reflection_model: "gemma:2b"
+  reflection_model: "deepseek-chat"
